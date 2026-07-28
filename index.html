@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资料下载</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-card: #f7f8fa;
+    --text: #1a1a1a;
+    --text-secondary: #666;
+    --border: #e8e8e8;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -4px rgba(0,0,0,.04);
+    --radius: 12px;
+    --transition: .25s ease;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0f1115;
+    --bg-card: #1a1d24;
+    --text: #e8e8e8;
+    --text-secondary: #9ca3af;
+    --border: #2a2f3a;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --shadow: 0 1px 3px rgba(0,0,0,.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background var(--transition), color var(--transition);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    transition: background var(--transition), border-color var(--transition);
+  }
+
+  .header-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.5px;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text);
+    transition: all var(--transition);
+  }
+  .theme-toggle:hover { border-color: var(--accent); }
+
+  /* Main */
+  .main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+
+  .hero p {
+    font-size: 17px;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Search */
+  .search-bar {
+    max-width: 520px;
+    margin: 0 auto 40px;
+    position: relative;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 14px 20px 14px 48px;
+    font-size: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+
+  .search-bar input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+  }
+
+  .search-bar .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 18px;
+  }
+
+  /* Category Filter */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  .filter-btn {
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-weight: 500;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* File List */
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .file-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all var(--transition);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .file-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+
+  .file-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .file-icon.pdf  { background: #fee2e2; color: #dc2626; }
+  .file-icon.docx { background: #dbeafe; color: #2563eb; }
+  .file-icon.xlsx { background: #d1fae5; color: #059669; }
+  .file-icon.pptx { background: #fef3c7; color: #d97706; }
+  .file-icon.zip  { background: #f3e8ff; color: #7c3aed; }
+  .file-icon.video{ background: #ffedd5; color: #ea580c; }
+  .file-icon.audio{ background: #e0e7ff; color: #4f46e5; }
+  .file-icon.image{ background: #fce7f3; color: #db2777; }
+  .file-icon.file { background: #f1f5f9; color: #475569; }
+
+  [data-theme="dark"] .file-icon.pdf  { background: rgba(220,38,38,.15); }
+  [data-theme="dark"] .file-icon.docx { background: rgba(37,99,235,.15); }
+  [data-theme="dark"] .file-icon.xlsx { background: rgba(5,150,105,.15); }
+  [data-theme="dark"] .file-icon.pptx { background: rgba(217,119,6,.15); }
+  [data-theme="dark"] .file-icon.zip  { background: rgba(124,58,237,.15); }
+  [data-theme="dark"] .file-icon.video{ background: rgba(234,88,12,.15); }
+  [data-theme="dark"] .file-icon.audio{ background: rgba(79,70,229,.15); }
+  [data-theme="dark"] .file-icon.image{ background: rgba(219,39,119,.15); }
+  [data-theme="dark"] .file-icon.file { background: rgba(148,163,184,.12); }
+
+  .file-info { flex: 1; min-width: 0; }
+
+  .file-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .file-meta .dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    opacity: .5;
+  }
+
+  .download-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all var(--transition);
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  .download-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 15px; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 28px; }
+    .hero p { font-size: 15px; }
+    .main { padding: 36px 16px 60px; }
+    .file-card { padding: 14px 16px; gap: 12px; }
+    .file-icon { width: 38px; height: 38px; font-size: 17px; }
+  }
+
+  /* Fade in animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .file-card { animation: fadeIn .35s ease both; }
+  .file-card:nth-child(1) { animation-delay: .03s; }
+  .file-card:nth-child(2) { animation-delay: .06s; }
+  .file-card:nth-child(3) { animation-delay: .09s; }
+  .file-card:nth-child(4) { animation-delay: .12s; }
+  .file-card:nth-child(5) { animation-delay: .15s; }
+  .file-card:nth-child(6) { animation-delay: .18s; }
+  .file-card:nth-child(7) { animation-delay: .21s; }
+  .file-card:nth-child(8) { animation-delay: .24s; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">📦</div>
+      资料库
+    </a>
+    <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="main">
+  <section class="hero">
+    <h1>资料下载中心</h1>
+    <p>精选文档、视频与工具资源，一键获取，免费下载</p>
+  </section>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="搜索文件名、类型或标签…" />
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-cat="all">全部</button>
+    <button class="filter-btn" data-cat="doc">文档</button>
+    <button class="filter-btn" data-cat="video">视频</button>
+    <button class="filter-btn" data-cat="audio">音频</button>
+    <button class="filter-btn" data-cat="archive">压缩包</button>
+    <button class="filter-btn" data-cat="image">图片</button>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list" id="fileList"></div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  © 2026 资料库 · 持续更新中
+</footer>
+
+<script>
+// ========== 数据 ==========
+const files = [
+  //{ name: "2026年度工作报告模板.docx",   size: "2.4 MB",  date: "2026-07-20", cat: "doc",    icon: "docx", ext: "DOCX", url: "#" },
+  //{ name: "项目管理甘特图模板.xlsx",      size: "1.8 MB",  date: "2026-07-18", cat: "doc",    icon: "xlsx", ext: "XLSX", url: "#" },
+  //{ name: "产品发布会演示文稿.pptx",      size: "15.6 MB", date: "2026-07-15", cat: "doc",    icon: "pptx", ext: "PPTX", url: "#" },
+  //{ name: "企业财务分析手册.pdf",         size: "8.2 MB",  date: "2026-07-12", cat: "doc",    icon: "pdf",  ext: "PDF",  url: "#" },
+  //{ name: "设计素材合集（图标+插画）.zip", size: "128 MB",  date: "2026-07-10", cat: "archive",icon: "zip",  ext: "ZIP",  url: "#" },
+  //{ name: "前端开发视频教程.mp4",         size: "512 MB",  date: "2026-07-08", cat: "video",  icon: "video",ext: "MP4",  url: "#" },
+  //{ name: "团队会议录音存档.zip",         size: "64 MB",   date: "2026-07-05", cat: "audio",  icon: "audio",ext: "ZIP",  url: "#" },
+  //{ name: "品牌视觉规范指南.pdf",         size: "24 MB",   date: "2026-07-01", cat: "doc",    icon: "pdf",  ext: "PDF",  url: "#" },
+  //{ name: "高清背景图素材包.zip",         size: "86 MB",   date: "2026-06-28", cat: "image",  icon: "image",ext: "ZIP",  url: "#" },
+  //{ name: "Python数据分析入门教程.pdf",    size: "6.7 MB",  date: "2026-06-25", cat: "doc",    icon: "pdf",  ext: "PDF",  url: "#" },
+  //{ name: "UI组件库源文件.sketch.zip",    size: "42 MB",   date: "2026-06-22", cat: "archive",icon: "zip",  ext: "ZIP",  url: "#" },
+  //{ name: "线上培训课程录像.mp4",         size: "1.2 GB",  date: "2026-06-18", cat: "video",  icon: "video",ext: "MP4",  url: "#" },
+  //========= 以上为范例，在这里添加更多文件数据 ==========
+  { name: "生化知识点.pdf",         size: "168 MB",  date: "2026-07-28", cat: "doc",    icon: "pdf",  ext: "PDF",  url: "https://lmz-1375687844.cos.ap-nanjing.myqcloud.com/%E6%B1%82%E8%87%BB%E7%BA%A2%E7%9A%AE%E4%B9%A6%E7%94%9F%E5%8C%96.pdf" },
+  { name: "ceshi",   size: "2.4 MB",  date: "2026-07-20", cat: "doc",    icon: "docx", ext: "DOCX", url: "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/ceshi.docx" },
+
+
+
+
+
+];
+
+// ========== 渲染 ==========
+const fileListEl = document.getElementById("fileList");
+const searchInput = document.getElementById("searchInput");
+const filterBtns = document.querySelectorAll(".filter-btn");
+
+let currentCat = "all";
+let currentKeyword = "";
+
+function getIconSymbol(icon) {
+  const map = { pdf:"📕", docx:"📘", xlsx:"📗", pptx:"📙", zip:"📦", video:"🎬", audio:"🎵", image:"🖼️", file:"📄" };
+  return map[icon] || "📄";
+}
+
+function render() {
+  const filtered = files.filter(f => {
+    const matchCat = currentCat === "all" || f.cat === currentCat;
+    const matchKw  = !currentKeyword || f.name.toLowerCase().includes(currentKeyword.toLowerCase()) || f.ext.toLowerCase().includes(currentKeyword.toLowerCase());
+    return matchCat && matchKw;
+  });
+
+  if (filtered.length === 0) {
+    fileListEl.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        <p>没有找到匹配的文件，换个关键词试试？</p>
+      </div>`;
+    return;
+  }
+
+  fileListEl.innerHTML = filtered.map(f => `
+    <a class="file-card" href="${f.url}" download>
+      <div class="file-icon ${f.icon}">${getIconSymbol(f.icon)}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-meta">
+          <span>${f.ext}</span>
+          <span class="dot"></span>
+          <span>${f.size}</span>
+          <span class="dot"></span>
+          <span>${f.date}</span>
+        </div>
+      </div>
+      <div class="download-btn" title="下载">⬇️</div>
+    </a>
+  `).join("");
+}
+
+// ========== 搜索 ==========
+searchInput.addEventListener("input", e => {
+  currentKeyword = e.target.value.trim();
+  render();
+});
+
+// ========== 分类筛选 ==========
+filterBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    filterBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentCat = btn.dataset.cat;
+    render();
+  });
+});
+
+// ========== 主题切换 ==========
+const themeToggle = document.getElementById("themeToggle");
+const root = document.documentElement;
+
+// 读取本地存储
+const savedTheme = localStorage.getItem("theme") || "light";
+root.setAttribute("data-theme", savedTheme);
+themeToggle.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+
+themeToggle.addEventListener("click", () => {
+  const isDark = root.getAttribute("data-theme") === "dark";
+  const newTheme = isDark ? "light" : "dark";
+  root.setAttribute("data-theme", newTheme);
+  themeToggle.textContent = newTheme === "dark" ? "☀️" : "🌙";
+  localStorage.setItem("theme", newTheme);
+});
+
+// ========== 初始渲染 ==========
+render();
+</script>
+</body>
+</html>
