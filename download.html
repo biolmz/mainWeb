@@ -1,2224 +1,347 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    <title>资料下载中心 · 文件管理</title>
-
-    <!-- SEO -->
-    <meta name="description" content="生物工程、人工智能学习资料下载中心 - 文档、视频、工具免费下载" />
-    <meta name="keywords" content="资料下载,生物工程,人工智能,学习资料,PDF,视频教程" />
-    <link rel="canonical" href="https://bio2025.site/download.html" />
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="资料下载中心" />
-    <meta property="og:description" content="精选文档、视频与工具资源，一键获取，免费下载" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://bio2025.site/download.html" />
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#2c3e8f" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-    <!-- DNS 预取 -->
-    <link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com" />
-    <link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com" />
-    <link rel="preconnect" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com" crossorigin />
-    <link rel="preconnect" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com" crossorigin />
-
-    <!-- 第三方库 CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js">
-    </script>
-
-    <style>
-        /* ============================================================
-               1. CSS 变量
-               ============================================================ */
-        :root {
-            --bg: #ffffff;
-            --bg-card: #f8f9fc;
-            --bg-hover: #f0f2f5;
-            --bg-nav: rgba(255, 255, 255, 0.92);
-            --bg-modal: rgba(0, 0, 0, 0.6);
-            --bg-toolbar: #f0f2f7;
-
-            --text: #1a1a2e;
-            --text-secondary: #4a4a5a;
-            --text-muted: #7a7a8a;
-
-            --border: #e4e7ed;
-            --border-hover: #b0b8c8;
-
-            --accent: #2c3e8f;
-            --accent-hover: #1a2a6a;
-            --accent-light: rgba(44, 62, 143, 0.08);
-            --accent-dark: #0f1a3a;
-
-            --success: #16a34a;
-            --success-light: rgba(22, 163, 74, 0.12);
-
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.12);
-
-            --radius: 14px;
-            --radius-sm: 10px;
-            --radius-xs: 6px;
-            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-            --font-mono: "SF Mono", "JetBrains Mono", "Cascadia Code", "Consolas", monospace;
-        }
-
-        [data-theme="dark"] {
-            --bg: #0d1117;
-            --bg-card: #161b22;
-            --bg-hover: #1c2333;
-            --bg-nav: rgba(13, 17, 23, 0.92);
-            --bg-modal: rgba(0, 0, 0, 0.75);
-            --bg-toolbar: #1c2333;
-
-            --text: #e6edf3;
-            --text-secondary: #8b949e;
-            --text-muted: #6e7681;
-
-            --border: #30363d;
-            --border-hover: #484f58;
-
-            --accent: #58a6ff;
-            --accent-hover: #79c0ff;
-            --accent-light: rgba(88, 166, 255, 0.12);
-            --accent-dark: #1f3a6a;
-
-            --success: #2ea043;
-            --success-light: rgba(46, 160, 67, 0.15);
-
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
-            --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.6);
-        }
-
-        /* ============================================================
-               2. 重置
-               ============================================================ */
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            transition: background var(--transition), color var(--transition);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-            line-height: 1.7;
-            min-height: 100vh;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: color var(--transition);
-        }
-        a:hover {
-            color: var(--accent-hover);
-        }
-
-        :focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-            border-radius: var(--radius-xs);
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-hover);
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
-        }
-
-        /* ============================================================
-               3. 顶部工具栏
-               ============================================================ */
-        .toolbar {
-            position: sticky;
-            top: 0;
-            z-index: 90;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            background: var(--bg-nav);
-            border-bottom: 1px solid var(--border);
-            padding: 12px 24px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            transition: background var(--transition), border-color var(--transition);
-        }
-
-        .toolbar .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text);
-            letter-spacing: -0.3px;
-        }
-
-        .toolbar .brand svg {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-
-        .toolbar .actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .toolbar .actions button {
-            padding: 6px 14px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-        .toolbar .actions button:hover {
-            border-color: var(--border-hover);
-            color: var(--text);
-            background: var(--bg-hover);
-        }
-
-        .toolbar .actions button.primary {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .toolbar .actions button.primary:hover {
-            background: var(--accent-hover);
-            border-color: var(--accent-hover);
-        }
-
-        .toolbar .actions button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .toolbar .actions .badge-count {
-            font-size: 11px;
-            background: var(--accent);
-            color: #fff;
-            border-radius: 999px;
-            padding: 0 8px;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        .theme-toggle {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-            flex-shrink: 0;
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--border-hover);
-            color: var(--text);
-            background: var(--bg-hover);
-        }
-
-        /* ============================================================
-               4. 主容器
-               ============================================================ */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 24px 80px;
-        }
-
-        /* ============================================================
-               5. 页面头部
-               ============================================================ */
-        .page-header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 0 20px;
-            gap: 12px;
-        }
-
-        .page-header .left h1 {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--text);
-        }
-
-        .page-header .left .subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .page-header .right {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 16px;
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .page-header .right .dot {
-            color: var(--text-muted);
-            opacity: 0.4;
-        }
-
-        .page-header .right .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 4px;
-        }
-
-        .page-header .right .status-dot.online {
-            background: var(--success);
-        }
-        .page-header .right .status-dot.offline {
-            background: #ef4444;
-        }
-
-        /* ============================================================
-               6. 控制栏
-               ============================================================ */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding: 14px 18px;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            transition: background var(--transition), border-color var(--transition);
-        }
-
-        .controls .search-wrap {
-            flex: 1;
-            min-width: 180px;
-            position: relative;
-        }
-
-        .controls .search-wrap input {
-            width: 100%;
-            padding: 8px 14px 8px 38px;
-            border-radius: var(--radius-sm);
-            border: 1.5px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 14px;
-            font-family: inherit;
-            transition: all var(--transition);
-            outline: none;
-        }
-
-        .controls .search-wrap input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-
-        .controls .search-wrap .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            pointer-events: none;
-            font-size: 14px;
-        }
-
-        .controls .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .controls .filter-group button {
-            padding: 5px 14px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 500;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all var(--transition);
-            white-space: nowrap;
-        }
-
-        .controls .filter-group button:hover {
-            border-color: var(--border-hover);
-            color: var(--text);
-            background: var(--bg-hover);
-        }
-
-        .controls .filter-group button.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .controls .filter-group button.active:hover {
-            background: var(--accent-hover);
-            border-color: var(--accent-hover);
-        }
-
-        .controls .stats {
-            font-size: 13px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-            white-space: nowrap;
-        }
-
-        /* ============================================================
-               7. 排序控制
-               ============================================================ */
-        .sort-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 16px;
-            align-items: center;
-            margin-bottom: 16px;
-            padding: 8px 4px;
-        }
-
-        .sort-bar label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .sort-bar select {
-            padding: 4px 12px;
-            border-radius: var(--radius-xs);
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text);
-            font-size: 13px;
-            font-family: inherit;
-            cursor: pointer;
-            outline: none;
-            transition: border-color var(--transition);
-        }
-
-        .sort-bar select:focus {
-            border-color: var(--accent);
-        }
-
-        .sort-bar .view-mode {
-            display: flex;
-            gap: 4px;
-            margin-left: auto;
-        }
-
-        .sort-bar .view-mode button {
-            padding: 4px 10px;
-            border-radius: var(--radius-xs);
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all var(--transition);
-            font-size: 16px;
-        }
-
-        .sort-bar .view-mode button:hover {
-            border-color: var(--border-hover);
-            color: var(--text);
-        }
-
-        .sort-bar .view-mode button.active {
-            background: var(--accent-light);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        /* ============================================================
-               8. 文件列表
-               ============================================================ */
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-height: 200px;
-        }
-
-        .file-list.grid-view {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 12px;
-        }
-
-        /* 骨架屏 */
-        .skeleton-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .skeleton-list.grid-view {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 12px;
-        }
-
-        .skeleton-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 18px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .skeleton-item.grid {
-            flex-direction: column;
-            align-items: stretch;
-            padding: 16px;
-        }
-
-        .skeleton-item .skeleton-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: var(--radius-sm);
-            background: var(--border);
-            flex-shrink: 0;
-        }
-
-        .skeleton-item.grid .skeleton-icon {
-            width: 100%;
-            height: 80px;
-        }
-
-        .skeleton-item .skeleton-line {
-            height: 14px;
-            background: var(--border);
-            border-radius: 4px;
-            flex: 1;
-        }
-
-        .skeleton-item .skeleton-line.short {
-            flex: 0.3;
-        }
-        .skeleton-item .skeleton-line.long {
-            flex: 0.7;
-        }
-
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        /* 文件卡片 */
-        .file-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            transition: all var(--transition);
-            animation: fadeUp 0.3s ease both;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .file-card:hover {
-            border-color: var(--accent);
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .file-card.grid {
-            flex-direction: column;
-            align-items: stretch;
-            padding: 16px;
-        }
-
-        .file-card.grid .file-info .name {
-            white-space: normal;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .file-card .checkbox {
-            flex-shrink: 0;
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            border: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-            cursor: pointer;
-            background: var(--bg);
-        }
-
-        .file-card .checkbox.checked {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-        }
-
-        .file-card .checkbox.checked::after {
-            content: '✓';
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .file-card .file-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 20px;
-        }
-
-        .file-card.grid .file-icon {
-            width: 100%;
-            height: 100px;
-            font-size: 48px;
-            border-radius: var(--radius-sm);
-        }
-
-        .file-card .file-icon.pdf {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-        .file-card .file-icon.docx {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-        .file-card .file-icon.xlsx {
-            background: #d1fae5;
-            color: #059669;
-        }
-        .file-card .file-icon.pptx {
-            background: #fef3c7;
-            color: #d97706;
-        }
-        .file-card .file-icon.zip {
-            background: #f3e8ff;
-            color: #7c3aed;
-        }
-        .file-card .file-icon.video {
-            background: #ffedd5;
-            color: #ea580c;
-        }
-        .file-card .file-icon.audio {
-            background: #e0e7ff;
-            color: #4f46e5;
-        }
-        .file-card .file-icon.image {
-            background: #fce7f3;
-            color: #db2777;
-        }
-        .file-card .file-icon.file {
-            background: var(--border);
-            color: var(--text-muted);
-        }
-
-        [data-theme="dark"] .file-card .file-icon.pdf {
-            background: rgba(220, 38, 38, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.docx {
-            background: rgba(37, 99, 235, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.xlsx {
-            background: rgba(5, 150, 105, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.pptx {
-            background: rgba(217, 119, 6, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.zip {
-            background: rgba(124, 58, 237, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.video {
-            background: rgba(234, 88, 12, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.audio {
-            background: rgba(79, 70, 229, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.image {
-            background: rgba(219, 39, 119, 0.18);
-        }
-        [data-theme="dark"] .file-card .file-icon.file {
-            background: rgba(139, 148, 158, 0.12);
-        }
-
-        .file-card .file-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .file-card .file-info .name {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: color var(--transition);
-        }
-
-        .file-card .file-info .name:hover {
-            color: var(--accent);
-        }
-
-        .file-card .file-info .meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 2px;
-            flex-wrap: wrap;
-        }
-
-        .file-card .file-info .meta .dot {
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            opacity: 0.4;
-        }
-
-        .file-card .file-info .meta .tag-cat {
-            font-size: 10px;
-            padding: 1px 8px;
-            border-radius: 999px;
-            background: var(--accent-light);
-            color: var(--accent);
-            font-weight: 500;
-        }
-
-        .file-card .download-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-            flex-shrink: 0;
-        }
-
-        .file-card .download-btn:hover {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .file-card .download-btn svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* ============================================================
-               9. 分页
-               ============================================================ */
-        .pagination {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            margin-top: 24px;
-            padding: 12px 0;
-        }
-
-        .pagination button {
-            padding: 6px 14px;
-            border-radius: var(--radius-xs);
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .pagination button:hover:not(:disabled) {
-            border-color: var(--border-hover);
-            color: var(--text);
-            background: var(--bg-hover);
-        }
-
-        .pagination button.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .pagination button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .pagination .info {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin: 0 8px;
-        }
-
-        /* ============================================================
-               10. 预览模态框
-               ============================================================ */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-modal);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.25s ease;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg);
-            border-radius: var(--radius);
-            max-width: 90%;
-            max-height: 90%;
-            width: 100%;
-            max-width: 900px;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            position: relative;
-        }
-
-        .modal-content .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .modal-content .modal-header h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-            max-width: 70%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .modal-content .modal-header .close-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: none;
-            background: var(--bg-hover);
-            color: var(--text-secondary);
-            font-size: 18px;
-            cursor: pointer;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content .modal-header .close-btn:hover {
-            background: var(--border);
-            color: var(--text);
-        }
-
-        .modal-content .modal-body {
-            padding: 20px;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-
-        .modal-content .modal-body .preview-pdf {
-            width: 100%;
-            height: 60vh;
-            border: none;
-            border-radius: var(--radius-xs);
-        }
-
-        .modal-content .modal-body .preview-image {
-            max-width: 100%;
-            max-height: 60vh;
-            display: block;
-            margin: 0 auto;
-            border-radius: var(--radius-xs);
-        }
-
-        .modal-content .modal-body .preview-text {
-            white-space: pre-wrap;
-            font-family: var(--font-mono);
-            font-size: 13px;
-            background: var(--bg-card);
-            padding: 16px;
-            border-radius: var(--radius-xs);
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .modal-content .modal-body .preview-unsupported {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-
-        .modal-content .modal-body .preview-unsupported .icon {
-            font-size: 48px;
-            display: block;
-            margin-bottom: 12px;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* ============================================================
-               11. 留言板 (GitHub Issues)
-               ============================================================ */
-        .comments-section {
-            margin-top: 40px;
-            padding: 20px;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-        }
-
-        .comments-section .comments-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .comments-section .comments-header h2 {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .comments-section .comments-header a {
-            font-size: 13px;
-            color: var(--accent);
-        }
-
-        .comments-section .comment-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .comments-section .comment-item:last-child {
-            border-bottom: none;
-        }
-
-        .comments-section .comment-item .author {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text);
-        }
-
-        .comments-section .comment-item .time {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-left: 8px;
-        }
-
-        .comments-section .comment-item .body {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-            word-break: break-word;
-        }
-
-        .comments-section .comment-item .body a {
-            color: var(--accent);
-        }
-
-        /* ============================================================
-               12. 空状态 & 错误
-               ============================================================ */
-        .empty-state,
-        .error-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state .icon,
-        .error-state .icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            display: block;
-        }
-
-        .empty-state h3,
-        .error-state h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: var(--text);
-        }
-
-        .empty-state p,
-        .error-state p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .error-state .retry-btn {
-            margin-top: 16px;
-            padding: 8px 24px;
-            border-radius: 999px;
-            border: 1px solid var(--accent);
-            background: transparent;
-            color: var(--accent);
-            font-size: 14px;
-            font-weight: 500;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .error-state .retry-btn:hover {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        /* ============================================================
-               13. 页脚
-               ============================================================ */
-        .footer {
-            text-align: center;
-            padding: 24px;
-            border-top: 1px solid var(--border);
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 40px;
-        }
-
-        .footer a {
-            color: var(--text-secondary);
-        }
-
-        .footer a:hover {
-            color: var(--text);
-        }
-
-        /* ============================================================
-               14. 动画 & 响应式
-               ============================================================ */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .toolbar {
-                padding: 10px 16px;
-            }
-            .toolbar .brand {
-                font-size: 16px;
-            }
-            .toolbar .actions button {
-                font-size: 12px;
-                padding: 4px 10px;
-            }
-            .container {
-                padding: 12px 12px 60px;
-            }
-            .page-header .left h1 {
-                font-size: 22px;
-            }
-            .page-header .right {
-                font-size: 12px;
-                gap: 10px;
-            }
-            .controls {
-                padding: 10px 12px;
-                flex-direction: column;
-            }
-            .controls .search-wrap {
-                min-width: 100%;
-            }
-            .controls .stats {
-                margin-left: 0;
-                width: 100%;
-                justify-content: flex-start;
-            }
-            .controls .filter-group {
-                width: 100%;
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                padding-bottom: 4px;
-                -webkit-overflow-scrolling: touch;
-            }
-            .controls .filter-group button {
-                flex-shrink: 0;
-                font-size: 11px;
-                padding: 4px 12px;
-            }
-            .sort-bar {
-                flex-wrap: wrap;
-            }
-            .sort-bar .view-mode {
-                margin-left: 0;
-            }
-            .file-list.grid-view {
-                grid-template-columns: 1fr 1fr;
-            }
-            .file-card {
-                padding: 10px 12px;
-                gap: 10px;
-            }
-            .file-card .file-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 17px;
-            }
-            .file-card .file-info .name {
-                font-size: 13px;
-            }
-            .file-card.grid .file-icon {
-                height: 80px;
-                font-size: 36px;
-            }
-            .modal-content {
-                max-width: 98%;
-                max-height: 95%;
-            }
-            .modal-content .modal-body {
-                padding: 12px;
-                max-height: 60vh;
-            }
-            .modal-content .modal-body .preview-pdf {
-                height: 40vh;
-            }
-            .pagination button {
-                padding: 4px 10px;
-                font-size: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .file-list.grid-view {
-                grid-template-columns: 1fr;
-            }
-            .page-header .left h1 {
-                font-size: 20px;
-            }
-            .toolbar .actions .badge-count {
-                font-size: 10px;
-                min-width: 16px;
-            }
-            .comments-section {
-                padding: 12px;
-            }
-        }
-
-        /* ============================================================
-               15. 打印
-               ============================================================ */
-        @media print {
-            .toolbar,
-            .controls,
-            .sort-bar,
-            .pagination,
-            .modal-overlay,
-            .comments-section,
-            .footer {
-                display: none !important;
-            }
-            .container {
-                padding: 20px;
-                max-width: 100%;
-            }
-            .file-card {
-                break-inside: avoid;
-                border: 1px solid #ccc;
-                background: #f8f8f8;
-            }
-            .file-card .checkbox,
-            .file-card .download-btn {
-                display: none;
-            }
-        }
-
-        /* ============================================================
-               16. 辅助类
-               ============================================================ */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-        .mt-1 {
-            margin-top: 8px;
-        }
-        .mt-2 {
-            margin-top: 16px;
-        }
-        .mb-1 {
-            margin-bottom: 8px;
-        }
-        .mb-2 {
-            margin-bottom: 16px;
-        }
-        .hidden {
-            display: none !important;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资料下载</title>
+
+<link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com">
+<link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com">
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-card: #f7f8fa;
+    --text: #1a1a1a;
+    --text-secondary: #666;
+    --border: #e8e8e8;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -4px rgba(0,0,0,.04);
+    --radius: 12px;
+    --transition: .25s ease;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0f1115;
+    --bg-card: #1a1d24;
+    --text: #e8e8e8;
+    --text-secondary: #9ca3af;
+    --border: #2a2f3a;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --shadow: 0 1px 3px rgba(0,0,0,.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background var(--transition), color var(--transition);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(12px);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    transition: background var(--transition), border-color var(--transition);
+  }
+
+  .header-inner {
+    max-width: 880px; margin: 0 auto;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 20px; font-weight: 700;
+    color: var(--text); text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+  }
+
+  .theme-toggle {
+    width: 42px; height: 42px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg-card);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--text); transition: all var(--transition);
+  }
+  .theme-toggle:hover { border-color: var(--accent); }
+
+  .main { max-width: 880px; margin: 0 auto; padding: 56px 24px 80px; }
+
+  .hero { text-align: center; margin-bottom: 56px; }
+  .hero h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+  .hero p { font-size: 17px; color: var(--text-secondary); max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+  .search-bar { max-width: 520px; margin: 0 auto 40px; position: relative; }
+  .search-bar input {
+    width: 100%; padding: 14px 20px 14px 48px; font-size: 15px;
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    background: var(--bg-card); color: var(--text); outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .search-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+  .search-bar .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px; }
+  .filter-btn {
+    padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-secondary); font-size: 14px;
+    cursor: pointer; transition: all var(--transition); font-weight: 500;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .file-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .file-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 20px; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    transition: all var(--transition); animation: fadeIn .35s ease both;
+  }
+  .file-card:hover { border-color: var(--accent); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+
+  .file-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .file-icon svg { width: 22px; height: 22px; }
+  .file-icon.pdf  { background: #fee2e2; color: #dc2626; }
+  .file-icon.docx { background: #dbeafe; color: #2563eb; }
+  .file-icon.xlsx { background: #d1fae5; color: #059669; }
+  .file-icon.pptx { background: #fef3c7; color: #d97706; }
+  .file-icon.zip  { background: #f3e8ff; color: #7c3aed; }
+  .file-icon.video{ background: #ffedd5; color: #ea580c; }
+  .file-icon.audio{ background: #e0e7ff; color: #4f46e5; }
+  .file-icon.image{ background: #fce7f3; color: #db2777; }
+  .file-icon.file { background: #f1f5f9; color: #475569; }
+
+  [data-theme="dark"] .file-icon.pdf  { background: rgba(220,38,38,.15); }
+  [data-theme="dark"] .file-icon.docx { background: rgba(37,99,235,.15); }
+  [data-theme="dark"] .file-icon.xlsx { background: rgba(5,150,105,.15); }
+  [data-theme="dark"] .file-icon.pptx { background: rgba(217,119,6,.15); }
+  [data-theme="dark"] .file-icon.zip  { background: rgba(124,58,237,.15); }
+  [data-theme="dark"] .file-icon.video{ background: rgba(234,88,12,.15); }
+  [data-theme="dark"] .file-icon.audio{ background: rgba(79,70,229,.15); }
+  [data-theme="dark"] .file-icon.image{ background: rgba(219,39,119,.15); }
+  [data-theme="dark"] .file-icon.file { background: rgba(148,163,184,.12); }
+
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-meta { font-size: 13px; color: var(--text-secondary); display: flex; gap: 12px; align-items: center; }
+  .file-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-secondary); opacity: .5; }
+
+  .download-btn {
+    width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    transition: all var(--transition); flex-shrink: 0; text-decoration: none;
+  }
+  .download-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .download-btn svg { width: 18px; height: 18px; }
+
+  .footer { text-align: center; padding: 32px 24px; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border); }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+  .empty-state .icon { margin-bottom: 16px; display: flex; justify-content: center; }
+  .empty-state p { font-size: 15px; }
+
+  .loading-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+  .loading-state .spinner {
+    width: 36px; height: 36px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 28px; }
+    .hero p { font-size: 15px; }
+    .main { padding: 36px 16px 60px; }
+    .file-card { padding: 14px 16px; gap: 12px; }
+    .file-icon { width: 38px; height: 38px; }
+    .file-icon svg { width: 19px; height: 19px; }
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
 
-    <!-- ============================================================
-    顶部工具栏
-    ============================================================ -->
-    <header class="toolbar" role="banner">
-        <div class="brand">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
-            </svg>
-            资料下载中心
-        </div>
-        <div class="actions">
-            <button id="selectAllBtn" title="全选/取消全选">
-                ☑️ <span id="selectAllText">全选</span>
-                <span class="badge-count" id="selectedCount">0</span>
-            </button>
-            <button id="downloadSelectedBtn" class="primary" disabled title="下载选中的文件">
-                📦 批量下载
-            </button>
-            <button id="refreshBtn" title="刷新文件列表">
-                🔄
-            </button>
-            <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换深色/浅色主题">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-            </button>
-        </div>
-    </header>
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      资料库
+    </a>
+    <button class="theme-toggle" id="themeToggle" title="切换主题">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</header>
 
-    <!-- ============================================================
-    主容器
-    ============================================================ -->
-    <main class="container" role="main">
+<main class="main">
+  <section class="hero">
+    <h1>资料下载中心</h1>
+    <p>精选文档、视频与工具资源，一键获取，免费下载</p>
+  </section>
 
-        <!-- ====== 页面头部 ====== -->
-        <div class="page-header">
-            <div class="left">
-                <h1>📂 文件列表</h1>
-                <div class="subtitle">精选文档、视频与工具资源，一键获取，免费下载</div>
-            </div>
-            <div class="right">
-                <span id="fileCount">加载中…</span>
-                <span class="dot">·</span>
-                <span id="lastUpdate">更新时间：--</span>
-                <span class="dot">·</span>
-                <span id="onlineStatus">
-                    <span class="status-dot online" id="statusDot"></span>
-                    <span id="statusText">在线</span>
-                </span>
-                <span class="dot">·</span>
-                <span id="visitCount">👁️ 访问：--</span>
-            </div>
-        </div>
+  <div class="search-bar">
+    <span class="search-icon">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </span>
+    <input type="text" id="searchInput" placeholder="搜索文件名、类型或标签…" />
+  </div>
 
-        <!-- ====== 控制栏 ====== -->
-        <div class="controls" role="search" aria-label="文件搜索和筛选">
-            <div class="search-wrap">
-                <span class="search-icon" aria-hidden="true">🔍</span>
-                <input type="text" id="searchInput" placeholder="搜索文件名、类型或标签…" aria-label="搜索文件" />
-            </div>
-            <div class="filter-group" id="filterGroup" role="tablist" aria-label="文件分类筛选">
-                <button role="tab" aria-selected="true" data-cat="all" class="active">全部</button>
-                <button role="tab" aria-selected="false" data-cat="doc">📄 文档</button>
-                <button role="tab" aria-selected="false" data-cat="video">🎬 视频</button>
-                <button role="tab" aria-selected="false" data-cat="audio">🎵 音频</button>
-                <button role="tab" aria-selected="false" data-cat="archive">📦 压缩包</button>
-                <button role="tab" aria-selected="false" data-cat="image">🖼️ 图片</button>
-            </div>
-            <div class="stats" id="statsInfo" aria-live="polite">共 0 个文件</div>
-        </div>
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-cat="all">全部</button>
+    <button class="filter-btn" data-cat="doc">文档</button>
+    <button class="filter-btn" data-cat="video">视频</button>
+    <button class="filter-btn" data-cat="audio">音频</button>
+    <button class="filter-btn" data-cat="archive">压缩包</button>
+    <button class="filter-btn" data-cat="image">图片</button>
+  </div>
 
-        <!-- ====== 排序控制 ====== -->
-        <div class="sort-bar">
-            <label for="sortSelect">排序：</label>
-            <select id="sortSelect" aria-label="排序方式">
-                <option value="date-desc">最新优先</option>
-                <option value="date-asc">最早优先</option>
-                <option value="name-asc">名称 A-Z</option>
-                <option value="name-desc">名称 Z-A</option>
-                <option value="size-desc">从大到小</option>
-                <option value="size-asc">从小到大</option>
-            </select>
-            <div class="view-mode" role="group" aria-label="视图切换">
-                <button id="listViewBtn" class="active" title="列表视图" aria-label="列表视图">☰</button>
-                <button id="gridViewBtn" title="网格视图" aria-label="网格视图">⊞</button>
-            </div>
-        </div>
-
-        <!-- ====== 文件列表 ====== -->
-        <div class="file-list" id="fileList" role="list" aria-label="文件列表">
-            <!-- 骨架屏 -->
-            <div class="skeleton-list" id="skeletonLoader">
-                <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-line long"></div><div class="skeleton-line short"></div></div>
-                <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-line long"></div><div class="skeleton-line short"></div></div>
-                <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-line long"></div><div class="skeleton-line short"></div></div>
-                <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-line long"></div><div class="skeleton-line short"></div></div>
-                <div class="skeleton-item"><div class="skeleton-icon"></div><div class="skeleton-line long"></div><div class="skeleton-line short"></div></div>
-            </div>
-        </div>
-
-        <!-- ====== 分页 ====== -->
-        <div class="pagination" id="pagination"></div>
-
-        <!-- ====== 留言板 ====== -->
-        <div class="comments-section" id="commentsSection">
-            <div class="comments-header">
-                <h2>💬 留言板</h2>
-                <a href="https://github.com/your-username/your-repo/issues" target="_blank" rel="noopener noreferrer">在 GitHub 上留言 →</a>
-            </div>
-            <div id="commentsList">
-                <div class="comment-item">
-                    <span class="author">系统</span>
-                    <span class="time">加载中...</span>
-                    <div class="body">正在加载留言...</div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- ============================================================
-    预览模态框
-    ============================================================ -->
-    <div class="modal-overlay" id="previewModal" role="dialog" aria-modal="true" aria-label="文件预览">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="previewTitle">文件预览</h3>
-                <button class="close-btn" id="closePreview" aria-label="关闭预览">✕</button>
-            </div>
-            <div class="modal-body" id="previewBody">
-                <div class="preview-unsupported">
-                    <span class="icon">📄</span>
-                    <p>加载预览中...</p>
-                </div>
-            </div>
-        </div>
+  <div class="file-list" id="fileList">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>正在加载文件列表...</p>
     </div>
-
-    <!-- ============================================================
-    页脚
-    ============================================================ -->
-    <footer class="footer">
-        <p>&copy; 2026 资料下载中心 · 生物工程 · 技术 · 学习</p>
-    </footer>
-
-    <!-- ============================================================
-    Service Worker 注册
-    ============================================================ -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('✅ Service Worker 注册成功'))
-                .catch(err => console.log('⚠️ Service Worker 注册失败:', err));
-        }
-    </script>
-
-    <!-- ============================================================
-    主脚本
-    ============================================================ -->
-    <script>
-        (function() {
-            'use strict';
-
-            // ==========================================================
-            // 1. 配置
-            // ==========================================================
-            const CONFIG = {
-                PAGE_SIZE: 50,
-                MAX_RETRIES: 3,
-                CACHE_KEY: 'download_files_cache',
-                CACHE_TTL: 3600000, // 1小时
-                COMMENTS_REPO: 'lmz00701/MY_WEB_SELF' // ← 改成你的 GitHub 用户名/仓库名
-            };
-
-            // ==========================================================
-            // 2. DOM 引用
-            // ==========================================================
-            const $ = (sel) => document.querySelector(sel);
-            const $$ = (sel) => document.querySelectorAll(sel);
-
-            const fileListEl = $('#fileList');
-            const skeletonEl = $('#skeletonLoader');
-            const searchInput = $('#searchInput');
-            const filterBtns = $$('#filterGroup button');
-            const statsInfo = $('#statsInfo');
-            const fileCountEl = $('#fileCount');
-            const lastUpdateEl = $('#lastUpdate');
-            const sortSelect = $('#sortSelect');
-            const paginationEl = $('#pagination');
-            const selectAllBtn = $('#selectAllBtn');
-            const selectAllText = $('#selectAllText');
-            const selectedCountEl = $('#selectedCount');
-            const downloadSelectedBtn = $('#downloadSelectedBtn');
-            const refreshBtn = $('#refreshBtn');
-            const themeToggle = $('#themeToggle');
-            const listViewBtn = $('#listViewBtn');
-            const gridViewBtn = $('#gridViewBtn');
-            const previewModal = $('#previewModal');
-            const previewTitle = $('#previewTitle');
-            const previewBody = $('#previewBody');
-            const closePreviewBtn = $('#closePreview');
-            const statusDot = $('#statusDot');
-            const statusText = $('#statusText');
-            const visitCountEl = $('#visitCount');
-
-            // ==========================================================
-            // 3. 状态
-            // ==========================================================
-            let files = [];
-            let filteredFiles = [];
-            let currentCat = 'all';
-            let currentKeyword = '';
-            let currentSort = 'date-desc';
-            let currentPage = 1;
-            let viewMode = 'list';
-            let selectedFiles = new Set();
-            let isLoading = false;
-            let retryCount = 0;
-            let totalPages = 0;
-
-            // ==========================================================
-            // 4. 图标映射
-            // ==========================================================
-            const iconMap = {
-                pdf: '📄',
-                docx: '📝',
-                xlsx: '📊',
-                pptx: '📑',
-                zip: '📦',
-                rar: '📦',
-                '7z': '📦',
-                video: '🎬',
-                audio: '🎵',
-                image: '🖼️',
-                file: '📎'
-            };
-
-            const catMap = {
-                doc: '文档',
-                video: '视频',
-                audio: '音频',
-                archive: '压缩包',
-                image: '图片'
-            };
-
-            const previewableExts = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'txt', 'md'];
-
-            function getIcon(iconKey) { return iconMap[iconKey] || iconMap.file; }
-
-            function getCatLabel(cat) { return catMap[cat] || cat; }
-
-            function isPreviewable(ext) { return previewableExts.includes(ext.toLowerCase()); }
-
-            // ==========================================================
-            // 5. 缓存
-            // ==========================================================
-            function getCache() {
-                try {
-                    const cached = localStorage.getItem(CONFIG.CACHE_KEY);
-                    if (cached) {
-                        const { data, timestamp } = JSON.parse(cached);
-                        if (Date.now() - timestamp < CONFIG.CACHE_TTL) {
-                            return data;
-                        }
-                    }
-                } catch (e) { return null; }
-                return null;
-            }
-
-            function setCache(data) {
-                try {
-                    localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify({
-                        data: data,
-                        timestamp: Date.now()
-                    }));
-                } catch (e) { /* ignore */ }
-            }
-
-            // ==========================================================
-            // 6. 访问统计 (不蒜子)
-            // ==========================================================
-            function loadVisitCount() {
-                const script = document.createElement('script');
-                script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
-                script.async = true;
-                script.onload = function() {
-                    setTimeout(() => {
-                        const countEl = document.querySelector('.busuanzi-value');
-                        if (countEl) {
-                            visitCountEl.textContent = '👁️ 访问：' + countEl.textContent;
-                        }
-                    }, 1000);
-                };
-                document.head.appendChild(script);
-                visitCountEl.textContent = '👁️ 加载中...';
-            }
-
-            // ==========================================================
-            // 7. 留言板 (GitHub Issues)
-            // ==========================================================
-            async function loadComments() {
-                const container = $('#commentsList');
-                try {
-                    const [owner, repo] = CONFIG.COMMENTS_REPO.split('/');
-                    const res = await fetch(
-                        `https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=5&sort=updated`
-                    );
-                    if (!res.ok) throw new Error('Failed to load comments');
-                    const issues = await res.json();
-
-                    if (issues.length === 0) {
-                        container.innerHTML = `
-                            <div class="comment-item">
-                                <span class="author">💡</span>
-                                <span class="time">暂无留言</span>
-                                <div class="body">成为第一个留言的人吧！</div>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    container.innerHTML = issues.map(issue => `
-                        <div class="comment-item">
-                            <span class="author">${escapeHtml(issue.user?.login || '匿名')}</span>
-                            <span class="time">${new Date(issue.created_at).toLocaleDateString('zh-CN')}</span>
-                            <div class="body">
-                                <a href="${issue.html_url}" target="_blank" rel="noopener noreferrer">
-                                    ${escapeHtml(issue.title)}
-                                </a>
-                            </div>
-                        </div>
-                    `).join('');
-
-                } catch (err) {
-                    console.warn('加载留言失败:', err);
-                    container.innerHTML = `
-                        <div class="comment-item">
-                            <span class="author">💬</span>
-                            <span class="time">--</span>
-                            <div class="body">留言加载失败，<a href="https://github.com/${CONFIG.COMMENTS_REPO}/issues" target="_blank" rel="noopener noreferrer">点击在 GitHub 上查看</a></div>
-                        </div>
-                    `;
-                }
-            }
-
-            // ==========================================================
-            // 8. 加载文件 (含重试)
-            // ==========================================================
-            async function loadFiles(forceRefresh = false) {
-                if (isLoading) return;
-                isLoading = true;
-                showSkeleton();
-                updateStatus('loading');
-
-                try {
-                    if (!forceRefresh) {
-                        const cached = getCache();
-                        if (cached && cached.length > 0) {
-                            files = cached;
-                            applyFiltersAndSort();
-                            hideSkeleton();
-                            updateStatus('online');
-                            isLoading = false;
-                            return;
-                        }
-                    }
-
-                    const res = await fetch('files.json?t=' + Date.now(), {
-                        cache: 'no-store',
-                        headers: { 'Accept': 'application/json' }
-                    });
-
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-
-                    const data = await res.json();
-                    if (!Array.isArray(data)) throw new Error('数据格式错误');
-
-                    files = data;
-                    if (files.length > 0) setCache(files);
-
-                    updateLastModified();
-
-                    applyFiltersAndSort();
-                    hideSkeleton();
-                    updateStatus('online');
-                    retryCount = 0;
-
-                } catch (err) {
-                    console.error('加载失败:', err);
-                    retryCount++;
-
-                    const cached = getCache();
-                    if (cached && cached.length > 0) {
-                        files = cached;
-                        applyFiltersAndSort();
-                        hideSkeleton();
-                        updateStatus('offline');
-                        showError('⚠️ 使用缓存数据 (网络异常)', true);
-                        isLoading = false;
-                        return;
-                    }
-
-                    if (retryCount < CONFIG.MAX_RETRIES) {
-                        const delay = 2000 * retryCount;
-                        showError(`⏳ 重试中 (${retryCount}/${CONFIG.MAX_RETRIES})`, false);
-                        setTimeout(() => {
-                            loadFiles(true);
-                        }, delay);
-                    } else {
-                        showError('❌ 加载失败，请检查网络连接', true);
-                        updateStatus('offline');
-                    }
-                } finally {
-                    if (!document.querySelector('.error-state')) {
-                        isLoading = false;
-                    }
-                }
-            }
-
-            // ==========================================================
-            // 9. 更新状态显示
-            // ==========================================================
-            function updateStatus(status) {
-                if (status === 'online') {
-                    statusDot.className = 'status-dot online';
-                    statusText.textContent = '在线';
-                } else if (status === 'offline') {
-                    statusDot.className = 'status-dot offline';
-                    statusText.textContent = '离线';
-                } else {
-                    statusDot.className = 'status-dot online';
-                    statusText.textContent = '加载中...';
-                }
-            }
-
-            function updateLastModified() {
-                if (files.length > 0) {
-                    const dates = files.map(f => f.date).filter(d => d);
-                    if (dates.length > 0) {
-                        const latest = dates.sort().reverse()[0];
-                        lastUpdateEl.textContent = '更新时间：' + latest;
-                    }
-                }
-            }
-
-            // ==========================================================
-            // 10. 骨架屏
-            // ==========================================================
-            function showSkeleton() {
-                if (skeletonEl) {
-                    skeletonEl.style.display = viewMode === 'grid' ? 'grid' : 'flex';
-                    skeletonEl.className = 'skeleton-list' + (viewMode === 'grid' ? ' grid-view' : '');
-                }
-                fileListEl.querySelectorAll('.file-card, .empty-state, .error-state').forEach(el => el.remove());
-            }
-
-            function hideSkeleton() {
-                if (skeletonEl) skeletonEl.style.display = 'none';
-            }
-
-            // ==========================================================
-            // 11. 错误显示
-            // ==========================================================
-            function showError(message, showRetry) {
-                hideSkeleton();
-                fileListEl.querySelectorAll('.file-card, .empty-state, .error-state').forEach(el => el.remove());
-
-                const div = document.createElement('div');
-                div.className = 'error-state';
-                div.innerHTML = `
-                    <span class="icon">${message.includes('⚠️') ? '⚠️' : '❌'}</span>
-                    <h3>${message}</h3>
-                    ${showRetry ? `<button class="retry-btn" onclick="window.loadFiles(true)">🔄 重新加载</button>` : ''}
-                `;
-                fileListEl.appendChild(div);
-                fileCountEl.textContent = '加载失败';
-                statsInfo.textContent = '加载失败';
-            }
-
-            // ==========================================================
-            // 12. 筛选、排序、分页
-            // ==========================================================
-            function applyFiltersAndSort() {
-                filteredFiles = files.filter(f => {
-                    const matchCat = currentCat === 'all' || f.cat === currentCat;
-                    const kw = currentKeyword.toLowerCase().trim();
-                    const matchKw = !kw ||
-                        f.name.toLowerCase().includes(kw) ||
-                        f.ext.toLowerCase().includes(kw) ||
-                        (f.cat && f.cat.toLowerCase().includes(kw));
-                    return matchCat && matchKw;
-                });
-
-                sortFiles(filteredFiles, currentSort);
-
-                const total = files.length;
-                const filtered = filteredFiles.length;
-                fileCountEl.textContent = filtered + ' 个文件';
-                statsInfo.textContent = filtered === total ?
-                    '共 ' + total + ' 个文件' :
-                    '显示 ' + filtered + ' / ' + total + ' 个文件';
-
-                selectedFiles.clear();
-                updateSelectionUI();
-
-                totalPages = Math.ceil(filtered / CONFIG.PAGE_SIZE);
-                if (currentPage > totalPages) currentPage = 1;
-                if (currentPage < 1) currentPage = 1;
-
-                const start = (currentPage - 1) * CONFIG.PAGE_SIZE;
-                const end = start + CONFIG.PAGE_SIZE;
-                const pageData = filteredFiles.slice(start, end);
-
-                renderFiles(pageData);
-                renderPagination();
-            }
-
-            // ==========================================================
-            // 13. 排序
-            // ==========================================================
-            function sortFiles(arr, sortKey) {
-                const parseSize = (sizeStr) => {
-                    const match = sizeStr.match(/^([\d.]+)\s*(B|KB|MB|GB)$/);
-                    if (!match) return 0;
-                    const num = parseFloat(match[1]);
-                    const unit = match[2];
-                    const multipliers = { B: 1, KB: 1024, MB: 1024 ** 2, GB: 1024 ** 3 };
-                    return num * (multipliers[unit] || 1);
-                };
-
-                arr.sort((a, b) => {
-                    switch (sortKey) {
-                        case 'date-desc':
-                            return (b.date || '').localeCompare(a.date || '');
-                        case 'date-asc':
-                            return (a.date || '').localeCompare(b.date || '');
-                        case 'name-asc':
-                            return a.name.localeCompare(b.name, 'zh');
-                        case 'name-desc':
-                            return b.name.localeCompare(a.name, 'zh');
-                        case 'size-desc':
-                            return parseSize(b.size) - parseSize(a.size);
-                        case 'size-asc':
-                            return parseSize(a.size) - parseSize(b.size);
-                        default:
-                            return 0;
-                    }
-                });
-            }
-
-            // ==========================================================
-            // 14. 渲染文件
-            // ==========================================================
-            function renderFiles(arr) {
-                fileListEl.querySelectorAll('.file-card, .empty-state, .error-state').forEach(el => el.remove());
-
-                if (arr.length === 0) {
-                    const div = document.createElement('div');
-                    div.className = 'empty-state';
-                    div.innerHTML = `
-                        <span class="icon">🔍</span>
-                        <h3>没有找到匹配的文件</h3>
-                        <p>试试调整搜索关键词或筛选条件</p>
-                    `;
-                    fileListEl.appendChild(div);
-                    return;
-                }
-
-                fileListEl.className = 'file-list' + (viewMode === 'grid' ? ' grid-view' : '');
-
-                const fragment = document.createDocumentFragment();
-
-                arr.forEach((f, i) => {
-                    const card = document.createElement('div');
-                    card.className = 'file-card' + (viewMode === 'grid' ? ' grid' : '');
-                    card.style.animationDelay = (i % 30) * 10 + 'ms';
-                    card.setAttribute('role', 'listitem');
-                    card.dataset.fileId = f.name;
-
-                    const isChecked = selectedFiles.has(f.name);
-                    const catLabel = getCatLabel(f.cat);
-                    const isPreviewable = isPreviewable(f.ext);
-
-                    card.innerHTML = `
-                        <div class="checkbox ${isChecked ? 'checked' : ''}" data-file="${escapeHtml(f.name)}" role="checkbox" aria-checked="${isChecked}"></div>
-                        <div class="file-icon ${f.icon}" aria-hidden="true">${getIcon(f.icon)}</div>
-                        <div class="file-info">
-                            <div class="name" title="${escapeHtml(f.name)}" data-preview="${escapeHtml(f.url)}" data-ext="${f.ext}">
-                                ${escapeHtml(f.name)}
-                            </div>
-                            <div class="meta">
-                                <span>${f.ext}</span>
-                                <span class="dot"></span>
-                                <span>${f.size}</span>
-                                <span class="dot"></span>
-                                <span>${f.date || '--'}</span>
-                                <span class="dot"></span>
-                                <span class="tag-cat">${catLabel}</span>
-                                ${isPreviewable ? '<span class="tag-cat" style="background:var(--success-light);color:var(--success);">预览</span>' : ''}
-                            </div>
-                        </div>
-                        <a class="download-btn" href="${f.url}" target="_blank" rel="noopener noreferrer" title="下载 ${escapeHtml(f.name)}" aria-label="下载 ${escapeHtml(f.name)}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                        </a>
-                    `;
-
-                    const checkbox = card.querySelector('.checkbox');
-                    checkbox.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        toggleSelect(f.name);
-                    });
-
-                    const nameEl = card.querySelector('.name');
-                    nameEl.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (isPreviewable) {
-                            openPreview(f);
-                        }
-                    });
-
-                    fragment.appendChild(card);
-                });
-
-                fileListEl.appendChild(fragment);
-            }
-
-            // ==========================================================
-            // 15. 分页
-            // ==========================================================
-            function renderPagination() {
-                if (totalPages <= 1) {
-                    paginationEl.innerHTML = '';
-                    return;
-                }
-
-                let html = `
-                    <button ${currentPage <= 1 ? 'disabled' : ''} data-page="${currentPage - 1}">‹</button>
-                `;
-
-                let startPage = Math.max(1, currentPage - 2);
-                let endPage = Math.min(totalPages, currentPage + 2);
-
-                if (startPage > 1) {
-                    html += `<button data-page="1">1</button>`;
-                    if (startPage > 2) html += `<span class="info">…</span>`;
-                }
-
-                for (let i = startPage; i <= endPage; i++) {
-                    html += `<button data-page="${i}" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
-                }
-
-                if (endPage < totalPages) {
-                    if (endPage < totalPages - 1) html += `<span class="info">…</span>`;
-                    html += `<button data-page="${totalPages}">${totalPages}</button>`;
-                }
-
-                html += `
-                    <button ${currentPage >= totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">›</button>
-                    <span class="info">${currentPage} / ${totalPages}</span>
-                `;
-
-                paginationEl.innerHTML = html;
-
-                paginationEl.querySelectorAll('button:not([disabled])').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const page = parseInt(btn.dataset.page);
-                        if (page && page !== currentPage) {
-                            currentPage = page;
-                            applyFiltersAndSort();
-                            fileListEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    });
-                });
-            }
-
-            // ==========================================================
-            // 16. 选择逻辑
-            // ==========================================================
-            function toggleSelect(fileName) {
-                if (selectedFiles.has(fileName)) {
-                    selectedFiles.delete(fileName);
-                } else {
-                    selectedFiles.add(fileName);
-                }
-                updateSelectionUI();
-                applyFiltersAndSort();
-            }
-
-            function toggleSelectAll() {
-                const currentPageFiles = getCurrentPageFiles();
-                const allSelected = currentPageFiles.every(f => selectedFiles.has(f.name));
-
-                if (allSelected) {
-                    currentPageFiles.forEach(f => selectedFiles.delete(f.name));
-                } else {
-                    currentPageFiles.forEach(f => selectedFiles.add(f.name));
-                }
-                updateSelectionUI();
-                applyFiltersAndSort();
-            }
-
-            function getCurrentPageFiles() {
-                const start = (currentPage - 1) * CONFIG.PAGE_SIZE;
-                const end = start + CONFIG.PAGE_SIZE;
-                return filteredFiles.slice(start, end);
-            }
-
-            function updateSelectionUI() {
-                const count = selectedFiles.size;
-                selectedCountEl.textContent = count;
-                downloadSelectedBtn.disabled = count === 0;
-
-                const currentPageFiles = getCurrentPageFiles();
-                const allSelected = currentPageFiles.length > 0 && currentPageFiles.every(f => selectedFiles.has(f.name));
-                selectAllText.textContent = allSelected ? '取消全选' : '全选';
-            }
-
-            // ==========================================================
-            // 17. 批量下载
-            // ==========================================================
-            async function downloadSelected() {
-                const selected = files.filter(f => selectedFiles.has(f.name));
-                if (selected.length === 0) return;
-
-                downloadSelectedBtn.disabled = true;
-                downloadSelectedBtn.textContent = '⏳ 打包中...';
-
-                try {
-                    const zip = new JSZip();
-                    let loaded = 0;
-
-                    for (const file of selected) {
-                        try {
-                            const response = await fetch(file.url);
-                            if (!response.ok) throw new Error('下载失败');
-                            const blob = await response.blob();
-                            zip.file(file.name, blob);
-                            loaded++;
-                        } catch (err) {
-                            console.warn('下载失败:', file.name, err);
-                        }
-                    }
-
-                    if (loaded === 0) {
-                        alert('所有文件下载失败，请检查网络连接');
-                        return;
-                    }
-
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
-                    saveAs(zipBlob, `资料下载_${new Date().toISOString().slice(0,10)}.zip`);
-                    alert(`✅ 成功下载 ${loaded} 个文件`);
-
-                } catch (err) {
-                    console.error('批量下载失败:', err);
-                    alert('❌ 批量下载失败，请重试');
-                } finally {
-                    downloadSelectedBtn.disabled = selectedFiles.size === 0;
-                    downloadSelectedBtn.innerHTML = '📦 批量下载';
-                }
-            }
-
-            // ==========================================================
-            // 18. 预览
-            // ==========================================================
-            function openPreview(file) {
-                previewTitle.textContent = file.name;
-                const ext = file.ext.toLowerCase();
-
-                let content = '';
-
-                if (ext === 'pdf') {
-                    content = `<iframe class="preview-pdf" src="${file.url}#toolbar=1" title="${escapeHtml(file.name)}"></iframe>`;
-                } else if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
-                    content = `<img class="preview-image" src="${file.url}" alt="${escapeHtml(file.name)}" loading="lazy" />`;
-                } else if (['txt', 'md'].includes(ext)) {
-                    fetch(file.url)
-                        .then(res => res.text())
-                        .then(text => {
-                            previewBody.innerHTML = `<pre class="preview-text">${escapeHtml(text)}</pre>`;
-                        })
-                        .catch(() => {
-                            previewBody.innerHTML = `
-                                <div class="preview-unsupported">
-                                    <span class="icon">📄</span>
-                                    <p>无法加载文本内容，请下载后查看</p>
-                                    <a href="${file.url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">下载文件</a>
-                                </div>
-                            `;
-                        });
-                    previewModal.classList.add('active');
-                    return;
-                } else {
-                    content = `
-                        <div class="preview-unsupported">
-                            <span class="icon">📄</span>
-                            <p>该文件类型暂不支持预览</p>
-                            <a href="${file.url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">下载文件</a>
-                        </div>
-                    `;
-                }
-
-                if (content) {
-                    previewBody.innerHTML = content;
-                }
-
-                previewModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closePreview() {
-                previewModal.classList.remove('active');
-                document.body.style.overflow = '';
-                setTimeout(() => {
-                    previewBody.innerHTML = `
-                        <div class="preview-unsupported">
-                            <span class="icon">📄</span>
-                            <p>加载预览中...</p>
-                        </div>
-                    `;
-                }, 300);
-            }
-
-            // ==========================================================
-            // 19. 工具函数
-            // ==========================================================
-            function escapeHtml(text) {
-                const d = document.createElement('div');
-                d.textContent = text;
-                return d.innerHTML;
-            }
-
-            // ==========================================================
-            // 20. 事件绑定
-            // ==========================================================
-            let debounceTimer;
-            searchInput.addEventListener('input', function() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    currentKeyword = this.value;
-                    currentPage = 1;
-                    applyFiltersAndSort();
-                }, 300);
-            });
-
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    filterBtns.forEach(b => {
-                        b.classList.remove('active');
-                        b.setAttribute('aria-selected', 'false');
-                    });
-                    this.classList.add('active');
-                    this.setAttribute('aria-selected', 'true');
-                    currentCat = this.dataset.cat;
-                    currentPage = 1;
-                    applyFiltersAndSort();
-                });
-            });
-
-            sortSelect.addEventListener('change', function() {
-                currentSort = this.value;
-                currentPage = 1;
-                applyFiltersAndSort();
-            });
-
-            selectAllBtn.addEventListener('click', toggleSelectAll);
-
-            downloadSelectedBtn.addEventListener('click', downloadSelected);
-
-            refreshBtn.addEventListener('click', function() {
-                this.textContent = '⏳';
-                loadFiles(true).finally(() => {
-                    this.textContent = '🔄';
-                });
-            });
-
-            listViewBtn.addEventListener('click', function() {
-                viewMode = 'list';
-                listViewBtn.classList.add('active');
-                gridViewBtn.classList.remove('active');
-                applyFiltersAndSort();
-            });
-
-            gridViewBtn.addEventListener('click', function() {
-                viewMode = 'grid';
-                gridViewBtn.classList.add('active');
-                listViewBtn.classList.remove('active');
-                applyFiltersAndSort();
-            });
-
-            const root = document.documentElement;
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
-            root.setAttribute('data-theme', savedTheme);
-
-            themeToggle.addEventListener('click', function() {
-                const current = root.getAttribute('data-theme');
-                const next = current === 'dark' ? 'light' : 'dark';
-                root.setAttribute('data-theme', next);
-                localStorage.setItem('theme', next);
-            });
-
-            closePreviewBtn.addEventListener('click', closePreview);
-            previewModal.addEventListener('click', function(e) {
-                if (e.target === this) closePreview();
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') closePreview();
-            });
-
-            // ==========================================================
-            // 21. 暴露全局
-            // ==========================================================
-            window.loadFiles = loadFiles;
-            window.toggleSelect = toggleSelect;
-
-            // ==========================================================
-            // 22. 启动
-            // ==========================================================
-            loadVisitCount();
-            loadComments();
-            loadFiles();
-
-            setInterval(() => {
-                loadFiles(true);
-            }, 1800000);
-
-            console.log('📂 资料下载中心已加载');
-            console.log(`📊 当前主题: ${savedTheme}`);
-            console.log(`📄 每页显示: ${CONFIG.PAGE_SIZE} 个文件`);
-
-        })();
-    </script>
-
+  </div>
+</main>
+
+<footer class="footer">
+  © 2026 资料库 · 持续更新中
+</footer>
+
+<script>
+const iconSvg = {
+  pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  docx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  xlsx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  pptx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  zip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
+  audio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+  file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>'
+};
+const downloadSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+
+const fileListEl = document.getElementById("fileList");
+const searchInput = document.getElementById("searchInput");
+const filterBtns = document.querySelectorAll(".filter-btn");
+
+let files = [];
+let currentCat = "all";
+let currentKeyword = "";
+
+async function loadFiles() {
+  try {
+    const res = await fetch('files.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    files = await res.json();
+    render();
+  } catch (e) {
+    fileListEl.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">${iconSvg.file}</div>
+        <p>文件列表加载失败，请稍后刷新重试</p>
+      </div>`;
+    console.error(e);
+  }
+}
+
+function render() {
+  const filtered = files.filter(f => {
+    const matchCat = currentCat === "all" || f.cat === currentCat;
+    const matchKw = !currentKeyword ||
+      f.name.toLowerCase().includes(currentKeyword.toLowerCase()) ||
+      f.ext.toLowerCase().includes(currentKeyword.toLowerCase());
+    return matchCat && matchKw;
+  });
+
+  if (filtered.length === 0) {
+    fileListEl.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">${iconSvg.file}</div>
+        <p>没有找到匹配的文件，换个关键词试试？</p>
+      </div>`;
+    return;
+  }
+
+  fileListEl.innerHTML = filtered.map(f => `
+    <div class="file-card">
+      <a href="${f.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;flex:1;min-width:0;text-decoration:none;color:inherit;">
+        <div class="file-icon ${f.icon}">${iconSvg[f.icon] || iconSvg.file}</div>
+        <div class="file-info">
+          <div class="file-name">${escapeHtml(f.name)}</div>
+          <div class="file-meta">
+            <span>${f.ext}</span>
+            <span class="dot"></span>
+            <span>${f.size}</span>
+            <span class="dot"></span>
+            <span>${f.date}</span>
+          </div>
+        </div>
+      </a>
+      <a class="download-btn" href="${f.url}" target="_blank" rel="noopener" title="下载" onclick="event.stopPropagation()">
+        ${downloadSvg}
+      </a>
+    </div>
+  `).join("");
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+let debounceTimer;
+searchInput.addEventListener("input", e => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    currentKeyword = e.target.value.trim();
+    render();
+  }, 200);
+});
+
+filterBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    filterBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentCat = btn.dataset.cat;
+    render();
+  });
+});
+
+const themeToggle = document.getElementById("themeToggle");
+const root = document.documentElement;
+const savedTheme = localStorage.getItem("theme") || "light";
+root.setAttribute("data-theme", savedTheme);
+
+themeToggle.addEventListener("click", () => {
+  const isDark = root.getAttribute("data-theme") === "dark";
+  const newTheme = isDark ? "light" : "dark";
+  root.setAttribute("data-theme", newTheme);
+  localStorage.setItem("theme", newTheme);
+});
+
+loadFiles();
+</script>
 </body>
 </html>
