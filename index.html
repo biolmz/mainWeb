@@ -1,869 +1,747 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <title>lmz</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lmz · 生物工程 & 技术</title>
+    <link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com" />
+    <link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com" />
     <style>
-        /* ========== 全局重置 ========== */
-        * {
+        /* ============================================================
+               全局变量 & 重置
+               ============================================================ */
+        :root {
+            --bg: #ffffff;
+            --bg-card: #f8f9fc;
+            --bg-nav: rgba(255, 255, 255, 0.92);
+            --bg-hover: #f0f2f5;
+
+            --text: #1a1a2e;
+            --text-secondary: #4a4a5a;
+            --text-muted: #7a7a8a;
+
+            --border: #e4e7ed;
+            --border-hover: #b0b8c8;
+
+            --accent: #2c3e8f;
+            --accent-hover: #1a2a6a;
+            --accent-light: rgba(44, 62, 143, 0.08);
+            --accent-dark: #0f1a3a;
+
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+            --radius: 14px;
+            --radius-sm: 10px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d1117;
+            --bg-card: #161b22;
+            --bg-nav: rgba(13, 17, 23, 0.92);
+            --bg-hover: #1c2333;
+
+            --text: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+
+            --border: #30363d;
+            --border-hover: #484f58;
+
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --accent-light: rgba(88, 166, 255, 0.12);
+            --accent-dark: #1f3a6a;
+
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #4238ad, #24243e);
-            color: #e0e0e0;
-            line-height: 1.8;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            line-height: 1.7;
             min-height: 100vh;
         }
 
         a {
-            color: #7ec8e3;
+            color: var(--accent);
             text-decoration: none;
-            transition: color 0.3s;
+            transition: color var(--transition), border-color var(--transition);
         }
 
         a:hover {
-            color: #a8e6cf;
+            color: var(--accent-hover);
         }
 
-        /* ========== 导航栏 ========== */
-        nav {
-            position: fixed;
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: var(--radius-xs);
+        }
+
+        /* ============================================================
+               导航栏
+               ============================================================ */
+        .navbar {
+            position: sticky;
             top: 0;
-            width: 100%;
-            background: rgba(15, 12, 41, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 50px;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: var(--bg-nav);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 64px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .navbar .brand {
+            display: flex;
             align-items: center;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: -0.3px;
         }
 
-        nav .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #a8e6cf;
+        .navbar .brand svg {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
         }
 
-        nav ul {
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             list-style: none;
+        }
+
+        .navbar .nav-links a {
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+        }
+
+        .navbar .nav-links a:hover,
+        .navbar .nav-links a.active {
+            color: var(--text);
+            background: var(--accent-light);
+        }
+
+        .theme-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
             display: flex;
-            gap: 30px;
-        }
-
-        nav ul li a {
-            color: #ccc;
-            font-size: 0.95rem;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-
-        nav ul li a:hover {
-            background: rgba(168, 230, 207, 0.15);
-            color: #a8e6cf;
-        }
-
-        /* ========== 英雄区域 ========== */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--bg-hover);
+        }
+
+        /* ============================================================
+               主容器
+               ============================================================ */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* ============================================================
+               英雄区
+               ============================================================ */
+        .hero {
             text-align: center;
-            padding: 100px 20px 50px;
+            padding: 40px 0 50px;
         }
 
         .hero .avatar {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: 4px solid #a8e6cf;
-            box-shadow: 0 0 40px rgba(168, 230, 207, 0.3);
-            margin-bottom: 30px;
-            object-fit: cover;
+            font-size: 80px;
+            line-height: 1;
+            margin-bottom: 16px;
         }
 
         .hero h1 {
-            font-size: 3rem;
-            color: #fff;
-            margin-bottom: 15px;
-            animation: fadeInUp 1s ease;
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            color: var(--text);
         }
 
         .hero .subtitle {
-            font-size: 1.3rem;
-            color: #7ec8e3;
-            margin-bottom: 25px;
-            animation: fadeInUp 1.2s ease;
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            font-weight: 450;
         }
 
-        .hero .intro {
-            max-width: 600px;
-            color: #bbb;
-            font-size: 1.05rem;
-            animation: fadeInUp 1.4s ease;
+        .hero .bio {
+            max-width: 560px;
+            margin: 0 auto 24px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.8;
         }
 
-        .hero .social-links {
-            margin-top: 35px;
+        .hero .social-row {
             display: flex;
-            gap: 20px;
-            animation: fadeInUp 1.6s ease;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
         }
 
-        .hero .social-links a {
-            display: inline-block;
-            padding: 10px 25px;
-            border: 2px solid #7ec8e3;
-            border-radius: 30px;
-            color: #7ec8e3;
-            font-size: 0.95rem;
-            transition: all 0.3s;
+        .hero .social-row a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition);
         }
 
-        .hero .social-links a:hover {
-            background: #7ec8e3;
-            color: #1a1a2e;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(126, 200, 227, 0.4);
+        .hero .social-row a:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--bg-hover);
+            transform: translateY(-2px);
         }
 
-        /* ========== 通用区块 ========== */
-        section {
-            padding: 80px 50px;
-            max-width: 1000px;
-            margin: 0 auto;
+        /* ============================================================
+               分割线
+               ============================================================ */
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0 40px;
         }
 
-        section h2 {
-            font-size: 2rem;
-            color: #a8e6cf;
-            margin-bottom: 40px;
-            text-align: center;
-            position: relative;
-        }
-
-        section h2::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(to right, #a8e6cf, #7ec8e3);
-            margin: 12px auto 0;
-            border-radius: 2px;
-        }
-
-        /* ========== 关于我 ========== */
-        .about-content {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .about-content p {
-            margin-bottom: 15px;
-            color: #ccc;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .info-item {
-            background: rgba(126, 200, 227, 0.08);
-            padding: 12px 18px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-        }
-
-        .info-item strong {
-            color: #a8e6cf;
-        }
-
-        /* ========== 技能 ========== */
-        .skills-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-        }
-
-        .skill-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .skill-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .skill-card .icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-
-        .skill-card h3 {
-            color: #a8e6cf;
-            margin-bottom: 10px;
-        }
-
-        .skill-card p {
-            color: #aaa;
-            font-size: 0.9rem;
-        }
-
-        /* ========== 作品 ========== */
-        .works-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
-
-        .work-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .work-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .work-card .work-placeholder {
-            width: 100%;
-            height: 160px;
-            background: linear-gradient(135deg, #302b63, #7ec8e3);
+        /* ============================================================
+               常用链接（分类）
+               ============================================================ */
+        .quick-links h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 3rem;
+            gap: 10px;
+            color: var(--text);
+            letter-spacing: -0.3px;
         }
 
-        .work-card .work-info {
-            padding: 25px;
+        .quick-links .category {
+            margin-bottom: 28px;
         }
 
-        .work-card h3 {
-            color: #a8e6cf;
+        .quick-links .category-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
             margin-bottom: 10px;
-        }
-
-        .work-card p {
-            color: #aaa;
-            font-size: 0.92rem;
-        }
-
-        .work-card .tag {
-            display: inline-block;
-            background: rgba(126, 200, 227, 0.15);
-            color: #7ec8e3;
-            padding: 3px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            margin-top: 12px;
-            margin-right: 8px;
-        }
-
-        /* ========== 时间线（经历） ========== */
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, #a8e6cf, #7ec8e3);
-        }
-
-        .timeline-item {
-            margin-bottom: 35px;
-            position: relative;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -36px;
-            top: 8px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #a8e6cf;
-            box-shadow: 0 0 10px rgba(168, 230, 207, 0.5);
-        }
-
-        .timeline-item h3 {
-            color: #a8e6cf;
-            margin-bottom: 5px;
-        }
-
-        .timeline-item .time {
-            color: #7ec8e3;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-        }
-
-        .timeline-item p {
-            color: #bbb;
-            font-size: 0.95rem;
-        }
-
-        /* ========== 联系 ========== */
-        .contact-container {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .contact-container p {
-            color: #ccc;
-            margin-bottom: 10px;
-        }
-
-        .contact-container .contact-methods {
-            margin-top: 25px;
             display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
+            align-items: center;
+            gap: 8px;
         }
 
-        .contact-container .contact-methods a {
-            display: inline-block;
-            padding: 12px 30px;
-            border-radius: 30px;
-            border: 2px solid #a8e6cf;
-            color: #a8e6cf;
-            transition: all 0.3s;
+        .quick-links .category-title .badge {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 0 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
         }
 
-        .contact-container .contact-methods a:hover {
-            background: #a8e6cf;
-            color: #1a1a2e;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(168, 230, 207, 0.4);
+        .quick-links .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 10px;
         }
 
-        /* ========== 页脚 ========== */
-        footer {
+        .quick-links .link-grid a {
+            display: block;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            transition: all var(--transition);
             text-align: center;
-            padding: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #666;
-            font-size: 0.9rem;
+            word-break: break-word;
         }
 
-        /* ========== 动画 ========== */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .quick-links .link-grid a:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
-        /* ========== 滚动条美化 ========== */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .quick-links .link-grid a .tag {
+            display: block;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #1a1a2e;
+        /* ============================================================
+               资料下载入口
+               ============================================================ */
+        .download-entry {
+            text-align: center;
+            padding: 30px 0 10px;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #302b63;
-            border-radius: 4px;
+        .download-entry .premium-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 56px;
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a2e;
+            background: #f0f2f7;
+            border: 2px solid #2c3e8f;
+            border-radius: 20px;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 12px rgba(44, 62, 143, 0.10);
+            cursor: pointer;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7ec8e3;
+        .download-entry .premium-btn:hover {
+            transform: translateY(-3px);
+            background: #2c3e8f;
+            color: #ffffff;
+            border-color: #1a2a6a;
+            box-shadow: 0 8px 32px rgba(44, 62, 143, 0.25);
         }
 
-        /* ========== 响应式 ========== */
+        .download-entry .premium-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(44, 62, 143, 0.15);
+        }
+
+        .download-entry .premium-btn .btn-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-entry .premium-btn .btn-icon {
+            width: 28px;
+            height: 28px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .download-entry .premium-btn:hover .btn-icon {
+            transform: translateY(3px);
+        }
+
+        .download-entry .premium-btn .btn-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .download-entry .hint {
+            margin-top: 14px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+               联系区
+               ============================================================ */
+        .contact-section {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .contact-section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .contact-section .desc {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .contact-section .contact-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .contact-section .contact-actions a,
+        .contact-section .contact-actions button {
+            padding: 8px 24px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+
+        .contact-section .contact-actions a:hover,
+        .contact-section .contact-actions button:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+
+        /* ============================================================
+               页脚
+               ============================================================ */
+        .footer {
+            text-align: center;
+            padding: 32px 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ============================================================
+               响应式
+               ============================================================ */
         @media (max-width: 768px) {
-            nav {
-                padding: 12px 20px;
+            .navbar {
+                padding: 0 16px;
+                height: 56px;
             }
-
-            nav ul {
-                gap: 15px;
+            .navbar .nav-links a {
+                padding: 4px 12px;
+                font-size: 13px;
             }
-
+            .container {
+                padding: 24px 16px 60px;
+            }
             .hero h1 {
-                font-size: 2rem;
+                font-size: 28px;
             }
-
             .hero .subtitle {
-                font-size: 1.1rem;
+                font-size: 16px;
             }
-
-            section {
-                padding: 60px 20px;
+            .quick-links .link-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             }
+            .download-entry .premium-btn {
+                padding: 16px 32px;
+                font-size: 20px;
+                gap: 10px;
+            }
+            .download-entry .premium-btn .btn-icon {
+                width: 22px;
+                height: 22px;
+            }
+        }
 
-            .about-content,
-            .contact-container {
-                padding: 25px;
+        @media (max-width: 400px) {
+            .hero .social-row a {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+            .quick-links .link-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .quick-links .link-grid a {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .download-entry .premium-btn {
+                padding: 14px 24px;
+                font-size: 17px;
+            }
+            .contact-section .contact-actions a,
+            .contact-section .contact-actions button {
+                font-size: 13px;
+                padding: 6px 16px;
+            }
+        }
+
+        /* ============================================================
+               打印样式
+               ============================================================ */
+        @media print {
+            .navbar,
+            .theme-toggle,
+            .footer {
+                display: none;
+            }
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .download-entry .premium-btn {
+                border: 2px solid #2c3e8f;
+                color: #1a1a2e !important;
+                background: #f0f2f7 !important;
+                box-shadow: none !important;
+                transform: none !important;
+            }
+            .quick-links .link-grid a {
+                border-color: #d0d4dc;
+                background: #f8f9fc;
+            }
+            .section-divider {
+                border-color: #d0d4dc;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- ========== 导航栏 ========== -->
-    <nav>
-        <div class="logo">⭐ 我的主页</div>
-        <ul>
-            <li><a href="#about">关于我</a></li>
-            <!--<li><a href="#skills">技能</a></li>-->
-            <li><a href="#links">常用链接</a></li>
-            <!--<li><a href="#experience">经历</a></li>-->
+    <!-- ============================================================
+    导航栏
+    ============================================================ -->
+    <nav class="navbar" role="navigation" aria-label="主导航">
+        <a href="#" class="brand" aria-label="首页">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+            lmz
+        </a>
+        <ul class="nav-links">
+            <li><a href="#links">链接</a></li>
+            <li><a href="download.html" target="_blank" rel="noopener noreferrer">资料</a></li>
             <li><a href="#contact">联系</a></li>
+            <li>
+                <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换深色/浅色主题">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+            </li>
         </ul>
     </nav>
 
-    <!-- ========== 英雄区域 ========== -->
-    <section class="hero">
-        <div style="font-size: 160px; line-height: 1; margin-bottom: 20px;">👨‍💻</div>
-        <h1>HELLO , I'm lmz</h1>
-        <p class="subtitle">生物工程专业 · 人工智能爱好者 · 终身学习者</p>
-        <p class="intro">
-            生命本质上是一个对抗熵增的过程。我们穷尽一生构建秩序、维持稳态，
-            却在基因里写着衰亡的指令。所谓活着，不过是暂时赢得了这场与混乱的战争。
-        </p>
-        <div class="social-links">
-            <a href="https://github.com" target="_blank">🐱 GitHub</a>
-            <a href="https://blog.csdn.net" target="_blank">📝 博客</a>
-            <a href="#contact">✉️ 联系我</a>
-        </div>
-    </section>
+    <!-- ============================================================
+    主容器
+    ============================================================ -->
+    <main class="container" id="top">
 
-    <!-- ========== 关于我 ========== -->
-    <section id="about">
-        <h2>关于我</h2>
-        <div class="about-content">
-            <p>
-                你好！我是刘铭哲，生物工程专业本科生。
-                爱好计算机技术，尤其是人工智能和数据分析方向。
+        <!-- ====== 英雄区 ====== -->
+        <section class="hero">
+            <div class="avatar" aria-hidden="true">🧬</div>
+            <h1>刘铭哲</h1>
+            <p class="subtitle">生物工程 · 人工智能爱好者 · 终身学习者</p>
+            <p class="bio">
+                生命本质上是一个对抗熵增的过程。我们穷尽一生构建秩序、维持稳态，
+                却在基因里写着衰亡的指令。所谓活着，不过是暂时赢得了这场与混乱的战争。
             </p>
-            <p>
-                从大一开始接触编程，一路走来踩过不少坑，但也收获了满满的成就感。
-                我相信"持续学习"是最好的习惯，所以一直在路上。
-            </p>
-            <div class="info-grid">
-                <div class="info-item"><strong>📍 坐标：</strong>山东</div>
-                <div class="info-item"><strong>🎓 学历：</strong>本科在读</div>
-                <div class="info-item"><strong>💼 方向：</strong>生物工程</div>
-                <div class="info-item"><strong>🌱 状态：</strong>study ing</div>
+            <div class="social-row">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>
+                <a href="https://blog.csdn.net" target="_blank" rel="noopener noreferrer">📝 博客</a>
+                <a href="mailto:qflmz2007@163.com">✉️ 邮箱</a>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ========== 技能 ========== -->
-    <!-- 
-    <section id="skills">
-        <h2>我的技能</h2>
-        <div class="skills-container">
-            
-            <div class="skill-card">
-                <div class="icon">🐍</div>
-                <h3>Python</h3>
-                <p>基础### / ##<br>###</p>
+        <hr class="section-divider" />
+
+        <!-- ====== 常用链接（分类） ====== -->
+        <section class="quick-links" id="links">
+            <h2>🔗 常用链接</h2>
+
+            <!-- 学习平台 -->
+            <div class="category">
+                <div class="category-title">📚 学习平台 <span class="badge">6</span></div>
+                <div class="link-grid">
+                    <a href="https://passport2.chaoxing.com/login" target="_blank" rel="noopener noreferrer">超星学习通 <span class="tag">课程</span></a>
+                    <a href="https://www.zhihuishu.com/" target="_blank" rel="noopener noreferrer">智慧树 <span class="tag">课程</span></a>
+                    <a href="https://www.icourse163.org/" target="_blank" rel="noopener noreferrer">MOOC <span class="tag">课程</span></a>
+                    <a href="https://www.xuetangx.com/" target="_blank" rel="noopener noreferrer">学堂在线 <span class="tag">课程</span></a>
+                    <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer">Desmos <span class="tag">计算器</span></a>
+                    <a href="https://www.paperpass.com/" target="_blank" rel="noopener noreferrer">PaperPass <span class="tag">查重</span></a>
+                </div>
             </div>
-           
-        </div>
-    </section>
-    -->
-    <!-- ========== 作品展示 ========== -->
-    <section id="links">
-        <h2>常用链接</h2>
-        <p>
-            
-            <a href="https://passport2.chaoxing.com/login?fid=&newversion=true&refer=https%3A%2F%2Fi.chaoxing.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                超星学习通
-            </a>
-            <a href="https://www.zhihuishu.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                智慧树
-            </a>
-            <a href="https://www.cnki.net/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                中国知网
-            </a>
-            <a href="https://www.wanfangdata.com.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
-                万方数据
-            </a>
-            <a href="https://qikan.cqvip.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
-                维普期刊
-            </a>
-            <a href="https://www.webofscience.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                Web of Science
-            </a>  
-            <a href="https://pubscholar.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                PubScholar
-            </a>  
-            <a href="https://www.paperpass.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                PaperPass
-            </a> 
-            <a href="https://zh.kid1412.by/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                Z-library
-            </a> 
 
+            <!-- 文献数据库 -->
+            <div class="category">
+                <div class="category-title">📖 文献数据库 <span class="badge">7</span></div>
+                <div class="link-grid">
+                    <a href="https://www.cnki.net/" target="_blank" rel="noopener noreferrer">中国知网 <span class="tag">文献</span></a>
+                    <a href="https://www.wanfangdata.com.cn/" target="_blank" rel="noopener noreferrer">万方数据 <span class="tag">文献</span></a>
+                    <a href="https://qikan.cqvip.com/" target="_blank" rel="noopener noreferrer">维普期刊 <span class="tag">文献</span></a>
+                    <a href="https://www.webofscience.com" target="_blank" rel="noopener noreferrer">Web of Science <span class="tag">文献</span></a>
+                    <a href="https://pubscholar.cn/" target="_blank" rel="noopener noreferrer">PubScholar <span class="tag">文献</span></a>
+                    <a href="https://zh.kid1412.by/" target="_blank" rel="noopener noreferrer">Z-Library <span class="tag">电子书</span></a>
+                    <a href="https://scholar.google.com/" target="_blank" rel="noopener noreferrer">Google Scholar <span class="tag">文献</span></a>
+                </div>
+            </div>
 
-            <br>
-            <a href="https://www.desmos.com/calculator?lang=zh-CN"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                Desmos
-            </a>
+            <!-- 生物信息学 -->
+            <div class="category">
+                <div class="category-title">🧬 生物信息学 <span class="badge">7</span></div>
+                <div class="link-grid">
+                    <a href="https://www.cncb.ac.cn/" target="_blank" rel="noopener noreferrer">CNCB <span class="tag">国家生物信息中心</span></a>
+                    <a href="https://www.ncbi.nlm.nih.gov/" target="_blank" rel="noopener noreferrer">NCBI <span class="tag">PubMed / GenBank</span></a>
+                    <a href="https://www.uniprot.org/" target="_blank" rel="noopener noreferrer">UniProt <span class="tag">蛋白质数据库</span></a>
+                    <a href="https://www.ebi.ac.uk/" target="_blank" rel="noopener noreferrer">EBI <span class="tag">欧洲生物信息所</span></a>
+                    <a href="https://www.rcsb.org/" target="_blank" rel="noopener noreferrer">RCSB PDB <span class="tag">蛋白质结构</span></a>
+                    <a href="https://www.ensembl.org/" target="_blank" rel="noopener noreferrer">Ensembl <span class="tag">基因组浏览器</span></a>
+                    <a href="https://www.ebi.ac.uk/interpro/" target="_blank" rel="noopener noreferrer">InterPro <span class="tag">蛋白功能分析</span></a>
+                </div>
+            </div>
 
+            <!-- 开源镜像站 -->
+            <div class="category">
+                <div class="category-title">🪞 开源镜像站 <span class="badge">5</span></div>
+                <div class="link-grid">
+                    <a href="https://mirrors.westlake.edu.cn/" target="_blank" rel="noopener noreferrer">西湖大学镜像 <span class="tag">开源镜像</span></a>
+                    <a href="https://mirrors.tuna.tsinghua.edu.cn/" target="_blank" rel="noopener noreferrer">清华镜像 <span class="tag">开源镜像</span></a>
+                    <a href="https://mirrors.pku.edu.cn/" target="_blank" rel="noopener noreferrer">北大镜像 <span class="tag">开源镜像</span></a>
+                    <a href="https://mirrors.sdu.edu.cn/" target="_blank" rel="noopener noreferrer">山大镜像 <span class="tag">开源镜像</span></a>
+                    <a href="https://mirrors.nju.edu.cn/" target="_blank" rel="noopener noreferrer">南大镜像 <span class="tag">开源镜像</span></a>
+                </div>
+            </div>
 
+            <!-- 算力平台 -->
+            <div class="category">
+                <div class="category-title">⚡ 算力平台 <span class="badge">2</span></div>
+                <div class="link-grid">
+                    <a href="https://console.compshare.cn/" target="_blank" rel="noopener noreferrer">优云智算 <span class="tag">GPU 算力</span></a>
+                    <a href="https://www.autodl.com/" target="_blank" rel="noopener noreferrer">AutoDL <span class="tag">GPU 算力</span></a>
+                </div>
+            </div>
+        </section>
 
+        <hr class="section-divider" />
 
-
-            <hr style="border: none; border-top: 2px solid #a8e6cf;">
-
-
-            <p>
-            <a href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
-                GitHub ↗
-            </a>
-            <a href="https://www.csdn.net/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
-                CSDN
-            </a>
-            
-            
-            
-            <a href="https://console.compshare.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                优云智算
-            </a>
-            <a href="https://www.autodl.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                AutoDL
-            </a>
-            <br>
-            <a href="https://www.cncb.ac.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                CNCB国家生物信息中心
-            </a>
-            <a href="https://www.ncbi.nlm.nih.gov/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                NCBI
-            </a>
-            <a href="https://www.uniprot.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                UniProt
-            </a>
-            <a href="https://www.ebi.ac.uk/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                EBI
-            </a>
-            <a href="https://www.rcsb.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                RCSB PDB
-            </a>
-            <a href="https://www.ensembl.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                Ensembl
-            </a>
-            <a href="https://www.ebi.ac.uk/interpro/search/sequence/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                InterPro
-            </a>
-             
-            </p>
-            <hr style="border: none; border-top: 2px solid #a8e6cf;">
-               
-            
-            <a href="https://www.icourse163.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                MOOC
-            </a> 
-            <a href="https://www.xuetangx.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                学堂在线
-        <!--
-            </a> 
-            <a href="https://vpn.qfnu.edu.cn/portal/#/login"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                QFNU VPN
-            </a>
-        -->
-            <a href="https://mirrors.westlake.edu.cn/posts/mirrors.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                西湖大学开源镜像站
-            </a> 
-            <a href="https://mirrors.tuna.tsinghua.edu.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                清华大学开源镜像站
-            </a> 
-            <a href="https://mirrors.pku.edu.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                北京大学开源镜像站
-            </a> 
-            <a href="https://mirrors.sdu.edu.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                山东大学开源镜像站
-            </a>
-            <a href="https://mirrors.nju.edu.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
-                南京大学开源镜像站
-            </a>
-
-            <br>
-            
-<!--资料下载中心按钮-->   
-            <div style="text-align: center; margin-top: 60px;">
-                <a href="https://bio2025.site/download.html"
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     class="premium-btn">
-                    <span class="btn-text">资料下载中心</span>
-                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="7 10 12 15 17 10"/>
-                      <line x1="12" y1="15" x2="12" y2="3"/>
+        <!-- ====== 资料下载入口 ====== -->
+        <section class="download-entry">
+            <a href="download.html" target="_blank" rel="noopener noreferrer" class="premium-btn">
+                <span class="btn-text">📂 资料下载中心</span>
+                <span class="btn-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                </a>
-            </div>
- <!--资料下载中心按钮格style-->   
-                    <style>
-                    .premium-btn {
-                      position: relative;
-                      display: inline-flex;
-                      align-items: center;
-                      gap: 12px;
-                      padding: 18px 48px;
-                      font-size: 28px;
-                      font-weight: 600;
-                      color: #eaf2ff;
-                      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%);
-                      border: 1px solid rgba(255,255,255,0.25);
-                      border-radius: 20px;
-                      text-decoration: none;
-                      overflow: hidden;
-                      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-                      letter-spacing: 1px;
-                      box-shadow:
-                        0 4px 24px rgba(0,0,0,0.2),
-                        inset 0 1px 0 rgba(255,255,255,0.15);
-                    }
-                    
-                    /* 顶部高光扫过 */
-                    .premium-btn::before {
-                      content: '';
-                      position: absolute;
-                      top: 0;
-                      left: -100%;
-                      width: 100%;
-                      height: 100%;
-                      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-                      transition: left 0.6s ease;
-                    }
-                    
-                    /* 边框微光 */
-                    .premium-btn::after {
-                      content: '';
-                      position: absolute;
-                      inset: 0;
-                      border-radius: 20px;
-                      padding: 1px;
-                      background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent 50%, rgba(255,255,255,0.1));
-                      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-                      -webkit-mask-composite: xor;
-                      mask-composite: exclude;
-                      pointer-events: none;
-                    }
-                    
-                    .premium-btn:hover {
-                      transform: translateY(-3px);
-                      background: linear-gradient(135deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.12) 100%);
-                      border-color: rgba(255,255,255,0.4);
-                      color: #ffffff;
-                      box-shadow:
-                        0 12px 40px rgba(0,0,0,0.3),
-                        0 0 30px rgba(140, 180, 255, 0.15),
-                        inset 0 1px 0 rgba(255,255,255,0.25);
-                    }
-                    
-                    .premium-btn:hover::before {
-                      left: 100%;
-                    }
-                    
-                    .premium-btn:active {
-                      transform: translateY(-1px);
-                      box-shadow:
-                        0 4px 16px rgba(0,0,0,0.25),
-                        inset 0 1px 0 rgba(255,255,255,0.2);
-                    }
-                    
-                    .btn-text {
-                      position: relative;
-                      z-index: 1;
-                    }
-                    
-                    .btn-icon {
-                      width: 26px;
-                      height: 26px;
-                      position: relative;
-                      z-index: 1;
-                      transition: transform 0.3s ease;
-                    }
-                    
-                    .premium-btn:hover .btn-icon {
-                      transform: translateY(3px);
-                    }
-                    </style>
+                </span>
+            </a>
+            <p class="hint">文档 · 视频 · 工具 · 持续更新</p>
+        </section>
 
-           
+        <hr class="section-divider" />
 
-    </section>
-
-    <!-- ========== 经历 ========== <!--
-     <!--
-    <section id="experience">
-        <h2>学习经历</h2>
-        <div class="timeline">
-            <div class="timeline-item">
-                <h3>某某大学 · 计算机科学与技术</h3>
-                <p class="time">2022.09 - 至今</p>
-                <p>主修数据结构、操作系统、计算机网络等核心课程，GPA 3.8/4.0，连续两年获得校级奖学金。</p>
-            </div>
-            <div class="timeline-item">
-                <h3>XX 科技公司 · 前端实习生</h3>
-                <p class="time">2025.06 - 2025.09</p>
-                <p>参与公司管理后台开发，负责数据可视化模块，使用 Vue3 + ECharts 实现多维度数据展示。</p>
-            </div>
-            <div class="timeline-item">
-                <h3>开源社区贡献者</h3>
-                <p class="time">2024.03 - 至今</p>
-                <p>参与多个开源项目文档翻译与 bug 修复，累计提交 PR 30+，获得社区认可。</p>
-            </div>
-        </div>
-    </section>
-    -->
-
-    <!-- ========== 联系我 ========== -->
-    <section id="contact">
-        <h2>联系我</h2>
-        <div class="contact-container">
-            <p>欢迎随时联系我 🎉</p>
-            <p>我会尽量在 24 小时内回复每一条消息。</p>
-            <div class="contact-methods">
+        <!-- ====== 联系 ====== -->
+        <section class="contact-section" id="contact">
+            <h2>📬 联系我</h2>
+            <p class="desc">欢迎交流 · 我会在 24 小时内回复</p>
+            <div class="contact-actions">
                 <a href="mailto:qflmz2007@163.com">📧 qflmz2007@163.com</a>
-                <a href="https://github.com/zhangsan" target="_blank">🐱 GitHub</a>
-                <a href="https://wx.qq.com/" target="_blank">💬 微信：qflmz2007y</a>
-                <a href="javascript:void(0)"
-                    onclick="navigator.clipboard.writeText('qflmz2007y').then(()=>alert('微信号已复制，去微信搜索添加'))"
-                    style="font-size:18px; font-weight:bold; text-decoration:none; color:#07c160;">
-                    💬 复制微信号
-                </a>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>
+                <button type="button" onclick="navigator.clipboard.writeText('qflmz2007y').then(()=>alert('✅ 微信号已复制'))">💬 复制微信</button>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ========== 页脚 ========== -->
-    <footer>
-        <p>© 2026 lmz · 版权所有</p>
+    </main>
+
+    <!-- ============================================================
+    页脚
+    ============================================================ -->
+    <footer class="footer">
+        <p>&copy; 2026 lmz · 生物工程 · 技术 · 学习</p>
     </footer>
+
+    <!-- ============================================================
+    JavaScript（轻量，仅主题切换）
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            const root = document.documentElement;
+            const toggleBtn = document.getElementById('themeToggle');
+
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+            root.setAttribute('data-theme', savedTheme);
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    const current = root.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    root.setAttribute('data-theme', next);
+                    localStorage.setItem('theme', next);
+                });
+            }
+
+        })();
+    </script>
 
 </body>
 </html>
