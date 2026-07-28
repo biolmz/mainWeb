@@ -1,221 +1,722 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>资料下载</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>资料下载中心 · 手动刷新</title>
 
-<link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com">
-<link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com">
+  <!-- PWA 配置 -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<style>
-  :root {
-    --bg: #ffffff;
-    --bg-card: #f7f8fa;
-    --text: #1a1a1a;
-    --text-secondary: #666;
-    --border: #e8e8e8;
-    --accent: #2563eb;
-    --accent-hover: #1d4ed8;
-    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -4px rgba(0,0,0,.04);
-    --radius: 12px;
-    --transition: .25s ease;
-  }
+  <!-- DNS 预解析 -->
+  <link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com">
+  <link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com">
 
-  [data-theme="dark"] {
-    --bg: #0f1115;
-    --bg-card: #1a1d24;
-    --text: #e8e8e8;
-    --text-secondary: #9ca3af;
-    --border: #2a2f3a;
-    --accent: #3b82f6;
-    --accent-hover: #60a5fa;
-    --shadow: 0 1px 3px rgba(0,0,0,.3);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.4);
-  }
+  <style>
+    /* ===== 全局变量与重置 ===== */
+    :root {
+      --bg: #ffffff;
+      --bg-card: #f7f8fa;
+      --text: #1a1a1a;
+      --text-secondary: #666;
+      --border: #e8e8e8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -4px rgba(0,0,0,.04);
+      --radius: 12px;
+      --transition: .2s ease;
+      --header-height: 64px;
+      --max-width: 880px;
+      --toast-bg: #1a1a2e;
+      --toast-text: #fff;
+    }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+    [data-theme="dark"] {
+      --bg: #0f1115;
+      --bg-card: #1a1d24;
+      --text: #e8e8e8;
+      --text-secondary: #9ca3af;
+      --border: #2a2f3a;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.4);
+      --toast-bg: #2a2f3a;
+      --toast-text: #e8e8e8;
+    }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    transition: background var(--transition), color var(--transition);
-    -webkit-font-smoothing: antialiased;
-  }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .header {
-    position: sticky; top: 0; z-index: 100;
-    backdrop-filter: blur(12px);
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    transition: background var(--transition), border-color var(--transition);
-  }
+    html {
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  .header-inner {
-    max-width: 880px; margin: 0 auto;
-    padding: 18px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      transition: background var(--transition), color var(--transition);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
 
-  .logo {
-    font-size: 20px; font-weight: 700;
-    color: var(--text); text-decoration: none;
-    display: flex; align-items: center; gap: 10px;
-  }
+    /* ===== 头部 ===== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      background: rgba(var(--bg-rgb, 255,255,255), 0.72);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition), border-color var(--transition);
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+    }
 
-  .logo-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), #8b5cf6);
-    display: flex; align-items: center; justify-content: center; color: #fff;
-  }
+    [data-theme="light"] { --bg-rgb: 255,255,255; }
+    [data-theme="dark"] { --bg-rgb: 15,17,21; }
 
-  .theme-toggle {
-    width: 42px; height: 42px; border-radius: 10px;
-    border: 1px solid var(--border); background: var(--bg-card);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    color: var(--text); transition: all var(--transition);
-  }
-  .theme-toggle:hover { border-color: var(--accent); }
+    .header-inner {
+      max-width: var(--max-width);
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
 
-  .main { max-width: 880px; margin: 0 auto; padding: 56px 24px 80px; }
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
 
-  .hero { text-align: center; margin-bottom: 56px; }
-  .hero h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
-  .hero p { font-size: 17px; color: var(--text-secondary); max-width: 520px; margin: 0 auto; line-height: 1.6; }
+    .logo-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .logo-icon svg {
+      width: 17px;
+      height: 17px;
+    }
 
-  .search-bar { max-width: 520px; margin: 0 auto 40px; position: relative; }
-  .search-bar input {
-    width: 100%; padding: 14px 20px 14px 48px; font-size: 15px;
-    border: 1.5px solid var(--border); border-radius: var(--radius);
-    background: var(--bg-card); color: var(--text); outline: none;
-    transition: border-color var(--transition), box-shadow var(--transition);
-  }
-  .search-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
-  .search-bar .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
 
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px; }
-  .filter-btn {
-    padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border);
-    background: var(--bg-card); color: var(--text-secondary); font-size: 14px;
-    cursor: pointer; transition: all var(--transition); font-weight: 500;
-  }
-  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    /* ===== 实时时钟 ===== */
+    .live-clock {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .live-clock .dot-pulse {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse-dot 1.8s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
 
-  .file-list { display: flex; flex-direction: column; gap: 14px; }
+    /* ===== 网络状态指示器 ===== */
+    .network-status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: all var(--transition);
+    }
+    .network-status.online {
+      border-color: #22c55e;
+    }
+    .network-status.offline {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .network-status .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .network-status.online .status-dot {
+      background: #22c55e;
+    }
+    .network-status.offline .status-dot {
+      background: #ef4444;
+      animation: pulse-dot 1.2s ease-in-out infinite;
+    }
 
-  .file-card {
-    display: flex; align-items: center; gap: 16px;
-    padding: 18px 20px; background: var(--bg-card);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    transition: all var(--transition); animation: fadeIn .35s ease both;
-  }
-  .file-card:hover { border-color: var(--accent); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    /* ===== 刷新按钮 ===== */
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px 12px 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .refresh-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--bg);
+    }
+    .refresh-btn:active { transform: scale(0.94); }
+    .refresh-btn svg {
+      width: 14px;
+      height: 14px;
+      transition: transform 0.6s ease;
+      flex-shrink: 0;
+    }
+    .refresh-btn.spinning svg {
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-  .file-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .file-icon svg { width: 22px; height: 22px; }
-  .file-icon.pdf  { background: #fee2e2; color: #dc2626; }
-  .file-icon.docx { background: #dbeafe; color: #2563eb; }
-  .file-icon.xlsx { background: #d1fae5; color: #059669; }
-  .file-icon.pptx { background: #fef3c7; color: #d97706; }
-  .file-icon.zip  { background: #f3e8ff; color: #7c3aed; }
-  .file-icon.video{ background: #ffedd5; color: #ea580c; }
-  .file-icon.audio{ background: #e0e7ff; color: #4f46e5; }
-  .file-icon.image{ background: #fce7f3; color: #db2777; }
-  .file-icon.file { background: #f1f5f9; color: #475569; }
+    .theme-toggle {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      transition: all var(--transition);
+      flex-shrink: 0;
+      -webkit-touch-callout: none;
+    }
+    .theme-toggle:hover { border-color: var(--accent); }
+    .theme-toggle:active { transform: scale(0.92); }
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
 
-  [data-theme="dark"] .file-icon.pdf  { background: rgba(220,38,38,.15); }
-  [data-theme="dark"] .file-icon.docx { background: rgba(37,99,235,.15); }
-  [data-theme="dark"] .file-icon.xlsx { background: rgba(5,150,105,.15); }
-  [data-theme="dark"] .file-icon.pptx { background: rgba(217,119,6,.15); }
-  [data-theme="dark"] .file-icon.zip  { background: rgba(124,58,237,.15); }
-  [data-theme="dark"] .file-icon.video{ background: rgba(234,88,12,.15); }
-  [data-theme="dark"] .file-icon.audio{ background: rgba(79,70,229,.15); }
-  [data-theme="dark"] .file-icon.image{ background: rgba(219,39,119,.15); }
-  [data-theme="dark"] .file-icon.file { background: rgba(148,163,184,.12); }
+    /* ===== 主体 ===== */
+    .main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+      min-height: calc(100vh - var(--header-height) - 60px);
+      min-height: calc(100dvh - var(--header-height) - 60px);
+    }
 
-  .file-info { flex: 1; min-width: 0; }
-  .file-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .file-meta { font-size: 13px; color: var(--text-secondary); display: flex; gap: 12px; align-items: center; }
-  .file-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-secondary); opacity: .5; }
+    .hero {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 0 8px;
+    }
+    .hero h1 {
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .hero p {
+      font-size: clamp(14px, 2.5vw, 16px);
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
 
-  .download-btn {
-    width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border);
-    background: transparent; color: var(--text-secondary); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; font-size: 16px;
-    transition: all var(--transition); flex-shrink: 0; text-decoration: none;
-  }
-  .download-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .download-btn svg { width: 18px; height: 18px; }
+    /* ===== 搜索与筛选 ===== */
+    .search-bar {
+      max-width: 500px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      font-size: 15px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      color: var(--text);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .search-bar input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+    .search-bar input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+    .search-bar .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .search-bar .search-icon svg {
+      width: 17px;
+      height: 17px;
+    }
 
-  .footer { text-align: center; padding: 32px 24px; color: var(--text-secondary); font-size: 13px; border-top: 1px solid var(--border); }
+    .filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 28px;
+      padding: 0 4px;
+    }
+    .filter-btn {
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-weight: 500;
+      user-select: none;
+      -webkit-touch-callout: none;
+      white-space: nowrap;
+    }
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .filter-btn:active { transform: scale(0.94); }
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
 
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
-  .empty-state .icon { margin-bottom: 16px; display: flex; justify-content: center; }
-  .empty-state p { font-size: 15px; }
+    /* ===== 文件列表 ===== */
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-  .loading-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
-  .loading-state .spinner {
-    width: 36px; height: 36px; border: 3px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
-  }
+    .file-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all var(--transition);
+      animation: fadeIn .3s ease both;
+      will-change: transform, border-color;
+    }
+    .file-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-1px);
+    }
 
-  @media (max-width: 640px) {
-    .hero h1 { font-size: 28px; }
-    .hero p { font-size: 15px; }
-    .main { padding: 36px 16px 60px; }
-    .file-card { padding: 14px 16px; gap: 12px; }
-    .file-icon { width: 38px; height: 38px; }
-    .file-icon svg { width: 19px; height: 19px; }
-  }
+    .file-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .file-icon svg {
+      width: 19px;
+      height: 19px;
+    }
+    .file-icon.pdf  { background: #fee2e2; color: #dc2626; }
+    .file-icon.docx { background: #dbeafe; color: #2563eb; }
+    .file-icon.xlsx { background: #d1fae5; color: #059669; }
+    .file-icon.pptx { background: #fef3c7; color: #d97706; }
+    .file-icon.zip  { background: #f3e8ff; color: #7c3aed; }
+    .file-icon.video{ background: #ffedd5; color: #ea580c; }
+    .file-icon.audio{ background: #e0e7ff; color: #4f46e5; }
+    .file-icon.image{ background: #fce7f3; color: #db2777; }
+    .file-icon.file { background: #f1f5f9; color: #475569; }
 
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
+    [data-theme="dark"] .file-icon.pdf  { background: rgba(220,38,38,.15); }
+    [data-theme="dark"] .file-icon.docx { background: rgba(37,99,235,.15); }
+    [data-theme="dark"] .file-icon.xlsx { background: rgba(5,150,105,.15); }
+    [data-theme="dark"] .file-icon.pptx { background: rgba(217,119,6,.15); }
+    [data-theme="dark"] .file-icon.zip  { background: rgba(124,58,237,.15); }
+    [data-theme="dark"] .file-icon.video{ background: rgba(234,88,12,.15); }
+    [data-theme="dark"] .file-icon.audio{ background: rgba(79,70,229,.15); }
+    [data-theme="dark"] .file-icon.image{ background: rgba(219,39,119,.15); }
+    [data-theme="dark"] .file-icon.file { background: rgba(148,163,184,.12); }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .file-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .file-meta .dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      opacity: .35;
+      flex-shrink: 0;
+    }
+
+    .download-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      flex-shrink: 0;
+      text-decoration: none;
+      -webkit-touch-callout: none;
+    }
+    .download-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .download-btn:active { transform: scale(0.9); }
+    .download-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px 20px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    /* ===== 空状态 ===== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--text-secondary);
+    }
+    .empty-state .icon {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: center;
+      opacity: 0.45;
+    }
+    .empty-state .icon svg {
+      width: 44px;
+      height: 44px;
+      stroke: currentColor;
+    }
+    .empty-state p {
+      font-size: 15px;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--text-secondary);
+    }
+    .loading-state .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    /* ===== Toast 通知 ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none;
+      max-width: 90%;
+    }
+    .toast {
+      padding: 10px 20px;
+      border-radius: 12px;
+      background: var(--toast-bg);
+      color: var(--toast-text);
+      font-size: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+      pointer-events: auto;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .toast.error {
+      border-color: #ef4444;
+    }
+    .toast.success {
+      border-color: #22c55e;
+    }
+    .toast.warning {
+      border-color: #f59e0b;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    }
+
+    /* ===== 响应式 ===== */
+    @media (min-width: 768px) {
+      .header-inner { padding: 0 32px; }
+      .main { padding: 40px 32px 56px; }
+      .file-card { padding: 14px 20px; gap: 14px; }
+      .file-icon { width: 42px; height: 42px; }
+      .file-icon svg { width: 21px; height: 21px; }
+      .file-name { font-size: 15px; }
+      .live-clock { font-size: 13px; padding: 4px 14px; }
+      .refresh-btn { font-size: 13px; padding: 4px 14px 4px 10px; }
+      .refresh-btn svg { width: 15px; height: 15px; }
+      .theme-toggle { width: 38px; height: 38px; }
+      .theme-toggle svg { width: 18px; height: 18px; }
+      .download-btn { width: 38px; height: 38px; }
+      .download-btn svg { width: 18px; height: 18px; }
+      .empty-state .icon svg { width: 52px; height: 52px; }
+      .network-status { font-size: 12px; }
+    }
+
+    @media (min-width: 1024px) {
+      .header-inner { padding: 0 40px; }
+      .main { padding: 48px 40px 64px; }
+      .file-card { padding: 16px 24px; }
+      .file-icon { width: 46px; height: 46px; }
+      .file-icon svg { width: 23px; height: 23px; }
+      .file-name { font-size: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      :root { --header-height: 56px; }
+      .header-inner { padding: 0 12px; gap: 8px; }
+      .logo { font-size: 16px; gap: 8px; }
+      .logo-icon { width: 26px; height: 26px; }
+      .logo-icon svg { width: 15px; height: 15px; }
+      .main { padding: 20px 12px 32px; }
+      .hero { margin-bottom: 20px; }
+      .hero h1 { font-size: 22px; }
+      .search-bar { margin: 0 auto 20px; }
+      .search-bar input { padding: 8px 12px 8px 36px; font-size: 14px; }
+      .search-bar .search-icon { left: 10px; }
+      .search-bar .search-icon svg { width: 15px; height: 15px; }
+      .filters { gap: 4px; margin-bottom: 20px; }
+      .filter-btn { font-size: 12px; padding: 4px 12px; }
+      .file-card { padding: 10px 12px; gap: 10px; }
+      .file-icon { width: 34px; height: 34px; }
+      .file-icon svg { width: 17px; height: 17px; }
+      .file-name { font-size: 13px; }
+      .file-meta { font-size: 11px; gap: 6px; }
+      .download-btn { width: 30px; height: 30px; }
+      .download-btn svg { width: 14px; height: 14px; }
+      .live-clock { font-size: 11px; padding: 3px 8px; }
+      .live-clock .dot-pulse { width: 5px; height: 5px; }
+      .refresh-btn { font-size: 11px; padding: 3px 8px 3px 6px; }
+      .refresh-btn svg { width: 12px; height: 12px; }
+      .theme-toggle { width: 30px; height: 30px; }
+      .theme-toggle svg { width: 14px; height: 14px; }
+      .empty-state { padding: 28px 12px; }
+      .empty-state .icon svg { width: 36px; height: 36px; }
+      .empty-state p { font-size: 14px; }
+      .loading-state { padding: 28px 12px; }
+      .loading-state .spinner { width: 26px; height: 26px; }
+      .network-status { font-size: 10px; padding: 3px 8px; }
+      .toast { font-size: 13px; padding: 8px 16px; }
+    }
+
+    @media (max-width: 360px) {
+      .header-actions { gap: 4px; }
+      .live-clock { font-size: 10px; padding: 2px 6px; }
+      .refresh-btn { font-size: 10px; padding: 2px 6px 2px 4px; }
+      .refresh-btn svg { width: 11px; height: 11px; }
+      .theme-toggle { width: 28px; height: 28px; }
+      .theme-toggle svg { width: 12px; height: 12px; }
+      .filter-btn { font-size: 11px; padding: 3px 8px; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      .header { position: static; backdrop-filter: none; }
+      .theme-toggle, .refresh-btn, .live-clock, .network-status { display: none; }
+      .file-card:hover { transform: none; box-shadow: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
 </head>
 <body>
 
 <header class="header">
   <div class="header-inner">
-    <a href="#" class="logo">
+    <a href="#" class="logo" aria-label="资料库首页">
       <div class="logo-icon">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
       </div>
       资料库
     </a>
-    <button class="theme-toggle" id="themeToggle" title="切换主题">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <div class="header-actions">
+      <!-- 网络状态 -->
+      <div class="network-status online" id="networkStatus" title="网络状态">
+        <span class="status-dot"></span>
+        <span id="networkLabel">在线</span>
+      </div>
+      <!-- 实时时钟 -->
+      <div class="live-clock" id="liveClock" aria-label="实时时钟">
+        <span class="dot-pulse" aria-hidden="true"></span>
+        <span id="clockDisplay">--:--:--</span>
+      </div>
+      <!-- 刷新按钮 -->
+      <button class="refresh-btn" id="refreshBtn" title="刷新文件列表" aria-label="刷新文件列表">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        <span>刷新</span>
+      </button>
+      <!-- 主题切换 -->
+      <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换深色/浅色主题">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
   </div>
 </header>
 
 <main class="main">
   <section class="hero">
-    <h1>资料下载中心</h1>
+    <h1>📂 资料下载中心</h1>
     <p>精选文档、视频与工具资源，一键获取，免费下载</p>
   </section>
 
   <div class="search-bar">
-    <span class="search-icon">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span class="search-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </span>
-    <input type="text" id="searchInput" placeholder="搜索文件名、类型或标签…" />
+    <input type="text" id="searchInput" placeholder="搜索文件名、类型或标签…" autocomplete="off" spellcheck="false" aria-label="搜索文件" />
   </div>
 
-  <div class="filters" id="filters">
-    <button class="filter-btn active" data-cat="all">全部</button>
-    <button class="filter-btn" data-cat="doc">文档</button>
-    <button class="filter-btn" data-cat="video">视频</button>
-    <button class="filter-btn" data-cat="audio">音频</button>
-    <button class="filter-btn" data-cat="archive">压缩包</button>
-    <button class="filter-btn" data-cat="image">图片</button>
+  <div class="filters" id="filters" role="tablist" aria-label="文件分类筛选">
+    <button class="filter-btn active" data-cat="all" role="tab" aria-selected="true">全部</button>
+    <button class="filter-btn" data-cat="doc" role="tab" aria-selected="false">文档</button>
+    <button class="filter-btn" data-cat="video" role="tab" aria-selected="false">视频</button>
+    <button class="filter-btn" data-cat="audio" role="tab" aria-selected="false">音频</button>
+    <button class="filter-btn" data-cat="archive" role="tab" aria-selected="false">压缩包</button>
+    <button class="filter-btn" data-cat="image" role="tab" aria-selected="false">图片</button>
   </div>
 
-  <div class="file-list" id="fileList">
+  <div class="file-list" id="fileList" role="list">
     <div class="loading-state">
       <div class="spinner"></div>
       <p>正在加载文件列表...</p>
@@ -224,124 +725,438 @@
 </main>
 
 <footer class="footer">
-  © 2026 资料库 · 持续更新中
+  © 2026 资料库 · 点击「刷新」获取最新文件
 </footer>
 
+<!-- Toast 容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
-const iconSvg = {
-  pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-  docx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-  xlsx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-  pptx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-  zip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
-  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
-  audio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-  image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
-  file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>'
-};
-const downloadSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+  (function() {
+    'use strict';
 
-const fileListEl = document.getElementById("fileList");
-const searchInput = document.getElementById("searchInput");
-const filterBtns = document.querySelectorAll(".filter-btn");
+    // ============================================================
+    // 1. 图标库
+    // ============================================================
+    const iconSvg = {
+      pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+      docx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+      xlsx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+      pptx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+      zip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+      video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
+      audio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+      image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+      file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>'
+    };
+    const downloadSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
 
-let files = [];
-let currentCat = "all";
-let currentKeyword = "";
+    // ============================================================
+    // 2. DOM 引用
+    // ============================================================
+    const fileListEl = document.getElementById('fileList');
+    const searchInput = document.getElementById('searchInput');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const clockDisplay = document.getElementById('clockDisplay');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const themeToggle = document.getElementById('themeToggle');
+    const root = document.documentElement;
+    const networkStatus = document.getElementById('networkStatus');
+    const networkLabel = document.getElementById('networkLabel');
+    const toastContainer = document.getElementById('toastContainer');
 
-async function loadFiles() {
-  try {
-    const res = await fetch('files.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    files = await res.json();
-    render();
-  } catch (e) {
-    fileListEl.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">${iconSvg.file}</div>
-        <p>文件列表加载失败，请稍后刷新重试</p>
-      </div>`;
-    console.error(e);
-  }
-}
+    // ============================================================
+    // 3. 状态
+    // ============================================================
+    let files = [];
+    let currentCat = 'all';
+    let currentKeyword = '';
+    let isLoading = false;
+    let isOnline = navigator.onLine;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000;
 
-function render() {
-  const filtered = files.filter(f => {
-    const matchCat = currentCat === "all" || f.cat === currentCat;
-    const matchKw = !currentKeyword ||
-      f.name.toLowerCase().includes(currentKeyword.toLowerCase()) ||
-      f.ext.toLowerCase().includes(currentKeyword.toLowerCase());
-    return matchCat && matchKw;
-  });
+    // ============================================================
+    // 4. Toast 通知系统
+    // ============================================================
+    function showToast(message, type = 'info', duration = 3000) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
 
-  if (filtered.length === 0) {
-    fileListEl.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">${iconSvg.file}</div>
-        <p>没有找到匹配的文件，换个关键词试试？</p>
-      </div>`;
-    return;
-  }
+      // 自动移除
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      }, duration);
+    }
 
-  fileListEl.innerHTML = filtered.map(f => `
-    <div class="file-card">
-      <a href="${f.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;flex:1;min-width:0;text-decoration:none;color:inherit;">
-        <div class="file-icon ${f.icon}">${iconSvg[f.icon] || iconSvg.file}</div>
-        <div class="file-info">
-          <div class="file-name">${escapeHtml(f.name)}</div>
+    // ============================================================
+    // 5. 网络状态管理
+    // ============================================================
+    function updateNetworkStatus(online) {
+      isOnline = online;
+      if (online) {
+        networkStatus.className = 'network-status online';
+        networkLabel.textContent = '在线';
+        showToast('网络已恢复连接', 'success', 2000);
+        // 自动刷新数据
+        if (files.length === 0) {
+          loadFiles(true);
+        }
+      } else {
+        networkStatus.className = 'network-status offline';
+        networkLabel.textContent = '离线';
+        showToast('网络已断开，显示缓存数据', 'warning', 3000);
+      }
+    }
+
+    // 监听网络变化
+    window.addEventListener('online', () => {
+      updateNetworkStatus(true);
+    });
+
+    window.addEventListener('offline', () => {
+      updateNetworkStatus(false);
+    });
+
+    // 初始化网络状态
+    updateNetworkStatus(navigator.onLine);
+
+    // ============================================================
+    // 6. 实时时钟
+    // ============================================================
+    function updateClock() {
+      const now = new Date();
+      clockDisplay.textContent = now.toTimeString().slice(0, 8);
+    }
+    updateClock();
+    const clockInterval = setInterval(updateClock, 1000);
+
+    // ============================================================
+    // 7. 带重试的 fetch
+    // ============================================================
+    async function fetchWithRetry(url, retries = MAX_RETRIES) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const res = await fetch(url, {
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache' }
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res;
+        } catch (e) {
+          if (i === retries - 1) throw e;
+          // 指数退避
+          const delay = RETRY_DELAY * Math.pow(2, i);
+          await new Promise(r => setTimeout(r, delay));
+        }
+      }
+      throw new Error('重试次数已用完');
+    }
+
+    // ============================================================
+    // 8. 从缓存加载数据（兜底）
+    // ============================================================
+    async function loadFromCache() {
+      try {
+        const cache = await caches.open('download-center-v1');
+        const response = await cache.match('/files.json');
+        if (response) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            files = data;
+            render();
+            return true;
+          }
+        }
+      } catch (e) {
+        console.warn('缓存读取失败:', e);
+      }
+      return false;
+    }
+
+    // ============================================================
+    // 9. 加载文件数据（增强版）
+    // ============================================================
+    async function loadFiles(showLoading = true, silent = false) {
+      if (isLoading) return;
+      isLoading = true;
+      refreshBtn.classList.add('spinning');
+
+      if (showLoading && !silent) {
+        fileListEl.innerHTML = `
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>正在刷新文件列表...</p>
+          </div>`;
+      }
+
+      try {
+        // 如果离线，直接从缓存加载
+        if (!navigator.onLine) {
+          const cached = await loadFromCache();
+          if (!cached) {
+            fileListEl.innerHTML = `
+              <div class="empty-state">
+                <div class="icon">${iconSvg.file}</div>
+                <p>网络已断开，且无缓存数据</p>
+                <p style="font-size:13px;margin-top:6px;opacity:0.6;">请连接网络后重试</p>
+              </div>`;
+          }
+          isLoading = false;
+          refreshBtn.classList.remove('spinning');
+          return;
+        }
+
+        // 在线：尝试获取最新数据
+        const res = await fetchWithRetry('files.json?t=' + Date.now());
+        const data = await res.json();
+
+        if (!Array.isArray(data)) throw new Error('数据格式错误');
+
+        // 更新缓存
+        try {
+          const cache = await caches.open('download-center-v1');
+          const response = new Response(JSON.stringify(data), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+          cache.put('/files.json', response);
+        } catch (e) {
+          console.warn('缓存更新失败:', e);
+        }
+
+        files = data;
+        retryCount = 0;
+        render();
+        if (!silent) {
+          showToast('文件列表已更新', 'success', 1500);
+        }
+      } catch (e) {
+        console.error('加载失败:', e);
+
+        // 尝试从缓存加载
+        const cached = await loadFromCache();
+        if (cached) {
+          showToast('获取最新数据失败，显示缓存数据', 'warning', 3000);
+          isLoading = false;
+          refreshBtn.classList.remove('spinning');
+          return;
+        }
+
+        // 无缓存，显示错误
+        fileListEl.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">${iconSvg.file}</div>
+            <p>文件列表加载失败</p>
+            <p style="font-size:13px;margin-top:6px;opacity:0.6;">${escapeHtml(e.message)}</p>
+            <button class="filter-btn" style="margin-top:16px;padding:8px 24px;" onclick="location.reload()">
+              🔄 重新加载
+            </button>
+          </div>`;
+        showToast('加载失败: ' + e.message, 'error', 3000);
+      } finally {
+        isLoading = false;
+        refreshBtn.classList.remove('spinning');
+      }
+    }
+
+    // ============================================================
+    // 10. 渲染文件列表
+    // ============================================================
+    function render() {
+      const filtered = files.filter(f => {
+        const matchCat = currentCat === 'all' || f.cat === currentCat;
+        const kw = currentKeyword.toLowerCase();
+        const matchKw = !kw ||
+          (f.name && f.name.toLowerCase().includes(kw)) ||
+          (f.ext && f.ext.toLowerCase().includes(kw));
+        return matchCat && matchKw;
+      });
+
+      if (filtered.length === 0) {
+        fileListEl.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">${iconSvg.file}</div>
+            <p>没有找到匹配的文件，换个关键词试试？</p>
+          </div>`;
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      filtered.forEach((f, index) => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        card.style.animationDelay = (index * 20) + 'ms';
+
+        const link = document.createElement('a');
+        link.href = f.url || '#';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.cssText = 'display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-decoration:none;color:inherit;';
+
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'file-icon ' + (f.icon || 'file');
+        iconDiv.innerHTML = iconSvg[f.icon] || iconSvg.file;
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'file-info';
+        infoDiv.innerHTML = `
+          <div class="file-name">${escapeHtml(f.name || '未命名文件')}</div>
           <div class="file-meta">
-            <span>${f.ext}</span>
-            <span class="dot"></span>
-            <span>${f.size}</span>
-            <span class="dot"></span>
-            <span>${f.date}</span>
-          </div>
-        </div>
-      </a>
-      <a class="download-btn" href="${f.url}" target="_blank" rel="noopener" title="下载" onclick="event.stopPropagation()">
-        ${downloadSvg}
-      </a>
-    </div>
-  `).join("");
-}
+            <span>${escapeHtml(f.ext || '')}</span>
+            ${f.ext ? '<span class="dot"></span>' : ''}
+            <span>${escapeHtml(f.size || '')}</span>
+            ${f.size ? '<span class="dot"></span>' : ''}
+            <span>${escapeHtml(f.date || '')}</span>
+          </div>`;
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
+        link.appendChild(iconDiv);
+        link.appendChild(infoDiv);
 
-let debounceTimer;
-searchInput.addEventListener("input", e => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    currentKeyword = e.target.value.trim();
-    render();
-  }, 200);
-});
+        const dlBtn = document.createElement('a');
+        dlBtn.className = 'download-btn';
+        dlBtn.href = f.url || '#';
+        dlBtn.target = '_blank';
+        dlBtn.rel = 'noopener noreferrer';
+        dlBtn.title = '下载';
+        dlBtn.innerHTML = downloadSvg;
+        dlBtn.setAttribute('aria-label', '下载 ' + (f.name || '文件'));
+        dlBtn.addEventListener('click', e => e.stopPropagation());
 
-filterBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    filterBtns.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentCat = btn.dataset.cat;
-    render();
-  });
-});
+        card.appendChild(link);
+        card.appendChild(dlBtn);
+        fragment.appendChild(card);
+      });
 
-const themeToggle = document.getElementById("themeToggle");
-const root = document.documentElement;
-const savedTheme = localStorage.getItem("theme") || "light";
-root.setAttribute("data-theme", savedTheme);
+      fileListEl.innerHTML = '';
+      fileListEl.appendChild(fragment);
+    }
 
-themeToggle.addEventListener("click", () => {
-  const isDark = root.getAttribute("data-theme") === "dark";
-  const newTheme = isDark ? "light" : "dark";
-  root.setAttribute("data-theme", newTheme);
-  localStorage.setItem("theme", newTheme);
-});
+    // ============================================================
+    // 11. 安全工具
+    // ============================================================
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
-loadFiles();
+    // ============================================================
+    // 12. 搜索防抖
+    // ============================================================
+    let debounceTimer;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        currentKeyword = searchInput.value.trim();
+        render();
+      }, 200);
+    });
+
+    // ============================================================
+    // 13. 分类筛选
+    // ============================================================
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        currentCat = btn.dataset.cat;
+        render();
+      });
+
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          btn.click();
+        }
+      });
+    });
+
+    // ============================================================
+    // 14. 主题切换
+    // ============================================================
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    root.setAttribute('data-theme', savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      root.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+
+    // ============================================================
+    // 15. 刷新按钮
+    // ============================================================
+    refreshBtn.addEventListener('click', () => loadFiles(true, false));
+
+    // ============================================================
+    // 16. 键盘快捷键
+    // ============================================================
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+R 或 Cmd+R 刷新
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        loadFiles(true, false);
+      }
+      // / 键聚焦搜索框
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        const active = document.activeElement;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      // Escape 清空搜索
+      if (e.key === 'Escape' && document.activeElement === searchInput) {
+        searchInput.value = '';
+        currentKeyword = '';
+        render();
+        searchInput.blur();
+      }
+    });
+
+    // ============================================================
+    // 17. 页面可见性变化
+    // ============================================================
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && files.length === 0 && !isLoading) {
+        loadFiles(true, true);
+      }
+    });
+
+    // ============================================================
+    // 18. 注册 Service Worker
+    // ============================================================
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('📦 Service Worker 注册成功'))
+        .catch(err => console.warn('Service Worker 注册失败:', err));
+    }
+
+    // ============================================================
+    // 19. 启动加载
+    // ============================================================
+    loadFiles(true, false);
+
+    // ============================================================
+    // 20. 清理
+    // ============================================================
+    window.addEventListener('beforeunload', () => {
+      clearInterval(clockInterval);
+      clearTimeout(debounceTimer);
+    });
+
+  })();
 </script>
 </body>
 </html>
