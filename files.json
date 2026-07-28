@@ -16,5 +16,14 @@
     "icon": "pdf",
     "ext": "PDF",
     "url": "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/2025物联杯数学竞赛数学类试题及参考解答.pdf"
+  },
+  {
+    "name": "测试文件.doc",
+    "size": "9 KB",
+    "date": "2026-07-28",
+    "cat": "doc",
+    "icon": "docx",
+    "ext": "DOC",
+    "url": "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/测试文件.doc"
   }
 ]
