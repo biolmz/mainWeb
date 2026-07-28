@@ -2,6 +2,7 @@
 import os
 import json
 import subprocess
+from urllib.parse import quote
 from qcloud_cos import CosConfig, CosS3Client
 
 secret_id = os.environ['COS_SECRET_ID']
@@ -74,7 +75,7 @@ def scan_bucket(bucket_name, region):
                 "cat": cat,
                 "icon": icon,
                 "ext": ext_upper,
-                "url": f"https://{bucket_name}.cos.{region}.myqcloud.com/{key}"
+                "url": f"https://{bucket_name}.cos.{region}.myqcloud.com/{quote(key, safe='/')}"
             })
 
         if response.get("IsTruncated") == "true":
