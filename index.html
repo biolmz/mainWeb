@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>lmz</title>
+    <style>
+        /* ========== 全局重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #4238ad, #24243e);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        a {
+            color: #7ec8e3;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #a8e6cf;
+        }
+
+        /* ========== 导航栏 ========== */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 12, 41, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        nav .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #a8e6cf;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+
+        nav ul li a {
+            color: #ccc;
+            font-size: 0.95rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        nav ul li a:hover {
+            background: rgba(168, 230, 207, 0.15);
+            color: #a8e6cf;
+        }
+
+        /* ========== 英雄区域 ========== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 100px 20px 50px;
+        }
+
+        .hero .avatar {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 4px solid #a8e6cf;
+            box-shadow: 0 0 40px rgba(168, 230, 207, 0.3);
+            margin-bottom: 30px;
+            object-fit: cover;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 15px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            color: #7ec8e3;
+            margin-bottom: 25px;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .hero .intro {
+            max-width: 600px;
+            color: #bbb;
+            font-size: 1.05rem;
+            animation: fadeInUp 1.4s ease;
+        }
+
+        .hero .social-links {
+            margin-top: 35px;
+            display: flex;
+            gap: 20px;
+            animation: fadeInUp 1.6s ease;
+        }
+
+        .hero .social-links a {
+            display: inline-block;
+            padding: 10px 25px;
+            border: 2px solid #7ec8e3;
+            border-radius: 30px;
+            color: #7ec8e3;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .hero .social-links a:hover {
+            background: #7ec8e3;
+            color: #1a1a2e;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(126, 200, 227, 0.4);
+        }
+
+        /* ========== 通用区块 ========== */
+        section {
+            padding: 80px 50px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        section h2 {
+            font-size: 2rem;
+            color: #a8e6cf;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        section h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #a8e6cf, #7ec8e3);
+            margin: 12px auto 0;
+            border-radius: 2px;
+        }
+
+        /* ========== 关于我 ========== */
+        .about-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .about-content p {
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .info-item {
+            background: rgba(126, 200, 227, 0.08);
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .info-item strong {
+            color: #a8e6cf;
+        }
+
+        /* ========== 技能 ========== */
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .skill-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .skill-card h3 {
+            color: #a8e6cf;
+            margin-bottom: 10px;
+        }
+
+        .skill-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        /* ========== 作品 ========== */
+        .works-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .work-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .work-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .work-card .work-placeholder {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, #302b63, #7ec8e3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .work-card .work-info {
+            padding: 25px;
+        }
+
+        .work-card h3 {
+            color: #a8e6cf;
+            margin-bottom: 10px;
+        }
+
+        .work-card p {
+            color: #aaa;
+            font-size: 0.92rem;
+        }
+
+        .work-card .tag {
+            display: inline-block;
+            background: rgba(126, 200, 227, 0.15);
+            color: #7ec8e3;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-top: 12px;
+            margin-right: 8px;
+        }
+
+        /* ========== 时间线（经历） ========== */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #a8e6cf, #7ec8e3);
+        }
+
+        .timeline-item {
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #a8e6cf;
+            box-shadow: 0 0 10px rgba(168, 230, 207, 0.5);
+        }
+
+        .timeline-item h3 {
+            color: #a8e6cf;
+            margin-bottom: 5px;
+        }
+
+        .timeline-item .time {
+            color: #7ec8e3;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .timeline-item p {
+            color: #bbb;
+            font-size: 0.95rem;
+        }
+
+        /* ========== 联系 ========== */
+        .contact-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-container p {
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .contact-container .contact-methods {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .contact-container .contact-methods a {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 2px solid #a8e6cf;
+            color: #a8e6cf;
+            transition: all 0.3s;
+        }
+
+        .contact-container .contact-methods a:hover {
+            background: #a8e6cf;
+            color: #1a1a2e;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(168, 230, 207, 0.4);
+        }
+
+        /* ========== 页脚 ========== */
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* ========== 动画 ========== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========== 滚动条美化 ========== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #302b63;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7ec8e3;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            nav {
+                padding: 12px 20px;
+            }
+
+            nav ul {
+                gap: 15px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+
+            .about-content,
+            .contact-container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 导航栏 ========== -->
+    <nav>
+        <div class="logo">⭐ 我的主页</div>
+        <ul>
+            <li><a href="#about">关于我</a></li>
+            <!--<li><a href="#skills">技能</a></li>-->
+            <li><a href="#links">常用链接</a></li>
+            <!--<li><a href="#experience">经历</a></li>-->
+            <li><a href="#contact">联系</a></li>
+        </ul>
+    </nav>
+
+    <!-- ========== 英雄区域 ========== -->
+    <section class="hero">
+        <div style="font-size: 160px; line-height: 1; margin-bottom: 20px;">👨‍💻</div>
+        <h1>HELLO , I'm lmz</h1>
+        <p class="subtitle">生物工程专业 · 人工智能爱好者 · 终身学习者</p>
+        <p class="intro">
+            生命本质上是一个对抗熵增的过程。我们穷尽一生构建秩序、维持稳态，
+            却在基因里写着衰亡的指令。所谓活着，不过是暂时赢得了这场与混乱的战争。
+        </p>
+        <div class="social-links">
+            <a href="https://github.com" target="_blank">🐱 GitHub</a>
+            <a href="https://blog.csdn.net" target="_blank">📝 博客</a>
+            <a href="#contact">✉️ 联系我</a>
+        </div>
+    </section>
+
+    <!-- ========== 关于我 ========== -->
+    <section id="about">
+        <h2>关于我</h2>
+        <div class="about-content">
+            <p>
+                你好！我是刘铭哲，生物工程专业本科生。
+                爱好计算机技术，尤其是人工智能和数据分析方向。
+            </p>
+            <p>
+                从大一开始接触编程，一路走来踩过不少坑，但也收获了满满的成就感。
+                我相信"持续学习"是最好的习惯，所以一直在路上。
+            </p>
+            <div class="info-grid">
+                <div class="info-item"><strong>📍 坐标：</strong>山东</div>
+                <div class="info-item"><strong>🎓 学历：</strong>本科在读</div>
+                <div class="info-item"><strong>💼 方向：</strong>生物工程</div>
+                <div class="info-item"><strong>🌱 状态：</strong>study ing</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 技能 ========== -->
+    <!-- 
+    <section id="skills">
+        <h2>我的技能</h2>
+        <div class="skills-container">
+            
+            <div class="skill-card">
+                <div class="icon">🐍</div>
+                <h3>Python</h3>
+                <p>基础### / ##<br>###</p>
+            </div>
+           
+        </div>
+    </section>
+    -->
+    <!-- ========== 作品展示 ========== -->
+    <section id="links">
+        <h2>常用链接</h2>
+        <p>
+            
+            <a href="https://passport2.chaoxing.com/login?fid=&newversion=true&refer=https%3A%2F%2Fi.chaoxing.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                超星学习通
+            </a>
+            <a href="https://www.zhihuishu.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                智慧树
+            </a>
+            <a href="https://www.cnki.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                中国知网
+            </a>
+            <a href="https://www.wanfangdata.com.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
+                万方数据
+            </a>
+            <a href="https://qikan.cqvip.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
+                维普期刊
+            </a>
+            <a href="https://www.webofscience.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                Web of Science
+            </a>  
+            <a href="https://pubscholar.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                PubScholar
+            </a>  
+            <a href="https://www.paperpass.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                PaperPass
+            </a> 
+            <a href="https://zh.kid1412.by/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                Z-library
+            </a> 
+
+
+            <br>
+            <a href="https://www.desmos.com/calculator?lang=zh-CN"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                Desmos
+            </a>
+
+
+
+
+
+            <hr style="border: none; border-top: 2px solid #a8e6cf;">
+
+
+            <p>
+            <a href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
+                GitHub ↗
+            </a>
+            <a href="https://www.csdn.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; text-decoration:none; color:#15a8dd;margin-right:30px;">
+                CSDN
+            </a>
+            
+            
+            
+            <a href="https://console.compshare.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                优云智算
+            </a>
+            <a href="https://www.autodl.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                AutoDL
+            </a>
+            <br>
+            <a href="https://www.cncb.ac.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                CNCB国家生物信息中心
+            </a>
+            <a href="https://www.ncbi.nlm.nih.gov/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                NCBI
+            </a>
+            <a href="https://www.uniprot.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                UniProt
+            </a>
+            <a href="https://www.ebi.ac.uk/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                EBI
+            </a>
+            <a href="https://www.rcsb.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                RCSB PDB
+            </a>
+            <a href="https://www.ensembl.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                Ensembl
+            </a>
+            <a href="https://www.ebi.ac.uk/interpro/search/sequence/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                InterPro
+            </a>
+             
+            </p>
+            <hr style="border: none; border-top: 2px solid #a8e6cf;">
+               
+            
+            <a href="https://www.icourse163.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                MOOC
+            </a> 
+            <a href="https://www.xuetangx.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                学堂在线
+        <!--
+            </a> 
+            <a href="https://vpn.qfnu.edu.cn/portal/#/login"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                QFNU VPN
+            </a>
+        -->
+            <a href="https://mirrors.westlake.edu.cn/posts/mirrors.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                西湖大学开源镜像站
+            </a> 
+            <a href="https://mirrors.tuna.tsinghua.edu.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                清华大学开源镜像站
+            </a> 
+            <a href="https://mirrors.pku.edu.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                北京大学开源镜像站
+            </a> 
+            <a href="https://mirrors.sdu.edu.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                山东大学开源镜像站
+            </a>
+            <a href="https://mirrors.nju.edu.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="font-size:18px; font-weight:bold; color:#15a8dd;margin-right:30px;">
+                南京大学开源镜像站
+            </a>
+            
+
+
+            
+        
+    </section>
+
+    <!-- ========== 经历 ========== <!--
+     <!--
+    <section id="experience">
+        <h2>学习经历</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h3>某某大学 · 计算机科学与技术</h3>
+                <p class="time">2022.09 - 至今</p>
+                <p>主修数据结构、操作系统、计算机网络等核心课程，GPA 3.8/4.0，连续两年获得校级奖学金。</p>
+            </div>
+            <div class="timeline-item">
+                <h3>XX 科技公司 · 前端实习生</h3>
+                <p class="time">2025.06 - 2025.09</p>
+                <p>参与公司管理后台开发，负责数据可视化模块，使用 Vue3 + ECharts 实现多维度数据展示。</p>
+            </div>
+            <div class="timeline-item">
+                <h3>开源社区贡献者</h3>
+                <p class="time">2024.03 - 至今</p>
+                <p>参与多个开源项目文档翻译与 bug 修复，累计提交 PR 30+，获得社区认可。</p>
+            </div>
+        </div>
+    </section>
+    -->
+
+    <!-- ========== 联系我 ========== -->
+    <section id="contact">
+        <h2>联系我</h2>
+        <div class="contact-container">
+            <p>欢迎随时联系我 🎉</p>
+            <p>我会尽量在 24 小时内回复每一条消息。</p>
+            <div class="contact-methods">
+                <a href="mailto:qflmz2007@163.com">📧 qflmz2007@163.com</a>
+                <a href="https://github.com/zhangsan" target="_blank">🐱 GitHub</a>
+                <a href="https://wx.qq.com/" target="_blank">💬 微信：qflmz2007y</a>
+                <a href="javascript:void(0)"
+                    onclick="navigator.clipboard.writeText('qflmz2007y').then(()=>alert('微信号已复制，去微信搜索添加'))"
+                    style="font-size:18px; font-weight:bold; text-decoration:none; color:#07c160;">
+                    💬 复制微信号
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 页脚 ========== -->
+    <footer>
+        <p>© 2026 lmz · 版权所有</p>
+    </footer>
+
+</body>
+</html>
