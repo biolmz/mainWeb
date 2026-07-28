@@ -710,42 +710,108 @@
 
             <br>
             
-                
-            <div style="text-align: center; margin-top: 40px;">
-                  <a href="https://bio2025.site/download.html"
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             class="appstore-soft">
-                        资料下载中心
-                  </a>
+<!--资料下载中心按钮-->   
+            <div style="text-align: center; margin-top: 60px;">
+                <a href="https://bio2025.site/download.html"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     class="premium-btn">
+                    <span class="btn-text">资料下载中心</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </a>
             </div>
-    <!-- ========== “资料下载中心”格式 ========== <!--
-        <style>
-            .appstore-soft {
-            display: inline-block;
-              padding: 16px 38px;
-              font-size: 28px;
-              font-weight: 600;
-              color: #9fd8ff;
-              background: rgba(230, 235, 255, 0.82);
-              border-radius: 16px;
-              text-decoration: none;
-              box-shadow: 0 3px 14px rgba(0, 0, 0, 0.18);
-              transition: all 0.25s ease;
-            }
-
-            .appstore-soft:hover {
-              background: rgba(245, 248, 255, 0.95);
-              color: #7ec8ff;
-              box-shadow: 0 5px 20px rgba(0, 0, 0, 0.22);
-              transform: translateY(1px);
-            }
-            
-            .appstore-soft:active {
-              transform: translateY(2px);
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-            }
-         </style>
+ <!--资料下载中心按钮格style-->   
+                    <style>
+                    .premium-btn {
+                      position: relative;
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 12px;
+                      padding: 18px 48px;
+                      font-size: 28px;
+                      font-weight: 600;
+                      color: #eaf2ff;
+                      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%);
+                      border: 1px solid rgba(255,255,255,0.25);
+                      border-radius: 20px;
+                      text-decoration: none;
+                      overflow: hidden;
+                      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                      letter-spacing: 1px;
+                      box-shadow:
+                        0 4px 24px rgba(0,0,0,0.2),
+                        inset 0 1px 0 rgba(255,255,255,0.15);
+                    }
+                    
+                    /* 顶部高光扫过 */
+                    .premium-btn::before {
+                      content: '';
+                      position: absolute;
+                      top: 0;
+                      left: -100%;
+                      width: 100%;
+                      height: 100%;
+                      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+                      transition: left 0.6s ease;
+                    }
+                    
+                    /* 边框微光 */
+                    .premium-btn::after {
+                      content: '';
+                      position: absolute;
+                      inset: 0;
+                      border-radius: 20px;
+                      padding: 1px;
+                      background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent 50%, rgba(255,255,255,0.1));
+                      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                      -webkit-mask-composite: xor;
+                      mask-composite: exclude;
+                      pointer-events: none;
+                    }
+                    
+                    .premium-btn:hover {
+                      transform: translateY(-3px);
+                      background: linear-gradient(135deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.12) 100%);
+                      border-color: rgba(255,255,255,0.4);
+                      color: #ffffff;
+                      box-shadow:
+                        0 12px 40px rgba(0,0,0,0.3),
+                        0 0 30px rgba(140, 180, 255, 0.15),
+                        inset 0 1px 0 rgba(255,255,255,0.25);
+                    }
+                    
+                    .premium-btn:hover::before {
+                      left: 100%;
+                    }
+                    
+                    .premium-btn:active {
+                      transform: translateY(-1px);
+                      box-shadow:
+                        0 4px 16px rgba(0,0,0,0.25),
+                        inset 0 1px 0 rgba(255,255,255,0.2);
+                    }
+                    
+                    .btn-text {
+                      position: relative;
+                      z-index: 1;
+                    }
+                    
+                    .btn-icon {
+                      width: 26px;
+                      height: 26px;
+                      position: relative;
+                      z-index: 1;
+                      transition: transform 0.3s ease;
+                    }
+                    
+                    .premium-btn:hover .btn-icon {
+                      transform: translateY(3px);
+                    }
+                    </style>
 
            
 
