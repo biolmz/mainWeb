@@ -16,5 +16,14 @@
     "icon": "pdf",
     "ext": "PDF",
     "url": "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/2025%E7%89%A9%E8%81%94%E6%9D%AF%E6%95%B0%E5%AD%A6%E7%AB%9E%E8%B5%9B%E6%95%B0%E5%AD%A6%E7%B1%BB%E8%AF%95%E9%A2%98%E5%8F%8A%E5%8F%82%E8%80%83%E8%A7%A3%E7%AD%94.pdf"
+  },
+  {
+    "name": "测试文件.doc",
+    "size": "9 KB",
+    "date": "2026-07-28",
+    "cat": "doc",
+    "icon": "docx",
+    "ext": "DOC",
+    "url": "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6.doc"
   }
 ]
