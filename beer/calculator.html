@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="专业啤酒发酵工艺计算工具 - ASBC/MBAA/EBC标准公式">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>专业啤酒发酵工艺计算工具 v5.1 | Professional Beer Fermentation Calculator</title>
+
+    <!-- jsPDF & html2canvas for client-side PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #d4a017;
+            --primary-dark: #b8860b;
+            --primary-light: #f0c75e;
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-input: #0f3460;
+            --text-light: #eaeaea;
+            --text-muted: #a0a0a0;
+            --accent: #e94560;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --border: #2a2a4a;
+            --shadow: 0 8px 32px rgba(0,0,0,0.3);
+            --radius: 12px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0d1117 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ========== Header ========== */
+        .header {
+            background: linear-gradient(90deg, var(--bg-card) 0%, #1a1a3e 100%);
+            border-bottom: 2px solid var(--primary);
+            padding: clamp(1rem, 3vw, 2rem) 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .header h1 {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(212, 160, 23, 0.3);
+            line-height: 1.3;
+        }
+        .header p { color: var(--text-muted); font-size: clamp(0.8rem, 2.5vw, 0.95rem); }
+        .header .subtitle-en { font-size: clamp(0.65rem, 2vw, 0.8rem); color: #666; margin-top: 0.3rem; }
+        .version-badge { display: inline-block; background: var(--accent); color: white; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 12px; margin-left: 0.3rem; vertical-align: middle; }
+        .accuracy-badge { display: inline-block; background: rgba(76,175,80,0.2); border: 1px solid var(--success); color: var(--success); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 10px; margin-left: 0.5rem; white-space: nowrap; }
+
+        /* ========== Navigation ========== */
+        .nav-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; padding: 0.8rem; background: rgba(15,52,96,0.6); border-bottom: 1px solid var(--border); position: sticky; top: auto; z-index: 99; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .nav-tab { padding: 0.55rem 0.9rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-light); cursor: pointer; transition: var(--transition); font-size: clamp(0.75rem, 2.2vw, 0.88rem); white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .nav-tab:hover, .nav-tab:focus-visible { border-color: var(--primary); transform: translateY(-2px); outline: none; }
+        .nav-tab:focus-visible { box-shadow: 0 0 0 2px rgba(212,160,23,0.5); }
+        .nav-tab.active { background: var(--primary); color: var(--bg-dark); font-weight: 600; border-color: var(--primary); box-shadow: 0 0 15px rgba(212,160,23,0.4); }
+
+        /* ========== Main ========== */
+        .main-content { max-width: 1200px; margin: 0 auto; padding: clamp(1rem, 3vw, 2rem) clamp(0.5rem, 2vw, 1rem); }
+        .calc-section { display: none; animation: fadeIn 0.35s ease; }
+        .calc-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ========== Card ========== */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: clamp(1rem, 3vw, 2rem); margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+        .card-title { font-size: clamp(1.1rem, 3vw, 1.4rem); color: var(--primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .card-desc { color: var(--text-muted); font-size: clamp(0.8rem, 2.5vw, 0.9rem); margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
+
+        /* ========== Form ========== */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 500; }
+        .form-group label .unit { font-size: 0.72rem; color: #666; margin-left: 0.3rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.7rem 0.9rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-light); font-size: 1rem; transition: var(--transition); -webkit-appearance: none; appearance: none; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(212,160,23,0.15); }
+        .form-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23d4a017' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.2rem; }
+
+        /* ========== Buttons ========== */
+        .btn-group { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: clamp(0.85rem, 2.5vw, 1rem); font-weight: 600; cursor: pointer; transition: var(--transition); -webkit-tap-highlight-color: transparent; touch-action: manipulation; white-space: nowrap; }
+        .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--bg-dark); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(212,160,23,0.4); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-secondary { background: var(--bg-input); color: var(--text-light); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-pdf { background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); color: white; }
+        .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(211,47,47,0.4); }
+        .btn-danger { background: linear-gradient(135deg, var(--accent) 0%, #c0354d 100%); color: white; }
+
+        /* ========== Result ========== */
+        .result-area { margin-top: 1.2rem; padding: clamp(0.8rem, 2.5vw, 1.5rem); background: rgba(15,52,96,0.4); border: 1px solid var(--border); border-radius: 12px; display: none; }
+        .result-area.show { display: block; animation: fadeIn 0.4s ease; }
+        .result-title { font-size: clamp(1rem, 2.8vw, 1.1rem); color: var(--primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 0.8rem; }
+        .result-item { background: var(--bg-dark); padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+        .result-item .label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+        .result-item .value { font-size: clamp(1.1rem, 3.5vw, 1.5rem); font-weight: 700; color: var(--primary); word-break: break-word; }
+        .result-item .unit-text { font-size: 0.75rem; color: #888; margin-left: 0.2rem; }
+
+        /* ========== Info Box ========== */
+        .info-box { background: rgba(233,69,96,0.08); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin-top: 0.8rem; font-size: 0.85rem; color: #ccc; line-height: 1.7; }
+        .info-box.tip { background: rgba(76,175,80,0.08); border-left-color: var(--success); }
+        .info-box strong { color: var(--primary); }
+
+        /* ========== Formula ========== */
+        .formula-box { background: rgba(212,160,23,0.05); border: 1px dashed var(--primary); padding: 0.8rem 1rem; border-radius: 8px; margin: 0.8rem 0; font-family: 'Courier New', 'SF Mono', Consolas, monospace; font-size: clamp(0.72rem, 2.2vw, 0.85rem); color: #ccc; text-align: center; line-height: 1.8; overflow-x: auto; }
+        .formula-box .formula-label { color: var(--primary); font-weight: 600; display: block; margin-bottom: 0.2rem; }
+
+        /* ========== Two Col ========== */
+        .two-col { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 768px) { .two-col { grid-template-columns: 1fr 1fr; } }
+
+        /* ========== Tables ========== */
+        .correction-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: clamp(0.72rem, 2.2vw, 0.85rem); }
+        .correction-table th, .correction-table td { padding: 0.4rem 0.3rem; text-align: center; border: 1px solid var(--border); }
+        .correction-table th { background: var(--bg-input); color: var(--primary); font-weight: 600; }
+        .correction-table td { background: rgba(15,52,96,0.2); }
+
+        /* ========== Footer ========== */
+        .footer { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+
+        /* ========== Batch Summary ========== */
+        .batch-summary { background: linear-gradient(135deg, rgba(212,160,23,0.1), rgba(233,69,96,0.05)); border: 1px solid var(--primary); border-radius: 12px; padding: 1.2rem; margin-top: 0.8rem; }
+        .batch-summary h3 { color: var(--primary); margin-bottom: 0.8rem; }
+
+        /* ========== Hop Rows ========== */
+        .hop-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 0.6rem; margin-bottom: 0.6rem; align-items: end; }
+
+        /* ========== Toast ========== */
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 0.8rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; z-index: 1000; opacity: 0; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.4); pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--accent); }
+
+        /* ========== Loading Overlay ========== */
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; gap: 1rem; }
+        .loading-overlay.show { display: flex; }
+        .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .loading-text { color: white; font-size: 1rem; font-weight: 500; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ========== Action Bar ========== */
+        .action-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; padding: 0.8rem 1rem; background: rgba(211,47,47,0.08); border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 1rem; }
+        .action-bar .action-info { font-size: 0.85rem; color: #ccc; flex: 1; min-width: 200px; }
+
+        /* ========== PDF Export Container (hidden, used for rendering) ========== */
+        .pdf-export-container { position: fixed; top: -10000px; left: -10000px; width: 794px; background: white; color: #1a1a1a; font-family: 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', 'Microsoft YaHei', sans-serif; font-size: 11pt; line-height: 1.6; padding: 20mm 15mm; z-index: -1; }
+        .pdf-export-container * { color: #1a1a1a; }
+        .pdf-header { text-align: center; border-bottom: 3px solid #d4a017; padding-bottom: 12px; margin-bottom: 20px; }
+        .pdf-header h1 { font-size: 22pt; color: #b8860b; margin-bottom: 4px; }
+        .pdf-header .subtitle { font-size: 10pt; color: #666; }
+        .pdf-header .meta { font-size: 9pt; color: #999; margin-top: 6px; }
+        .pdf-section { margin-bottom: 18px; page-break-inside: avoid; }
+        .pdf-section-title { font-size: 14pt; color: #b8860b; border-left: 4px solid #d4a017; padding-left: 10px; margin-bottom: 10px; font-weight: 700; }
+        .pdf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+        .pdf-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+        .pdf-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+        .pdf-card { background: #f8f8f8; border: 1px solid #ddd; border-radius: 6px; padding: 8px 10px; text-align: center; }
+        .pdf-card .lbl { font-size: 8pt; color: #666; margin-bottom: 2px; }
+        .pdf-card .val { font-size: 13pt; font-weight: 700; color: #b8860b; }
+        .pdf-card .unit { font-size: 8pt; color: #888; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 9.5pt; }
+        .pdf-table th { background: #f0e6d2; color: #b8860b; padding: 6px 8px; border: 1px solid #ddd; font-weight: 600; text-align: center; }
+        .pdf-table td { padding: 5px 8px; border: 1px solid #ddd; text-align: center; }
+        .pdf-table tr:nth-child(even) td { background: #f9f9f9; }
+        .pdf-info { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: 8px 12px; font-size: 9pt; color: #5d4037; margin-top: 8px; line-height: 1.7; }
+        .pdf-info strong { color: #b8860b; }
+        .pdf-info-warn { background: #fff3e0; border: 1px solid #ffb74d; }
+        .pdf-footer { text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 8pt; color: #999; }
+        .pdf-progress { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 9pt; }
+        .pdf-progress-bar { flex: 1; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+        .pdf-progress-fill { height: 100%; background: linear-gradient(90deg, #d4a017, #b8860b); border-radius: 4px; }
+        .pdf-badge { display: inline-block; background: #d4a017; color: white; font-size: 8pt; padding: 1px 6px; border-radius: 3px; margin-right: 4px; }
+
+        /* ========== Responsive ========== */
+        @media (max-width: 480px) {
+            .nav-tabs { gap: 0.3rem; padding: 0.5rem; }
+            .nav-tab { padding: 0.45rem 0.6rem; font-size: 0.72rem; }
+            .btn { padding: 0.65rem 1rem; }
+            .result-item { padding: 0.6rem 0.4rem; }
+            .hop-row { grid-template-columns: 1fr 1fr; }
+        }
+        @media (min-width: 481px) and (max-width: 767px) { .hop-row { grid-template-columns: repeat(3, 1fr) auto; } }
+        @media (min-width: 768px) { .hop-row { grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto; } }
+        @media (min-width: 1024px) { .main-content { padding: 2rem; } }
+
+        /* ========== Reduced Motion ========== */
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+        /* ========== High Contrast ========== */
+        @media (prefers-contrast: high) { :root { --border: #555; --text-muted: #ccc; } }
+    </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loading-text">正在生成 PDF...</div>
+</div>
+
+<!-- Header -->
+<header class="header" role="banner">
+    <h1>🍺 专业啤酒发酵工艺计算工具 <span class="version-badge">v5.1</span></h1>
+    <p>Professional Beer Fermentation Calculator — 精准 · 专业 · 高效 <span class="accuracy-badge">ASBC/MBAA/EBC 标准公式</span></p>
+    <div class="subtitle-en">Balling-Matthes · Tinseth · Henry's Law · ASBC Temp Correction · 响应式 · PDF导出</div>
+</header>
+
+<!-- Navigation -->
+<nav class="nav-tabs" role="tablist" aria-label="计算模块导航">
+    <button class="nav-tab active" data-tab="abv" role="tab">酒精度</button>
+    <button class="nav-tab" data-tab="attenuation" role="tab">发酵度</button>
+    <button class="nav-tab" data-tab="carbonation" role="tab">碳酸化</button>
+    <button class="nav-tab" data-tab="yeast" role="tab">酵母</button>
+    <button class="nav-tab" data-tab="gravity" role="tab">密度换算</button>
+    <button class="nav-tab" data-tab="correction" role="tab">温度校正</button>
+    <button class="nav-tab" data-tab="ibu" role="tab">IBU苦味</button>
+    <button class="nav-tab" data-tab="strike" role="tab">投料水温</button>
+    <button class="nav-tab" data-tab="batch" role="tab">整批配方</button>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<!-- Main -->
+<main class="main-content" id="main-content">
+
+    <!-- Action Bar (visible on Batch page) -->
+    <div class="action-bar" id="action-bar" style="display:none">
+        <span class="action-info">📄 生成完整配方后，可导出为专业排版PDF文件下载保存</span>
+        <button class="btn btn-pdf" onclick="exportPDF()" id="btn-export-pdf" disabled style="opacity:0.5">📕 导出 PDF</button>
+        <button class="btn btn-secondary" onclick="exportAsText()">📋 导出文本</button>
+        <button class="btn btn-secondary" onclick="copyToClipboard()">📎 复制结果</button>
+    </div>
+
+    <!-- ==================== ABV ==================== -->
+    <section class="calc-section active" id="tab-abv" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">🍻 酒精度计算 (ABV Calculator) <span class="accuracy-badge">Balling-Matthes 精确公式</span></h2>
+            <p class="card-desc">通过原始提取量(OE)和终了提取量(AE)计算酒精含量，支持体积酒精度(ABV)和质量酒精度(ABW)</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ 精确公式 (Balling-Matthes / EBC 推荐)</span>
+                RE = 0.39661×OE + 0.58586×AE − 0.00186×OE²<br>
+                ABV = [OE − RE] / [2.0665 − 0.010665×OE] × 100<br>
+                ABW = ABV × 0.793 | 酒精质量 = ABV × 7.89 g/L
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="abv-og">原始重力 Original Gravity <span class="unit">(SG)</span></label><input type="number" id="abv-og" step="0.001" min="1.000" max="1.200" placeholder="如 1.050" value="1.050" inputmode="decimal"></div>
+                <div class="form-group"><label for="abv-fg">终了重力 Final Gravity <span class="unit">(SG)</span></label><input type="number" id="abv-fg" step="0.001" min="0.900" max="1.200" placeholder="如 1.010" value="1.010" inputmode="decimal"></div>
+                <div class="form-group"><label for="abv-temp">测量温度 <span class="unit">(°C)</span></label><input type="number" id="abv-temp" step="0.1" placeholder="如 20" value="20" inputmode="decimal"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcABV()">计算酒精度</button>
+                <button class="btn btn-secondary" onclick="resetSection('abv')">重置</button>
+            </div>
+            <div class="result-area" id="abv-result">
+                <h3 class="result-title">📊 计算结果</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">体积酒精度 ABV</div><div class="value"><span id="abv-value">-</span><span class="unit-text">%</span></div></div>
+                    <div class="result-item"><div class="label">质量酒精度 ABW</div><div class="value"><span id="abw-value">-</span><span class="unit-text">%</span></div></div>
+                    <div class="result-item"><div class="label">酒精质量</div><div class="value"><span id="abv-mass">-</span><span class="unit-text">g/L</span></div></div>
+                    <div class="result-item"><div class="label">热量估算</div><div class="value"><span id="abv-cal">-</span><span class="unit-text">kcal/330ml</span></div></div>
+                </div>
+                <div class="info-box tip" id="abv-style"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Attenuation ==================== -->
+    <section class="calc-section" id="tab-attenuation" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">📉 发酵度计算 (Attenuation Calculator) <span class="accuracy-badge">ASBC 标准定义</span></h2>
+            <p class="card-desc">使用 Plato 值计算表观发酵度(Apparent Attenuation)和真实发酵度(Real Attenuation)</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ ASBC 标准公式 (基于°P)</span>
+                ADF = (OE − AE) / OE × 100%<br>
+                RE = 0.39661×OE + 0.58586×AE − 0.00186×OE²<br>
+                RDF = (OE − RE) / OE × 100%
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="att-og">原始提取量 OE <span class="unit">(SG 或 °P)</span></label><input type="number" id="att-og" step="0.001" placeholder="如 1.048 或 12" value="1.048" inputmode="decimal"></div>
+                <div class="form-group"><label for="att-fg">终了提取量 AE <span class="unit">(SG 或 °P)</span></label><input type="number" id="att-fg" step="0.001" placeholder="如 1.012 或 3" value="1.012" inputmode="decimal"></div>
+                <div class="form-group"><label for="att-unit">单位制</label><select id="att-unit"><option value="sg">比重 SG</option><option value="p">柏拉图度 °P</option></select></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcAttenuation()">计算发酵度</button>
+                <button class="btn btn-secondary" onclick="resetSection('attenuation')">重置</button>
+            </div>
+            <div class="result-area" id="att-result">
+                <h3 class="result-title">📊 发酵度结果</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">表观发酵度 ADF</div><div class="value"><span id="att-apparent">-</span><span class="unit-text">%</span></div></div>
+                    <div class="result-item"><div class="label">真实发酵度 RDF</div><div class="value"><span id="att-real">-</span><span class="unit-text">%</span></div></div>
+                    <div class="result-item"><div class="label">真实提取物 RE</div><div class="value"><span id="att-re">-</span><span class="unit-text">°P</span></div></div>
+                    <div class="result-item"><div class="label">残糖量</div><div class="value"><span id="att-residual">-</span><span class="unit-text">°P</span></div></div>
+                </div>
+                <div class="result-grid" style="margin-top:0.8rem">
+                    <div class="result-item"><div class="label">OE (原始°P)</div><div class="value" style="font-size:1.1rem"><span id="att-oe-p">-</span></div></div>
+                    <div class="result-item"><div class="label">AE (终了°P)</div><div class="value" style="font-size:1.1rem"><span id="att-ae-p">-</span></div></div>
+                    <div class="result-item"><div class="label">酒精度 ABV</div><div class="value" style="font-size:1.1rem"><span id="att-abv">-</span><span class="unit-text">%</span></div></div>
+                    <div class="result-item"><div class="label">发酵效率评级</div><div class="value" style="font-size:0.85rem"><span id="att-rating">-</span></div></div>
+                </div>
+                <div class="info-box" id="att-info"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Carbonation ==================== -->
+    <section class="calc-section" id="tab-carbonation" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">🫧 碳酸化计算 (Carbonation Calculator) <span class="accuracy-badge">Henry定律 + ASBC</span></h2>
+            <p class="card-desc">计算瓶装/桶装啤酒所需的糖量或CO₂压力，实现精准碳化</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ 装瓶增糖公式</span>
+                CO₂_existing = f(封罐温度, FG) — Henry定律温度修正<br>
+                CO₂_needed = CO₂_target − CO₂_existing<br>
+                糖量(g) = 体积(L) × CO₂_needed / 产率<br><br>
+                <span class="formula-label">▼ Keg 强制碳化</span>
+                P(atm) = CO₂_vol / Solubility(T) | 1 atm = 14.695 PSI
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="carb-vol">啤酒体积 <span class="unit">(L)</span></label><input type="number" id="carb-vol" step="0.1" placeholder="如 20" value="20" inputmode="decimal"></div>
+                <div class="form-group"><label for="carb-target">目标CO₂体积 <span class="unit">(vol)</span></label><input type="number" id="carb-target" step="0.1" placeholder="如 2.5" value="2.5" inputmode="decimal"></div>
+                <div class="form-group"><label for="carb-temp">封罐/测量温度 <span class="unit">(°C)</span></label><input type="number" id="carb-temp" step="0.1" placeholder="如 20" value="20" inputmode="decimal"></div>
+                <div class="form-group"><label for="carb-fg">终了重力 FG <span class="unit">(SG)</span></label><input type="number" id="carb-fg" step="0.001" placeholder="如 1.010" value="1.010" inputmode="decimal"></div>
+                <div class="form-group"><label for="carb-sugar">糖分类型</label>
+                    <select id="carb-sugar">
+                        <option value="0.49">葡萄糖/dextrose (产率 0.49)</option>
+                        <option value="0.49">蔗糖/table sugar (产率 0.49)</option>
+                        <option value="0.46">麦芽糖/maltose (产率 0.46)</option>
+                        <option value="0.49">玉米糖/corn sugar (产率 0.49)</option>
+                        <option value="0.42">干麦芽提取物 DME (产率 0.42)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="carb-method">包装方式</label>
+                    <select id="carb-method" onchange="toggleKegFields()">
+                        <option value="bottle">瓶内二次发酵</option>
+                        <option value="keg">Keg 强制碳化</option>
+                    </select>
+                </div>
+                <div class="form-group" id="carb-keg-temp-group" style="display:none">
+                    <label for="carb-keg-temp">碳化温度 <span class="unit">(°C, Keg内温度)</span></label>
+                    <input type="number" id="carb-keg-temp" step="0.1" placeholder="如 4" value="4" inputmode="decimal">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcCarbonation()">计算碳酸化</button>
+                <button class="btn btn-secondary" onclick="resetSection('carbonation')">重置</button>
+            </div>
+            <div class="result-area" id="carb-result">
+                <h3 class="result-title">📊 碳酸化方案</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">需添加糖量</div><div class="value"><span id="carb-sugar-amt">-</span><span class="unit-text">g</span></div></div>
+                    <div class="result-item"><div class="label">每瓶(330ml)用量</div><div class="value"><span id="carb-per-bottle">-</span><span class="unit-text">g</span></div></div>
+                    <div class="result-item"><div class="label">当前溶解CO₂</div><div class="value"><span id="carb-current-co2">-</span><span class="unit-text">vol</span></div></div>
+                    <div class="result-item"><div class="label">需补充CO₂</div><div class="value"><span id="carb-needed-co2">-</span><span class="unit-text">vol</span></div></div>
+                </div>
+                <div class="result-grid" style="margin-top:0.8rem" id="carb-keg-results" style="display:none">
+                    <div class="result-item"><div class="label">Keg压力 (PSI)</div><div class="value"><span id="carb-psi">-</span></div></div>
+                    <div class="result-item"><div class="label">Keg压力 (bar)</div><div class="value"><span id="carb-bar">-</span></div></div>
+                </div>
+                <div class="info-box tip" id="carb-style"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Yeast ==================== -->
+    <section class="calc-section" id="tab-yeast" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">🧫 酵母添加量计算 (Yeast Pitching Rate) <span class="accuracy-badge">MBAA 标准</span></h2>
+            <p class="card-desc">基于啤酒类型、体积和原始重力，计算最佳酵母添加量</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ 细胞数计算</span>
+                总细胞数 = 体积(mL) × 密度(M/mL/°P) × OG(°P)<br>
+                干酵母(进口) = 总细胞数 / (230亿/g × 0.85)<br>
+                安琪干酵母 = 总细胞数 / (25亿/g × 0.88)<br>
+                液体酵母包数 = 总细胞数 / (标称细胞数/包 × 活力)<br><br>
+                <span class="formula-label">▼ 国产安琪酵母型号参考</span>
+                • RW-A（艾尔通用）| • RW-L（拉格专用）| • RW-W（小麦啤）<br>
+                • RW-B（比利时/高酯香）| • RW-S（酸啤/野菌）| • RW-H（高酒度）
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="yeast-vol">啤酒体积 <span class="unit">(L)</span></label><input type="number" id="yeast-vol" step="0.1" placeholder="如 20" value="20" inputmode="decimal"></div>
+                <div class="form-group"><label for="yeast-og">原始重力 OG <span class="unit">(SG)</span></label><input type="number" id="yeast-og" step="0.001" placeholder="如 1.050" value="1.050" inputmode="decimal"></div>
+                <div class="form-group"><label for="yeast-type">啤酒类型</label>
+                    <select id="yeast-type">
+                        <option value="ale">艾尔 Ale (0.75 M/mL/°P)</option>
+                        <option value="lager">拉格 Lager (1.5 M/mL/°P)</option>
+                        <option value="high-gravity">高酒度 High Gravity (2.0 M/mL/°P)</option>
+                        <option value="belgian">比利时风格 Belgian (1.0 M/mL/°P)</option>
+                        <option value="wheat">小麦啤 Wheat (0.75 M/mL/°P)</option>
+                        <option value="kolsch">科隆/Kölsch (1.0 M/mL/°P)</option>
+                        <option value="sour">酸啤 Sour Ale (1.0 M/mL/°P)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="yeast-form">酵母形式</label>
+                    <select id="yeast-form">
+                        <option value="dry">干酵母 (进口, 11g/包, ~2300亿)</option>
+                        <option value="angel">安琪干酵母 (8g/包, ~200亿)</option>
+                        <option value="liquid">液体酵母 (1包, ~1000亿)</option>
+                        <option value="slurry">酵母泥 (10亿/μL)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="yeast-viability">酵母活力 <span class="unit">(%活性, 液体酵母)</span></label><input type="number" id="yeast-viability" step="1" min="1" max="100" placeholder="如 95" value="95" inputmode="numeric"></div>
+                <div class="form-group"><label for="yeast-generation">酵母代数 <span class="unit">(1=首次)</span></label><input type="number" id="yeast-generation" step="1" min="1" placeholder="如 1" value="1" inputmode="numeric"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcYeast()">计算酵母添加量</button>
+                <button class="btn btn-secondary" onclick="resetSection('yeast')">重置</button>
+            </div>
+            <div class="result-area" id="yeast-result">
+                <h3 class="result-title">📊 酵母添加方案</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">总需细胞数</div><div class="value"><span id="yeast-total-cells">-</span><span class="unit-text">亿</span></div></div>
+                    <div class="result-item"><div class="label">干酵母用量</div><div class="value"><span id="yeast-dry-grams">-</span><span class="unit-text">g (包)</span></div></div>
+                    <div class="result-item"><div class="label">液体酵母包数</div><div class="value"><span id="yeast-liquid-packs">-</span><span class="unit-text">包</span></div></div>
+                    <div class="result-item"><div class="label">细胞密度</div><div class="value"><span id="yeast-density">-</span><span class="unit-text">M/mL/°P</span></div></div>
+                </div>
+                <div class="result-grid" style="margin-top:0.8rem">
+                    <div class="result-item"><div class="label">所需溶氧量</div><div class="value"><span id="yeast-o2">-</span><span class="unit-text">ppm</span></div></div>
+                    <div class="result-item"><div class="label">实际活力(含代数衰减)</div><div class="value"><span id="yeast-actual-viability">-</span><span class="unit-text">%</span></div></div>
+                </div>
+                <div class="info-box" id="yeast-starter-info"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Gravity ==================== -->
+    <section class="calc-section" id="tab-gravity" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">⚖️ 密度单位换算 (Gravity Conversion) <span class="accuracy-badge">ASBC 官方多项式</span></h2>
+            <p class="card-desc">在 Specific Gravity (SG)、Plato (°P)、Brix (°Bx) 之间精确转换</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ ASBC 官方多项式 (精确至 ±0.01°P)</span>
+                °P = 135.997×SG³ − 630.272×SG² + 1111.14×SG − 616.868<br>
+                SG → °P → Brix: Brix = °P × 1.04
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="grav-input">输入值</label><input type="number" id="grav-input" step="0.001" placeholder="输入数值" value="1.050" inputmode="decimal"></div>
+                <div class="form-group"><label for="grav-from">输入单位</label>
+                    <select id="grav-from">
+                        <option value="sg">Specific Gravity (SG)</option>
+                        <option value="p">Plato (°P)</option>
+                        <option value="brix">Brix (°Bx)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcGravity()">转换</button>
+                <button class="btn btn-secondary" onclick="resetSection('gravity')">重置</button>
+            </div>
+            <div class="result-area" id="grav-result">
+                <h3 class="result-title">📊 换算结果</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">Specific Gravity</div><div class="value" style="font-size:1.2rem"><span id="grav-sg">-</span></div></div>
+                    <div class="result-item"><div class="label">Plato (°P)</div><div class="value" style="font-size:1.2rem"><span id="grav-p">-</span></div></div>
+                    <div class="result-item"><div class="label">Brix (°Bx)</div><div class="value" style="font-size:1.2rem"><span id="grav-brix">-</span></div></div>
+                    <div class="result-item"><div class="label">糖含量</div><div class="value" style="font-size:1.2rem"><span id="grav-sugar">-</span><span class="unit-text">g/100ml</span></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Correction ==================== -->
+    <section class="calc-section" id="tab-correction" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">🌡️ 比重温度校正 (Hydrometer Temp Correction) <span class="accuracy-badge">ASBC 多项式</span></h2>
+            <p class="card-desc">将任意温度下测量的比重校正到标准温度(20°C)</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ ASBC 温度校正多项式</span>
+                correction = 0.000383×(T_meas − 20) + 0.000009×(T_meas − 20)²<br>
+                SG_true = SG_measured + correction × [1 + 0.5×(SG−1)]
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="corr-sg">实测比重 <span class="unit">(SG)</span></label><input type="number" id="corr-sg" step="0.001" placeholder="如 1.050" value="1.050" inputmode="decimal"></div>
+                <div class="form-group"><label for="corr-temp">测量温度 <span class="unit">(°C)</span></label><input type="number" id="corr-temp" step="0.1" placeholder="如 25" value="25" inputmode="decimal"></div>
+                <div class="form-group"><label for="corr-cal">比重计校准温度 <span class="unit">(°C)</span></label><input type="number" id="corr-cal" step="0.1" placeholder="如 20" value="20" inputmode="decimal"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcCorrection()">校正比重</button>
+                <button class="btn btn-secondary" onclick="resetSection('correction')">重置</button>
+            </div>
+            <div class="result-area" id="corr-result">
+                <h3 class="result-title">📊 校正结果</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">校正后比重 (20°C)</div><div class="value"><span id="corr-adjusted">-</span></div></div>
+                    <div class="result-item"><div class="label">校正量</div><div class="value"><span id="corr-delta">-</span></div></div>
+                    <div class="result-item"><div class="label">对应°P</div><div class="value" style="font-size:1.1rem"><span id="corr-plato">-</span></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== IBU ==================== -->
+    <section class="calc-section" id="tab-ibu" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">🌿 IBU苦味计算 (Tinseth Formula) <span class="accuracy-badge">含发酵损失修正</span></h2>
+            <p class="card-desc">使用 Tinseth 公式计算酒花利用率和IBU值，支持多批次添加</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ Tinseth 完整公式</span>
+                Bigness = 1.65 × 0.000125^(OG−1)<br>
+                BoilTime = (1 − e^(−0.04×t)) / 4.15<br>
+                IBU = Σ[α% × g × Util × 1000 / L] × 保留率
+            </div>
+            <div id="hop-additions">
+                <div class="hop-row">
+                    <div class="form-group" style="margin:0"><label>酒花名称</label><input type="text" class="hop-name" placeholder="如 Cascade" value="Cascade"></div>
+                    <div class="form-group" style="margin:0"><label>α-酸 <span class="unit">(%)</span></label><input type="number" class="hop-aa" step="0.1" placeholder="如 5.5" value="5.5" inputmode="decimal"></div>
+                    <div class="form-group" style="margin:0"><label>用量 <span class="unit">(g)</span></label><input type="number" class="hop-amount" step="1" placeholder="如 30" value="30" inputmode="numeric"></div>
+                    <div class="form-group" style="margin:0"><label>煮沸时间 <span class="unit">(min)</span></label><input type="number" class="hop-time" step="1" placeholder="如 60" value="60" inputmode="numeric"></div>
+                    <div class="form-group" style="margin:0"><label>形态</label><select class="hop-form"><option value="pellet">颗粒</option><option value="whole">整花</option><option value="plug">压缩砖</option></select></div>
+                    <button class="btn btn-secondary" style="padding:0.4rem 0.6rem;font-size:0.75rem" onclick="removeHopRow(this)" aria-label="删除">✕</button>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="addHopRow()" style="margin-bottom:0.8rem;margin-top:0.4rem">+ 添加酒花</button>
+            <div class="form-grid">
+                <div class="form-group"><label for="ibu-vol">煮沸体积 <span class="unit">(L)</span></label><input type="number" id="ibu-vol" step="0.1" placeholder="如 25" value="25" inputmode="decimal"></div>
+                <div class="form-group"><label for="ibu-og">原始重力 OG <span class="unit">(SG)</span></label><input type="number" id="ibu-og" step="0.001" placeholder="如 1.050" value="1.050" inputmode="decimal"></div>
+                <div class="form-group"><label for="ibu-style-loss">啤酒风格(发酵损失)</label>
+                    <select id="ibu-style-loss">
+                        <option value="0.75">艾尔 Ale (保留75%)</option>
+                        <option value="0.85">拉格 Lager (保留85%)</option>
+                        <option value="0.70">IPA 煮沸为主 (保留70%)</option>
+                        <option value="0.55">IPA 大量干投 (保留55%)</option>
+                        <option value="0.80">世涛/波特 (保留80%)</option>
+                        <option value="0.90">小麦啤 (保留90%)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="ibu-ph">麦汁pH</label><input type="number" id="ibu-ph" step="0.1" placeholder="如 5.2" value="5.2" inputmode="decimal"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcIBU()">计算IBU</button>
+                <button class="btn btn-secondary" onclick="resetSection('ibu')">重置</button>
+            </div>
+            <div class="result-area" id="ibu-result">
+                <h3 class="result-title">📊 IBU计算结果</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">煮沸终了 IBU</div><div class="value"><span id="ibu-boil">-</span></div></div>
+                    <div class="result-item"><div class="label">成品 IBU</div><div class="value"><span id="ibu-total">-</span></div></div>
+                    <div class="result-item"><div class="label">发酵损失</div><div class="value"><span id="ibu-loss">-</span><span class="unit-text">%</span></div></div>
+                    <div class="result-item"><div class="label">苦味等级</div><div class="value" style="font-size:0.85rem"><span id="ibu-rating">-</span></div></div>
+                </div>
+                <div id="ibu-breakdown" style="margin-top:0.8rem"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Strike ==================== -->
+    <section class="calc-section" id="tab-strike" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">🔥 投料水温计算 (Strike Water Temp) <span class="accuracy-badge">热平衡+效率修正</span></h2>
+            <p class="card-desc">计算糖化时达到目标醪液温度所需的热水温度</p>
+            <div class="formula-box">
+                <span class="formula-label">▼ 热平衡方程</span>
+                T_strike = T_target × (R + C_grain/C_water) − T_grain × C_grain/C_water<br>
+                T_corrected = T_strike / 热效率
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label for="strike-malt">麦芽质量 <span class="unit">(kg)</span></label><input type="number" id="strike-malt" step="0.1" placeholder="如 5" value="5" inputmode="decimal"></div>
+                <div class="form-group"><label for="strike-ratio">水麦芽比 <span class="unit">(L/kg)</span></label><input type="number" id="strike-ratio" step="0.1" placeholder="如 3" value="3" inputmode="decimal"></div>
+                <div class="form-group"><label for="strike-target">目标醪液温度 <span class="unit">(°C)</span></label><input type="number" id="strike-target" step="0.5" placeholder="如 67" value="67" inputmode="decimal"></div>
+                <div class="form-group"><label for="strike-malt-temp">麦芽温度 <span class="unit">(°C)</span></label><input type="number" id="strike-malt-temp" step="0.5" placeholder="如 20" value="20" inputmode="decimal"></div>
+                <div class="form-group"><label for="strike-efficiency">热效率系数</label><input type="number" id="strike-efficiency" step="0.01" min="0.5" max="1.0" placeholder="如 0.93" value="0.93" inputmode="decimal"></div>
+                <div class="form-group"><label for="strike-heat-cap">麦芽比热容</label><input type="number" id="strike-heat-cap" step="0.01" placeholder="如 0.41" value="0.41" inputmode="decimal"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcStrike()">计算投料温度</button>
+                <button class="btn btn-secondary" onclick="resetSection('strike')">重置</button>
+            </div>
+            <div class="result-area" id="strike-result">
+                <h3 class="result-title">📊 投料方案</h3>
+                <div class="result-grid">
+                    <div class="result-item"><div class="label">理论水温</div><div class="value"><span id="strike-temp-theory">-</span><span class="unit-text">°C</span></div></div>
+                    <div class="result-item"><div class="label">实际需水温</div><div class="value"><span id="strike-temp">-</span><span class="unit-text">°C</span></div></div>
+                    <div class="result-item"><div class="label">水量</div><div class="value"><span id="strike-water">-</span><span class="unit-text">L</span></div></div>
+                    <div class="result-item"><div class="label">总醪液质量</div><div class="value"><span id="strike-total">-</span><span class="unit-text">kg</span></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Batch ==================== -->
+    <section class="calc-section" id="tab-batch" role="tabpanel">
+        <div class="card">
+            <h2 class="card-title">📋 整批配方概览 (Batch Overview) <span class="accuracy-badge">全模块联动 v5.1</span></h2>
+            <p class="card-desc">输入关键参数，一键生成完整发酵工艺方案，导出为专业PDF文件</p>
+            <div class="two-col">
+                <div>
+                    <h3 style="color:var(--primary);margin-bottom:0.8rem">基础参数</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="batch-name">批次名称</label><input type="text" id="batch-name" placeholder="如 IPA Batch #42" value="自制 IPA"></div>
+                        <div class="form-group"><label for="batch-style">啤酒风格</label>
+                            <select id="batch-style">
+                                <option value="ipa">IPA / 美式淡色艾尔</option>
+                                <option value="pale-ale">淡色艾尔 Pale Ale</option>
+                                <option value="stout">世涛 Stout</option>
+                                <option value="lager">拉格 Lager</option>
+                                <option value="wheat">小麦啤 Wheat Beer</option>
+                                <option value="belgian">比利时风格 Belgian</option>
+                                <option value="sour">酸啤 Sour Ale</option>
+                                <option value="amber">琥珀艾尔 Amber Ale</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="batch-vol">批次体积 <span class="unit">(L)</span></label><input type="number" id="batch-vol" step="0.5" placeholder="如 20" value="20" inputmode="decimal"></div>
+                        <div class="form-group"><label for="batch-og">原始OG <span class="unit">(SG)</span></label><input type="number" id="batch-og" step="0.001" placeholder="如 1.060" value="1.060" inputmode="decimal"></div>
+                        <div class="form-group"><label for="batch-fg">预期FG <span class="unit">(SG)</span></label><input type="number" id="batch-fg" step="0.001" placeholder="如 1.015" value="1.015" inputmode="decimal"></div>
+                        <div class="form-group"><label for="batch-yeast">酵母类型</label>
+                            <select id="batch-yeast">
+                                <option value="us-05">Safale US-05 (干/通用艾尔)</option>
+                                <option value="s-04">Safale S-04 (干/英式)</option>
+                                <option value="w-34-70">Saflager W-34/70 (干/拉格)</option>
+                                <option value="wb-06">Safbrew WB-06 (干/小麦)</option>
+                                <option value="k-97">Safbrew K-97 (干/科隆)</option>
+                                <option value="angel-rw-a">安琪 RW-A (干/通用艾尔)</option>
+                                <option value="angel-rw-l">安琪 RW-L (干/拉格专用)</option>
+                                <option value="angel-rw-w">安琪 RW-W (干/小麦啤)</option>
+                                <option value="angel-rw-b">安琪 RW-B (干/比利时)</option>
+                                <option value="angel-rw-s">安琪 RW-S (干/酸啤野菌)</option>
+                                <option value="angel-rw-h">安琪 RW-H (干/高酒度)</option>
+                                <option value="liquid-ale">液体酵母-艾尔</option>
+                                <option value="liquid-lager">液体酵母-拉格</option>
+                                <option value="sour-mix">酸啤混合菌(乳酸菌+酵母)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color:var(--primary);margin-bottom:0.8rem">发酵参数</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label for="batch-ferm-temp">主发酵温度 <span class="unit">(°C)</span></label><input type="number" id="batch-ferm-temp" step="0.5" placeholder="如 20" value="20" inputmode="decimal"></div>
+                        <div class="form-group"><label for="batch-ferm-days">主发酵时间 <span class="unit">(天)</span></label><input type="number" id="batch-ferm-days" step="1" placeholder="如 7" value="7" inputmode="numeric"></div>
+                        <div class="form-group"><label for="batch-secondary">是否二发</label>
+                            <select id="batch-secondary">
+                                <option value="yes">是 - 需要二发/熟成</option>
+                                <option value="no">否 - 直接包装</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="batch-carb">目标碳化 <span class="unit">(vol CO₂)</span></label><input type="number" id="batch-carb" step="0.1" placeholder="如 2.5" value="2.5" inputmode="decimal"></div>
+                        <div class="form-group"><label for="batch-carb-temp">碳化温度 <span class="unit">(°C)</span></label><input type="number" id="batch-carb-temp" step="0.1" placeholder="如 4" value="4" inputmode="decimal"></div>
+                        <div class="form-group"><label for="batch-package">包装方式</label>
+                            <select id="batch-package">
+                                <option value="bottle">瓶内二次发酵</option>
+                                <option value="keg">Keg 强制碳化</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="calcBatch()">生成完整方案</button>
+                <button class="btn btn-secondary" onclick="resetSection('batch')">重置</button>
+            </div>
+            <div class="result-area" id="batch-result">
+                <h3 class="result-title">📊 完整发酵工艺方案 (v5.1 精确计算)</h3>
+                <div id="batch-full-report"></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- PDF Export Container (hidden, used for rendering) -->
+<div class="pdf-export-container" id="pdf-export-container"></div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>🍺 专业啤酒发酵工艺计算工具 v5.1 | 公式基于 ASBC / MBAA / EBC 标准 | 仅供酿造参考</p>
+    <p style="margin-top:0.5rem;color:#555">Balling-Matthes · Tinseth · Henry's Law · ASBC | 纯前端运行 · 数据不上传 · 支持离线使用</p>
+</footer>
+
+<script>
+'use strict';
+
+// ==================== Config ====================
+const CONFIG = {
+    VERSION: '5.1',
+    DEBOUNCE_DELAY: 300,
+    MAX_HOP_ROWS: 20,
+    STORAGE_KEY: 'beerCalc_v5_data',
+    SECURITY: { MAX_INPUT_LENGTH: 20, MAX_NUMERIC_VALUE: 1000000 }
+};
+
+// ==================== Utilities ====================
+const memoCache = new Map();
+function memoize(fn, keyPrefix) {
+    return function(...args) {
+        const key = keyPrefix + '_' + args.join('_');
+        if (memoCache.has(key)) return memoCache.get(key);
+        const result = fn.apply(this, args);
+        if (memoCache.size > 100) memoCache.clear();
+        memoCache.set(key, result);
+        return result;
+    };
+}
+function sanitizeNumber(value, min, max, fallback) {
+    const num = parseFloat(value);
+    if (isNaN(num) || !isFinite(num)) return fallback;
+    if (min !== undefined && num < min) return min;
+    if (max !== undefined && num > max) return max;
+    return num;
+}
+function validateInput(value) {
+    if (value === null || value === undefined) return false;
+    const str = String(value);
+    if (str.length > CONFIG.SECURITY.MAX_INPUT_LENGTH) return false;
+    if (/[<>\/\\'"]/.test(str)) return false;
+    return true;
+}
+function safeSetText(id, text) { const el = document.getElementById(id); if (el) el.textContent = String(text); }
+function safeSetHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.toggle('error', isError); t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+function debounce(func, delay) {
+    let id; return function(...args) { clearTimeout(id); id = setTimeout(() => func.apply(this, args), delay); };
+}
+
+// ==================== Core Formulas ====================
+const sgToPlato = memoize(function(sg) { return 135.997*Math.pow(sg,3) - 630.272*Math.pow(sg,2) + 1111.14*sg - 616.868; }, 'sg2p');
+const platoToSg = memoize(function(p) { return 1 + (p / (258.6 - (p / 258.2) * 227.1)); }, 'p2sg');
+function ballingMatthesRE(oe, ae) { return 0.39661*oe + 0.58586*ae - 0.00186*oe*oe; }
+
+const CO2_SAT_TABLE = [[0,3.77],[4,3.07],[10,2.37],[15,1.97],[20,1.67],[25,1.42],[30,1.22],[35,1.05]];
+const co2SaturationAt = memoize(function(tC) {
+    if (tC <= CO2_SAT_TABLE[0][0]) return CO2_SAT_TABLE[0][1] + 0.15*(tC - CO2_SAT_TABLE[0][0]);
+    const last = CO2_SAT_TABLE[CO2_SAT_TABLE.length-1];
+    if (tC >= last[0]) return last[1] - 0.05*(tC - last[0]);
+    for (let i=0; i<CO2_SAT_TABLE.length-1; i++) {
+        if (tC >= CO2_SAT_TABLE[i][0] && tC <= CO2_SAT_TABLE[i+1][0]) {
+            const t1=CO2_SAT_TABLE[i][0], c1=CO2_SAT_TABLE[i][1], t2=CO2_SAT_TABLE[i+1][0], c2=CO2_SAT_TABLE[i+1][1];
+            return c1 + (c2-c1)*(tC-t1)/(t2-t1);
+        }
+    }
+    return 1.67;
+}, 'co2sat');
+
+// ==================== Tab Nav ====================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.calc-section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        const target = document.getElementById('tab-' + tabName);
+        if (target) target.classList.add('active');
+        const bar = document.getElementById('action-bar');
+        if (bar) bar.style.display = (tabName === 'batch') ? 'flex' : 'none';
+        if (window.innerWidth < 768) window.scrollTo({top:0, behavior:'smooth'});
+    });
+});
+
+// ==================== Show/Hide ====================
+function showResult(id) { const el = document.getElementById(id); if (el) { el.classList.add('show'); el.closest('.calc-section')?.classList.add('has-results'); } }
+function hideResult(id) { const el = document.getElementById(id); if (el) el.classList.remove('show'); }
+
+function resetSection(name) {
+    const s = document.getElementById('tab-' + name); if (!s) return;
+    s.querySelectorAll('input').forEach(i => { if (i.type!=='button'&&i.type!=='submit'&&i.type!=='text'&&!i.classList.contains('hop-name')) i.value=''; else if (i.classList.contains('hop-name')) i.value=''; });
+    s.querySelectorAll('select').forEach(sel => sel.selectedIndex=0);
+    const r = s.querySelector('.result-area'); if (r) { r.classList.remove('show'); s.classList.remove('has-results'); }
+    if (name === 'batch') { const btn = document.getElementById('btn-export-pdf'); if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; } }
+    showToast('已重置 ' + name);
+}
+
+// ==================== ABV ====================
+function calcABV() {
+    const og = sanitizeNumber(document.getElementById('abv-og').value, 1.000, 1.200);
+    const fg = sanitizeNumber(document.getElementById('abv-fg').value, 0.900, 1.200);
+    const temp = sanitizeNumber(document.getElementById('abv-temp').value, -10, 100, 20);
+    if (!og || !fg || og <= fg) { showToast('请输入有效OG和FG，且OG>FG', true); return; }
+    const oeP = sgToPlato(og), aeP = sgToPlato(fg), reP = ballingMatthesRE(oeP, aeP);
+    const abvSimple = (og-fg)*131.25, abvPrecise = (76.08*(og-fg)/(1.775-og))*(fg/0.794);
+    const abw = abvPrecise*0.793, alcoholMass = abvPrecise*7.89, calPer330 = (6.9*abw + 4.0*(reP-0.1))*3.3;
+    safeSetText('abv-value', abvPrecise.toFixed(2)); safeSetText('abw-value', abw.toFixed(2));
+    safeSetText('abv-mass', Math.round(alcoholMass)); safeSetText('abv-cal', Math.round(calPer330));
+    let style = abvPrecise<3?'🔹 低醇(<3%)':abvPrecise<5?'🔹 标准(3-5%)':abvPrecise<7?'🔹 强啤酒(5-7%)':abvPrecise<10?'🔹 双料/烈性(7-10%)':'🔹 极烈(>10%)';
+    safeSetHTML('abv-style', `<strong>风格：</strong>${style}<br><strong>OE：</strong>${oeP.toFixed(2)}°P | <strong>AE：</strong>${aeP.toFixed(2)}°P | <strong>RE：</strong>${reP.toFixed(2)}°P<br><strong>简单：</strong>${abvSimple.toFixed(2)}% | <strong>Balling精确：</strong>${abvPrecise.toFixed(2)}%`);
+    showResult('abv-result'); showToast('ABV计算完成 ✓');
+}
+
+// ==================== Attenuation ====================
+function calcAttenuation() {
+    let og = parseFloat(document.getElementById('att-og').value), fg = parseFloat(document.getElementById('att-fg').value);
+    const unit = document.getElementById('att-unit').value;
+    if (!validateInput(og) || !validateInput(fg)) { showToast('请输入有效数值', true); return; }
+    if (unit==='p') { og=platoToSg(og); fg=platoToSg(fg); }
+    if (!og || !fg || og<=fg) { showToast('OG必须大于FG', true); return; }
+    const oeA=sgToPlato(og), aeA=sgToPlato(fg), apparent=((oeA-aeA)/oeA)*100, reA=ballingMatthesRE(oeA,aeA), real=((oeA-reA)/oeA)*100;
+    const abv = (76.08*(og-fg)/(1.775-og))*(fg/0.794);
+    safeSetText('att-apparent', apparent.toFixed(1)); safeSetText('att-real', real.toFixed(1));
+    safeSetText('att-re', reA.toFixed(2)); safeSetText('att-residual', aeA.toFixed(1));
+    safeSetText('att-oe-p', oeA.toFixed(2)+' °P'); safeSetText('att-ae-p', aeA.toFixed(2)+' °P'); safeSetText('att-abv', abv.toFixed(1));
+    let rating = apparent<50?'⚠️ 偏低':apparent<65?'✅ 正常偏低':apparent<78?'✅ 正常艾尔':apparent<85?'✅ 正常偏高(拉格)':apparent<92?'✅ 很高(干啤)':'⚠️ 极高';
+    safeSetText('att-rating', rating);
+    safeSetHTML('att-info', `<strong>ASBC解读：</strong>ADF ${apparent.toFixed(1)}% | RDF ${real.toFixed(1)}% | RE ${reA.toFixed(2)}°P vs AE ${aeA.toFixed(2)}°P`);
+    showResult('att-result'); showToast('发酵度计算完成 ✓');
+}
+
+// ==================== Carbonation ====================
+function toggleKegFields() {
+    const m = document.getElementById('carb-method').value;
+    const g = document.getElementById('carb-keg-temp-group');
+    if (g) g.style.display = m==='keg' ? 'block' : 'none';
+}
+function calcCarbonation() {
+    const vol=sanitizeNumber(document.getElementById('carb-vol').value,0.1,10000);
+    const target=sanitizeNumber(document.getElementById('carb-target').value,0,10);
+    const temp=sanitizeNumber(document.getElementById('carb-temp').value,-10,100);
+    const fg=sanitizeNumber(document.getElementById('carb-fg').value,0.8,1.2);
+    const sugarYield=sanitizeNumber(document.getElementById('carb-sugar').value,0.01,1);
+    const method=document.getElementById('carb-method').value;
+    if (!vol||!target||!fg) { showToast('请填写体积、目标CO₂、FG', true); return; }
+    const co2Sat=co2SaturationAt(temp), fgPlato=sgToPlato(fg), estABV=fgPlato>2?(fgPlato*0.4):0;
+    const currentCO2=co2Sat*(1-0.015*estABV), neededCO2=Math.max(0,target-currentCO2);
+    const sugarGrams=vol*neededCO2*1.96/sugarYield, bottles=vol/0.33, perBottle=sugarGrams/bottles;
+    safeSetText('carb-sugar-amt', sugarGrams.toFixed(1)); safeSetText('carb-per-bottle', perBottle.toFixed(2));
+    safeSetText('carb-current-co2', currentCO2.toFixed(2)); safeSetText('carb-needed-co2', neededCO2.toFixed(2));
+    let psi=0,bar=0;
+    const kr = document.getElementById('carb-keg-results');
+    if (method==='keg') {
+        const kt=sanitizeNumber(document.getElementById('carb-keg-temp').value,-10,100,temp);
+        const sol=co2SaturationAt(kt), pAtm=sol>0?target/sol:0;
+        psi=pAtm*14.695; bar=pAtm;
+        safeSetText('carb-psi', psi.toFixed(1)); safeSetText('carb-bar', bar.toFixed(2));
+        if (kr) kr.style.display='grid';
+    } else if (kr) kr.style.display='none';
+    let style = target<1.8?'🔹 低碳化(英式/世涛)':target<2.2?'🔹 标准(大多数艾尔)':target<2.6?'🔹 中高(比利时/IPA)':target<3.0?'🔹 高碳化(小麦啤)':'🔹 极高碳化';
+    safeSetHTML('carb-style', `<strong>碳化风格：</strong>${style}${method==='keg'?` | ${psi.toFixed(1)} PSI / ${bar.toFixed(2)} bar`:''}`);
+    showResult('carb-result'); showToast('碳酸化计算完成 ✓');
+}
+
+// ==================== Yeast ====================
+function calcYeast() {
+    const vol=sanitizeNumber(document.getElementById('yeast-vol').value,0.1,10000);
+    const og=sanitizeNumber(document.getElementById('yeast-og').value,1.0,1.3);
+    const type=document.getElementById('yeast-type').value;
+    const form=document.getElementById('yeast-form').value;
+    const vp=sanitizeNumber(document.getElementById('yeast-viability').value,1,100,95);
+    const gen=sanitizeNumber(document.getElementById('yeast-generation').value,1,50,1);
+    if (!vol||!og) { showToast('请填写体积和OG', true); return; }
+    const densityMap={'ale':0.75,'lager':1.5,'high-gravity':2.0,'belgian':1.0,'wheat':0.75,'kolsch':1.0,'sour':1.0};
+    const density=densityMap[type]||0.75, ogPlato=sgToPlato(og);
+    const totalBillion=(vol*1000)*density*ogPlato/1000;
+    const effViability=(vp/100)*Math.pow(0.85, Math.max(0,gen-1));
+    const yparams={'dry':{l:'进口干酵母',bpg:230/11*0.85,r:'31°C无菌温水',m:15,pg:11},'angel':{l:'安琪干酵母',bpg:25*0.88,r:'30°C无菌温水',m:20,pg:8},'liquid':{l:'液体酵母',bpg:null,r:'室温回温30min',m:30,pg:null},'slurry':{l:'酵母泥',bpg:null,r:'直接使用',m:0,pg:null}};
+    const p=yparams[form]||yparams['dry'];
+    let dg=0,dp=0,lp=0,sl=0;
+    if (form==='dry') { dg=Math.ceil(totalBillion/p.bpg); dp=Math.ceil(dg/p.pg); }
+    else if (form==='angel') { dg=Math.ceil(totalBillion/p.bpg); dp=Math.ceil(dg/p.pg); }
+    else if (form==='liquid') { lp=Math.ceil(totalBillion/(100*effViability)); }
+    else if (form==='slurry') { sl=Math.ceil(totalBillion/10*10)/10; }
+    const o2n= density*(type==='lager'?1.2:0.87);
+    safeSetText('yeast-total-cells', totalBillion.toFixed(1)); safeSetText('yeast-density', density.toFixed(2));
+    let dt='-'; if (form==='dry') dt=`${dg}g (${dp}包×${p.pg}g)`; if (form==='angel') dt=`${dg}g (${dp}包×${p.pg}g)`;
+    safeSetText('yeast-dry-grams', dt);
+    let lt='-'; if (form==='liquid') lt=`${lp}包`; if (form==='slurry') lt=`${sl}mL`;
+    safeSetText('yeast-liquid-packs', lt);
+    safeSetText('yeast-o2', o2n.toFixed(2)); safeSetText('yeast-actual-vability', (effViability*100).toFixed(1));
+    let info = type==='sour' ? `<strong>🍋 酸啤方案：</strong>先酸化(30-35°C,24-72h)→降温至${og>1.055?'22-25':'18-22'}°C接种酵母。乳酸菌1-5%/vol，监测pH至3.2-3.6` :
+               form==='angel' ? `<strong>🇨🇳 安琪酵母：</strong>${p.r}活化${p.m}分钟，${dg}g=${dp}包，活性≥25亿/g` :
+               gen>1||effViability<0.7 ? `<strong>⚠️ 建议Starter：</strong>${(totalBillion/200).toFixed(1)}L麦汁(OG~1.035), ${type==='lager'?'20-25':'18-22'}°C, 24-48h` :
+               `<strong>✅ 酵母状态良好。</strong>${p.l} | ${p.r}活化${p.m}分钟`;
+    safeSetHTML('yeast-starter-info', info + `<br>• 需溶氧 ≥${o2n.toFixed(1)} ppm`);
+    showResult('yeast-result'); showToast('酵母计算完成 ✓');
+}
+
+// ==================== Gravity ====================
+function calcGravity() {
+    const input=parseFloat(document.getElementById('grav-input').value), from=document.getElementById('grav-from').value;
+    if (!validateInput(input)) { showToast('请输入有效数值', true); return; }
+    let sg,p,brix;
+    if (from==='sg') { sg=input; p=sgToPlato(sg); brix=p*1.04; }
+    else if (from==='p') { p=input; sg=platoToSg(p); brix=p*1.04; }
+    else { brix=input; p=brix/1.04; sg=platoToSg(p); }
+    safeSetText('grav-sg', sg.toFixed(4)); safeSetText('grav-p', p.toFixed(2)+' °P');
+    safeSetText('grav-brix', brix.toFixed(2)+' °Bx'); safeSetText('grav-sugar', p.toFixed(1));
+    showResult('grav-result'); showToast('换算完成 ✓');
+}
+
+// ==================== Correction ====================
+function calcCorrection() {
+    const sg=sanitizeNumber(document.getElementById('corr-sg').value,0.8,1.5);
+    const tc=sanitizeNumber(document.getElementById('corr-temp').value,-50,150);
+    const cc=sanitizeNumber(document.getElementById('corr-cal').value,-50,150,20);
+    if (!sg||tc===undefined) { showToast('请填写比重和温度', true); return; }
+    const td=tc-cc, corr=0.000383*td+0.000009*td*td, trueSg=sg+corr;
+    safeSetText('corr-adjusted', trueSg.toFixed(4)); safeSetText('corr-delta', (corr>=0?'+':'')+corr.toFixed(5));
+    safeSetText('corr-plato', sgToPlato(trueSg).toFixed(2)+' °P');
+    showResult('corr-result'); showToast('温度校正完成 ✓');
+}
+
+// ==================== IBU ====================
+function calcIBU() {
+    const vol=sanitizeNumber(document.getElementById('ibu-vol').value,0.1,10000);
+    const og=sanitizeNumber(document.getElementById('ibu-og').value,1.0,1.3);
+    const sl=sanitizeNumber(document.getElementById('ibu-style-loss').value,0,1,0.75);
+    const ph=sanitizeNumber(document.getElementById('ibu-ph').value,3,8,5.2);
+    if (!vol||!og) { showToast('请填写煮沸体积和OG', true); return; }
+    const rows=document.querySelectorAll('.hop-row'); let total=0; let bh='<h4 style="color:var(--primary);margin:0.5rem 0">各批次贡献：</h4>';
+    const pf = ph>=5.0?(ph>=5.5?0.95:1.0):(0.9+0.1*(ph-4.5));
+    rows.forEach((row,i)=>{
+        const name=row.querySelector('.hop-name').value||`酒花${i+1}`, aa=parseFloat(row.querySelector('.hop-aa').value), amt=parseFloat(row.querySelector('.hop-amount').value), time=parseFloat(row.querySelector('.hop-time').value), form=row.querySelector('.hop-form').value;
+        if (!aa||!amt||time===undefined) return;
+        const util=Math.min(1.65*Math.pow(0.000125,og-1)*(1-Math.exp(-0.04*time))/4.15, 0.35)*pf*(form==='whole'?0.9:form==='plug'?0.95:1.0);
+        const ibu=(aa/100)*amt*util*1000/vol; total+=ibu;
+        bh+=`<div style="padding:0.25rem 0;color:#ccc;font-size:0.85rem">• ${name}: ${ibu.toFixed(1)} IBU (${aa}%, ${amt}g, ${time}min)</div>`;
+    });
+    const final=total*sl, loss=((1-sl)*100).toFixed(0);
+    safeSetText('ibu-boil', total.toFixed(1)); safeSetText('ibu-total', final.toFixed(1)); safeSetText('ibu-loss', loss);
+    let rating = final<8?'🔹 极低':final<18?'🔹 低':final<35?'🔹 中等':final<55?'🔹 高':final<80?'🔹 极高':'🔹 极限';
+    safeSetText('ibu-rating', rating);
+    safeSetHTML('ibu-breakdown', bh+`<div style="padding:0.3rem 0;color:var(--primary);font-size:0.82rem">• 发酵损失: -${loss}% | pH因子: ${pf.toFixed(2)}</div>`);
+    showResult('ibu-result'); showToast('IBU计算完成 ✓');
+}
+
+// ==================== Hop Rows ====================
+function addHopRow() {
+    const c=document.getElementById('hop-additions'), rc=c.querySelectorAll('.hop-row').length;
+    if (rc>=CONFIG.MAX_HOP_ROWS) { showToast(`最多${CONFIG.MAX_HOP_ROWS}行`, true); return; }
+    const r=document.createElement('div'); r.className='hop-row';
+    r.innerHTML=`<div class="form-group" style="margin:0"><label>酒花</label><input type="text" class="hop-name" placeholder="如 Citra" maxlength="30"></div><div class="form-group" style="margin:0"><label>α-酸<span class="unit">(%)</span></label><input type="number" class="hop-aa" step="0.1" min="0" max="30" placeholder="如 6.5"></div><div class="form-group" style="margin:0"><label>用量<span class="unit">(g)</span></label><input type="number" class="hop-amount" step="1" min="0" placeholder="如 20"></div><div class="form-group" style="margin:0"><label>时间<span class="unit">(min)</span></label><input type="number" class="hop-time" step="1" min="0" max="300" placeholder="如 15"></div><div class="form-group" style="margin:0"><label>形态</label><select class="hop-form"><option value="pellet">颗粒</option><option value="whole">整花</option><option value="plug">压缩砖</option></select></div><button class="btn btn-secondary" style="padding:0.4rem 0.6rem;font-size:0.75rem" onclick="removeHopRow(this)">✕</button>`;
+    c.appendChild(r);
+}
+function removeHopRow(btn) { const c=document.getElementById('hop-additions'), rows=c.querySelectorAll('.hop-row'); if (rows.length>1) btn.closest('.hop-row').remove(); else showToast('至少保留一行', true); }
+
+// ==================== Strike ====================
+function calcStrike() {
+    const mm=sanitizeNumber(document.getElementById('strike-malt').value,0,1000), ratio=sanitizeNumber(document.getElementById('strike-ratio').value,0.5,10);
+    const tt=sanitizeNumber(document.getElementById('strike-target').value,0,100), mt=sanitizeNumber(document.getElementById('strike-malt-temp').value,-50,100,20);
+    const eff=sanitizeNumber(document.getElementById('strike-efficiency').value,0.5,1.0,0.93), cg=sanitizeNumber(document.getElementById('strike-heat-cap').value,0.1,2.0,0.41);
+    if (!mm||!ratio||!tt) { showToast('请填写必要参数', true); return; }
+    const wv=mm*ratio, theo=(tt*(ratio+cg)-mt*cg)/ratio, act=theo/eff;
+    safeSetText('strike-temp-theory', theo.toFixed(1)); safeSetText('strike-temp', act.toFixed(1));
+    safeSetText('strike-water', wv.toFixed(1)); safeSetText('strike-total', (mm+wv).toFixed(1));
+    showResult('strike-result'); showToast('投料水温计算完成 ✓');
+}
+
+// ==================== Batch Overview ====================
+function calcBatch() {
+    const name=document.getElementById('batch-name').value||'未命名批次', style=document.getElementById('batch-style').value;
+    const vol=sanitizeNumber(document.getElementById('batch-vol').value,0.1,10000,20);
+    const og=sanitizeNumber(document.getElementById('batch-og').value,1.0,1.3), fg=sanitizeNumber(document.getElementById('batch-fg').value,0.8,1.3);
+    const yk=document.getElementById('batch-yeast').value, ft=sanitizeNumber(document.getElementById('batch-ferm-temp').value,-10,100,20);
+    const fd=sanitizeNumber(document.getElementById('batch-ferm-days').value,1,365,7), sec=document.getElementById('batch-secondary').value;
+    const carb=sanitizeNumber(document.getElementById('batch-carb').value,0,10,2.5), ct=sanitizeNumber(document.getElementById('batch-carb-temp').value,-10,100,4);
+    const pkg=document.getElementById('batch-package').value;
+    if (!og||!fg) { showToast('请填写OG和FG', true); return; }
+
+    // ABV
+    const oeB=sgToPlato(og), aeB=sgToPlato(fg), reB=ballingMatthesRE(oeB,aeB);
+    const abv=(76.08*(og-fg)/(1.775-og))*(fg/0.794), abvS=(og-fg)*131.25;
+    const appAtt=((oeB-aeB)/oeB)*100, realAtt=((oeB-reB)/oeB)*100;
+
+    // Yeast maps
+    const yDensityMap={'us-05':0.75,'s-04':0.75,'w-34-70':1.5,'wb-06':0.75,'k-97':1.0,'angel-rw-a':0.75,'angel-rw-l':1.5,'angel-rw-w':0.75,'angel-rw-b':1.0,'angel-rw-s':1.0,'angel-rw-h':2.0,'liquid-ale':0.75,'liquid-lager':1.5,'sour-mix':1.0};
+    const yTypeMap={'us-05':'ale','s-04':'ale','w-34-70':'lager','wb-06':'wheat','k-97':'kolsch','angel-rw-a':'ale','angel-rw-l':'lager','angel-rw-w':'wheat','angel-rw-b':'belgian','angel-rw-s':'sour','angel-rw-h':'high-gravity','liquid-ale':'ale','liquid-lager':'lager','sour-mix':'sour'};
+    const yNameMap={'us-05':'Safale US-05','s-04':'Safale S-04','w-34-70':'Saflager W-34/70','wb-06':'Safbrew WB-06','k-97':'Safbrew K-97','angel-rw-a':'安琪 RW-A','angel-rw-l':'安琪 RW-L','angel-rw-w':'安琪 RW-W','angel-rw-b':'安琪 RW-B','angel-rw-s':'安琪 RW-S','angel-rw-h':'安琪 RW-H','liquid-ale':'液体酵母(艾尔)','liquid-lager':'液体酵母(拉格)','sour-mix':'酸啤混合菌'};
+    const yBrandMap={'us-05':'Fermentis(法国)','s-04':'Fermentis(法国)','w-34-70':'Saflager(法国)','wb-06':'Safbrew(法国)','k-97':'Safbrew(法国)','angel-rw-a':'安琪(中国)','angel-rw-l':'安琪(中国)','angel-rw-w':'安琪(中国)','angel-rw-b':'安琪(中国)','angel-rw-s':'安琪(中国)','angel-rw-h':'安琪(中国)','liquid-ale':'液体酵母','liquid-lager':'液体酵母','sour-mix':'混合培养'};
+    const yPackMap={'us-05':{g:11,bpg:230/11},'s-04':{g:11,bpg:230/11},'w-34-70':{g:11,bpg:230/11},'wb-06':{g:11,bpg:230/11},'k-97':{g:11,bpg:230/11},'angel-rw-a':{g:8,bpg:25},'angel-rw-l':{g:8,bpg:25},'angel-rw-w':{g:8,bpg:25},'angel-rw-b':{g:8,bpg:25},'angel-rw-s':{g:8,bpg:25},'angel-rw-h':{g:8,bpg:25},'liquid-ale':{g:null,bpg:null},'liquid-lager':{g:null,bpg:null},'sour-mix':{g:null,bpg:null}};
+    const yTempMap={'us-05':'15-24°C','s-04':'12-25°C','w-34-70':'9-22°C','wb-06':'15-24°C','k-97':'15-20°C','angel-rw-a':'18-25°C','angel-rw-l':'8-15°C','angel-rw-w':'18-22°C','angel-rw-b':'20-28°C','angel-rw-s':'18-25°C(酵母)/30-35°C(菌)','angel-rw-h':'18-28°C','liquid-ale':'18-22°C','liquid-lager':'8-14°C','sour-mix':'先30-35°C/后18-22°C'};
+    const yFlavorMap={'us-05':'干净中性、微果香','s-04':'英式果香、麦芽感','w-34-70':'清爽拉格经典','wb-06':'香蕉丁香、浑浊','k-97':'柔和微果香、科隆','angel-rw-a':'干净中性、发酵快','angel-rw-l':'拉格纯净、沉降好','angel-rw-w':'小麦啤风味、微香料','angel-rw-b':'高酯香、比利时果香','angel-rw-s':'耐酸、兼容野菌','angel-rw-h':'耐高渗、高酒度','liquid-ale':'取决于菌株','liquid-lager':'取决于菌株','sour-mix':'酸味+复杂风味'};
+
+    const yD=yDensityMap[yk]||0.75, yT=yTypeMap[yk]||'ale', yB=yBrandMap[yk]||'-', yTmp=yTempMap[yk]||'-', yF=yFlavorMap[yk]||'-';
+    const pi=yPackMap[yk]||{g:11,bpg:230/11};
+    const tCB=(vol*1000)*yD*oeB/1000;
+    let vpg, dpt;
+    if (yk.indexOf('angel')===0) { vpg=25*0.88; dpt=`${Math.ceil(tCB/vpg)}g (${Math.ceil(tCB/vpg/8)}包×8g)`; }
+    else if (pi.bpg) { vpg=pi.bpg*0.85; dpt=`${Math.ceil(tCB/vpg)}g (${Math.ceil(tCB/vpg/pi.g)}包×${pi.g}g)`; }
+    else dpt='-';
+    const lp2=yk.indexOf('liquid')===0?Math.ceil(tCB/100):'-';
+    const o2n=yD*(yT==='lager'?1.2:0.87);
+
+    // Carbonation
+    const co2SB=co2SaturationAt(ft), curCO2=co2SB*0.95, needCO2=Math.max(0,carb-curCO2), sg2=vol*needCO2*1.96/0.49;
+    let kegI='';
+    if (pkg==='keg') { const sol=co2SaturationAt(ct), pa=sol>0?carb/sol:0; kegI=`<div class="result-item"><div class="label">Keg压力</div><div class="value">${(pa*14.695).toFixed(1)}<span class="unit-text">PSI</span></div></div><div class="result-item"><div class="label">Keg压力</div><div class="value">${pa.toFixed(2)}<span class="unit-text">bar</span></div></div>`; }
+
+    const sNames={'ipa':'IPA/美式淡色艾尔','pale-ale':'淡色艾尔','stout':'世涛','lager':'拉格','wheat':'小麦啤','belgian':'比利时风格','sour':'酸啤Sour Ale','amber':'琥珀艾尔'};
+    const diy=ft+3, diyR=yT==='lager'?`<tr><td>双乙酰还原</td><td>${diy}°C</td><td>2-3天</td><td>升温促酵母吸收双乙酰</td></tr>`:'';
+    const sourS=style==='sour'?`<tr><td>乳酸菌酸化</td><td>30-35°C</td><td>1-3天</td><td>静置无氧,pH至3.2-3.6</td></tr><tr><td>降温+接种</td><td>18-22°C</td><td>当天</td><td>酸化完成降温接种</td></tr><tr><td>主发酵</td><td>18-22°C</td><td>${fd}天</td><td>控温发酵</td></tr><tr><td>Brett陈酿</td><td>室温</td><td>3-12月</td><td>长期增香</td></tr>`:'';
+    const now=new Date(), ds=now.toLocaleDateString('zh-CN')+' '+now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+
+    // Store data for PDF export
+    window._batchData = { name, style, styleName:sNames[style]||style, vol, og, fg, abv, abvS, oeB, aeB, reB, appAtt, realAtt, yk, yName:yNameMap[yk]||yk, yBrand:yB, yType:yT, yDensity:yD, yPackText:dpt, yLiquid:lp2, o2:o2n, yTemp:yTmp, yFlavor:yF, ft, fd, sec, carb, ct, pkg, curCO2, needCO2, sg2, kegI, diyR, sourS, ds, isSour:style==='sour', isAngel:yk.indexOf('angel')===0 };
+
+    const report=`
+        <div class="batch-summary"><h3>📋 ${name} — ${sNames[style]||style}</h3>
+        <div class="result-grid" style="margin-bottom:0.8rem">
+            <div class="result-item"><div class="label">ABV (Balling)</div><div class="value">${abv.toFixed(1)}<span class="unit-text">%</span></div></div>
+            <div class="result-item"><div class="label">ABV (简单)</div><div class="value">${abvS.toFixed(1)}<span class="unit-text">%</span></div></div>
+            <div class="result-item"><div class="label">原始OG</div><div class="value">${og.toFixed(3)}</div></div>
+            <div class="result-item"><div class="label">终了FG</div><div class="value">${fg.toFixed(3)}</div></div>
+        </div></div>
+        <div style="margin-top:1.2rem"><h3 style="color:var(--primary);margin-bottom:0.6rem">📊 发酵度分析</h3><div class="result-grid">
+            <div class="result-item"><div class="label">ADF</div><div class="value">${appAtt.toFixed(1)}<span class="unit-text">%</span></div></div>
+            <div class="result-item"><div class="label">RDF</div><div class="value">${realAtt.toFixed(1)}<span class="unit-text">%</span></div></div>
+            <div class="result-item"><div class="label">OE/AE</div><div class="value" style="font-size:1rem">${oeB.toFixed(1)}/${aeB.toFixed(1)}<span class="unit-text">°P</span></div></div>
+            <div class="result-item"><div class="label">RE</div><div class="value" style="font-size:1rem">${reB.toFixed(2)}<span class="unit-text">°P</span></div></div>
+        </div></div>
+        <div style="margin-top:1.2rem"><h3 style="color:var(--primary);margin-bottom:0.6rem">⏱️ 发酵时间表</h3>
+            <table class="correction-table"><tr><th>阶段</th><th>温度</th><th>时间</th><th>操作</th></tr>
+            ${sourS}
+            <tr><td>主发酵</td><td>${ft}°C</td><td>${fd}天</td><td>控温发酵监测FG</td></tr>${diyR}
+            ${sec==='yes'?`<tr><td>二发/熟成</td><td>${ft-2}°C</td><td>7-14天</td><td>转桶熟化</td></tr>`:''}
+            <tr><td>冷沉降</td><td>2-4°C</td><td>3-7天</td><td>低温澄清</td></tr>
+            <tr><td>包装</td><td>室温</td><td>当天</td><td>${pkg==='bottle'?'瓶内二发+碳化糖':'Keg强制碳化'}</td></tr>
+            </table></div>
+        <div style="margin-top:1.2rem"><h3 style="color:var(--primary);margin-bottom:0.6rem">🧫 酵母方案</h3><div class="result-grid">
+            <div class="result-item"><div class="label">型号</div><div class="value" style="font-size:0.85rem">${yNameMap[yk]||yk}</div></div>
+            <div class="result-item"><div class="label">品牌</div><div class="value" style="font-size:0.8rem">${yB}</div></div>
+            <div class="result-item"><div class="label">类型</div><div class="value" style="font-size:0.85rem">${yT==='lager'?'拉格':yT==='sour'?'酸啤(混菌)':'艾尔'}</div></div>
+            <div class="result-item"><div class="label">密度</div><div class="value">${yD}<span class="unit-text">M/mL/°P</span></div></div>
+            <div class="result-item"><div class="label">干酵母</div><div class="value" style="font-size:0.85rem">${dpt}</div></div>
+            <div class="result-item"><div class="label">液体酵母</div><div class="value">${lp2}<span class="unit-text">包</span></div></div>
+            <div class="result-item"><div class="label">需溶氧</div><div class="value">${o2n.toFixed(2)}<span class="unit-text">ppm</span></div></div>
+            <div class="result-item"><div class="label">推荐温度</div><div class="value" style="font-size:0.8rem">${yTmp}</div></div>
+            <div class="result-item"><div class="label">风味</div><div class="value" style="font-size:0.75rem">${yF}</div></div>
+        </div></div>
+        <div style="margin-top:1.2rem"><h3 style="color:var(--primary);margin-bottom:0.6rem">🫧 碳化方案</h3><div class="result-grid">
+            <div class="result-item"><div class="label">目标CO₂</div><div class="value">${carb}<span class="unit-text">vol</span></div></div>
+            <div class="result-item"><div class="label">现有CO₂</div><div class="value">${curCO2.toFixed(2)}<span class="unit-text">vol</span></div></div>
+            <div class="result-item"><div class="label">需补充</div><div class="value">${needCO2.toFixed(2)}<span class="unit-text">vol</span></div></div>
+            <div class="result-item"><div class="label">葡萄糖</div><div class="value">${sg2.toFixed(0)}<span class="unit-text">g</span></div></div>
+            <div class="result-item"><div class="label">每瓶(330ml)</div><div class="value">${(sg2/(vol/0.33)).toFixed(2)}<span class="unit-text">g</span></div></div>
+            ${kegI}
+        </div></div>`;
+
+    safeSetHTML('batch-full-report', report);
+    showResult('batch-result');
+    const pdfBtn = document.getElementById('btn-export-pdf');
+    if (pdfBtn) { pdfBtn.disabled = false; pdfBtn.style.opacity = '1'; }
+    showToast('完整方案生成完成 ✓ 可导出PDF');
+}
+
+// ==================== PDF Export (jsPDF + html2canvas) ====================
+async function exportPDF() {
+    const data = window._batchData;
+    if (!data) { showToast('请先生成配方方案', true); return; }
+
+    const overlay = document.getElementById('loading-overlay');
+    const ltext = document.getElementById('loading-text');
+    overlay.classList.add('show');
+    ltext.textContent = '正在生成 PDF...';
+
+    try {
+        // Check library availability
+        if (typeof window.jspdf === 'undefined' || typeof window.html2canvas === 'undefined') {
+            throw new Error('PDF库加载失败，请检查网络连接后重试');
+        }
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = 210, pageH = 297, m = 15;
+        let y = m;
+
+        // ---- Helper functions ----
+        const checkPage = (needed) => {
+            if (y + needed > pageH - m) { pdf.addPage(); y = m; return true; }
+            return false;
+        };
+        const addText = (txt, x, sz, bold=false, color=[26,26,26]) => {
+            pdf.setFontSize(sz); pdf.setFont('helvetica', bold?'bold':'normal'); pdf.setTextColor(...color);
+            pdf.text(txt, x, y); y += sz*0.5 + 2;
+        };
+        const addWrappedText = (txt, x, w, sz, color=[80,80,80]) => {
+            pdf.setFontSize(sz); pdf.setFont('helvetica','normal'); pdf.setTextColor(...color);
+            const lines = pdf.splitTextToSize(txt, w);
+            pdf.text(lines, x, y); y += lines.length*(sz*0.5+1.5);
+        };
+        const addLine = (clr=[200,200,200]) => {
+            pdf.setDrawColor(...clr); pdf.line(m, y, pageW-m, y); y+=3;
+        };
+        const addBox = (txt, x, w, h, bgClr, borderClr) => {
+            pdf.setFillColor(...bgClr); pdf.setDrawColor(...borderClr);
+            pdf.roundedRect(x, y, w, h, 2, 2, 'FD');
+        };
+
+        // ======== PAGE 1 ========
+        // Header
+        pdf.setFillColor(212,160,23); pdf.rect(0,0,pageW,18,'F');
+        pdf.setTextColor(255,255,255); pdf.setFontSize(18); pdf.setFont('helvetica','bold');
+        pdf.text('Beer Fermentation Recipe', m, 12);
+        pdf.setFontSize(9); pdf.setFont('helvetica','normal');
+        pdf.text('ASBC/MBAA/EBC Standard Formulas | v5.1', pageW-m, 12, {align:'right'});
+        y = 25;
+
+        // Batch title
+        addText(data.name + ' — ' + data.styleName, m, 14, true, [184,134,11]);
+        addText('生成时间: ' + data.ds, m, 9, false, [120,120,120]);
+        y += 2; addLine([212,160,23]);
+
+        // --- ABV Section ---
+        addText('酒精度 (ABV)', m, 12, true, [184,134,11]);
+        const abvData = [
+            ['Balling精确 ABV', data.abv.toFixed(1)+'%'],
+            ['简单公式 ABV', data.abvS.toFixed(1)+'%'],
+            ['原始 OG', data.og.toFixed(3)],
+            ['终了 FG', data.fg.toFixed(3)],
+            ['OE / AE', data.oeB.toFixed(1)+' / '+data.aeB.toFixed(1)+' °P'],
+            ['真实残糖 RE', data.reB.toFixed(2)+' °P'],
+        ];
+        drawKeyValueGrid(pdf, abvData, m, y, pageW-2*m, 2, 9);
+        y += abvData.length*6.5 + 4;
+
+        // --- Attenuation ---
+        checkPage(30);
+        addText('发酵度分析', m, 12, true, [184,134,11]);
+        const attData = [
+            ['表观发酵度 ADF', data.appAtt.toFixed(1)+'%'],
+            ['真实发酵度 RDF', data.realAtt.toFixed(1)+'%'],
+        ];
+        drawKeyValueGrid(pdf, attData, m, y, pageW-2*m, 2, 9);
+        y += 18;
+
+        // --- Fermentation Schedule ---
+        checkPage(50);
+        addText('发酵时间表', m, 12, true, [184,134,11]);
+        const schedHeader = [['阶段','温度','时间','操作']];
+        const schedRows = [];
+        if (data.isSour) {
+            schedRows.push(['乳酸菌酸化','30-35°C','1-3天','静置无氧,pH→3.2-3.6']);
+            schedRows.push(['降温+接种','18-22°C','当天','酸化后降温接种']);
+            schedRows.push(['主发酵(酵母)','18-22°C',data.fd+'天','控温发酵']);
+            schedRows.push(['Brett陈酿','室温','3-12月','长期增香']);
+        }
+        schedRows.push(['主发酵',data.ft+'°C',data.fd+'天','控温发酵,监测FG']);
+        if (data.yType==='lager') schedRows.push(['双乙酰还原',(data.ft+3)+'°C','2-3天','升温促吸收']);
+        if (data.sec==='yes') schedRows.push(['二发/熟成',(data.ft-2)+'°C','7-14天','转桶熟化']);
+        schedRows.push(['冷沉降','2-4°C','3-7天','低温澄清']);
+        schedRows.push(['包装','室温','当天',data.pkg==='bottle'?'瓶内二发+碳化糖':'Keg强制碳化']);
+        drawTable(pdf, schedHeader, schedRows, m, y, pageW-2*m, 9);
+        y += (schedRows.length+1)*7 + 6;
+
+        // ======== PAGE 2 ========
+        pdf.addPage(); y = m;
+        pdf.setFillColor(212,160,23); pdf.rect(0,0,pageW,18,'F');
+        pdf.setTextColor(255,255,255); pdf.setFontSize(10); pdf.setFont('helvetica','bold');
+        pdf.text('Yeast & Carbonation', m, 12);
+        pdf.text(data.name, pageW-m, 12, {align:'right'});
+        y = 25;
+
+        // --- Yeast ---
+        addText('酵母方案', m, 12, true, [184,134,11]);
+        const yeastData = [
+            ['酵母型号', data.yName],
+            ['品牌/来源', data.yBrand],
+            ['酵母类型', data.yType==='lager'?'拉格(低温)':data.yType==='sour'?'酸啤(混菌)':'艾尔(常温)'],
+            ['接种密度', data.yDensity+' M/mL/°P'],
+            ['干酵母用量', data.yPackText],
+            ['液体酵母', data.yLiquid+' 包'],
+            ['需溶氧', data.o2.toFixed(2)+' ppm'],
+            ['推荐温度', data.yTemp],
+            ['风味特征', data.yFlavor],
+        ];
+        drawKeyValueGrid(pdf, yeastData, m, y, pageW-2*m, 1, 9);
+        y += yeastData.length*6.5 + 4;
+
+        // Yeast tips
+        if (data.isSour) {
+            checkPage(25);
+            addBox('', m, pageW-2*m, 22, [255,248,225], [255,152,0]);
+            y -= 20;
+            addWrappedText('酸啤提示: 先酸化(乳酸菌30-35°C,24-72h)→降温至18-22°C接种酵母。乳酸菌用量1-5%/vol。可添加Brettanomyces陈酿3-12个月。设备需专用防交叉污染。', m+3, pageW-2*m-6, 8, [120,80,0]);
+            y += 22;
+        } else if (data.isAngel) {
+            checkPage(22);
+            addBox('', m, pageW-2*m, 16, [240,255,240], [76,175,80]);
+            y -= 14;
+            addWrappedText('安琪酵母: 30°C无菌温水(10×重量)活化15-20分钟。每包8g,活性≥25亿/g,复水回收率~88%。高酒度(OG>1.065)建议分两批或制作Starter。', m+3, pageW-2*m-6, 8, [40,100,40]);
+            y += 16;
+        }
+
+        // --- Carbonation ---
+        checkPage(40);
+        addText('碳化方案', m, 12, true, [184,134,11]);
+        const carbData = [
+            ['目标 CO₂', data.carb+' vol'],
+            ['现有 CO₂', data.curCO2.toFixed(2)+' vol'],
+            ['需补充', data.needCO2.toFixed(2)+' vol'],
+            ['葡萄糖用量', data.sg2.toFixed(0)+' g'],
+            ['每瓶(330ml)', (data.sg2/(data.vol/0.33)).toFixed(2)+' g'],
+        ];
+        drawKeyValueGrid(pdf, carbData, m, y, pageW-2*m, 2, 9);
+        y += carbData.length*6.5 + 4;
+
+        if (data.pkg==='keg') {
+            const sol = co2SaturationAt(data.ct), pa = sol>0?data.carb/sol:0;
+            addText('Keg: '+(pa*14.695).toFixed(1)+' PSI / '+pa.toFixed(2)+' bar @ '+data.ct+'°C', m, 9, false, [80,80,80]);
+        }
+
+        // Carbonation progress bar
+        checkPage(20);
+        y += 2;
+        const barW = pageW-2*m, barH = 8, prog = Math.min(data.carb/4, 1);
+        pdf.setFillColor(240,240,240); pdf.roundedRect(m, y, barW, barH, 2, 2, 'F');
+        const gradSteps = 20;
+        for (let i=0; i<gradSteps; i++) {
+            const t = i/gradSteps, r=Math.round(212+t*(184-212)), g=Math.round(160+t*(134-160)), b=Math.round(23+t*(11-23));
+            pdf.setFillColor(r,g,b); pdf.rect(m + (i/gradSteps)*barW*prog, y, barW/gradSteps+0.5, barH, 'F');
+        }
+        pdf.setTextColor(255,255,255); pdf.setFontSize(8); pdf.setFont('helvetica','bold');
+        pdf.text('碳化水平: '+data.carb+' vol CO₂', m+barW/2, y+5.5, {align:'center'});
+        y += barH + 6;
+
+        // --- Notes ---
+        checkPage(50);
+        addText('注意事项', m, 12, true, [184,134,11]);
+        const notes = [
+            '所有计算基于 ASBC/MBAA/EBC 标准公式，实际值因原料批次差异 ±5-10%',
+            '确保发酵容器严格消毒，避免杂菌污染',
+            (data.isAngel?'安琪':'干')+'酵母: '+(data.isAngel?'30°C':'31°C')+'无菌温水(10×重量)活化15-20分钟后接种',
+            '液体酵母室温回温30分钟，轻柔摇匀后倒入',
+            'FG连续2天不变(±0.001)可视为发酵完成',
+            '碳化糖需完全溶解后均匀加入，避免炸瓶风险',
+            data.yType==='lager'?'拉格: 全程控温±0.5°C，降温梯度0.5°C/天':'艾尔: 前24h敞口/松盖排气，之后密封',
+            data.isSour?'酸啤: 乳酸菌阶段需隔绝氧气(覆盖CO₂),设备专用防交叉污染':'',
+            '本方案为参考值，请根据实际设备、原料和环境影响调整',
+        ].filter(Boolean);
+        notes.forEach(n => { addWrappedText('• '+n, m+2, pageW-2*m-4, 8, [80,80,80]); y+=1; });
+        y += 4;
+
+        // Footer
+        pdf.setDrawColor(200,200,200); pdf.line(m, pageH-m-8, pageW-m, pageH-m-8);
+        pdf.setTextColor(150,150,150); pdf.setFontSize(7.5); pdf.setFont('helvetica','normal');
+        pdf.text('Beer Fermentation Calculator v5.1 | ASBC/MBAA/EBC Standard | Generated: '+data.ds, pageW/2, pageH-m-3, {align:'center'});
+
+        // Save
+        const fname = (data.name.replace(/\s+/g,'_')||'recipe') + '_配方_' + Date.now() + '.pdf';
+        pdf.save(fname);
+        showToast('PDF导出成功 ✓');
+
+    } catch (err) {
+        console.error('[PDF Export Error]', err);
+        showToast('PDF导出失败: ' + err.message, true);
+    } finally {
+        overlay.classList.remove('show');
+    }
+}
+
+// ==================== PDF Drawing Helpers ====================
+function drawKeyValueGrid(pdf, data, x, y, w, cols, fontSize) {
+    const colW = w / cols, rowH = 6.5;
+    data.forEach((item, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        const rx = x + col * colW, ry = y + row * rowH;
+        pdf.setFillColor(248,248,248); pdf.setDrawColor(220,220,220);
+        pdf.roundedRect(rx+1, ry, colW-2, rowH-1, 1.5, 1.5, 'FD');
+        pdf.setTextColor(120,120,120); pdf.setFontSize(fontSize-1); pdf.setFont('helvetica','normal');
+        pdf.text(item[0], rx+4, ry+4);
+        pdf.setTextColor(184,134,11); pdf.setFontSize(fontSize); pdf.setFont('helvetica','bold');
+        pdf.text(item[1], rx+4, ry+4+fontSize*0.5+0.5);
+    });
+}
+
+function drawTable(pdf, headers, rows, x, y, w, fontSize) {
+    const colCount = headers[0].length, colW = w / colCount, rowH = 7;
+    // Header
+    pdf.setFillColor(240,230,210); pdf.setDrawColor(200,180,140);
+    pdf.roundedRect(x, y, w, rowH, 1.5, 1.5, 'FD');
+    pdf.setTextColor(184,134,11); pdf.setFontSize(fontSize); pdf.setFont('helvetica','bold');
+    headers[0].forEach((h,i) => pdf.text(h, x+4+i*colW, y+5));
+    y += rowH;
+    // Rows
+    rows.forEach((row, ri) => {
+        if (ri%2===1) { pdf.setFillColor(249,249,249); pdf.rect(x,y,w,rowH,'F'); }
+        pdf.setDrawColor(220,220,220); pdf.line(x,y,x+w,y);
+        pdf.setTextColor(60,60,60); pdf.setFontSize(fontSize-0.5); pdf.setFont('helvetica','normal');
+        row.forEach((cell,i) => pdf.text(String(cell).substring(0,20), x+4+i*colW, y+5));
+        y += rowH;
+    });
+    pdf.setDrawColor(200,200,200); pdf.line(x,y,x+w,y);
+}
+
+// ==================== Export Text ====================
+function exportAsText() {
+    const r=document.getElementById('batch-full-report');
+    if (!r||!r.textContent.trim()) { showToast('请先生成配方方案', true); return; }
+    const name=document.getElementById('batch-name').value||'未命名批次';
+    const text=`啤酒发酵工艺配方单\n${'='.repeat(50)}\n生成时间: ${new Date().toLocaleString('zh-CN')}\n批次: ${name}\n\n${r.textContent.replace(/[\u{1F300}-\u{1F9FF}]/gu,'').trim()}\n\n---\nBeer Fermentation Calculator v5.1 | ASBC/MBAA/EBC`;
+    const blob=new Blob([text],{type:'text/plain;charset=utf-8'}), url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=`${name.replace(/\s+/g,'_')}_配方_${Date.now()}.txt`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('配方已导出为文本 ✓');
+}
+
+// ==================== Copy ====================
+async function copyToClipboard() {
+    const r=document.getElementById('batch-full-report');
+    if (!r||!r.textContent.trim()) { showToast('请先生成配方方案', true); return; }
+    const name=document.getElementById('batch-name').value||'未命名批次';
+    const text=`${name} - 啤酒发酵工艺配方\n${'='.repeat(40)}\n${r.textContent.replace(/[\u{1F300}-\u{1F9FF}]/gu,'').trim()}`;
+    try {
+        if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(text); }
+        else { const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+        showToast('已复制到剪贴板 ✓');
+    } catch(e) { showToast('复制失败: '+e.message, true); }
+}
+
+// ==================== Storage ====================
+const SAVE_FIELDS=['batch-name','batch-style','batch-vol','batch-og','batch-fg','batch-yeast','batch-ferm-temp','batch-ferm-days','batch-secondary','batch-carb','batch-carb-temp','batch-package'];
+function saveToStorage() { try { const d={}; SAVE_FIELDS.forEach(id=>{const e=document.getElementById(id);if(e)d[id]=e.value;}); localStorage.setItem(CONFIG.STORAGE_KEY,JSON.stringify(d)); } catch(e){} }
+function loadFromStorage() { try { const d=JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)||'{}'); SAVE_FIELDS.forEach(id=>{if(d[id]!==undefined){const e=document.getElementById(id);if(e)e.value=d[id];}}); } catch(e){} }
+
+// ==================== Init ====================
+document.addEventListener('DOMContentLoaded', () => {
+    loadFromStorage();
+    SAVE_FIELDS.forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',debounce(saveToStorage,CONFIG.DEBOUNCE_DELAY));});
+    const kg=document.getElementById('carb-keg-temp-group'); if(kg)kg.style.display='none';
+    console.log('%c🍺 Beer Fermentation Calculator v5.1','color:#d4a017;font-size:16px;font-weight:bold');
+    console.log('%cPDF Export Ready | ASBC/MBAA/EBC | jspdf+html2canvas','color:#888;font-size:12px');
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown',(e)=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='p'){ const bt=document.getElementById('tab-batch'); if(bt?.classList.contains('active')){e.preventDefault();exportPDF();} }
+    if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){const s=document.querySelector('.calc-section.active');if(s){s.querySelector('.btn-primary')?.click();}}
+});
+
+// Error boundary
+window.addEventListener('error',e=>{console.error('[v5.1]',e.error);showToast('错误: '+(e.message||'未知'),true);});
+window.addEventListener('unhandledrejection',e=>{console.error('[v5.1] Promise:',e.reason);showToast('异步失败: '+(e.reason?.message||'未知'),true);});
+</script>
+</body>
+</html>
