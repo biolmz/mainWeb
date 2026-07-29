@@ -1,1 +1,361 @@
-<p>测试</p>
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+
+<link rel="dns-prefetch" href="https://bio2025.site/download.html"/>
+<link rel="dns-prefetch" href="https://bio2025.site/" />
+<link rel="dns-prefetch" href="https://in-bio2025-d6gfpdwu36a210919.webapps.tcloudbase.com/" />
+<link rel="dns-prefetch" href="https://github.com" />
+
+<!-- ========== 安全相关 Meta ========== -->
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="x-dns-prefetch-control" content="off">
+<meta name="referrer-policy" content="no-referrer">
+
+<title>网址导航</title>
+<style>
+:root{
+  --t:.3s cubic-bezier(.4,0,.2,1);
+  --r:6px;
+  --maxw:1080px;
+  --bg:#f4f6f9;
+  --header-bg:#1a3a5c;
+  --header-bg2:#0f2744;
+  --header-text:#fff;
+  --accent:#c8161d;
+  --surface:#fff;
+  --surface-hover:#f0f4fa;
+  --border:#d8dde4;
+  --text:#1a2a3a;
+  --text-muted:#7a8a9a;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.04);
+  --divider:#e2e6ec;
+  --icon-bg:#eef3f9;
+  --icon-text:#1a3a5c;
+}
+[data-theme="dark"]{
+  --bg:#121a28;
+  --header-bg:#0a1e36;
+  --header-bg2:#061326;
+  --header-text:#e8edf4;
+  --accent:#e0444a;
+  --surface:#182238;
+  --surface-hover:#1f2e48;
+  --border:#243349;
+  --text:#e2e8f0;
+  --text-muted:#6a7a8a;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.2);
+  --shadow-lg:0 4px 20px rgba(0,0,0,.35),0 8px 40px rgba(0,0,0,.2);
+  --divider:#1e3048;
+  --icon-bg:#1a2c44;
+  --icon-text:#93b4e8;
+}
+@media(prefers-color-scheme:dark){
+  [data-theme="auto"]{
+    --bg:#121a28;--header-bg:#0a1e36;--header-bg2:#061326;
+    --header-text:#e8edf4;--accent:#e0444a;
+    --surface:#182238;--surface-hover:#1f2e48;
+    --border:#243349;--text:#e2e8f0;--text-muted:#6a7a8a;
+    --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.2);
+    --shadow-lg:0 4px 20px rgba(0,0,0,.35),0 8px 40px rgba(0,0,0,.2);
+    --divider:#1e3048;--icon-bg:#1a2c44;--icon-text:#93b4e8;
+  }
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  transition:background var(--t),color var(--t);font-size:15px;line-height:1.6;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+/* 顶栏 */
+.topbar{
+  background:linear-gradient(135deg,var(--header-bg) 0%,var(--header-bg2) 100%);
+  border-bottom:3px solid var(--accent);position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.15);
+}
+.topbar-inner{
+  max-width:var(--maxw);margin:0 auto;padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-mark{
+  width:40px;height:40px;border-radius:6px;background:var(--accent);
+  display:grid;place-items:center;color:#fff;font-size:1.2rem;font-weight:700;
+  box-shadow:0 2px 8px rgba(200,22,29,.35);
+}
+.logo-text{color:var(--header-text);font-size:1.2rem;font-weight:700;letter-spacing:.04em}
+.logo-sub{color:rgba(255,255,255,.55);font-size:.72rem;margin-top:2px;letter-spacing:.12em}
+
+/* 主题按钮 */
+.theme-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border:1px solid rgba(255,255,255,.2);border-radius:var(--r);
+  background:rgba(255,255,255,.08);color:var(--header-text);font-size:.82rem;
+  transition:all var(--t);white-space:nowrap;
+}
+.theme-btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.35)}
+.theme-btn .dot{width:7px;height:7px;border-radius:50%;background:#4cd964;box-shadow:0 0 6px #4cd964;transition:all var(--t)}
+.theme-btn[data-mode="light"] .dot{background:#ffd60a;box-shadow:0 0 6px #ffd60a}
+.theme-btn[data-mode="dark"] .dot{background:#5e5ce6;box-shadow:0 0 6px #5e5ce6}
+
+/* 主容器 */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:32px 24px 60px}
+
+/* 分类 */
+.cat{margin-bottom:32px}
+.cat-head{
+  display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid var(--divider);
+}
+.cat-bar{width:4px;height:20px;border-radius:2px;background:var(--accent);flex-shrink:0}
+.cat-title{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.02em}
+.cat-count{font-size:.75rem;color:var(--text-muted);background:rgba(0,0,0,.04);padding:2px 10px;border-radius:20px;margin-left:8px}
+[data-theme="dark"] .cat-count{background:rgba(255,255,255,.06)}
+
+/* 网格 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+
+/* 链接卡片 */
+.link{
+  display:flex;align-items:center;gap:14px;padding:14px 18px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  transition:all var(--t);position:relative;overflow:hidden;box-shadow:var(--shadow);
+  -webkit-user-drag:none;user-select:none;
+}
+.link::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--accent);transform:scaleY(0);transition:transform var(--t);transform-origin:center;
+}
+.link:hover{background:var(--surface-hover);border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.link:hover::before{transform:scaleY(1)}
+.link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.icon{
+  width:38px;height:38px;border-radius:8px;background:var(--icon-bg);color:var(--icon-text);
+  display:grid;place-items:center;font-size:.82rem;font-weight:700;flex-shrink:0;
+  transition:all var(--t);border:1px solid var(--border);
+}
+.link:hover .icon{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.link-body{min-width:0;flex:1}
+.link-name{font-size:.92rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color var(--t)}
+.link:hover .link-name{color:var(--accent)}
+.link-desc{font-size:.75rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+
+.arrow{color:var(--text-muted);font-size:.8rem;transition:all var(--t);opacity:0;transform:translateX(-4px)}
+.link:hover .arrow{opacity:1;transform:translateX(0);color:var(--accent)}
+
+/* 页脚 */
+footer{border-top:1px solid var(--divider);padding:20px 24px;text-align:center;color:var(--text-muted);font-size:.76rem;background:var(--surface);margin-top:40px}
+
+/* 响应式 */
+@media(max-width:640px){
+  .topbar-inner{padding:10px 14px}
+  .logo-text{font-size:1rem}
+  .logo-sub{display:none}
+  .theme-btn span:not(.dot){display:none}
+  .wrap{padding:20px 14px 40px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <div class="logo-mark">导</div>
+      <div>
+        <div class="logo-text">网址导航</div>
+        <div class="logo-sub">LINK DIRECTORY</div>
+      </div>
+    </div>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">
+      <span class="dot"></span>
+      <span class="lbl">跟随系统</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<footer class="footer">
+    <p>©; 2026 lmz · 版权所有</p>
+    <p style="margin-top: 6px;"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted);">鲁ICP备2025209153号-1</a></p>
+</footer>
+
+<script>
+'use strict';
+
+/**
+ * 数据配置区 —— 修改此处管理链接
+ * cat: 分类名 | name: 名称 | url: 地址 | icon: 图标字 | desc: 描述
+ */
+const DATA = [
+  {cat:"我的网站", links:[
+    {name:"LMZ主页面", url:"https://bio2025.site/", icon:"主", desc:"个人网页主页面"},
+    {name:"LMZ备用网址", url:"https://in-bio2025-d6gfpdwu36a210919.webapps.tcloudbase.com/", icon:"备", desc:"个人网页备用网址"},
+    {name:"资料下载中心", url:"https://bio2025.site/download.html", icon:"资", desc:"资料下载中心"},
+    {name:"资料下载中心高速", url:"#", icon:"济", desc:"（预留）"},
+    {name:"导航页", url:"https://bio2025.site/content/index.html", icon:"航", desc:"目录导航"},
+    {name:"啤酒工艺计算", url:"https://bio2025.site/beer/calculator.html", icon:"B", desc:"啤酒工艺计算器"},
+
+
+  ]},
+  {cat:"开发工具", links:[
+    {name:"GitHub", url:"https://github.com", icon:"G", desc:"代码托管平台"},
+    {name:"Gitt", url:"https://gitee.com/", icon:"G", desc:"中国代码托管平台"},
+    {name:"腾讯云", url:"https://cloud.tencent.com/", icon:"T", desc:"腾讯云平台"},
+    {name:"华为云", url:"https://huaweicloud.com/", icon:"H", desc:"华为云平台"},
+    {name:"腾讯云CloudBase", url:"https://tcb.cloud.tencent.com/", icon:"C", desc:"腾讯云CloudBase平台"},
+    {name:"阿里云", url:"https://www.aliyun.com/", icon:"H", desc:"阿里云平台"},
+    
+  ]},
+  {cat:"效率工具", links:[
+    {name:"Notion", url:"https://www.notion.so", icon:"N", desc:"知识管理协作"},
+    {name:"DeepSeek", url:"https://chat.deepseek.com", icon:"D", desc:"DeepSeek"},
+    {name:"TinyPNG", url:"https://tinypng.com", icon:"压", desc:"智能图片压缩"},
+    {name:"百度秒哒", url:"https://www.miaoda.cn/", icon:"秒", desc:"无代码搭建平台"},
+    {name:"SPSS", url:"https://www.spsspro.com/", icon:"S", desc:"统计分析软件"},
+  ]},
+  {cat:"学习资源", links:[
+    {name:"学习通", url:"https://passport2.chaoxing.com/", icon:"X", desc:"学习通平台"},
+    {name:"哔哩哔哩", url:"https://www.bilibili.com", icon:"B", desc:"学习视频平台"},
+    {name:"中国知网", url:"https://www.cnki.net", icon:"知", desc:"学术文献检索"},
+    {name:"万方", url:"https://www.wanfangdata.com.cn/", icon:"万", desc:"学术文献检索"},
+    {name:"Web of science", url:"https://www.webofscience.com/", icon:"W", desc:"英文学术文献检索"},
+    {name:"Z-library", url:"https://zh.kid1412.by/", icon:"Z", desc:"电子书下载"},
+    {name:"智慧教育", url:"https://www.smartedu.cn/", icon:"W", desc:"国家智慧教育平台"},
+    {name:"MOOC", url:"https://www.icourse163.org/", icon:"M", desc:"中国大学MOOC"},
+    {name:"学堂在线", url:"https://www.xuetangx.com/", icon:"X", desc:"清华大学在线教育平台"},
+    {name:"YouTube", url:"https://www.youtube.com", icon:"Y", desc:"全球视频分享"},
+  ]},
+ 
+  {cat:"其他链接", links:[
+    {name:"山东科协", url:"https://www.sdast.org.cn/", icon:"S", desc:"山东省科学技术协会官网"},
+    {name:"北京大学", url:"https://www.pku.edu.cn/", icon:"B", desc:"北京大学官网"},
+    {name:"北大生科", url:"https://www.bio.pku.edu.cn/", icon:"B", desc:"北京大学生命科学学院官网"},
+    {name:"国家标准公开", url:"https://openstd.samr.gov.cn/", icon:"G", desc:"国家标准公开查询平台"},
+  ]},
+];
+
+/* ========== 安全工具函数 ========== */
+
+// HTML 实体转义 —— 防 XSS
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// URL 安全校验 —— 双层防御
+const BLOCKED = /^(javascript|data|blob|vbscript|file|about|chrome|chrome-extension):/i;
+const safeUrl = u => {
+  try {
+    const raw = String(u).trim();
+    // 第一层：正则黑名单拦截常见伪协议
+    if (BLOCKED.test(raw)) return '#blocked';
+    // 第二层：URL API 解析 + 协议白名单
+    const p = new URL(raw);
+    if (!['http:','https:','mailto:','tel:'].includes(p.protocol)) return '#blocked';
+    // 第三层：hostname 基础合法性（防控制字符注入）
+    if (!/^[a-z0-9.\-_]+$/i.test(p.hostname)) return '#blocked';
+    return p.href;
+  } catch { return '#blocked'; }
+};
+
+/* ========== 渲染 ========== */
+const app = document.getElementById('app');
+try {
+  // 先校验 DATA 结构完整性
+  if (!Array.isArray(DATA)) throw new Error('DATA 必须是数组');
+  DATA.forEach((s, i) => {
+    if (typeof s.cat !== 'string') throw new Error(`分类[${i}] cat 字段缺失`);
+    if (!Array.isArray(s.links)) throw new Error(`分类[${i}] links 字段缺失`);
+  });
+
+  app.innerHTML = DATA.map(section => `
+    <section class="cat">
+      <div class="cat-head">
+        <div class="cat-bar"></div>
+        <span class="cat-title">${esc(section.cat)}</span>
+        <span class="cat-count">${section.links.length} 项</span>
+      </div>
+      <div class="grid">
+        ${section.links.map(l => {
+          const u = safeUrl(l.url);
+          return u && u !== '#blocked' ? `
+            <a class="link" href="${u}" target="_blank" rel="noopener noreferrer" draggable="false">
+              <span class="icon">${esc(l.icon)}</span>
+              <span class="link-body">
+                <div class="link-name">${esc(l.name)}</div>
+                <div class="link-desc">${esc(l.desc||'')}</div>
+              </span>
+              <span class="arrow">→</span>
+            </a>` : `
+            <div class="link" style="opacity:.4;cursor:not-allowed" aria-disabled="true">
+              <span class="icon">${esc(l.icon||'?')}</span>
+              <span class="link-body">
+                <div class="link-name">${esc(l.name||'未知')}</div>
+                <div class="link-desc">⚠️ 链接已被安全策略拦截</div>
+              </span>
+            </div>`;
+        }).join('')}
+      </div>
+    </section>
+  `).join('');
+} catch(e) {
+  console.error('[渲染错误]', e);
+  app.innerHTML = `<div style="text-align:center;padding:60px;color:var(--accent)">⚠️ 数据格式错误：${esc(e.message)}</div>`;
+}
+
+/* ========== 主题管理 ========== */
+const STORAGE_KEY = 'nav-theme';
+const THEMES = [
+  {id:'auto', label:'跟随系统', c:'#4cd964', s:'#4cd964'},
+  {id:'light', label:'浅色模式', c:'#ffd60a', s:'#ffd60a'},
+  {id:'dark', label:'深色模式', c:'#5e5ce6', s:'#5e5ce6'},
+];
+const btn = document.getElementById('themeBtn');
+const lbl = btn.querySelector('.lbl');
+const dot = btn.querySelector('.dot');
+
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  btn.setAttribute('data-mode', t);
+  const cfg = THEMES.find(x => x.id === t) || THEMES[0];
+  lbl.textContent = cfg.label;
+  dot.style.cssText = `background:${cfg.c};box-shadow:0 0 6px ${cfg.s}`;
+}
+
+btn.addEventListener('click', () => {
+  const order = THEMES.map(x => x.id);
+  const cur = document.documentElement.getAttribute('data-theme') || 'auto';
+  const next = order[(order.indexOf(cur) + 1) % order.length];
+  applyTheme(next);
+  try { localStorage.setItem(STORAGE_KEY, next); } catch(_) {}
+});
+
+// 初始化
+let saved = null;
+try { saved = localStorage.getItem(STORAGE_KEY); } catch(_) {}
+applyTheme(saved && THEMES.some(x => x.id === saved) ? saved : 'auto');
+
+// 系统变化响应
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if ((document.documentElement.getAttribute('data-theme') || 'auto') === 'auto') applyTheme('auto');
+});
+</script>
+</body>
+</html>
