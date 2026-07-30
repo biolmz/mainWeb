@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>软件下载</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f6f8fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.08);
+            width: 360px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            margin-bottom: 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            color: #fff;
+        }
+        .oss { background: #1677ff; }
+        .pan { background: #52c41a; }
+
+        .section-title {
+            margin: 25px 0 10px;
+            font-size: 13px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📦 网站链接</h1>
+    <a class="btn oss" href="https://bio2025.site/content/">
+        普通导航页
+    </a>
+
+    <h1>📦 资源下载</h1>
+
+    <!-- 云对象存储下载 -->
+    <a class="btn oss" href="https://your-bucket.oss-cn-region.aliyuncs.com/file.zip">
+        官方高速下载（OSS）
+    </a>
+
+    <div class="section-title">备用下载方式</div>
+
+    <!-- 网盘下载（预留） -->
+    <a class="btn pan" href="https://pan.baidu.com/s/xxxxxx">
+        百度网盘下载
+    </a>
+
+    <a class="btn pan" href="#">
+        阿里云盘下载（待更新）
+    </a>
+</div>
+
+</body>
+</html>
