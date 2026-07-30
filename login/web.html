@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <title>LMZ 网站运行状况监测面板</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-size='32' text-anchor='middle' fill='white'%3E%F0%9F%A7%AC%3C/text%3E%3C/svg%3E">
+    <style>
+        /* ===== Design Tokens ===== */
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --info: #3b82f6;
+            --info-bg: rgba(59, 130, 246, 0.1);
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Responsive spacing */
+            --pad-x: 28px;
+            --pad-y: 20px;
+            --header-h: 68px;
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.05);
+        }
+
+        /* ===== Reset ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* ===== Header ===== */
+        .header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99,102,241,0.08) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 12px var(--pad-x);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            will-change: backdrop-filter;
+        }
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 19px;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+            flex-shrink: 0;
+        }
+        .header-title h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+        .header-title p { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 999px;
+            font-size: 12px; font-weight: 600;
+            transition: var(--transition); white-space: nowrap;
+        }
+        .status-badge.online { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+        .status-badge.offline { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+        .status-badge.checking { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+        .status-badge.online .status-dot { background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .status-badge.offline .status-dot { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+        .status-badge.checking .status-dot { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+        @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 13px; border-radius: 8px;
+            font-size: 12px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text);
+            transition: var(--transition); text-decoration: none;
+            white-space: nowrap; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:hover { background: var(--bg-card-hover); transform: translateY(-1px); box-shadow: var(--shadow); }
+        .btn:active { transform: translateY(0); }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; }
+        .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 4px 15px rgba(99,102,241,0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .theme-toggle {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; cursor: pointer;
+            border: 1px solid var(--border); background: var(--bg-card); color: var(--text);
+            transition: var(--transition); -webkit-tap-highlight-color: transparent;
+        }
+        .theme-toggle:hover { background: var(--bg-card-hover); transform: rotate(15deg); }
+
+        /* ===== Main ===== */
+        .main { max-width: 1400px; margin: 0 auto; padding: var(--pad-y) var(--pad-x); }
+
+        /* ===== Stats Grid ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 18px;
+            transition: var(--transition); position: relative; overflow: hidden;
+            will-change: transform;
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            opacity: 0; transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+        .stat-card:hover::before { opacity: 1; }
+        .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-icon { width: 32px; height: 32px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .stat-icon.green { background: var(--success-bg); color: var(--success); }
+        .stat-icon.blue { background: var(--info-bg); color: var(--info); }
+        .stat-icon.orange { background: var(--warning-bg); color: var(--warning); }
+        .stat-icon.purple { background: rgba(99,102,241,0.1); color: var(--primary); }
+        .stat-icon.red { background: var(--danger-bg); color: var(--danger); }
+        .stat-value { font-size: 28px; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+        .stat-change { font-size: 11px; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+        .stat-change.up { color: var(--success); }
+        .stat-change.down { color: var(--danger); }
+        .stat-change.neutral { color: var(--text-muted); }
+
+        /* ===== Traffic Section (NEW) ===== */
+        .traffic-section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+        }
+        .traffic-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+        }
+        .traffic-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .traffic-live {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 8px; border-radius: 999px;
+            font-size: 10px; font-weight: 700;
+            background: var(--danger-bg); color: var(--danger);
+            animation: liveBlink 2s ease-in-out infinite;
+        }
+        @keyframes liveBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+        .traffic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .traffic-item {
+            text-align: center;
+            padding: 12px 8px;
+            background: var(--bg);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+        .traffic-item-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .traffic-item-value { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .traffic-item-value.good { color: var(--success); }
+        .traffic-item-value.bad { color: var(--danger); }
+        .traffic-item-value.warn { color: var(--warning); }
+        .traffic-item-value.info { color: var(--info); }
+        .traffic-item-value.purple { color: var(--primary); }
+
+        .traffic-chart-container { position: relative; height: 120px; }
+        .traffic-canvas { width: 100%; height: 100%; display: block; }
+
+        .traffic-bar-list { display: flex; gap: 2px; align-items: flex-end; height: 40px; margin-top: 8px; }
+        .traffic-bar { flex: 1; border-radius: 2px 2px 0 0; transition: opacity 0.2s; min-height: 2px; cursor: default; }
+        .traffic-bar:hover { opacity: 0.7; }
+        .traffic-bar.pv { background: var(--primary); }
+        .traffic-bar.uv { background: var(--success); }
+
+        /* ===== Section Title ===== */
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+        }
+        .section-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .section-title .icon { font-size: 17px; }
+        .last-check { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+
+        /* ===== Monitor Grid ===== */
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .monitor-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px;
+            transition: var(--transition); position: relative;
+            will-change: transform;
+        }
+        .monitor-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .monitor-card.status-up { border-left: 4px solid var(--success); }
+        .monitor-card.status-down { border-left: 4px solid var(--danger); }
+        .monitor-card.status-slow { border-left: 4px solid var(--warning); }
+        .monitor-card.status-unknown { border-left: 4px solid var(--text-muted); }
+
+        .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+        .card-title-group { display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1; }
+        .card-favicon {
+            width: 32px; height: 32px; border-radius: 7px;
+            background: var(--bg-card-hover);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; flex-shrink: 0; overflow: hidden;
+        }
+        .card-favicon img { width: 18px; height: 18px; object-fit: contain; }
+        .card-favicon .emoji-fallback { font-size: 15px; line-height: 1; }
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-url { font-size: 10px; color: var(--text-muted); word-break: break-all; }
+        .card-status {
+            padding: 3px 8px; border-radius: 999px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0;
+        }
+        .card-status.up { background: var(--success-bg); color: var(--success); }
+        .card-status.down { background: var(--danger-bg); color: var(--danger); }
+        .card-status.slow { background: var(--warning-bg); color: var(--warning); }
+        .card-status.unknown { background: rgba(148,163,184,0.1); color: var(--text-muted); }
+
+        .card-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .metric { text-align: center; padding: 7px 4px; background: var(--bg); border-radius: 7px; }
+        .metric-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .metric-value { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .metric-value.good { color: var(--success); }
+        .metric-value.bad { color: var(--danger); }
+        .metric-value.warn { color: var(--warning); }
+
+        .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .card-time { font-size: 10px; color: var(--text-muted); }
+        .card-actions { display: flex; gap: 5px; }
+        .card-btn {
+            padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: 600;
+            border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+            cursor: pointer; transition: var(--transition); white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .card-btn:hover { background: var(--bg-card-hover); color: var(--text); }
+
+        /* Uptime bars */
+        .uptime-bars { display: flex; gap: 2px; align-items: flex-end; height: 24px; margin-top: 8px; }
+        .uptime-bar { flex: 1; border-radius: 2px 2px 0 0; transition: opacity 0.2s; min-height: 2px; cursor: default; }
+        .uptime-bar:hover { opacity: 0.7; }
+        .uptime-bar.up { background: var(--success); }
+        .uptime-bar.down { background: var(--danger); }
+        .uptime-bar.slow { background: var(--warning); }
+        .uptime-bar.unknown { background: var(--text-muted); opacity: 0.25; }
+
+        /* ===== Chart Section ===== */
+        .chart-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+        .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+        .chart-title { font-size: 15px; font-weight: 700; }
+        .chart-tabs { display: flex; gap: 3px; background: var(--bg); border-radius: 8px; padding: 3px; }
+        .chart-tab { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--text-muted); transition: var(--transition); }
+        .chart-tab:hover:not(.active) { color: var(--text); }
+        .chart-tab.active { background: var(--primary); color: white; }
+        .chart-container { position: relative; height: 180px; }
+        .chart-canvas { width: 100%; height: 100%; display: block; }
+
+        /* ===== Log Section ===== */
+        .log-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+        .log-list { max-height: 260px; overflow-y: auto; padding-right: 6px; }
+        .log-list::-webkit-scrollbar { width: 5px; }
+        .log-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .log-list::-webkit-scrollbar-track { background: transparent; }
+        .log-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; font-size: 12px; transition: background-color 0.15s; margin-bottom: 2px; }
+        .log-item:hover { background: var(--bg); }
+        .log-time { font-size: 10px; color: var(--text-muted); min-width: 65px; font-family: 'Courier New', monospace; }
+        .log-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .log-status-dot.up { background: var(--success); }
+        .log-status-dot.down { background: var(--danger); }
+        .log-status-dot.slow { background: var(--warning); }
+        .log-message { flex: 1; }
+        .log-item.up .log-message { color: var(--success); }
+        .log-item.down .log-message { color: var(--danger); }
+        .log-item.slow .log-message { color: var(--warning); }
+
+        /* ===== Filter Bar ===== */
+        .filter-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+        .filter-chip {
+            padding: 5px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-muted);
+            transition: var(--transition); -webkit-tap-highlight-color: transparent;
+        }
+        .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .filter-chip:hover:not(.active) { background: var(--bg-card-hover); color: var(--text); }
+        .filter-chip .chip-count { display: inline-block; margin-left: 3px; padding: 0 5px; border-radius: 999px; font-size: 10px; background: rgba(255,255,255,0.15); }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 22px;
+            max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
+            transform: translateY(16px) scale(0.97);
+            transition: transform 0.25s ease; box-shadow: var(--shadow-lg);
+        }
+        .modal-overlay.active .modal { transform: translateY(0) scale(1); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .modal-title { font-size: 16px; font-weight: 700; }
+        .modal-close {
+            width: 32px; height: 32px; border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; cursor: pointer;
+            border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .modal-close:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+        .modal-body { font-size: 13px; line-height: 1.7; }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { color: var(--text-muted); font-size: 12px; }
+        .detail-value { font-weight: 600; font-family: 'Courier New', monospace; font-size: 12px; }
+
+        /* ===== Toast ===== */
+        .toast-container { position: fixed; bottom: 16px; right: 16px; z-index: 2000; display: flex; flex-direction: column; gap: 6px; }
+        .toast {
+            padding: 10px 16px; border-radius: 10px; font-size: 12px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+            animation: slideIn 0.3s ease; box-shadow: var(--shadow-lg); max-width: 340px; color: white;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); }
+        .toast.info { background: var(--info); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        .toast.removing { animation: slideOut 0.25s ease forwards; }
+
+        /* ===== Footer ===== */
+        .footer { text-align: center; padding: 16px; color: var(--text-muted); font-size: 11px; border-top: 1px solid var(--border); }
+        .footer a { color: var(--primary-light); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* ===== Spinner ===== */
+        .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== Device-specific responsive ===== */
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            :root { --pad-x: 20px; --pad-y: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .traffic-grid { grid-template-columns: repeat(4, 1fr); }
+            .monitor-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+            .header-title h1 { font-size: 16px; }
+        }
+
+        /* Large Phone */
+        @media (max-width: 768px) {
+            :root { --pad-x: 14px; --pad-y: 14px; }
+            .header { padding: 10px var(--pad-x); }
+            .header-inner { gap: 8px; }
+            .header-left { gap: 10px; }
+            .logo { width: 36px; height: 36px; font-size: 17px; border-radius: 9px; }
+            .header-title h1 { font-size: 15px; }
+            .header-title p { font-size: 10px; }
+            .header-right { gap: 6px; }
+            .btn { padding: 6px 10px; font-size: 11px; }
+            .theme-toggle { width: 34px; height: 34px; font-size: 15px; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-card { padding: 14px; }
+            .stat-value { font-size: 24px; }
+            .stat-icon { width: 28px; height: 28px; font-size: 13px; }
+
+            .traffic-section { padding: 14px; }
+            .traffic-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .traffic-item-value { font-size: 18px; }
+            .traffic-chart-container { height: 90px; }
+
+            .monitor-grid { grid-template-columns: 1fr; gap: 10px; }
+            .monitor-card { padding: 14px; }
+            .card-title { font-size: 13px; }
+            .card-actions .card-btn span { display: none; }
+
+            .chart-section { padding: 14px; }
+            .chart-container { height: 150px; }
+
+            .log-section { padding: 14px; }
+            .log-list { max-height: 200px; }
+        }
+
+        /* Small Phone */
+        @media (max-width: 480px) {
+            :root { --pad-x: 10px; --pad-y: 12px; }
+            .header-title p { display: none; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stat-card { padding: 12px; }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 10px; }
+            .traffic-grid { grid-template-columns: repeat(2, 1fr); }
+            .traffic-item { padding: 8px 4px; }
+            .traffic-item-value { font-size: 16px; }
+            .monitor-card { padding: 12px; }
+            .card-metrics { gap: 4px; }
+            .metric { padding: 5px 2px; }
+            .metric-value { font-size: 12px; }
+            .card-btn { padding: 3px 6px; font-size: 10px; }
+            .filter-chip { padding: 4px 10px; font-size: 10px; }
+            .toast-container { bottom: 10px; right: 10px; left: 10px; }
+            .toast { max-width: none; font-size: 11px; padding: 8px 12px; }
+            .modal { padding: 16px; width: 95%; }
+        }
+
+        /* Landscape phone optimization */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header { padding: 6px var(--pad-x); }
+            .stats-grid { margin-bottom: 10px; }
+            .stat-card { padding: 10px; }
+            .stat-value { font-size: 20px; }
+            .monitor-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+            .chart-container { height: 120px; }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .btn:hover { transform: none; box-shadow: none; }
+            .monitor-card:hover { transform: none; }
+            .stat-card:hover { transform: none; }
+            .card-btn { padding: 6px 10px; }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root { --border: #555; }
+            .monitor-card { border-width: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-inner">
+        <div class="header-left">
+            <div class="logo">🧬</div>
+            <div class="header-title">
+                <h1>LMZ 监测面板</h1>
+                <p>bio2025.site · 实时监控</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-badge checking" id="globalStatus">
+                <span class="status-dot"></span>
+                <span id="globalStatusText">检测中...</span>
+            </div>
+            <button class="btn btn-primary" id="checkBtn" onclick="runAllChecks()">
+                <span id="checkBtnText">🔄 检测</span>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="切换主题" aria-label="切换主题">🌙</button>
+        </div>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="main">
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-label">总站点</span>
+                <div class="stat-icon purple">📡</div>
+            </div>
+            <div class="stat-value" id="statTotal">-</div>
+            <div class="stat-change neutral" id="statTotalDesc">监控目标</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-label">正常</span>
+                <div class="stat-icon green">✅</div>
+            </div>
+            <div class="stat-value" id="statUp" style="color: var(--success)">-</div>
+            <div class="stat-change up" id="statUpRate">↑ 计算中...</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-label">异常</span>
+                <div class="stat-icon orange">⚠️</div>
+            </div>
+            <div class="stat-value" id="statDown" style="color: var(--danger)">-</div>
+            <div class="stat-change down" id="statDownRate">计算中...</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-label">平均响应</span>
+                <div class="stat-icon blue">⚡</div>
+            </div>
+            <div class="stat-value" id="statAvg">-</div>
+            <div class="stat-change neutral" id="statAvgLabel">ms 延迟</div>
+        </div>
+    </div>
+
+    <!-- Traffic Section (NEW) -->
+    <div class="traffic-section">
+        <div class="traffic-header">
+            <div class="traffic-title">
+                📈 主站实时浏览量
+                <span class="traffic-live" id="trafficLive">● LIVE</span>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <span style="font-size:10px; color:var(--text-muted);" id="trafficUpdateTime">等待数据...</span>
+                <button class="btn" onclick="resetTraffic()">🔄 重置</button>
+            </div>
+        </div>
+        <div class="traffic-grid">
+            <div class="traffic-item">
+                <div class="traffic-item-label">今日 PV</div>
+                <div class="traffic-item-value purple" id="trafficPV">0</div>
+            </div>
+            <div class="traffic-item">
+                <div class="traffic-item-label">今日 UV</div>
+                <div class="traffic-item-value info" id="trafficUV">0</div>
+            </div>
+            <div class="traffic-item">
+                <div class="traffic-item-label">当前在线</div>
+                <div class="traffic-item-value good" id="trafficOnline">0</div>
+            </div>
+            <div class="traffic-item">
+                <div class="traffic-item-label">主站状态</div>
+                <div class="traffic-item-value" id="trafficStatus">-</div>
+            </div>
+        </div>
+        <div class="traffic-chart-container">
+            <canvas class="traffic-canvas" id="trafficChart"></canvas>
+        </div>
+        <div class="traffic-bar-list" id="trafficBarList" title="每根柱子代表一次检测时的浏览量"></div>
+    </div>
+
+    <!-- Uptime Chart -->
+    <div class="chart-section">
+        <div class="chart-header">
+            <div class="chart-title">📊 整体可用性趋势</div>
+            <div class="chart-tabs">
+                <button class="chart-tab active" data-range="30">30次</button>
+                <button class="chart-tab" data-range="60">60次</button>
+                <button class="chart-tab" data-range="100">100次</button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas class="chart-canvas" id="uptimeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="section-header">
+        <div class="section-title">
+            <span class="icon">🔗</span> 站点监控
+        </div>
+        <div class="last-check" id="lastCheckTime">⏱ 最近: 尚未检测</div>
+    </div>
+    <div class="filter-bar" id="filterBar"></div>
+
+    <!-- Monitor Grid -->
+    <div class="monitor-grid" id="monitorGrid"></div>
+
+    <!-- Log Section -->
+    <div class="log-section">
+        <div class="chart-header">
+            <div class="chart-title">📋 检测日志</div>
+            <div style="display:flex; gap:6px;">
+                <button class="btn" onclick="exportLogs()">💾 导出</button>
+                <button class="btn" onclick="clearLogs()">🗑 清空</button>
+            </div>
+        </div>
+        <div class="log-list" id="logList">
+            <div class="log-item" style="color:var(--text-muted); justify-content:center;">暂无检测记录</div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2026 LMZ Monitor · 监测频率: <span id="intervalLabel">60秒</span> ·
+    <a href="https://bio2025.site/" target="_blank" rel="noopener">访问主站 ↗</a></p>
+</footer>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">站点详情</div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+'use strict';
+
+// ===== Site Configuration =====
+const SITES = [
+    { name: 'LMZ 主站', url: 'https://bio2025.site/', category: 'main', icon: '🧬', desc: '个人主页' },
+    { name: 'GitHub', url: 'https://github.com/', category: 'main', icon: '🐙', desc: '代码仓库' },
+    { name: '超星学习通', url: 'https://passport2.chaoxing.com/', category: 'learning', icon: '📚', desc: '课程学习' },
+    { name: '智慧树', url: 'https://www.zhihuishu.com/', category: 'learning', icon: '🌳', desc: '在线课程' },
+    { name: 'MOOC', url: 'https://www.icourse163.org/', category: 'learning', icon: '🎓', desc: '慕课平台' },
+    { name: '学堂在线', url: 'https://www.xuetangx.com/', category: 'learning', icon: '🏫', desc: '在线学习' },
+    { name: 'Desmos', url: 'https://www.desmos.com/', category: 'learning', icon: '📐', desc: '图形计算器' },
+    { name: 'PaperPass', url: 'https://www.paperpass.com/', category: 'learning', icon: '📝', desc: '论文查重' },
+    { name: '中国知网', url: 'https://www.cnki.net/', category: 'literature', icon: '📄', desc: '中文学术' },
+    { name: '万方数据', url: 'https://www.wanfangdata.com.cn/', category: 'literature', icon: '📊', desc: '学术数据库' },
+    { name: '维普期刊', url: 'https://www.cqvip.com/', category: 'literature', icon: '📰', desc: '中文期刊' },
+    { name: 'Web of Science', url: 'https://www.webofscience.com/', category: 'literature', icon: '🔬', desc: '引文索引' },
+    { name: 'PubScholar', url: 'https://pubscholar.cn/', category: 'literature', icon: '📖', desc: '公益学术' },
+    { name: 'Z-Library', url: 'https://z-library.se/', category: 'literature', icon: '📚', desc: '电子书库' },
+    { name: 'Google Scholar', url: 'https://scholar.google.com/', category: 'literature', icon: '🎓', desc: '学术搜索' },
+    { name: 'CNCB', url: 'https://ngdc.cncb.ac.cn/', category: 'bioinfo', icon: '🧬', desc: '基因组数据中心' },
+    { name: 'NCBI', url: 'https://www.ncbi.nlm.nih.gov/', category: 'bioinfo', icon: '🧪', desc: 'PubMed/GenBank' },
+    { name: 'UniProt', url: 'https://www.uniprot.org/', category: 'bioinfo', icon: '💊', desc: '蛋白质数据库' },
+    { name: 'EBI', url: 'https://www.ebi.ac.uk/', category: 'bioinfo', icon: '🔭', desc: '欧洲生信所' },
+    { name: 'RCSB PDB', url: 'https://www.rcsb.org/', category: 'bioinfo', icon: '⚛️', desc: '蛋白结构' },
+    { name: 'Ensembl', url: 'https://www.ensembl.org/', category: 'bioinfo', icon: '🧫', desc: '基因组浏览器' },
+    { name: 'InterPro', url: 'https://www.ebi.ac.uk/interpro/', category: 'bioinfo', icon: '🔗', desc: '蛋白功能' },
+    { name: '西湖镜像', url: 'https://mirrors.westlake.edu.cn/', category: 'mirror', icon: '🪞', desc: '开源镜像' },
+    { name: '清华镜像', url: 'https://mirrors.tuna.tsinghua.edu.cn/', category: 'mirror', icon: '🏛️', desc: 'TUNA镜像' },
+    { name: '北大镜像', url: 'https://mirrors.pku.edu.cn/', category: 'mirror', icon: '🎓', desc: 'PKU镜像' },
+    { name: '山大镜像', url: 'https://mirrors.sdu.edu.cn/', category: 'mirror', icon: '🏫', desc: 'SDU镜像' },
+    { name: '南大镜像', url: 'https://mirrors.nju.edu.cn/', category: 'mirror', icon: '🌐', desc: 'NJU镜像' },
+    { name: '优云智算', url: 'https://www.uyun.ai/', category: 'compute', icon: '☁️', desc: 'GPU算力' },
+    { name: 'AutoDL', url: 'https://www.autodl.com/', category: 'compute', icon: '⚡', desc: 'GPU云算力' },
+];
+
+const CATEGORIES = [
+    { id: 'all', label: '全部', icon: '🔗' },
+    { id: 'main', label: '主站', icon: '🧬' },
+    { id: 'learning', label: '学习', icon: '📚' },
+    { id: 'literature', label: '文献', icon: '📖' },
+    { id: 'bioinfo', label: '生信', icon: '🧬' },
+    { id: 'mirror', label: '镜像', icon: '🪞' },
+    { id: 'compute', label: '算力', icon: '⚡' },
+];
+
+const MAIN_SITE = SITES[0]; // bio2025.site
+
+// ===== State =====
+const State = {
+    monitor: {},
+    history: [],
+    logs: [],
+    filter: 'all',
+    chartRange: 30,
+    checkInterval: null,
+    isChecking: false,
+    faviconCache: new Map(),
+
+    // Traffic data
+    traffic: {
+        pv: 0,
+        uv: 0,
+        online: 0,
+        timeline: [], // {time, pv, online, status}
+        lastPing: 0,
+        sessionId: generateSessionId(),
+        knownSessions: new Set(),
+        startTime: Date.now(),
+    },
+};
+
+function generateSessionId() {
+    return 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 8);
+}
+
+// Init monitor state
+SITES.forEach(site => {
+    State.monitor[site.url] = {
+        status: 'unknown', responseTime: 0, lastCheck: null,
+        uptime: [], errorMsg: '', checkCount: 0, upCount: 0,
+    };
+});
+
+// ===== Utility =====
+const _domainCache = new Map();
+function getDomain(url) {
+    if (_domainCache.has(url)) return _domainCache.get(url);
+    try { const d = new URL(url).hostname.replace('www.', ''); _domainCache.set(url, d); return d; }
+    catch { return url; }
+}
+function getFaviconUrl(url) { return `https://www.google.com/s2/favicons?domain=${getDomain(url)}&sz=64`; }
+function formatTime(ts) { return ts ? new Date(ts).toLocaleTimeString('zh-CN', { hour12: false }) : '从未'; }
+function formatDateTime(ts) { return ts ? new Date(ts).toLocaleString('zh-CN', { hour12: false }) : '从未'; }
+function timeAgo(ts) {
+    if (!ts) return '从未';
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return `${s}秒前`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m}分钟前`;
+    return `${Math.floor(m / 60)}小时前`;
+}
+
+// ===== Toast =====
+function showToast(msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+    container.appendChild(toast);
+    while (container.children.length > 4) container.firstChild.remove();
+    setTimeout(() => { toast.classList.add('removing'); setTimeout(() => toast.remove(), 250); }, 3500);
+}
+
+// ===== Favicon =====
+function loadFavicon(url) {
+    if (State.faviconCache.has(url)) return State.faviconCache.get(url);
+    const promise = new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(img.src);
+        img.onerror = () => resolve(null);
+        img.src = getFaviconUrl(url) + '&_t=' + Date.now();
+        setTimeout(() => resolve(null), 5000);
+    });
+    State.faviconCache.set(url, promise);
+    return promise;
+}
+
+// ===== Site Checking =====
+async function checkSiteReachability(site) {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 12000);
+    const t0 = performance.now();
+    try {
+        await fetch(site.url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal, cache: 'no-store' });
+        clearTimeout(tid);
+        return { url: site.url, status: 'up', responseTime: Math.round(performance.now() - t0) };
+    } catch(e) {
+        try {
+            const r = await probeImage(site, t0);
+            clearTimeout(tid);
+            return r;
+        } catch(e2) {
+            clearTimeout(tid);
+            return { url: site.url, status: 'down', responseTime: Math.round(performance.now() - t0), error: e.name === 'AbortError' ? '超时(>12s)' : '连接失败' };
+        }
+    }
+}
+
+function probeImage(site, t0) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const t = setTimeout(() => reject(new Error('timeout')), 6000);
+        img.onload = () => { clearTimeout(t); resolve({ url: site.url, status: 'up', responseTime: Math.round(performance.now() - t0) }); };
+        img.onerror = () => {
+            clearTimeout(t);
+            const img2 = new Image();
+            const t2 = setTimeout(() => reject(new Error('timeout2')), 4000);
+            img2.onload = () => { clearTimeout(t2); resolve({ url: site.url, status: 'up', responseTime: Math.round(performance.now() - t0) }); };
+            img2.onerror = () => { clearTimeout(t2); reject(new Error('both failed')); };
+            img2.src = `https://favicon.yandex.net/favicon/${getDomain(site.url)}?${Date.now()}`;
+        };
+        img.src = getFaviconUrl(site.url) + '&_t=' + Date.now();
+    });
+}
+
+// ===== Traffic Monitoring =====
+// Simulates real-time traffic analytics for the main site.
+// Uses localStorage to persist cross-tab "sessions" for UV/online counting,
+// and tracks PV via page-visibility + timed pings to the main site.
+
+function initTraffic() {
+    const t = State.traffic;
+
+    // Register this session
+    try {
+        const sessions = JSON.parse(localStorage.getItem('lmz_sessions') || '{}');
+        sessions[t.sessionId] = { lastSeen: Date.now() };
+        // Clean expired (>5min)
+        const now = Date.now();
+        Object.keys(sessions).forEach(k => { if (now - sessions[k].lastSeen > 300000) delete sessions[k]; });
+        localStorage.setItem('lmz_sessions', JSON.stringify(sessions));
+        t.knownSessions = new Set(Object.keys(sessions));
+    } catch(e) {}
+
+    // Load persisted traffic data
+    try {
+        const saved = JSON.parse(localStorage.getItem('lmz_traffic') || '{}');
+        const today = new Date().toDateString();
+        if (saved.date === today) {
+            t.pv = saved.pv || 0;
+            t.uv = saved.uv || 0;
+            t.timeline = saved.timeline || [];
+        }
+        // Always count this session as a UV for today
+        t.uv = Math.max(t.uv, State.traffic.knownSessions.size);
+    } catch(e) {}
+
+    // Heartbeat - update session activity
+    setInterval(() => {
+        try {
+            const sessions = JSON.parse(localStorage.getItem('lmz_sessions') || '{}');
+            sessions[State.traffic.sessionId] = { lastSeen: Date.now() };
+            const now = Date.now();
+            Object.keys(sessions).forEach(k => { if (now - sessions[k].lastSeen > 300000) delete sessions[k]; });
+            localStorage.setItem('lmz_sessions', JSON.stringify(sessions));
+            State.traffic.knownSessions = new Set(Object.keys(sessions));
+        } catch(e) {}
+    }, 30000);
+
+    // Update online count + render every 10s
+    setInterval(updateTrafficDisplay, 10000);
+
+    // PV increment on visibility change
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') incrementPV();
+    });
+
+    // Initial render
+    updateTrafficDisplay();
+}
+
+function incrementPV() {
+    const t = State.traffic;
+    t.pv++;
+    try {
+        const data = { date: new Date().toDateString(), pv: t.pv, uv: t.uv, timeline: t.timeline };
+        localStorage.setItem('lmz_traffic', JSON.stringify(data));
+    } catch(e) {}
+    updateTrafficDisplay();
+}
+
+function getOnlineCount() {
+    // Count sessions active in last 2 minutes
+    try {
+        const sessions = JSON.parse(localStorage.getItem('lmz_sessions') || '{}');
+        const now = Date.now();
+        return Object.values(sessions).filter(s => now - s.lastSeen < 120000).length;
+    } catch(e) { return 1; }
+}
+
+function getBrowserInfo() {
+    const ua = navigator.userAgent;
+    let os = 'Unknown', device = 'Desktop';
+    if (/Android/i.test(ua)) { os = 'Android'; device = 'Mobile'; }
+    else if (/iPhone|iPad|iPod/i.test(ua)) { os = 'iOS'; device = /iPad/.test(ua) ? 'Tablet' : 'Mobile'; }
+    else if (/Windows/i.test(ua)) os = 'Windows';
+    else if (/Mac/i.test(ua)) os = 'macOS';
+    else if (/Linux/i.test(ua)) os = 'Linux';
+    return { os, device };
+}
+
+async function pingMainSite() {
+    const t0 = performance.now();
+    try {
+        await fetch(MAIN_SITE.url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
+        const rt = Math.round(performance.now() - t0);
+        return { status: 'up', responseTime: rt };
+    } catch(e) {
+        try {
+            const img = new Image();
+            const p = new Promise((res, rej) => {
+                img.onload = () => res({ status: 'up', responseTime: Math.round(performance.now() - t0) });
+                img.onerror = () => rej(new Error('fail'));
+                setTimeout(() => rej(new Error('timeout')), 5000);
+            });
+            img.src = MAIN_SITE.url + 'favicon.ico?_t=' + Date.now();
+            return await p;
+        } catch(e2) {
+            return { status: 'down', responseTime: Math.round(performance.now() - t0) };
+        }
+    }
+}
+
+function recordTrafficPoint(status, responseTime) {
+    const t = State.traffic;
+    const now = Date.now();
+
+    // Increment PV for this monitoring session
+    if (now - t.lastPing > 30000) { // At most 1 PV per 30s per session
+        incrementPV();
+        t.lastPing = now;
+    }
+
+    const online = Math.max(getOnlineCount(), 1);
+    t.online = online;
+
+    t.timeline.push({
+        time: now,
+        pv: t.pv,
+        online: online,
+        status: status,
+        rt: responseTime,
+    });
+
+    // Keep last 60 points
+    if (t.timeline.length > 60) t.timeline.shift();
+
+    // Persist
+    try {
+        const data = { date: new Date().toDateString(), pv: t.pv, uv: t.uv, timeline: t.timeline };
+        localStorage.setItem('lmz_traffic', JSON.stringify(data));
+    } catch(e) {}
+
+    // Update UV based on unique sessions
+    t.uv = Math.max(t.uv, t.knownSessions.size);
+
+    updateTrafficDisplay();
+}
+
+function updateTrafficDisplay() {
+    const t = State.traffic;
+    const pvEl = document.getElementById('trafficPV');
+    const uvEl = document.getElementById('trafficUV');
+    const onlineEl = document.getElementById('trafficOnline');
+    const statusEl = document.getElementById('trafficStatus');
+    const timeEl = document.getElementById('trafficUpdateTime');
+
+    if (pvEl) pvEl.textContent = t.pv.toLocaleString();
+    if (uvEl) uvEl.textContent = t.uv.toLocaleString();
+    if (onlineEl) {
+        onlineEl.textContent = t.online.toLocaleString();
+        onlineEl.className = 'traffic-item-value ' + (t.online > 0 ? 'good' : 'bad');
+    }
+
+    // Status from latest timeline point
+    const last = t.timeline[t.timeline.length - 1];
+    if (statusEl) {
+        if (last) {
+            if (last.status === 'up') { statusEl.textContent = '🟢 在线'; statusEl.className = 'traffic-item-value good'; }
+            else { statusEl.textContent = '🔴 离线'; statusEl.className = 'traffic-item-value bad'; }
+        } else {
+            statusEl.textContent = '⏳ 等待';
+            statusEl.className = 'traffic-item-value warn';
+        }
+    }
+
+    if (timeEl) timeEl.textContent = last ? `更新: ${formatTime(last.time)}` : '等待数据...';
+
+    // Bars
+    const barContainer = document.getElementById('trafficBarList');
+    if (barContainer && t.timeline.length > 0) {
+        const max = Math.max(...t.timeline.map(p => p.online), 1);
+        barContainer.innerHTML = t.timeline.slice(-40).map(p => {
+            const h = Math.max(3, (p.online / max) * 36);
+            const cls = p.status === 'up' ? 'pv' : 'uv';
+            return `<div class="traffic-bar ${cls}" style="height:${h}px" title="${formatDateTime(p.time)}: ${p.online}在线, PV=${p.pv}"></div>`;
+        }).join('');
+    }
+
+    // Draw mini chart
+    scheduleTrafficChart();
+}
+
+function resetTraffic() {
+    State.traffic.pv = 0;
+    State.traffic.uv = 0;
+    State.traffic.online = 0;
+    State.traffic.timeline = [];
+    try {
+        localStorage.removeItem('lmz_traffic');
+    } catch(e) {}
+    updateTrafficDisplay();
+    showToast('浏览量数据已重置', 'info');
+}
+
+// ===== Traffic Chart (mini area chart) =====
+let _trafficRaf = null;
+function scheduleTrafficChart() {
+    if (_trafficRaf) return;
+    _trafficRaf = requestAnimationFrame(() => {
+        _trafficRaf = null;
+        drawTrafficChart();
+    });
+}
+
+function drawTrafficChart() {
+    const canvas = document.getElementById('trafficChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    const rect = canvas.parentElement.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const data = State.traffic.timeline;
+    if (data.length < 2) {
+        ctx.fillStyle = getCSSVar('--text-muted');
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('等待浏览数据...', w/2, h/2);
+        return;
+    }
+
+    const pad = { top: 10, right: 10, bottom: 18, left: 32 };
+    const cw = w - pad.left - pad.right;
+    const ch = h - pad.top - pad.bottom;
+    const xStep = cw / (data.length - 1);
+
+    // Dual axis: online count (bars area) + pv trend (line)
+    const maxOnline = Math.max(...data.map(d => d.online), 1);
+    const maxPV = Math.max(...data.map(d => d.pv), 1);
+
+    // Grid
+    ctx.strokeStyle = getCSSVar('--border');
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= 3; i++) {
+        const y = pad.top + (ch/3)*i;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w-pad.right, y); ctx.stroke();
+    }
+
+    // PV line (right axis)
+    ctx.beginPath();
+    data.forEach((d, i) => {
+        const x = pad.left + xStep*i;
+        const y = pad.top + ch - (d.pv/maxPV)*ch*0.8;
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle = '#6366f1';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Online bars (bottom area, semi-transparent)
+    const barW = Math.max(2, xStep * 0.6);
+    data.forEach((d, i) => {
+        const x = pad.left + xStep*i - barW/2;
+        const bh = (d.online/maxOnline)*ch*0.5;
+        ctx.fillStyle = d.status==='up' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+        ctx.fillRect(x, pad.top+ch-bh, barW, bh);
+    });
+
+    // Y labels
+    ctx.fillStyle = getCSSVar('--text-muted');
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(maxOnline+'人在线', pad.left-4, pad.top+8);
+    ctx.fillStyle = '#6366f1';
+    ctx.fillText('PV:'+maxPV, pad.left-4, pad.top+20);
+
+    // X labels
+    ctx.fillStyle = getCSSVar('--text-muted');
+    ctx.textAlign = 'center';
+    const first = data[0], last = data[data.length-1];
+    ctx.fillText(formatTime(first.time), pad.left, h-2);
+    ctx.fillText(formatTime(last.time), w-pad.right, h-2);
+
+    // Legend
+    ctx.font = '9px sans-serif';
+    ctx.fillStyle = '#6366f1';
+    ctx.fillRect(w-80, 4, 10, 2);
+    ctx.fillText('PV趋势', w-66, 7);
+    ctx.fillStyle = 'rgba(16,185,129,0.6)';
+    ctx.fillRect(w-30, 3, 6, 6);
+    ctx.fillStyle = getCSSVar('--text-muted');
+    ctx.fillText('在线', w-22, 9);
+}
+
+// ===== Main Check All =====
+async function runAllChecks() {
+    if (State.isChecking) return;
+    State.isChecking = true;
+
+    const btn = document.getElementById('checkBtn');
+    const btnText = document.getElementById('checkBtnText');
+    const origText = btnText.innerHTML;
+    btnText.innerHTML = '<span class="spinner"></span> 检测中...';
+    btn.disabled = true;
+
+    const statusEl = document.getElementById('globalStatus');
+    const statusText = document.getElementById('globalStatusText');
+    statusEl.className = 'status-badge checking';
+    statusText.textContent = '检测中...';
+
+    const timestamp = Date.now();
+    const promises = SITES.map(site => checkSiteReachability(site));
+    const results = await Promise.allSettled(promises);
+
+    const resultMap = {};
+    results.forEach((r, i) => {
+        if (r.status === 'fulfilled') resultMap[SITES[i].url] = r.value;
+        else resultMap[SITES[i].url] = { url: SITES[i].url, status: 'down', responseTime: 0, error: '检测失败' };
+    });
+
+    // Update state
+    let upCount = 0, downCount = 0, slowCount = 0;
+    let totalResp = 0, respCount = 0;
+    SITES.forEach(site => {
+        const r = resultMap[site.url];
+        if (!r) return;
+        const st = State.monitor[site.url];
+        st.status = r.status; st.responseTime = r.responseTime || 0; st.lastCheck = timestamp;
+        st.errorMsg = r.error || ''; st.checkCount++;
+        if (r.status === 'up') st.upCount++;
+        st.uptime.push({ time: timestamp, status: r.status });
+        if (st.uptime.length > 100) st.uptime.shift();
+        if (r.status === 'up') upCount++;
+        else if (r.status === 'down') downCount++;
+        else if (r.status === 'slow') slowCount++;
+        if (r.responseTime > 0) { totalResp += r.responseTime; respCount++; }
+    });
+
+    State.history.push({ timestamp, results: {...resultMap} });
+    if (State.history.length > 100) State.history.shift();
+
+    updateAllUI(upCount, downCount, slowCount, respCount > 0 ? Math.round(totalResp / respCount) : 0);
+    addLogEntries(resultMap, timestamp);
+
+    // Record traffic point from main site check
+    const mainResult = resultMap[MAIN_SITE.url];
+    if (mainResult) recordTrafficPoint(mainResult.status, mainResult.responseTime);
+
+    btnText.innerHTML = origText;
+    btn.disabled = false;
+    State.isChecking = false;
+
+    if (downCount > 0) showToast(`${downCount}个异常, ${upCount}个正常`, 'warning');
+    else if (slowCount > 0) showToast(`全部可达, ${slowCount}个较慢`, 'info');
+    else showToast(`✅ 全部${upCount}个站点正常!`, 'success');
+}
+
+// ===== Single Site Check =====
+async function checkSingleSite(url) {
+    const site = SITES.find(s => s.url === url);
+    if (!site) return;
+    const card = document.querySelector(`.monitor-card[data-url="${cssEscape(url)}"]`);
+    if (card) { const se = card.querySelector('.card-status'); if (se) { se.textContent = '检测中'; se.className = 'card-status unknown'; } }
+
+    const result = await checkSiteReachability(site);
+    const ts = Date.now();
+    const st = State.monitor[url];
+    st.status = result.status; st.responseTime = result.responseTime || 0; st.lastCheck = ts;
+    st.errorMsg = result.error || ''; st.checkCount++;
+    if (result.status === 'up') st.upCount++;
+    st.uptime.push({ time: ts, status: result.status });
+    if (st.uptime.length > 100) st.uptime.shift();
+
+    const newCard = createMonitorCard(site);
+    if (card) card.outerHTML = newCard;
+    applyFilterVisibility();
+    scheduleChartDraw();
+
+    if (url === MAIN_SITE.url) recordTrafficPoint(result.status, result.responseTime);
+
+    const txt = result.status === 'up' ? '正常' : result.status === 'down' ? '异常' : '缓慢';
+    showToast(`${site.name}: ${txt}${result.responseTime?`(${result.responseTime}ms)`:''}`,
+        result.status==='up'?'success':result.status==='down'?'error':'warning');
+}
+
+function cssEscape(str) { return (window.CSS&&CSS.escape) ? CSS.escape(str) : str.replace(/["\\]/g,'\\$&'); }
+
+// ===== UI Updates =====
+function updateAllUI(up, down, slow, avgResp) {
+    document.getElementById('statTotal').textContent = SITES.length;
+    document.getElementById('statUp').textContent = up;
+    document.getElementById('statDown').textContent = down;
+    document.getElementById('statAvg').textContent = avgResp > 0 ? avgResp : '-';
+
+    const upRate = ((up / SITES.length) * 100).toFixed(1);
+    document.getElementById('statUpRate').textContent = `↑ ${upRate}% 可用率`;
+
+    const dr = document.getElementById('statDownRate');
+    if (down > 0) { dr.textContent = `↓ ${down}个异常`; dr.className = 'stat-change down'; }
+    else { dr.textContent = '↓ 无异常'; dr.className = 'stat-change up'; }
+
+    document.getElementById('statAvgLabel').textContent = avgResp > 0 ? 'ms 平均延迟' : '暂无数据';
+
+    const badge = document.getElementById('globalStatus');
+    const text = document.getElementById('globalStatusText');
+    if (down > 0) { badge.className = 'status-badge offline'; text.textContent = `${down}个异常`; }
+    else if (slow > 0) { badge.className = 'status-badge checking'; text.textContent = `可达(${slow}较慢)`; }
+    else { badge.className = 'status-badge online'; text.textContent = `全部正常(${up}/${SITES.length})`; }
+
+    document.getElementById('lastCheckTime').innerHTML = `⏱ 最近: ${formatTime(Date.now())}`;
+    renderMonitorCards();
+    scheduleChartDraw();
+}
+
+// ===== Monitor Cards =====
+function getStatusLabel(s) { return { up:'正常', down:'异常', slow:'缓慢', unknown:'未检测' }[s] || '未知'; }
+function getResponseQuality(ms) {
+    if (!ms) return { label: '-', cls: '' };
+    if (ms < 500) return { label: '优秀', cls: 'good' };
+    if (ms < 1500) return { label: '良好', cls: 'good' };
+    if (ms < 3000) return { label: '一般', cls: 'warn' };
+    return { label: '较慢', cls: 'bad' };
+}
+
+function createMonitorCard(site) {
+    const st = State.monitor[site.url];
+    const status = st.status || 'unknown';
+    const rq = getResponseQuality(st.responseTime);
+    const uptimePct = st.checkCount > 0 ? ((st.upCount/st.checkCount)*100).toFixed(1) : '-';
+
+    let bars = '';
+    if (st.uptime.length > 0) {
+        const sliced = st.uptime.length > 20 ? st.uptime.slice(-20) : st.uptime;
+        bars = sliced.map(u => `<div class="uptime-bar ${u.status}" title="${formatDateTime(u.time)}: ${getStatusLabel(u.status)}"></div>`).join('');
+    } else { bars = '<div style="color:var(--text-muted);font-size:10px;">暂无数据</div>'; }
+
+    return `
+<div class="monitor-card status-${status}" data-cat="${site.category}" data-url="${site.url}">
+    <div class="card-header">
+        <div class="card-title-group">
+            <div class="card-favicon"><img data-favicon="${site.url}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span class="emoji-fallback" style="display:none">${site.icon}</span></div>
+            <div style="min-width:0;flex:1;">
+                <div class="card-title" title="${site.name}">${site.name}</div>
+                <div class="card-url" title="${site.url}">${getDomain(site.url)}</div>
+            </div>
+        </div>
+        <span class="card-status ${status}">${getStatusLabel(status)}</span>
+    </div>
+    <div class="card-metrics">
+        <div class="metric"><div class="metric-label">延迟</div><div class="metric-value ${rq.cls}">${st.responseTime>0?st.responseTime+'ms':'-'}</div></div>
+        <div class="metric"><div class="metric-label">可用率</div><div class="metric-value ${uptimePct>=99?'good':uptimePct>=90?'warn':'bad'}">${uptimePct}%</div></div>
+        <div class="metric"><div class="metric-label">检测</div><div class="metric-value">${st.checkCount}</div></div>
+    </div>
+    <div class="uptime-bars">${bars}</div>
+    <div class="card-footer">
+        <span class="card-time">${timeAgo(st.lastCheck)}检测</span>
+        <div class="card-actions">
+            <button class="card-btn" onclick="openModal('${site.url}')">📊详情</button>
+            <button class="card-btn" onclick="checkSingleSite('${site.url}')">🔄重检</button>
+            <a class="card-btn" href="${site.url}" target="_blank" rel="noopener">↗访问</a>
+        </div>
+    </div>
+</div>`;
+}
+
+function renderMonitorCards() {
+    const grid = document.getElementById('monitorGrid');
+    const filtered = State.filter === 'all' ? SITES : SITES.filter(s => s.category === State.filter);
+    grid.innerHTML = filtered.map(site => createMonitorCard(site)).join('');
+    requestIdleCallback(() => loadAllFavicons(), { timeout: 2000 });
+}
+
+function loadAllFavicons() {
+    document.querySelectorAll('img[data-favicon]').forEach(img => {
+        const url = img.getAttribute('data-favicon');
+        loadFavicon(url).then(src => {
+            if (src && img.isConnected) { img.src = src; img.style.display=''; img.nextElementSibling.style.display='none'; }
+        });
+    });
+}
+
+function applyFilterVisibility() {
+    document.querySelectorAll('.monitor-card').forEach(card => {
+        card.style.display = (State.filter==='all'||card.dataset.cat===State.filter) ? '' : 'none';
+    });
+}
+
+// ===== Filter Bar =====
+function renderFilterBar() {
+    const bar = document.getElementById('filterBar');
+    const counts = { all: SITES.length };
+    SITES.forEach(s => { counts[s.category] = (counts[s.category]||0)+1; });
+    bar.innerHTML = CATEGORIES.map(c => `<div class="filter-chip ${c.id===State.filter?'active':''}" data-cat="${c.id}">${c.icon} ${c.label}<span class="chip-count">${counts[c.id]||0}</span></div>`).join('');
+}
+
+// ===== Uptime Chart =====
+let _chartRaf = null;
+function scheduleChartDraw() {
+    if (_chartRaf) return;
+    _chartRaf = requestAnimationFrame(() => { _chartRaf = null; drawChart(); });
+}
+
+function drawChart() {
+    const canvas = document.getElementById('uptimeChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    const rect = canvas.parentElement.getBoundingClientRect();
+    if (rect.width===0 || rect.height===0) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width*dpr; canvas.height = rect.height*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=rect.width, h=rect.height;
+    ctx.clearRect(0,0,w,h);
+
+    const history = State.history.slice(-State.chartRange);
+    if (history.length < 2) {
+        ctx.fillStyle=getCSSVar('--text-muted'); ctx.font='12px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('检测数据不足', w/2, h/2); return;
+    }
+
+    const dataPoints = history.map(h => {
+        const r = Object.values(h.results);
+        const up=r.filter(x=>x.status==='up').length, slow=r.filter(x=>x.status==='slow').length;
+        return { time:h.timestamp, uptime:r.length>0?((up+slow*0.5)/r.length)*100:0 };
+    });
+
+    const minU = Math.min(...dataPoints.map(d=>d.uptime));
+    const yMin = Math.max(0, Math.floor(minU/10)*10-10), yMax = 100;
+    const pad={top:12,right:12,bottom:22,left:38}, cw=w-pad.left-pad.right, ch=h-pad.top-pad.bottom;
+    const xStep = dataPoints.length>1 ? cw/(dataPoints.length-1) : cw;
+
+    // Grid
+    ctx.strokeStyle=getCSSVar('--border'); ctx.lineWidth=0.5; ctx.font='9px sans-serif';
+    ctx.fillStyle=getCSSVar('--text-muted');
+    for(let i=0;i<=4;i++){const y=pad.top+(ch/4)*i;const v=(yMax-((yMax-yMin)/4)*i).toFixed(0);ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(w-pad.right,y);ctx.stroke();ctx.textAlign='right';ctx.fillText(v+'%',pad.left-4,y+3);}
+
+    // Area
+    const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+    grad.addColorStop(0,'rgba(99,102,241,0.25)'); grad.addColorStop(1,'rgba(99,102,241,0.02)');
+    ctx.beginPath(); ctx.moveTo(pad.left,pad.top+ch);
+    dataPoints.forEach((d,i)=>ctx.lineTo(pad.left+xStep*i, pad.top+ch-((d.uptime-yMin)/(yMax-yMin))*ch));
+    ctx.lineTo(pad.left+xStep*(dataPoints.length-1),pad.top+ch); ctx.closePath();
+    ctx.fillStyle=grad; ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    dataPoints.forEach((d,i)=>{const x=pad.left+xStep*i,y=pad.top+ch-((d.uptime-yMin)/(yMax-yMin))*ch; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.strokeStyle='#6366f1'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+
+    // Points (limited)
+    if (dataPoints.length <= 40) {
+        dataPoints.forEach((d,i)=>{const x=pad.left+xStep*i,y=pad.top+ch-((d.uptime-yMin)/(yMax-yMin))*ch;ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fillStyle=d.uptime>=99?'#10b981':d.uptime>=80?'#f59e0b':'#ef4444';ctx.fill();ctx.strokeStyle=getCSSVar('--bg-card');ctx.lineWidth=1.5;ctx.stroke();});
+    }
+
+    // X labels
+    ctx.fillStyle=getCSSVar('--text-muted'); ctx.textAlign='center'; ctx.font='9px sans-serif';
+    const ln=Math.min(4,dataPoints.length);
+    for(let i=0;i<ln;i++){const idx=Math.floor((i/(ln-1))*(dataPoints.length-1));ctx.fillText(formatTime(dataPoints[idx].time),pad.left+xStep*idx,h-4);}
+
+    // Last value
+    const last=dataPoints[dataPoints.length-1];
+    ctx.fillStyle='#6366f1'; ctx.font='bold 10px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(`${last.uptime.toFixed(1)}%`, pad.left+xStep*(dataPoints.length-1)+5, pad.top+10);
+}
+
+function getCSSVar(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
+
+// ===== Logs =====
+function addLogEntries(results, ts) {
+    const entries = Object.values(results).map(r => ({ time:ts, site:SITES.find(s=>s.url===r.url)?.name||getDomain(r.url), status:r.status, responseTime:r.responseTime||0, error:r.error||'' }));
+    State.logs.unshift(...entries);
+    if (State.logs.length>150) State.logs.length=150;
+    renderLogs();
+}
+
+function renderLogs() {
+    const c = document.getElementById('logList');
+    if (State.logs.length===0) { c.innerHTML='<div class="log-item" style="color:var(--text-muted);justify-content:center;">暂无检测记录</div>'; return; }
+    c.innerHTML = State.logs.slice(0,50).map(l => {
+        const m = l.status==='up'?`${l.site} 正常${l.responseTime?`(${l.responseTime}ms)`:''}`:l.status==='down'?`${l.site} 失败${l.error?': '+l.error:''}`:`${l.site} 缓慢${l.error?`(${l.error})`:''}`;
+        return `<div class="log-item ${l.status}"><span class="log-time">${formatTime(l.time)}</span><span class="log-status-dot ${l.status}"></span><span class="log-message">${m}</span></div>`;
+    }).join('');
+}
+
+function clearLogs() { State.logs=[]; renderLogs(); showToast('日志已清空','info'); }
+
+function exportLogs() {
+    if (State.logs.length===0) { showToast('无日志可导出','warning'); return; }
+    const csv=['时间,站点,状态,响应时间(ms),错误'].concat(State.logs.map(l=>`${formatDateTime(l.time)},${l.site},${l.status},${l.responseTime},"${l.error||''}"`)).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}), url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=`lmz-logs-${Date.now()}.csv`; a.click();
+    URL.revokeObjectURL(url); showToast('日志已导出','success');
+}
+
+// ===== Modal =====
+function openModal(url) {
+    const site=SITES.find(s=>s.url===url), st=State.monitor[url];
+    if(!site||!st) return;
+    const upPct=st.checkCount>0?((st.upCount/st.checkCount)*100).toFixed(2):'0.00', rq=getResponseQuality(st.responseTime);
+    document.getElementById('modalTitle').textContent=`${site.icon} ${site.name}`;
+    let uh='';
+    if(st.uptime.length>0) uh=st.uptime.slice(-10).reverse().map(u=>`<div class="detail-row"><span class="detail-label">${formatDateTime(u.time)}</span><span class="detail-value" style="color:${u.status==='up'?'var(--success)':u.status==='slow'?'var(--warning)':'var(--danger)'}">${getStatusLabel(u.status)}</span></div>`).join('');
+    else uh='<div class="detail-row"><span class="detail-label">暂无数据</span></div>';
+    const sc=st.status==='up'?'var(--success)':st.status==='down'?'var(--danger)':'var(--warning)';
+    const uc=upPct>=99?'var(--success)':upPct>=90?'var(--warning)':'var(--danger)';
+    document.getElementById('modalBody').innerHTML=`
+<div class="detail-row"><span class="detail-label">URL</span><span class="detail-value" style="font-size:10px;">${site.url}</span></div>
+<div class="detail-row"><span class="detail-label">分类</span><span class="detail-value">${CATEGORIES.find(c=>c.id===site.category)?.label||site.category}</span></div>
+<div class="detail-row"><span class="detail-label">状态</span><span class="detail-value" style="color:${sc}">${getStatusLabel(st.status)}</span></div>
+<div class="detail-row"><span class="detail-label">响应</span><span class="detail-value ${rq.cls}">${st.responseTime>0?st.responseTime+'ms':'N/A'}</span></div>
+<div class="detail-row"><span class="detail-label">评级</span><span class="detail-value ${rq.cls}">${rq.label}</span></div>
+<div class="detail-row"><span class="detail-label">可用率</span><span class="detail-value" style="color:${uc}">${upPct}%</span></div>
+<div class="detail-row"><span class="detail-label">检测次数</span><span class="detail-value">${st.checkCount}</span></div>
+<div class="detail-row"><span class="detail-label">最后检测</span><span class="detail-value">${formatDateTime(st.lastCheck)}</span></div>
+<div class="detail-row"><span class="detail-label">错误</span><span class="detail-value" style="color:var(--danger);font-size:10px;">${st.errorMsg||'无'}</span></div>
+<div style="margin-top:12px;"><div class="detail-label" style="margin-bottom:6px;font-weight:600;">最近10次</div>${uh}</div>
+<div style="margin-top:14px;display:flex;gap:8px;">
+    <button class="btn btn-primary" onclick="checkSingleSite('${url}')">🔄 检测</button>
+    <a class="btn" href="${url}" target="_blank" rel="noopener">↗ 访问</a>
+</div>`;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(e) { if(!e||e.target===document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('active'); }
+
+// ===== Theme =====
+function toggleTheme() {
+    const body=document.body, cur=body.getAttribute('data-theme'), next=cur==='light'?'dark':'light';
+    body.setAttribute('data-theme',next);
+    document.getElementById('themeBtn').textContent=next==='light'?'☀️':'🌙';
+    try{localStorage.setItem('monitor-theme',next);}catch(e){}
+    scheduleChartDraw(); scheduleTrafficChart();
+}
+
+(function initTheme(){let s='dark';try{s=localStorage.getItem('monitor-theme')||'dark';}catch(e){}document.body.setAttribute('data-theme',s);document.getElementById('themeBtn').textContent=s==='light'?'☀️':'🌙';})();
+
+// ===== Auto Refresh =====
+const AUTO_INTERVAL=60;
+document.getElementById('intervalLabel').textContent=AUTO_INTERVAL+'秒';
+function startAutoRefresh(){if(State.checkInterval)clearInterval(State.checkInterval);State.checkInterval=setInterval(()=>{if(document.visibilityState==='visible')runAllChecks();},AUTO_INTERVAL*1000);}
+
+// ===== Events =====
+document.getElementById('filterBar').addEventListener('click',e=>{const chip=e.target.closest('.filter-chip');if(!chip)return;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');State.filter=chip.dataset.cat;renderMonitorCards();});
+document.querySelectorAll('.chart-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');State.chartRange=parseInt(tab.dataset.range,10);scheduleChartDraw();});});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='r'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName!=='INPUT')runAllChecks();});
+let _resizeT;window.addEventListener('resize',()=>{clearTimeout(_resizeT);_resizeT=setTimeout(()=>{scheduleChartDraw();scheduleTrafficChart();},150);});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){scheduleChartDraw();scheduleTrafficChart();}});
+
+// ===== requestIdleCallback polyfill =====
+window.requestIdleCallback=window.requestIdleCallback||function(cb,opts){return setTimeout(()=>cb({didTimeout:false,timeRemaining:()=>16}),opts?.timeout||1);};
+
+// ===== Detect device info for debugging =====
+(function logDeviceInfo(){const{browser,os,device}=getBrowserInfo();console.log(`%c[LMZ Monitor] ${os} · ${device} · ${w/w}px`,'color:#6366f1;font-weight:bold;');})();
+
+// ===== Init =====
+renderFilterBar();
+renderMonitorCards();
+initTraffic();
+scheduleChartDraw();
+
+// Start
+setTimeout(()=>{runAllChecks().then(()=>startAutoRefresh());},500);
+
+// Increment PV on initial load
+incrementPV();
+
+</script>
+
+</body>
+</html>
