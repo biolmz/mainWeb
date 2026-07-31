@@ -4,6 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LMZ</title>
+    <script>
+  // 页面每次加载，都给CSS/JS链接打上当前时间戳
+  document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('link[rel="stylesheet"]');
+    const scripts = document.querySelectorAll('script[src]');
+    
+    const t = Date.now(); // 当前毫秒时间戳
+    links.forEach(link => {
+      if (!link.href.includes('?') ) {
+        link.href = link.href + '?t=' + t;
+      }
+    });
+    scripts.forEach(script => {
+      if (!script.src.includes('?') ) {
+        script.src = script.src + '?t=' + t;
+      }
+    });
+  });
+   </script>
     <link rel="dns-prefetch" href="https://bio2025.site/download.html"/>
     <link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com" />
     <link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com" />
