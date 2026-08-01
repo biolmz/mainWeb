@@ -24,6 +24,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate files
+        run: |
+          echo "=== 文件清单 ==="
+          ls -la
+          echo ""
+          echo "=== 检查关键文件 ==="
+          test -f index.html && echo "✅ index.html"
+          test -f styles.css && echo "✅ styles.css"
+          test -f app.js && echo "✅ app.js"
+          test -f manifest.json && echo "✅ manifest.json"
+          test -f sw.js && echo "✅ sw.js"
+          test -f 404.html && echo "✅ 404.html"
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
