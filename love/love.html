@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>致我最爱的人</title>
+<link rel="stylesheet" href="love-styles.css">
+</head>
+<body>
+
+<!-- ===================== 加载屏 ===================== -->
+<div id="loader">
+  <div class="loader-heart">
+    <svg viewBox="0 0 32 32"><path fill="#ff5e8a" d="M16 28C16 28 2 18 2 10a6 6 0 0110-4.5A6 6 0 0116 10a6 6 0 014-4.5A6 6 0 0130 10c0 8-14 18-14 18z"/></svg>
+  </div>
+  <div class="loader-text" id="loader-text">Loading Love...</div>
+  <div class="loader-progress"><div class="loader-progress-bar" id="loader-bar"></div></div>
+  <canvas class="loader-particles" id="loader-canvas"></canvas>
+</div>
+
+<!-- ===================== 背景层 ===================== -->
+<canvas id="stars-canvas"></canvas>
+<canvas id="petals-canvas"></canvas>
+<canvas id="overlay-canvas"></canvas>
+<div id="cursor-glow"></div>
+<div id="breath-border"></div>
+<div id="progress-bar"></div>
+<button id="music-btn" title="背景音乐">🎵</button>
+
+<!-- ===================== 主舞台 ===================== -->
+<div id="app">
+  <div id="slides">
+
+    <!-- Slide 0 · 开场 -->
+    <div class="slide active">
+      <div class="slide1-title" id="title-text"></div>
+      <div class="slide1-sub" id="slide0-sub"></div>
+      <div class="slide1-hint">↓ 滑动 / 滚轮 / 方向键翻页 ↓</div>
+    </div>
+
+    <!-- Slide 1 · 我们的故事 -->
+    <div class="slide">
+      <div class="slide-title" data-text="ourStoryTitle"></div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <!-- Slide 2 · 打字机情书 -->
+    <div class="slide">
+      <div class="slide-title" data-text="letterTitle"></div>
+      <div class="typewriter-container">
+        <div class="typewriter" id="typewriter"></div>
+      </div>
+    </div>
+
+    <!-- Slide 3 · 喜欢你的理由 -->
+    <div class="slide">
+      <div class="slide-title" data-text="reasonsTitle"></div>
+      <div class="reasons-grid" id="reasons-grid"></div>
+    </div>
+
+    <!-- Slide 4 · 3D 爱心 -->
+    <div class="slide">
+      <div class="slide-title" data-text="heartTitle"></div>
+      <div class="heart3d-container">
+        <div class="heart3d" id="heart3d">💖</div>
+      </div>
+      <div class="heart3d-caption" id="heart-caption"></div>
+    </div>
+
+    <!-- Slide 5 · 珍藏瞬间 -->
+    <div class="slide">
+      <div class="slide-title" data-text="memoriesTitle"></div>
+      <div class="memories-list" id="memories-list"></div>
+    </div>
+
+    <!-- Slide 6 · 心动倒计时 -->
+    <div class="slide">
+      <div class="slide-title" data-text="countdownTitle"></div>
+      <div class="countdown-sub" id="countdown-sub"></div>
+      <div class="countdown-display" id="countdown"></div>
+      <div class="countdown-foot" id="countdown-foot"></div>
+    </div>
+
+    <!-- Slide 7 · 信纸 -->
+    <div class="slide">
+      <div class="slide-title" data-text="letter2Title"></div>
+      <div class="letter-paper" id="letter-paper"></div>
+    </div>
+
+    <!-- Slide 8 · 最终表白 -->
+    <div class="slide">
+      <div class="proposal-ring">💍</div>
+      <div class="proposal-title" data-text="proposalTitle"></div>
+      <div class="proposal-text" id="proposal-text"></div>
+      <div class="btn-group">
+        <button class="btn btn-yes" id="btn-yes"></button>
+        <button class="button-no" id="btn-no"></button>
+      </div>
+    </div>
+
+    <!-- Slide 9 · 🎁 终极彩蛋 -->
+    <div class="slide" id="slide-egg">
+      <div class="egg-icon">🎁</div>
+      <div class="egg-title">隐藏关卡已解锁</div>
+      <div class="egg-text" id="egg-text"></div>
+      <button class="btn btn-egg" id="btn-egg">
+        <span class="egg-btn-text">长按 3 秒揭晓终极秘密</span>
+        <span class="egg-btn-fill" id="egg-fill"></span>
+      </button>
+      <div class="egg-hint" id="egg-hint"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 导航点 -->
+<div id="nav-dots"></div>
+
+<!-- 成功弹窗 -->
+<div id="success-modal">
+  <div class="success-content">
+    <div class="success-heart">💖</div>
+    <div class="success-title" id="success-title"></div>
+    <div class="success-text" id="success-text"></div>
+  </div>
+</div>
+
+<!-- 彩蛋弹窗 -->
+<div id="egg-modal">
+  <div class="egg-modal-content">
+    <div class="egg-modal-heart">💕</div>
+    <div class="egg-modal-title" id="egg-modal-title"></div>
+    <div class="egg-modal-text" id="egg-modal-text"></div>
+    <button class="btn btn-egg-close" id="egg-modal-close">我知道了 💌</button>
+  </div>
+</div>
+
+<!-- ===================== JavaScript ===================== -->
+<script>
+'use strict';
+
+/* =====================================================================
+   ╔══════════════════════════════════════════════════════════════╗
+   ║                   💖  CONFIG  配置中心  💖                   ║
+   ║  修改这里的文字 / 数字即可自定义整个页面，无需碰业务逻辑       ║
+   ╚══════════════════════════════════════════════════════════════╝
+   ===================================================================== */
+var CONFIG = {
+  // --- 全局 ---
+  loveStartDate : '2024-01-01T00:00:00',   // 心动起始日（倒计时用）
+  typewriterSpeed : [40, 120],               // 打字机速度区间(ms)
+  totalSlidesNav : true,                      // 是否显示右侧导航点
+
+  // --- 开场 ---
+  titleText   : '致我最爱的人',
+  slide0Sub   : '有一句话<br>藏在我心里很久了<br>今天想说给你听',
+
+  // --- 我们的故事 ---
+  ourStoryTitle: '我们的故事',
+  timeline    : [
+    { text:'第一次见到你，心跳漏了一拍',   sub:'那是故事的开始' },
+    { text:'每一次聊天都让我更确定',       sub:'你就是那个对的人' },
+    { text:'今天，我想把心交给你',         sub:'从此余生都是你' },
+    { text:'未来的每一天，都想和你一起',     sub:'从日出到日落' }
+  ],
+
+  // --- 打字机情书 ---
+  letterTitle : '一封情书',
+  typewriter  : '我喜欢你\n不是因为你长得好看\n而是因为\n你让我看到了\n一个更温柔的世界\n\n想和你在一起\n不是一时冲动\n是深思熟虑后的\n每一个明天',
+
+  // --- 喜欢你的理由 ---
+  reasonsTitle: '喜欢你的理由',
+  reasons     : [
+    { emoji:'😊', text:'你笑起来很好看' },
+    { emoji:'🎵', text:'你的声音很温柔' },
+    { emoji:'💡', text:'你总是能理解我' },
+    { emoji:'🌟', text:'你让我成为更好的人' },
+    { emoji:'☕', text:'想和你一起喝咖啡' },
+    { emoji:'🌙', text:'想陪你看过每一个夜晚' }
+  ],
+
+  // --- 3D 爱心 ---
+  heartTitle  : '我的心意',
+  heartCaption: '每一次跳动<br>都在说喜欢你',
+
+  // --- 珍藏瞬间 ---
+  memoriesTitle: '珍藏的瞬间',
+  memories    : [
+    { icon:'🌅', text:'想和你一起看日出日落' },
+    { icon:'☕', text:'想和你一起喝杯热咖啡' },
+    { icon:'🚶', text:'想和你一起走过每条街' },
+    { icon:'🎬', text:'想和你一起看每场电影' },
+    { icon:'📖', text:'想和你一起读同一本书' },
+    { icon:'🌧️', text:'想和你一起听雨入眠' }
+  ],
+
+  // --- 倒计时 ---
+  countdownTitle: '心动倒计时',
+  countdownSub  : '从遇见你那天起',
+  countdownFoot : '每一秒都在想你',
+
+  // --- 信纸 ---
+  letter2Title: '写给你',
+  letter      : {
+    title : '💌 亲爱的你',
+    body  : '不知道从什么时候开始，<br>我的世界中心变成了你。<br><br>想和你从日出走到日落，<br>从青丝走到白发。<br><br>如果世界上真的有奇迹，<br>那一定是你的名字。',
+    sign  : '— 一个喜欢你的人'
+  },
+
+  // --- 最终表白 ---
+  proposalTitle : '我爱你',
+  proposalText  : '不是朋友的喜欢<br>不是普通的在乎<br>是<span class="highlight">想和你共度余生</span>的那种爱',
+  btnYesText    : '我愿意 💕',
+  btnNoText     : '再想想',
+  noMessages    : ['再想想？','真的不行吗？','你确定？','再给我一次机会吧','我心都碎了💔','那我继续等'],
+
+  // --- 成功弹窗 ---
+  successTitle : '她说愿意了！',
+  successText  : '从这一刻起<br>我的未来里终于有了你<br>谢谢你愿意走进我的生命 ✨',
+
+  // --- 🎁 终极彩蛋 ---
+  eggTitle     : '隐藏关卡已解锁',
+  eggText      : '如果你真的翻到了这里<br>说明你愿意听我把话讲完',
+  eggBtnText   : '长按 3 秒揭晓终极秘密',
+  eggHoldTime  : 3000,   // 长按毫秒
+  eggModalTitle: '💌 最后一句话',
+  eggModalText : '不管这个世界怎么变<br>我都会一直在你身边<br><br><strong>因为，我爱你</strong><br>不是今天，不是明天<br>是每一天。',
+  eggHint      : '💡 提示：也可以试试键盘 ↑↑↓↓←→←→BA',
+
+  // --- 视觉参数 ---
+  starCount    : 180,
+  petalCount   : 28,
+  heartChars   : ['💕','💗','💖','💘','💝','💞','💓','❤️','💗','💕'],
+  petalColors  : ['#ff6b9d','#ff8fb3','#ffb3c6','#ffd1dc','#ffa8c5','#e85d8a'],
+  confettiColors: ['#ff5e8a','#ffd700','#ff9ec7','#a8e6cf','#88d8e8','#ffaa00','#ff6b9d'],
+
+  // --- 音乐 ---
+  melody       : [
+    {f:261.63,d:500},{f:329.63,d:500},{f:392.00,d:500},{f:523.25,d:500},
+    {f:392.00,d:500},{f:329.63,d:500},{f:293.66,d:500},{f:349.23,d:500},
+    {f:440.00,d:500},{f:523.25,d:750},{f:440.00,d:250},{f:392.00,d:500},
+    {f:349.23,d:500},{f:329.63,d:1000}
+  ]
+};
+
+/* =====================================================================
+   🔧 工具函数
+   ===================================================================== */
+var $  = function(s){return document.querySelector(s)};
+var $$ = function(s){return document.querySelectorAll(s)};
+var rand    = function(a,b){return Math.random()*(b-a)+a};
+var randInt = function(a,b){return Math.floor(rand(a,b+1))};
+var clamp   = function(v,a,b){return Math.max(a,Math.min(b,v))};
+var lerp    = function(a,b,t){return a+(b-a)*t};
+
+/* =====================================================================
+   🎬 加载屏  —— 带 5 秒强制兜底
+   ===================================================================== */
+var loaderBar   = $('#loader-bar');
+var loadProgress= 0;
+var loaderIntv  = setInterval(function(){
+  loadProgress = Math.min(100, loadProgress + rand(3,10));
+  loaderBar.style.width = loadProgress + '%';
+  if (loadProgress >= 100) finishLoad();
+}, 60);
+
+function finishLoad(){
+  clearInterval(loaderIntv);
+  setTimeout(function(){
+    $('#loader').classList.add('hidden');
+    App.init();   // 启动主程序
+  }, 300);
+}
+
+// 兜底：5 秒后强制进入
+setTimeout(function(){
+  if (loadProgress < 100) { loadProgress = 100; finishLoad(); }
+}, 5000);
+
+// 加载屏粒子
+(function initLoaderParticles(){
+  var c = $('#loader-canvas'), ctx = c.getContext('2d');
+  var resize = function(){c.width=innerWidth;c.height=innerHeight}; resize();
+  var pts = Array.from({length:40}, function(){return {x:rand(0,c.width),y:rand(0,c.height),r:rand(1,3),vx:rand(-.3,.3),vy:rand(-.5,-.1),a:rand(.2,.6)}});
+  (function loop(){
+    if ($('#loader').classList.contains('hidden')) return;
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.y<0)p.y=c.height;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(255,180,200,'+p.a+')';ctx.fill()});
+    requestAnimationFrame(loop);
+  })();
+  addEventListener('resize', resize);
+})();
+
+/* =====================================================================
+   🧱 统一粒子引擎  —— 单 RAF 驱动所有粒子系统
+   ===================================================================== */
+var ParticleEngine = (function(){
+  var systems = [];   // {update(dt), draw(ctx), z}
+  var lastT = performance.now();
+
+  function add(sys){systems.push(sys);systems.sort(function(a,b){return a.z-b.z})}
+
+  function loop(now){
+    var dt = (now - lastT) / 16.67;   // 归一化到 60fps
+    lastT = now;
+    systems.forEach(function(s){s.update(dt);s.draw()});
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  return { add: add };
+})();
+
+/* =====================================================================
+   ✨ 星空 + 流星
+   ===================================================================== */
+(function StarsSystem(){
+  var c=$('#stars-canvas'),ctx=c.getContext('2d'),MAX_METEORS=8;
+  var stars=[],meteors=[];
+  function resize(){c.width=innerWidth;c.height=innerHeight;stars=Array.from({length:CONFIG.starCount},function(){return{x:rand(0,c.width),y:rand(0,c.height),r:rand(.3,1.8),a:rand(.1,.8),va:rand(.005,.02),tw:rand(0,Math.PI*2)}})}
+  resize();addEventListener('resize',resize);
+
+  ParticleEngine.add({
+    z:0,
+    update:function(dt){
+      for(var i=0;i<stars.length;i++)stars[i].tw+=stars[i].va*dt;
+      if(Math.random()<0.3&&meteors.length<MAX_METEORS)meteors.push({x:rand(0,c.width*.7),y:rand(-50,c.height*.3),vx:rand(3,7),vy:rand(2,5),len:rand(40,120),life:rand(40,80),age:0,alpha:rand(.4,.8)});
+      for(var j=0;j<meteors.length;j++){meteors[j].age+=dt;meteors[j].x+=meteors[j].vx*dt;meteors[j].y+=meteors[j].vy*dt}
+      for(var k=meteors.length-1;k>=0;k--)if(meteors[k].age>=meteors[k].life)meteors.splice(k,1);
+    },
+    draw:function(){
+      ctx.clearRect(0,0,c.width,c.height);
+      for(var i=0;i<stars.length;i++){var s=stars[i],a=s.a*(.5+.5*Math.sin(s.tw));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+a+')';ctx.fill()}
+      for(var j=0;j<meteors.length;j++){var m=meteors[j],p=m.age/m.life,ma=m.alpha*(1-p);ctx.save();ctx.globalAlpha=ma;ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.shadowColor='#aaccff';ctx.shadowBlur=10;ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(m.x-m.vx*m.len*.15,m.y-m.vy*m.len*.15);ctx.stroke();ctx.beginPath();ctx.arc(m.x,m.y,2,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+ma+')';ctx.fill();ctx.restore()}
+    }
+  });
+})();
+
+/* =====================================================================
+   🌸 花瓣系统
+   ===================================================================== */
+(function PetalsSystem(){
+  var c=$('#petals-canvas'),ctx=c.getContext('2d'),pool=[],MAX_PETALS=CONFIG.petalCount;
+  var petals=[];
+  function createP(){return{x:rand(-50,c.width+50),y:rand(-200,-20),r:rand(5,12),color:CONFIG.petalColors[randInt(0,CONFIG.petalColors.length-1)],vx:rand(-1,1),vy:rand(.5,2),rot:rand(0,Math.PI*2),vrot:rand(-.05,.05),sway:rand(.5,2),seed:rand(0,Math.PI*2),alpha:rand(.3,.7)}}
+  function resize(){c.width=innerWidth;c.height=innerHeight;petals.length=0;for(var i=0;i<MAX_PETALS;i++)petals.push(createP())}
+  resize();addEventListener('resize',resize);
+
+  ParticleEngine.add({
+    z:1,
+    update:function(dt){for(var i=0;i<petals.length;i++){var p=petals[i];p.y+=p.vy*dt;p.x+=(p.vx+Math.sin(p.seed+p.y*.01)*p.sway*.3)*dt;p.rot+=p.vrot*dt;if(p.y>c.height+30){p.y=rand(-100,-20);p.x=rand(-50,c.width+50)}}},
+    draw:function(){ctx.clearRect(0,0,c.width,c.height);for(var i=0;i<petals.length;i++){var p=petals[i];ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,0,p.r*.6,p.r,0,0,Math.PI*2);ctx.fill();ctx.restore()}}
+  });
+})();
+
+/* =====================================================================
+   💖 鼠标心形光标 + 点击爱心粒子（对象池 + 内存优化）
+   ===================================================================== */
+(function CursorHeart(){
+  // 用 SVG 爱心替代圆形光晕，跟随鼠标
+  var el = $('#cursor-glow');
+  el.style.cssText='position:fixed;width:28px;height:28px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:opacity .3s;will-change:transform;left:-100px;top:-100px;background:none;border-radius:0;box-shadow:none';
+  el.innerHTML='<svg viewBox="0 0 32 32" width="100%" height="100%" style="filter:drop-shadow(0 0 6px rgba(255,80,120,.7))"><path fill="#ff5e8a" d="M16 28C16 28 2 18 2 10a6 6 0 0110-4.5A6 6 0 0116 10a6 6 0 014-4.5A6 6 0 0130 10c0 8-14 18-14 18z"/></svg>';
+
+  var tx=-100,ty=-100, cx=-100,cy=-100; // target & current
+  var visible=false, rafId=null;
+
+  function loop(){
+    // 线性插值平滑跟随
+    cx+=(tx-cx)*.25; cy+=(ty-cy)*.25;
+    el.style.left=cx+'px';el.style.top=cy+'px';
+    rafId=requestAnimationFrame(loop);
+  }
+
+  addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;if(!visible){el.style.opacity='1';visible=true;if(!rafId)rafId=requestAnimationFrame(loop)}});
+  addEventListener('mouseleave',function(){el.style.opacity='0';visible=false;cancelAnimationFrame(rafId);rafId=null});
+  addEventListener('mouseenter',function(){el.style.opacity='1';visible=true;if(!rafId)rafId=requestAnimationFrame(loop)});
+  if('ontouchstart' in window)el.style.display='none';
+})();
+
+(function ClickParticles(){
+  var c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:300';document.body.appendChild(c);
+  var ctx=c.getContext('2d'),pool=[],active=[],POOL_MAX=96,MAX_ACTIVE=48;
+  function resize(){c.width=innerWidth;c.height=innerHeight}resize();addEventListener('resize',resize);
+
+  function getP(){return pool.pop()||{}}
+  function freeP(p){pool.push(p)}
+
+  addEventListener('click',function(e){
+    if(e.target.tagName==='BUTTON')return;
+    var burst=Math.min(10,MAX_ACTIVE-active.length);
+    for(var i=0;i<burst;i++){
+      var p=getP();
+      p.x=e.clientX;p.y=e.clientY;p.vx=rand(-5,5);p.vy=rand(-6,-1);p.r=rand(3,8);
+      p.color=CONFIG.petalColors[randInt(0,CONFIG.petalColors.length-1)];
+      p.life=rand(30,60);p.age=0;p.g=0.15;active.push(p);
+    }
+  });
+
+  ParticleEngine.add({
+    z:300,
+    update:function(dt){
+      for(var i=active.length-1;i>=0;i--){
+        var p=active[i];p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=p.g*dt;p.vx*=Math.pow(.98,dt);
+        if(p.age>=p.life){freeP(active.splice(i,1)[0])}
+      }
+    },
+    draw:function(){
+      ctx.clearRect(0,0,c.width,c.height);
+      for(var i=0;i<active.length;i++){
+        var p=active[i],t=p.age/p.life;
+        ctx.globalAlpha=1-t;ctx.fillStyle=p.color;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r*(1-t*.5),0,Math.PI*2);ctx.fill();
+      }
+      ctx.globalAlpha=1;
+    }
+  });
+
+  // 定期归还池大小，防止长时间运行膨胀
+  setInterval(function(){if(pool.length>POOL_MAX)pool.length=POOL_MAX},10000);
+})();
+
+/* =====================================================================
+   💕 漂浮爱心（Canvas + 对象池，零 DOM 分配）
+   ===================================================================== */
+(function FloatingHearts(){
+  var c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:3';document.body.appendChild(c);
+  var ctx=c.getContext('2d'),pool=[],active=[],CHAR_COUNT=CONFIG.heartChars.length;
+  function resize(){c.width=innerWidth;c.height=innerHeight}resize();addEventListener('resize',resize);
+
+  function spawn(){
+    if(Math.random()>0.4)return;
+    var p=pool.pop()||{};
+    p.x=rand(20,c.width-20);p.y=c.height+20;p.vy=rand(-.4,-.15);p.vx=rand(-.2,.2);
+    p.size=rand(10,22);p.char=CONFIG.heartChars[randInt(0,CHAR_COUNT-1)];
+    p.alpha=rand(.12,.35);p.life=rand(400,800);p.age=0;p.wobble=rand(0,Math.PI*2);p.wobbleSpd=rand(.02,.05);
+    active.push(p);
+  }
+
+  ParticleEngine.add({
+    z:3,
+    update:function(dt){spawn();for(var i=active.length-1;i>=0;i--){var p=active[i];p.age+=dt;p.y+=p.vy*dt;p.x+=p.vx*dt+Math.sin(p.wobble)*.3*dt;p.wobble+=p.wobbleSpd*dt;if(p.age>=p.life||p.y<-30){pool.push(active.splice(i,1)[0])}}},
+    draw:function(){ctx.clearRect(0,0,c.width,c.height);ctx.textAlign='center';ctx.textBaseline='middle';for(var i=0;i<active.length;i++){var p=active[i];ctx.globalAlpha=p.alpha*(1-p.age/p.life*.5);ctx.font=p.size+'px serif';ctx.fillText(p.char,p.x,p.y)}ctx.globalAlpha=1}
+  });
+})();
+
+/* =====================================================================
+   🎆 烟花 / 🎉 撒花（成功时触发，接入 ParticleEngine + 对象池）
+   ===================================================================== */
+var Fireworks = (function(){
+  var c=$('#success-canvas')||(function(){var x=document.createElement('canvas');x.id='success-canvas';x.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:501';document.body.appendChild(x);return x})();
+  var ctx=c.getContext('2d'),active=false,list=[],pool=[],PART_PER_FW=24,MAX_FW=12,SPAWN_INT=90,spawnAcc=0;
+
+  function makeFW(){return{x:rand(c.width*.2,c.width*.8),y:rand(c.height*.15,c.height*.45),p:null,age:0,life:rand(60,100)}}
+  function makeParticle(){return{ang:0,spd:0,r:0,col:'',life:0,age:0}}
+  function spawn(){
+    if(list.length>=MAX_FW)return;
+    var fw=pool.pop()||makeFW();fw.x=rand(c.width*.2,c.width*.8);fw.y=rand(c.height*.15,c.height*.45);fw.age=0;fw.life=rand(60,100);
+    fw.p=fw.p||[];fw.p.length=0;
+    for(var i=0;i<PART_PER_FW;i++){var pt=fw.p[i]||(fw.p[i]=makeParticle());pt.ang=rand(0,Math.PI*2);pt.spd=rand(2,6);pt.r=rand(2,4);pt.col=CONFIG.petalColors[randInt(0,CONFIG.petalColors.length-1)];pt.life=rand(40,80);pt.age=0}
+    list.push(fw);
+  }
+
+  ParticleEngine.add({
+    z:501,
+    update:function(dt){
+      if(!active)return;
+      spawnAcc+=dt;
+      if(spawnAcc>=SPAWN_INT){spawn();spawnAcc=0}
+      for(var fi=list.length-1;fi>=0;fi--){
+        var fw=list[fi];fw.age+=dt;
+        var alive=false;
+        for(var pi=0;pi<fw.p.length;pi++){var p=fw.p[pi];p.age+=dt;if(p.age<p.life)alive=true}
+        if(!alive||fw.age>=fw.life){pool.push(list.splice(fi,1)[0])}
+      }
+    },
+    draw:function(){
+      if(!active)return;
+      ctx.clearRect(0,0,c.width,c.height);
+      for(var fi=0;fi<list.length;fi++){var fw=list[fi];for(var pi=0;pi<fw.p.length;pi++){var p=fw.p[pi];if(p.age>=p.life)continue;var t=p.age/p.life,x=fw.x+Math.cos(p.ang)*p.spd*p.age,y=fw.y+Math.sin(p.ang)*p.spd*p.age+p.age*.15;ctx.beginPath();ctx.arc(x,y,p.r*(1-t*.5),0,Math.PI*2);ctx.fillStyle=p.col;ctx.globalAlpha=1-t;ctx.fill()}ctx.globalAlpha=1}
+    }
+  });
+
+  return{start:function(){active=true;c.width=innerWidth;c.height=innerHeight;spawnAcc=SPAWN_INT}};
+})();
+
+var Confetti = (function(){
+  var c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:502';document.body.appendChild(c);
+  var ctx=c.getContext('2d'),active=false,list=[],pool=[],MAX_CONFETTI=120,SPAWN_INT=12,spawnAcc=0;
+  function resize(){c.width=innerWidth;c.height=innerHeight}resize();addEventListener('resize',resize);
+
+  ParticleEngine.add({
+    z:502,
+    update:function(dt){
+      if(!active)return;
+      spawnAcc+=dt;
+      while(spawnAcc>=SPAWN_INT){
+        spawnAcc-=SPAWN_INT;
+        if(list.length>=MAX_CONFETTI)break;
+        var p=pool.pop()||{};
+        p.x=rand(0,c.width);p.y=rand(-40,-10);p.w=rand(6,14);p.h=rand(4,8);
+        p.vx=rand(-2,2);p.vy=rand(2,5);p.rot=rand(0,Math.PI*2);p.vrot=rand(-.2,.2);
+        p.color=CONFIG.confettiColors[randInt(0,CONFIG.confettiColors.length-1)];
+        p.life=rand(80,150);p.age=0;list.push(p);
+      }
+      for(var i=list.length-1;i>=0;i--){var p=list[i];p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vrot*dt;p.vy+=0.03*dt;if(p.age>=p.life)pool.push(list.splice(i,1)[0])}
+    },
+    draw:function(){
+      if(!active)return;
+      ctx.clearRect(0,0,c.width,c.height);
+      for(var i=0;i<list.length;i++){var p=list[i],a=1-p.age/p.life;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=Math.max(0,a);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore()}ctx.globalAlpha=1
+    }
+  });
+
+  return{start:function(){active=true;spawnAcc=SPAWN_INT}};
+})();
+
+/* =====================================================================
+   🎵 背景音乐（Web Audio API 合成）
+   ===================================================================== */
+var Music = (function(){
+  var ctx=null, playing=false, nodes=[];
+  function ensure(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)()}
+  function play(){
+    var t=ctx.currentTime+.1;
+    CONFIG.melody.forEach(function(n){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='sine';o.frequency.value=n.f;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.05);g.gain.linearRampToValueAtTime(0,t+n.d/1000);
+      o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+n.d/1000+.1);nodes.push(o);t+=n.d/1000;
+    });
+    setTimeout(function(){if(playing)play()},8000);
+  }
+  return {
+    toggle:function(){
+      ensure();
+      if(playing){nodes.forEach(function(n){try{n.stop()}catch(e){}});nodes=[];playing=false;$('#music-btn').classList.remove('playing');$('#music-btn').textContent='🎵'}
+      else{playing=true;play();$('#music-btn').classList.add('playing');$('#music-btn').textContent='🎶'}
+    }
+  };
+})();
+$('#music-btn').addEventListener('click', Music.toggle);
+
+/* =====================================================================
+   📄 内容渲染  —— 从 CONFIG 读取，方便修改
+   ===================================================================== */
+function renderContent(){
+  // 开场
+  $('#slide0-sub').innerHTML = CONFIG.slide0Sub;
+
+  // 标题（多语言/统一）
+  $$('.slide-title').forEach(function(el){
+    var key = el.getAttribute('data-text');
+    if (CONFIG[key]) el.textContent = CONFIG[key];
+  });
+
+  // 时间线
+  var tl = $('#timeline');
+  CONFIG.timeline.forEach(function(item){
+    var div=document.createElement('div');div.className='timeline-item';
+    div.innerHTML='<div class="timeline-dot"></div><div class="timeline-content">'+item.text+'<br><span style="color:rgba(255,255,255,.3);font-size:12px">'+item.sub+'</span></div>';
+    tl.appendChild(div);
+  });
+
+  // 理由卡片
+  var rg = $('#reasons-grid');
+  CONFIG.reasons.forEach(function(r){
+    var d=document.createElement('div');d.className='reason-card';
+    d.innerHTML='<div class="reason-emoji">'+r.emoji+'</div><div class="reason-text">'+r.text+'</div>';
+    rg.appendChild(d);
+  });
+
+  // 3D 爱心
+  $('#heart-caption').innerHTML = CONFIG.heartCaption;
+
+  // 记忆
+  var ml = $('#memories-list');
+  CONFIG.memories.forEach(function(m){
+    var d=document.createElement('div');d.className='memory-card';
+    d.innerHTML='<div class="memory-icon">'+m.icon+'</div><div class="memory-text">'+m.text+'</div>';
+    ml.appendChild(d);
+  });
+
+  // 倒计时
+  $('#countdown-sub').textContent = CONFIG.countdownSub;
+  $('#countdown-foot').textContent = CONFIG.countdownFoot;
+  var cd = $('#countdown');
+  ['天','时','分','秒'].forEach(function(u){
+    var box=document.createElement('div');box.className='cd-box';
+    box.innerHTML='<div class="cd-num">0</div><div class="cd-label">'+u+'</div>';
+    cd.appendChild(box);
+  });
+
+  // 信纸
+  $('#letter-paper').innerHTML='<div class="letter-title">'+CONFIG.letter.title+'</div><div class="letter-body">'+CONFIG.letter.body+'</div><div class="letter-sign">'+CONFIG.letter.sign+'</div>';
+
+  // 表白
+  $('#proposal-text').innerHTML = CONFIG.proposalText;
+  $('#btn-yes').textContent = CONFIG.btnYesText;
+  $('#btn-no').textContent  = CONFIG.btnNoText;
+
+  // 成功弹窗
+  $('#success-title').innerHTML = CONFIG.successTitle;
+  $('#success-text').innerHTML = CONFIG.successText;
+
+  // 彩蛋
+  $('#egg-text').innerHTML = CONFIG.eggText;
+  $('#egg-hint').textContent = CONFIG.eggHint;
+  $('#egg-modal-title').innerHTML = CONFIG.eggModalTitle;
+  $('#egg-modal-text').innerHTML = CONFIG.eggModalText;
+}
+
+/* =====================================================================
+   ⌨️ 打字机  —— 开场标题 + 情书
+   ===================================================================== */
+function typeTitle(){
+  var el=$('#title-text'), text=CONFIG.titleText, i=0;
+  el.textContent='';
+  var st=document.createElement('style');st.textContent='@keyframes letterIn{to{opacity:1;transform:translateY(0)}}';document.head.appendChild(st);
+  (function next(){if(i>=text.length){el.appendChild(document.createTextNode(' '));return}var s=document.createElement('span');s.textContent=text[i];s.style.cssText='display:inline-block;opacity:0;transform:translateY(20px);animation:letterIn .6s ease forwards';el.appendChild(s);i++;setTimeout(next,150)}());
+}
+
+var typewriterStarted=false;
+function startTypewriter(){
+  if(typewriterStarted)return;typewriterStarted=true;
+  var el=$('#typewriter'), chars=CONFIG.typewriter.split(''), i=0;
+  (function next(){
+    if(i>=chars.length){el.appendChild(Object.assign(document.createElement('span'),{className:'cursor'}));return}
+    var s=document.createElement('span');s.className='char visible';s.textContent=chars[i]==='\n'?'\n':chars[i];if(chars[i]==='\n')s.style.display='block';el.appendChild(s);i++;setTimeout(next,rand(CONFIG.typewriterSpeed[0],CONFIG.typewriterSpeed[1]));
+  })();
+}
+
+/* =====================================================================
+   ⏱️ 倒计时
+   ===================================================================== */
+var countdownStarted=false;
+function startCountdown(){
+  if(countdownStarted)return;countdownStarted=true;
+  var start=Date.parse(CONFIG.loveStartDate);
+  function upd(){
+    var d=Date.now()-start,n=d/86400000|0,h=d%86400000/3600000|0,m=d%3600000/60000|0,s=d%60000/1000|0;
+    var boxes=$$('#countdown .cd-num');
+    if(boxes[0])boxes[0].textContent=n;if(boxes[1])boxes[1].textContent=h;if(boxes[2])boxes[2].textContent=m;if(boxes[3])boxes[3].textContent=s;
+  }
+  upd();setInterval(upd,1000);
+}
+
+/* =====================================================================
+   🎮 幻灯片控制器
+   ===================================================================== */
+var SlideController = (function(){
+  var slides = $$('.slide'), total=slides.length, cur=0, anim=false;
+
+  function go(idx){
+    if(anim||idx===cur||idx<0||idx>=total)return;
+    anim=true;var dir=idx>cur?1:-1;
+    slides[cur].classList.remove('active');slides[cur].classList.add(dir>0?'prev':'');
+    var prev=cur;
+    setTimeout(function(){slides[prev].classList.remove('prev');slides[idx].classList.add('active');cur=idx;update();anim=false;onEnter(idx)},500);
+  }
+
+  function onEnter(idx){
+    if(idx===2)startTypewriter();
+    if(idx===6)startCountdown();
+    if(idx===4)Heart3D.enable();else Heart3D.disable();
+  }
+
+  function update(){
+    $$('.nav-dot').forEach(function(d,i){d.classList.toggle('active',i===cur)});
+    $('#progress-bar').style.width=((cur+1)/total*100)+'%';
+  }
+
+  // 导航点
+  var nav=$('#nav-dots');
+  for(var i=0;i<total;i++)(function(i){var d=document.createElement('div');d.className='nav-dot'+(i===0?' active':'');d.onclick=function(){go(i)};nav.appendChild(d)})(i);
+
+  // 滚轮
+  var wt;addEventListener('wheel',function(e){clearTimeout(wt);wt=setTimeout(function(){e.deltaY>30?go(cur+1):e.deltaY<-30?go(cur-1):0},50)},{passive:true});
+  // 触摸
+  var ts=0,te=0;addEventListener('touchstart',function(e){ts=e.touches[0].clientY},{passive:true});addEventListener('touchmove',function(e){te=e.touches[0].clientY},{passive:true});addEventListener('touchend',function(){var d=ts-te;Math.abs(d)>50&&(d>0?go(cur+1):go(cur-1))});
+  // 键盘
+  addEventListener('keydown',function(e){if(e.key==='ArrowDown'||e.key==='PageDown')go(cur+1);if(e.key==='ArrowUp'||e.key==='PageUp')go(cur-1)});
+
+  return {go:go,next:function(){go(cur+1)},prev:function(){go(cur-1)}};
+})();
+
+/* =====================================================================
+   💖 3D 爱心鼠标跟随
+   ===================================================================== */
+var Heart3D = (function(){
+  var el,active=false;
+  function init(){el=$('#heart3d')}
+  function onMove(e){if(!active)return;var r=el.getBoundingClientRect();el.style.transform='rotateY('+(e.clientX-(r.left+r.width/2))/r.width*30+'deg) rotateX('+(-(e.clientY-(r.top+r.height/2))/r.height*20)+'deg)'}
+  function onLeave(){el.style.transform=''}
+  return {
+    init:init,
+    enable:function(){active=true;addEventListener('mousemove',onMove);addEventListener('mouseleave',onLeave)},
+    disable:function(){active=false;removeEventListener('mousemove',onMove);removeEventListener('mouseleave',onLeave);onLeave()}
+  };
+})();
+
+/* =====================================================================
+   🃏 卡片 3D 倾斜
+   ===================================================================== */
+function initCardTilt(){
+  $$('.reason-card,.memory-card').forEach(function(card){
+    card.addEventListener('mousemove',function(e){var r=card.getBoundingClientRect();card.style.transform='perspective(400px) rotateX('+((e.clientY-r.top)/r.height-.5)*-6+'deg) rotateY('+((e.clientX-r.left)/r.width-.5)*6+'deg) scale(1.02)'});
+    card.addEventListener('mouseleave',function(){card.style.transform=''});
+  });
+}
+
+/* =====================================================================
+   💍 表白按钮交互
+   ===================================================================== */
+function initProposalButtons(){
+  // 愿意
+  $('#btn-yes').addEventListener('click',function(e){
+    var r=e.target.getBoundingClientRect();
+    var sp=document.createElement('span');sp.style.cssText='position:absolute;background:rgba(255,255,255,.3);border-radius:50%;width:20px;height:20px;left:'+(e.clientX-r.left-10)+'px;top:'+(e.clientY-r.top-10)+'px;transform:scale(0);animation:ripple .6s ease forwards;pointer-events:none';e.target.appendChild(sp);
+    var st=document.createElement('style');st.textContent='@keyframes ripple{to{transform:scale(4);opacity:0}}';document.head.appendChild(st);
+    setTimeout(function(){$('#success-modal').classList.add('show');Fireworks.start();Confetti.start()},400);
+  });
+
+  // 不愿意
+  var noClicks=0;
+  $('#btn-no').addEventListener('click',function(e){
+    noClicks++;
+    e.target.textContent=CONFIG.noMessages[Math.min(noClicks,CONFIG.noMessages.length-1)];
+    e.target.style.transform='scale('+Math.max(.5,1-noClicks*.08)+')';
+    if(noClicks>=3){e.target.style.position='fixed';e.target.style.left=rand(10,70)+'vw';e.target.style.top=rand(20,70)+'vh'}
+    if(noClicks>=6)e.target.style.display='none';
+  });
+}
+
+/* =====================================================================
+   🎁 终极彩蛋  —— 长按按钮 + Konami Code 双触发
+   ===================================================================== */
+function initEasterEgg(){
+  var btn=$('#btn-egg'), fill=$('#egg-fill'), hint=$('#egg-hint'), modal=$('#egg-modal');
+  var pressT=null, progress=0, raf=null;
+
+  function trigger(){
+    // 全屏爱心雨
+    for(var i=0;i<80;i++){
+      var h=document.createElement('div');h.textContent=CONFIG.heartChars[randInt(0,CONFIG.heartChars.length-1)];
+      h.style.cssText='position:fixed;left:'+rand(0,100)+'vw;top:-30px;font-size:'+rand(16,40)+'px;pointer-events:none;z-index:600;transition:all '+rand(3,7)+'s linear';
+      document.body.appendChild(h);
+      requestAnimationFrame(function(el){return function(){el.style.top='110vh';el.style.transform='rotate('+rand(-180,180)+'deg) scale('+rand(.5,1.5)+')'}}(h));
+      setTimeout(function(el){return function(){el.remove()}}(h),8000);
+    }
+    // 弹窗
+    modal.classList.add('show');
+    Fireworks.start();Confetti.start();
+  }
+
+  // 长按
+  function onPress(){
+    if(pressT)return;
+    pressT=Date.now();
+    raf=requestAnimationFrame(function tick(){
+      progress=(Date.now()-pressT)/CONFIG.eggHoldTime;
+      fill.style.width=Math.min(100,progress*100)+'%';
+      if(progress>=1){onRelease(true);trigger();return}
+      raf=requestAnimationFrame(tick);
+    });
+  }
+  function onRelease(done){
+    cancelAnimationFrame(raf);raf=null;pressT=null;
+    if(!done)fill.style.width='0%';
+  }
+  btn.addEventListener('mousedown',onPress);btn.addEventListener('touchstart',onPress,{passive:true});
+  addEventListener('mouseup',function(){onRelease()});addEventListener('touchend',function(){onRelease()});
+
+  // 关闭弹窗
+  $('#egg-modal-close').addEventListener('click',function(){modal.classList.remove('show')});
+
+  // Konami Code
+  var code=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'],idx=0;
+  addEventListener('keydown',function(e){
+    if(e.key===code[idx]){idx++;if(idx===code.length){idx=0;trigger()}}else idx=0;
+  });
+}
+
+/* =====================================================================
+   🚀 主入口
+   ===================================================================== */
+var App = (function(){
+  var inited=false;
+  return {
+    init:function(){
+      if(inited)return;inited=true;
+      renderContent();
+      typeTitle();
+      Heart3D.init();
+      initCardTilt();
+      initProposalButtons();
+      initEasterEgg();
+      // 首屏动画
+      setTimeout(function(){$('.slide.active .timeline-item,.slide.active .reason-card,.slide.active .memory-card').forEach(function(el){el.style.opacity=1;el.style.transform='translateX(0)'})},100);
+    }
+  };
+})();
+
+/* =====================================================================
+   🛡️ 其他
+   ===================================================================== */
+addEventListener('contextmenu',function(e){if(e.target.tagName!=='A')e.preventDefault()});
+console.log('%c💖 Love Page Ready — 修改 CONFIG 即可自定义全部内容','color:#ff5e8a;font-size:14px;font-weight:bold');
+</script>
+</body>
+</html>

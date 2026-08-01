@@ -1,0 +1,210 @@
+/* =====================================================================
+   love-styles.css — 表白网页完整视觉系统
+   ===================================================================== */
+
+/* ========== Reset ========== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;font-family:"PingFang SC","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;background:#0a0a1a;color:#fff}
+a,button{font-family:inherit}
+::selection{background:rgba(255,100,150,.4);color:#fff}
+::-webkit-scrollbar{display:none}
+
+/* ========== 加载屏 ========== */
+#loader{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a0a1a,#1a0a2a 50%,#0d1a3a);transition:opacity 1s,visibility 1s}
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-heart{width:80px;height:80px;animation:heartBeat 1s ease infinite}
+.loader-heart svg{width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(255,80,120,.6))}
+@keyframes heartBeat{0%,100%{transform:scale(1)}15%{transform:scale(1.15)}30%{transform:scale(1)}45%{transform:scale(1.1)}60%{transform:scale(1)}}
+.loader-text{margin-top:30px;font-size:15px;letter-spacing:6px;color:rgba(255,255,255,.6);text-transform:uppercase}
+.loader-progress{width:200px;height:2px;background:rgba(255,255,255,.1);margin-top:20px;border-radius:2px;overflow:hidden}
+.loader-progress-bar{width:0%;height:100%;background:linear-gradient(90deg,#ff5e8a,#ff9ec7);border-radius:2px;transition:width .3s}
+.loader-particles{position:absolute;inset:0;pointer-events:none}
+
+/* ========== 背景画布 ========== */
+#stars-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+#petals-canvas{position:fixed;inset:0;z-index:1;pointer-events:none}
+#overlay-canvas{position:fixed;inset:0;z-index:5;pointer-events:none}
+
+/* ========== 鼠标心形光标 ========== */
+#cursor-glow{position:fixed;width:28px;height:28px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:opacity .3s;will-change:transform;left:-100px;top:-100px;background:none}
+
+/* ========== 主容器 ========== */
+#app{position:relative;z-index:10;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+
+/* ========== 翻页 ========== */
+#slides{position:relative;width:100%;max-width:520px;height:100%;max-height:760px;perspective:1200px}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 30px;opacity:0;visibility:hidden;transform:translateY(40px) rotateX(-8deg);transition:all 1s cubic-bezier(.22,.8,.2,1);text-align:center;user-select:none;-webkit-user-select:none}
+.slide.active{opacity:1;visibility:visible;transform:translateY(0) rotateX(0)}
+.slide.prev{opacity:0;visibility:hidden;transform:translateY(-40px) rotateX(8deg)}
+.typewriter,.letter-body,.proposal-text{user-select:text;-webkit-user-select:text}
+
+/* ========== 通用标题 ========== */
+.slide-title{font-size:28px;font-weight:700;margin-bottom:30px;background:linear-gradient(135deg,#ff6b9d,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ========== Slide0 开场 ========== */
+.slide1-title{font-size:42px;font-weight:800;letter-spacing:4px;margin-bottom:16px;background:linear-gradient(135deg,#ff6b9d,#ffa8c5,#ff6b9d);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 4s ease infinite}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.slide1-sub{font-size:16px;color:rgba(255,255,255,.5);letter-spacing:2px;line-height:2}
+.slide1-hint{position:absolute;bottom:40px;font-size:13px;color:rgba(255,255,255,.25);letter-spacing:2px;animation:hintBounce 2s ease infinite}
+@keyframes hintBounce{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(6px);opacity:.6}}
+
+/* ========== 时间线 ========== */
+.timeline{width:100%;max-width:400px;text-align:left}
+.timeline-item{display:flex;gap:16px;margin-bottom:20px;opacity:0;transform:translateX(-20px);transition:all .6s ease}
+.slide.active .timeline-item{opacity:1;transform:translateX(0)}
+.slide.active .timeline-item:nth-child(1){transition-delay:.3s}
+.slide.active .timeline-item:nth-child(2){transition-delay:.6s}
+.slide.active .timeline-item:nth-child(3){transition-delay:.9s}
+.slide.active .timeline-item:nth-child(4){transition-delay:1.2s}
+.timeline-dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,#ff5e8a,#ffd700);flex-shrink:0;margin-top:4px;box-shadow:0 0 10px rgba(255,94,138,.4)}
+.timeline-content{font-size:14px;color:rgba(255,255,255,.7);line-height:1.8}
+
+/* ========== 打字机 ========== */
+.typewriter-container{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:30px;min-height:260px;width:100%;max-width:420px;text-align:left}
+.typewriter{font-size:15px;line-height:2.2;color:rgba(255,255,255,.8);white-space:pre-wrap}
+.typewriter .char{opacity:0;transition:opacity .1s}
+.typewriter .char.visible{opacity:1}
+.cursor{display:inline-block;width:2px;height:1.2em;background:#ff5e8a;vertical-align:middle;animation:cursorBlink 1s ease infinite;margin-left:2px}
+@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ========== 理由卡片 ========== */
+.reasons-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px}
+.reason-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 14px;text-align:center;cursor:default;transition:all .4s cubic-bezier(.22,.8,.2,1);opacity:0;transform:scale(.85) translateY(20px)}
+.slide.active .reason-card{opacity:1;transform:scale(1) translateY(0)}
+.slide.active .reason-card:nth-child(1){transition-delay:.2s}.slide.active .reason-card:nth-child(2){transition-delay:.35s}
+.slide.active .reason-card:nth-child(3){transition-delay:.5s}.slide.active .reason-card:nth-child(4){transition-delay:.65s}
+.slide.active .reason-card:nth-child(5){transition-delay:.8s}.slide.active .reason-card:nth-child(6){transition-delay:.95s}
+.reason-card:hover{background:rgba(255,255,255,.08)!important;border-color:rgba(255,150,180,.2)!important}
+.reason-emoji{font-size:28px;margin-bottom:8px}
+.reason-text{font-size:13px;color:rgba(255,255,255,.65);line-height:1.5}
+
+/* ========== 3D 爱心 ========== */
+.heart3d-container{perspective:600px;width:200px;height:200px;display:flex;align-items:center;justify-content:center}
+.heart3d{font-size:100px;animation:heart3dRotate 6s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(255,94,138,.5))}
+@keyframes heart3dRotate{0%,100%{transform:rotateY(0) rotateX(0) scale(1)}25%{transform:rotateY(15deg) rotateX(5deg) scale(1.05)}50%{transform:rotateY(0) rotateX(-5deg) scale(1)}75%{transform:rotateY(-15deg) rotateX(5deg) scale(1.05)}}
+.heart3d-caption{margin-top:30px;font-size:15px;color:rgba(255,255,255,.5);line-height:2}
+
+/* ========== 记忆卡片 ========== */
+.memories-list{width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px}
+.memory-card{display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;opacity:0;transform:translateY(20px);transition:all .5s ease}
+.slide.active .memory-card{opacity:1;transform:translateY(0)}
+.slide.active .memory-card:nth-child(1){transition-delay:.2s}.slide.active .memory-card:nth-child(2){transition-delay:.4s}
+.slide.active .memory-card:nth-child(3){transition-delay:.6s}.slide.active .memory-card:nth-child(4){transition-delay:.8s}
+.slide.active .memory-card:nth-child(5){transition-delay:1s}.slide.active .memory-card:nth-child(6){transition-delay:1.2s}
+.memory-card:hover{background:rgba(255,255,255,.08)!important;border-color:rgba(255,150,180,.2)!important}
+.memory-icon{font-size:26px;flex-shrink:0}
+.memory-text{font-size:14px;color:rgba(255,255,255,.7);line-height:1.5}
+
+/* ========== 倒计时 ========== */
+.countdown-display{display:flex;gap:16px;margin-top:20px}
+.cd-box{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 14px;min-width:70px}
+.cd-num{font-size:32px;font-weight:800;background:linear-gradient(135deg,#ff5e8a,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cd-label{font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;letter-spacing:1px}
+.countdown-sub,.countdown-foot{font-size:14px;color:rgba(255,255,255,.35)}
+.countdown-foot{margin-top:24px}
+
+/* ========== 信纸 ========== */
+.letter-paper{background:rgba(255,250,245,.95);color:#3a2a1a;border-radius:12px;padding:30px 26px;width:100%;max-width:400px;text-align:left;line-height:2;font-size:14px;box-shadow:0 10px 40px rgba(0,0,0,.3);transform:rotate(-1deg)}
+.letter-title{font-size:16px;font-weight:700;margin-bottom:12px;color:#c0392b;text-align:center}
+.letter-body{font-size:14px;line-height:2.2;color:#4a3520}
+.letter-sign{margin-top:16px;text-align:right;font-style:italic;color:#8a6a4a}
+
+/* ========== 表白 ========== */
+.proposal-ring{font-size:60px;margin-bottom:20px;animation:ringGlow 2s ease-in-out infinite}
+@keyframes ringGlow{0%,100%{filter:drop-shadow(0 0 10px rgba(255,215,0,.3))}50%{filter:drop-shadow(0 0 30px rgba(255,215,0,.6))}}
+.proposal-title{font-size:32px;font-weight:800;margin-bottom:16px;background:linear-gradient(135deg,#ff5e8a,#ffd700,#ff5e8a);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 3s ease infinite}
+.proposal-text{font-size:16px;line-height:2.2;color:rgba(255,255,255,.7);margin-bottom:30px}
+.proposal-text .highlight{color:#ff5e8a;font-weight:700}
+
+/* ========== 按钮通用 ========== */
+.btn-group{display:flex;gap:16px;align-items:center}
+.btn{padding:14px 40px;border-radius:50px;border:none;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all .3s;position:relative;overflow:hidden}
+.btn-yes{background:linear-gradient(135deg,#ff5e8a,#ff8fb3);color:#fff;box-shadow:0 4px 20px rgba(255,94,138,.3)}
+.btn-yes:hover{transform:scale(1.05);box-shadow:0 6px 30px rgba(255,94,138,.5)}
+.btn-yes::before{content:'';position:absolute;inset:-4px;border-radius:50px;border:2px solid rgba(255,94,138,.4);animation:pulseRing 2s ease infinite}
+@keyframes pulseRing{0%{transform:scale(1);opacity:1}100%{transform:scale(1.4);opacity:0}}
+.button-no{padding:12px 28px;border-radius:50px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;transition:all .3s}
+.button-no:hover{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.3)}
+
+/* ========== 🎁 彩蛋按钮（重点） ========== */
+.egg-icon{font-size:64px;margin-bottom:16px;animation:eggFloat 3s ease-in-out infinite}
+@keyframes eggFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.egg-title{font-size:26px;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,#ffd700,#ff5e8a,#ffd700);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 3s ease infinite}
+.egg-text{font-size:15px;color:rgba(255,255,255,.55);line-height:2;margin-bottom:30px}
+
+/* 长按按钮 */
+.btn-egg{
+  padding:18px 48px;border-radius:60px;border:2px solid rgba(255,215,0,.4);
+  background:linear-gradient(135deg,rgba(255,94,138,.15),rgba(255,215,0,.1));
+  color:#ffd700;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;
+  position:relative;overflow:hidden;transition:all .3s;
+  box-shadow:0 0 20px rgba(255,215,0,.1),inset 0 0 20px rgba(255,94,138,.05);
+}
+.btn-egg:hover{box-shadow:0 0 30px rgba(255,215,0,.25),inset 0 0 30px rgba(255,94,138,.1);transform:scale(1.02)}
+.btn-egg:active{transform:scale(.98)}
+.egg-btn-text{position:relative;z-index:2}
+.egg-btn-fill{
+  position:absolute;left:0;top:0;bottom:0;width:0%;
+  background:linear-gradient(90deg,rgba(255,94,138,.4),rgba(255,215,0,.3));
+  z-index:1;transition:width .1s linear;border-radius:60px 0 0 60px;
+}
+
+/* 彩蛋提示 */
+.egg-hint{margin-top:20px;font-size:12px;color:rgba(255,255,255,.2);letter-spacing:1px}
+
+/* ========== 彩蛋弹窗 ========== */
+#egg-modal{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);opacity:0;visibility:hidden;transition:all .8s ease}
+#egg-modal.show{opacity:1;visibility:visible}
+.egg-modal-content{text-align:center;padding:48px 40px;animation:successIn .8s cubic-bezier(.22,.8,.2,1) forwards;max-width:420px}
+@keyframes successIn{from{transform:scale(.7) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.egg-modal-heart{font-size:72px;animation:heartBeat 1.5s ease infinite}
+.egg-modal-title{font-size:24px;font-weight:800;margin:16px 0;background:linear-gradient(135deg,#ff5e8a,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.egg-modal-text{font-size:15px;color:rgba(255,255,255,.65);line-height:2.4;margin-bottom:28px}
+.egg-modal-text strong{color:#ff5e8a;font-size:17px}
+.btn-egg-close{padding:12px 36px;border-radius:50px;border:1px solid rgba(255,94,138,.4);background:linear-gradient(135deg,#ff5e8a,#ff8fb3);color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all .3s;box-shadow:0 4px 15px rgba(255,94,138,.3)}
+.btn-egg-close:hover{transform:scale(1.05);box-shadow:0 6px 25px rgba(255,94,138,.5)}
+
+/* ========== 导航点 ========== */
+#nav-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:8px}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:all .3s}
+.nav-dot.active{background:rgba(255,94,138,.7);transform:scale(1.5)}
+
+/* ========== 成功弹窗 ========== */
+#success-modal{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:all .8s ease}
+#success-modal.show{opacity:1;visibility:visible}
+.success-content{text-align:center;padding:40px;animation:successIn .8s cubic-bezier(.22,.8,.2,1) forwards}
+.success-heart{font-size:80px;animation:heartBeat 1s ease infinite}
+.success-title{font-size:28px;font-weight:800;margin:16px 0;background:linear-gradient(135deg,#ff5e8a,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.success-text{font-size:16px;color:rgba(255,255,255,.6);line-height:2}
+
+/* ========== 音乐按钮 ========== */
+#music-btn{position:fixed;top:16px;right:16px;z-index:200;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
+#music-btn:hover{background:rgba(255,255,255,.12)}
+#music-btn.playing{animation:musicSpin 4s linear infinite}
+@keyframes musicSpin{to{transform:rotate(360deg)}}
+
+/* ========== 进度条 ========== */
+#progress-bar{position:fixed;top:0;left:0;height:2px;z-index:999;background:linear-gradient(90deg,#ff5e8a,#ffd700,#ff5e8a);background-size:200% 100%;transition:width .5s ease;width:0%}
+
+/* ========== 呼吸边框 ========== */
+#breath-border{position:fixed;inset:8px;border-radius:20px;pointer-events:none;z-index:9998;border:1px solid transparent;animation:breathBorder 4s ease-in-out infinite}
+@keyframes breathBorder{0%,100%{border-color:rgba(255,94,138,.08);box-shadow:inset 0 0 30px rgba(255,94,138,.03)}50%{border-color:rgba(255,94,138,.2);box-shadow:inset 0 0 60px rgba(255,94,138,.08)}}
+
+/* ========== 淡入淡出 ========== */
+@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(10px)}20%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+
+/* ========== 卡片 3D 过渡 ========== */
+.slide.active .memory-card,.slide.active .reason-card{transition:all .4s cubic-bezier(.22,.8,.2,1)!important}
+
+/* ========== 响应式 ========== */
+@media(max-width:600px){
+  .slide1-title{font-size:32px}.proposal-title{font-size:26px}.egg-title{font-size:22px}
+  .reasons-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .reason-card{padding:14px 10px}.reason-emoji{font-size:22px}.reason-text{font-size:12px}
+  .cd-num{font-size:24px}.nav-dot{width:5px;height:5px}#nav-dots{right:8px;gap:6px}
+  .btn-egg{padding:14px 32px;font-size:13px}
+}
+@media(max-height:700px){
+  .slide{padding:20px 20px}.slide-title{font-size:22px;margin-bottom:16px}
+  .timeline-item{margin-bottom:12px}.memory-card{padding:10px 14px}
+}
