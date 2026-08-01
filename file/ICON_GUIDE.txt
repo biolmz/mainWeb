@@ -1,0 +1,56 @@
+图标文件说明
+============
+
+PWA 需要两个图标文件：
+- icon-192.png (192x192)
+- icon-512.png (512x512)
+
+由于无法在沙盒中生成 PNG 图片，请按以下方式获取：
+
+方法一：在线生成（推荐）
+1. 打开 https://favicon.io/favicon-generator/
+2. 输入 emoji 📝 或文字 "笔记"
+3. 下载 PNG 文件
+4. 重命名为 icon-192.png 和 icon-512.png
+5. 放到 note-system/ 目录下
+
+方法二：用 Python 生成
+运行以下脚本生成简单图标：
+
+```python
+from PIL import Image, ImageDraw, ImageFont
+import os
+
+def create_icon(size, filename):
+    img = Image.new('RGBA', (size, size), (99, 102, 241, 255))
+    draw = ImageDraw.Draw(img)
+    
+    # 画一个白色圆角矩形背景
+    margin = size // 8
+    draw.rounded_rectangle(
+        [margin, margin, size - margin, size - margin],
+        radius=size // 10,
+        fill=(255, 255, 255, 230)
+    )
+    
+    # 画一个简单的笔记图标（用文字代替）
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size // 3)
+    except:
+        font = ImageFont.load_default()
+    
+    text = "📝"
+    bbox = draw.textbbox((0, 0), text, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    draw.text(((size - tw) // 2, (size - th) // 2 - bbox[1]), text, font=font, fill=(99, 102, 241, 255))
+    
+    img.save(filename, 'PNG')
+    print(f"✅ 已生成 {filename} ({size}x{size})")
+
+create_icon(192, 'icon-192.png')
+create_icon(512, 'icon-512.png')
+```
+
+方法三：最简单的临时方案
+如果暂时没有图标，可以删除 manifest.json 中的 icons 字段，
+PWA 仍可工作，只是安装时没有自定义图标。

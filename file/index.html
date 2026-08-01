@@ -2,28 +2,64 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📝 云端笔记系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0F172A">
+    <title>📝 云端笔记</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="styles.css">
     <!-- 腾讯云 COS JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cos-js-sdk-v5@1.4.8/dist/cos-js-sdk-v5.min.js"></script>
     <!-- Markdown 渲染 -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
     <!-- 代码高亮 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.10.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.10.0/lib/highlight.min.js"></script>
+    <!-- DOMPurify 防XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+    <!-- Service Worker 注册 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => {
+                    console.log('SW 注册失败:', err);
+                });
+            });
+        }
+    </script>
 </head>
 <body>
+    <!-- 移动端顶部栏 -->
+    <header class="mobile-topbar" id="mobileTopbar">
+        <button class="icon-btn" id="menuBtn" aria-label="菜单">☰</button>
+        <div class="mobile-title" id="mobileTitle">📝 云端笔记</div>
+        <div class="mobile-actions">
+            <button class="icon-btn" id="mobilePreviewBtn" aria-label="预览">👁️</button>
+            <button class="icon-btn" id="mobileSaveBtn" aria-label="保存">💾</button>
+        </div>
+    </header>
+
+    <!-- 侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- 登录遮罩 -->
     <div id="loginOverlay" class="overlay">
         <div class="login-box">
-            <h2>📝 云端笔记系统</h2>
-            <p class="subtitle">请输入访问密码</p>
-            <input type="password" id="passwordInput" placeholder="输入密码..." autofocus>
-            <button onclick="checkPassword()">进入</button>
+            <div class="login-logo">📝</div>
+            <h2>云端笔记系统</h2>
+            <p class="subtitle">安全 · 简洁 · 多端同步</p>
+            <div class="login-form">
+                <input type="password" id="passwordInput" placeholder="请输入访问密码" autocomplete="off" autofocus>
+                <button onclick="checkPassword()" class="btn-primary">进入系统</button>
+            </div>
             <p id="loginError" class="error-msg"></p>
             <div class="login-hint">
-                <small>💡 首次使用请先配置腾讯云 COS 信息</small>
+                <small>🔒 密码仅存于本地浏览器，不会上传任何服务器</small>
+            </div>
+            <div class="login-footer">
+                <span id="loginBucketInfo" class="bucket-badge hidden"></span>
             </div>
         </div>
     </div>
@@ -31,56 +67,95 @@
     <!-- 主界面 -->
     <div id="mainApp" class="hidden">
         <!-- 侧边栏 -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1>📝 我的笔记</h1>
+                <div class="brand">
+                    <span class="brand-icon">📝</span>
+                    <span class="brand-text">我的笔记</span>
+                </div>
                 <div class="user-info">
-                    <span id="userBucket"></span>
-                    <button onclick="logout()" class="btn-small">退出</button>
+                    <span id="userBucket" class="bucket-tag"></span>
+                    <button onclick="logout()" class="btn-text" title="退出登录">退出</button>
                 </div>
             </div>
 
             <!-- 搜索框 -->
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 搜索笔记..." oninput="filterNotes()">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="搜索笔记标题或内容..." oninput="filterNotes()">
+                <button class="search-clear hidden" id="searchClear" onclick="clearSearch()">✕</button>
             </div>
 
             <!-- 新建笔记按钮 -->
-            <button class="btn-primary" onclick="createNewNote()">✏️ 新建笔记</button>
+            <button class="btn-primary btn-new" onclick="createNewNote()">
+                <span class="btn-icon-plus">✏️</span>
+                <span>新建笔记</span>
+                <span class="shortcut-hint">Ctrl+N</span>
+            </button>
+
+            <!-- 文件类型筛选 -->
+            <div class="filter-tabs" id="filterTabs">
+                <button class="filter-tab active" data-type="all" onclick="setFilter('all', this)">全部</button>
+                <button class="filter-tab" data-type="markdown" onclick="setFilter('markdown', this)">📄 MD</button>
+                <button class="filter-tab" data-type="text" onclick="setFilter('text', this)">📃 TXT</button>
+                <button class="filter-tab" data-type="html" onclick="setFilter('html', this)">🌐 HTML</button>
+                <button class="filter-tab" data-type="json" onclick="setFilter('json', this)">📊 JSON</button>
+            </div>
 
             <!-- 笔记列表 -->
             <div class="notes-list" id="notesList">
-                <div class="empty-state">暂无笔记，点击上方按钮创建</div>
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <p>暂无笔记</p>
+                    <small>点击上方按钮创建第一篇笔记</small>
+                </div>
+            </div>
+
+            <!-- 同步状态 -->
+            <div class="sync-status" id="syncStatus">
+                <span class="sync-dot" id="syncDot"></span>
+                <span class="sync-text" id="syncText">就绪</span>
+                <button onclick="forceSync()" class="btn-icon-sync" title="立即同步" id="syncBtn">🔄</button>
             </div>
 
             <!-- 设置区域 -->
             <div class="sidebar-footer">
-                <button onclick="showSettings()" class="btn-icon" title="设置">⚙️ 设置</button>
-                <button onclick="refreshNotesList()" class="btn-icon" title="刷新">🔄 刷新</button>
+                <button onclick="showSettings()" class="btn-icon" title="COS设置">⚙️</button>
+                <button onclick="showImportDialog()" class="btn-icon" title="导入文件">📥</button>
+                <button onclick="exportAllNotes()" class="btn-icon" title="导出全部">📤</button>
                 <span id="storageInfo" class="storage-info"></span>
             </div>
         </aside>
 
         <!-- 编辑区域 -->
-        <main class="editor-area">
+        <main class="editor-area" id="editorArea">
             <!-- 空状态 -->
             <div id="emptyEditor" class="empty-editor">
                 <div class="empty-content">
-                    <h2>👋 欢迎使用云端笔记</h2>
+                    <div class="empty-hero">📝</div>
+                    <h2>欢迎使用云端笔记</h2>
                     <p>选择左侧笔记进行编辑，或创建新笔记</p>
                     <div class="features">
                         <div class="feature">
                             <span class="feature-icon">☁️</span>
-                            <span>自动保存到腾讯云</span>
+                            <span>自动同步到腾讯云</span>
                         </div>
                         <div class="feature">
                             <span class="feature-icon">📱</span>
-                            <span>多设备同步</span>
+                            <span>多设备实时同步</span>
                         </div>
                         <div class="feature">
                             <span class="feature-icon">🔒</span>
                             <span>数据私有安全</span>
                         </div>
+                        <div class="feature">
+                            <span class="feature-icon">📄</span>
+                            <span>支持多文件格式</span>
+                        </div>
+                    </div>
+                    <div class="empty-actions">
+                        <button class="btn-primary" onclick="createNewNote()">✏️ 新建笔记</button>
+                        <button class="btn-secondary" onclick="showImportDialog()">📥 导入文件</button>
                     </div>
                 </div>
             </div>
@@ -89,43 +164,58 @@
             <div id="editorContainer" class="editor-container hidden">
                 <!-- 工具栏 -->
                 <div class="toolbar">
-                    <input type="text" id="noteTitle" placeholder="输入标题..." oninput="autoSave()">
+                    <div class="toolbar-left">
+                        <button class="icon-btn toolbar-back" id="toolbarBack" onclick="closeEditor()">←</button>
+                        <select id="noteFormat" class="format-select" onchange="changeNoteFormat()" title="文件格式">
+                            <option value="markdown">Markdown</option>
+                            <option value="text">纯文本</option>
+                            <option value="html">HTML</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                    <input type="text" id="noteTitle" placeholder="输入标题..." oninput="onTitleChange()" autocomplete="off">
                     <div class="toolbar-actions">
-                        <button onclick="togglePreview()" id="previewBtn" class="btn-small">👁️ 预览</button>
-                        <button onclick="toggleFullscreen()" id="fullscreenBtn" class="btn-small">⛶ 全屏</button>
-                        <button onclick="deleteCurrentNote()" class="btn-small btn-danger">🗑️ 删除</button>
+                        <button onclick="manualSave()" id="saveBtn" class="btn-save" title="手动保存 (Ctrl+S)">
+                            <span class="save-icon">💾</span>
+                            <span class="save-text">保存</span>
+                        </button>
+                        <button onclick="togglePreview()" id="previewBtn" class="btn-tool" title="预览/编辑 (Ctrl+P)">👁️</button>
+                        <button onclick="toggleFullscreen()" id="fullscreenBtn" class="btn-tool" title="全屏">⛶</button>
+                        <button onclick="showNoteMenu()" class="btn-tool" title="更多操作">⋯</button>
                     </div>
                 </div>
 
                 <!-- 编辑/预览区域 -->
-                <div class="editor-body">
-                    <div class="editor-pane">
-                        <textarea id="noteContent" placeholder="开始写作...支持 Markdown 语法
+                <div class="editor-body" id="editorBody">
+                    <div class="editor-pane" id="editorPane">
+                        <textarea id="noteContent" placeholder="# 开始写作...
 
-# 标题
-## 副标题
+支持 Markdown 语法：
 
-**粗体** *斜体* `代码`
+**粗体** *斜体* `行内代码`
 
-- 列表项1
-- 列表项2
+## 标题
+- 列表
+- 列表
 
 ```javascript
-console.log('Hello World');
+console.log('Hello');
 ```
 
-> 引用文本
-
-[链接](https://example.com)" oninput="autoSave()" onscroll="syncScroll(this, 'previewPane')"></textarea>
+> 引用文本" oninput="onContentChange()" onscroll="syncScroll(this, 'previewPane')" spellcheck="false"></textarea>
                     </div>
                     <div class="preview-pane hidden" id="previewPane"></div>
                 </div>
 
                 <!-- 状态栏 -->
                 <div class="status-bar">
-                    <span id="saveStatus">未保存</span>
-                    <span id="wordCount">0 字</span>
-                    <span id="lastSaved"></span>
+                    <span id="saveStatus" class="status-item">未保存</span>
+                    <span class="status-divider">|</span>
+                    <span id="wordCount" class="status-item">0 字</span>
+                    <span class="status-divider">|</span>
+                    <span id="lastSaved" class="status-item"></span>
+                    <span class="status-spacer"></span>
+                    <span id="syncIndicator" class="status-item sync-indicator"></span>
                 </div>
             </div>
         </main>
@@ -135,22 +225,28 @@ console.log('Hello World');
     <div id="settingsModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>⚙️ COS 配置</h2>
+                <h2>⚙️ COS 存储配置</h2>
                 <button onclick="closeSettings()" class="btn-close">✕</button>
             </div>
             <div class="modal-body">
                 <div class="config-section">
-                    <h3>腾讯云 COS 配置</h3>
-                    <p class="hint">请填写你的腾讯云 COS 信息，数据将安全存储在你的私有存储桶中</p>
+                    <h3>🔑 腾讯云 COS 配置</h3>
+                    <p class="hint">建议使用仅含 COS 权限的子账号密钥，数据存储在你的私有存储桶中</p>
 
-                    <label>SecretId</label>
-                    <input type="password" id="configSecretId" placeholder="AKIDxxxxxxxxxxxxxxxx">
+                    <label>SecretId <span class="label-optional">（从腾讯云控制台获取）</span></label>
+                    <div class="input-with-toggle">
+                        <input type="password" id="configSecretId" placeholder="AKIDxxxxxxxxxxxxxxxx" autocomplete="off">
+                        <button class="btn-eye" onclick="togglePasswordField('configSecretId', this)">👁️</button>
+                    </div>
 
                     <label>SecretKey</label>
-                    <input type="password" id="configSecretKey" placeholder="xxxxxxxxxxxxxxxxxxxxxxxx">
+                    <div class="input-with-toggle">
+                        <input type="password" id="configSecretKey" placeholder="xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                        <button class="btn-eye" onclick="togglePasswordField('configSecretKey', this)">👁️</button>
+                    </div>
 
                     <label>存储桶名称 (Bucket)</label>
-                    <input type="text" id="configBucket" placeholder="my-notes-1250000000">
+                    <input type="text" id="configBucket" placeholder="my-notes-1250000000" autocomplete="off">
 
                     <label>存储桶区域 (Region)</label>
                     <select id="configRegion">
@@ -158,24 +254,36 @@ console.log('Hello World');
                         <option value="ap-shanghai">华东-上海 (ap-shanghai)</option>
                         <option value="ap-beijing">华北-北京 (ap-beijing)</option>
                         <option value="ap-chengdu">西南-成都 (ap-chengdu)</option>
+                        <option value="ap-chongqing">西南-重庆 (ap-chongqing)</option>
+                        <option value="ap-nanjing">华东-南京 (ap-nanjing)</option>
                         <option value="ap-hongkong">港澳台-香港 (ap-hongkong)</option>
                         <option value="ap-singapore">东南亚-新加坡 (ap-singapore)</option>
+                        <option value="ap-tokyo">日本-东京 (ap-tokyo)</option>
+                        <option value="ap-seoul">韩国-首尔 (ap-seoul)</option>
+                        <option value="na-ashburn">美东-弗吉尼亚 (na-ashburn)</option>
+                        <option value="na-siliconvalley">美西-硅谷 (na-siliconvalley)</option>
+                        <option value="eu-frankfurt">欧洲-法兰克福 (eu-frankfurt)</option>
                     </select>
 
-                    <label>访问密码（用于保护笔记）</label>
-                    <input type="password" id="configPassword" placeholder="设置访问密码">
+                    <label>访问密码</label>
+                    <div class="input-with-toggle">
+                        <input type="password" id="configPassword" placeholder="设置访问密码（至少4位）" autocomplete="off">
+                        <button class="btn-eye" onclick="togglePasswordField('configPassword', this)">👁️</button>
+                    </div>
                 </div>
 
                 <div class="config-section">
                     <h3>📖 使用说明</h3>
                     <ol class="instructions">
-                        <li>在腾讯云控制台创建 COS 存储桶（建议私有读写）</li>
-                        <li>获取 API 密钥（SecretId / SecretKey）</li>
+                        <li>在腾讯云控制台创建 COS 存储桶（建议<strong>私有读写</strong>）</li>
+                        <li>创建子账号并仅授予该存储桶的读写权限</li>
+                        <li>获取子账号的 API 密钥（SecretId / SecretKey）</li>
                         <li>填写上方配置信息并保存</li>
                         <li>开始写笔记，数据自动加密上传到你的存储桶</li>
                     </ol>
                     <div class="warning">
-                        ⚠️ 本系统为纯前端实现，密钥仅存储在浏览器本地，不会发送到第三方服务器
+                        ⚠️ 密钥仅存储在浏览器 localStorage 中，不会发送到任何第三方服务器。<br>
+                        ⚠️ 由于是纯前端应用，建议使用<strong>权限受限的子账号密钥</strong>而非主账号密钥。
                     </div>
                 </div>
 
@@ -188,11 +296,63 @@ console.log('Hello World');
         </div>
     </div>
 
+    <!-- 笔记操作菜单 -->
+    <div id="noteMenuModal" class="modal hidden">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>📋 笔记操作</h2>
+                <button onclick="closeNoteMenu()" class="btn-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="menu-list">
+                    <button class="menu-item" onclick="duplicateCurrentNote()">
+                        <span class="menu-icon">📄</span>
+                        <span class="menu-text">复制笔记</span>
+                    </button>
+                    <button class="menu-item" onclick="renameCurrentNote()">
+                        <span class="menu-icon">✏️</span>
+                        <span class="menu-text">重命名</span>
+                    </button>
+                    <button class="menu-item" onclick="exportCurrentNote()">
+                        <span class="menu-icon">📤</span>
+                        <span class="menu-text">导出当前笔记</span>
+                    </button>
+                    <button class="menu-item menu-danger" onclick="deleteCurrentNote()">
+                        <span class="menu-icon">🗑️</span>
+                        <span class="menu-text">删除笔记</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入文件弹窗 -->
+    <div id="importModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📥 导入文件</h2>
+                <button onclick="closeImportDialog()" class="btn-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="import-area" id="importArea">
+                    <input type="file" id="fileInput" multiple accept=".md,.markdown,.txt,.html,.htm,.json,.js,.css,.xml,.csv" style="display:none" onchange="handleFileImport(event)">
+                    <div class="import-dropzone" onclick="document.getElementById('fileInput').click()">
+                        <div class="import-icon">📁</div>
+                        <p><strong>点击选择文件</strong> 或拖拽到此处</p>
+                        <small>支持 .md .txt .html .json .js .css .csv 等格式</small>
+                    </div>
+                </div>
+                <div class="import-list hidden" id="importList"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- 确认弹窗 -->
     <div id="confirmModal" class="modal hidden">
         <div class="modal-content modal-small">
             <div class="modal-header">
                 <h2 id="confirmTitle">确认操作</h2>
+                <button onclick="closeConfirm()" class="btn-close">✕</button>
             </div>
             <div class="modal-body">
                 <p id="confirmMessage"></p>
@@ -204,8 +364,8 @@ console.log('Hello World');
         </div>
     </div>
 
-    <!-- Toast 通知 -->
-    <div id="toast" class="toast hidden"></div>
+    <!-- Toast 容器 -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="app.js"></script>
 </body>

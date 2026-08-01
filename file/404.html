@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📝 云端笔记系统</title>
     <script>
         // GitHub Pages SPA 重定向
-        // 将所有404请求重定向到首页
         sessionStorage.setItem('redirectPath', location.pathname + location.search);
-        location.replace('/' + location.pathname.split('/')[1] + '/');
+        var repoName = location.pathname.split('/')[1];
+        location.replace('/' + repoName + '/');
     </script>
 </head>
 <body>
-    <p>正在跳转...</p>
+    <p style="text-align:center;padding:40px;font-family:sans-serif;color:#666">
+        正在跳转...
+    </p>
 </body>
 </html>
