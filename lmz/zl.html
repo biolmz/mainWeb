@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>肿瘤生长动力学实验工具 v2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #0a0a1a;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 10px 14px;
+  }
+
+  /* ========== 标题 ========== */
+  .header { text-align: center; margin-bottom: 10px; }
+  h1 {
+    font-size: clamp(16px, 3.5vw, 24px);
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24, #a78bfa, #4ecdc4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+    line-height: 1.3;
+  }
+  .subtitle { font-size: clamp(9px, 2.2vw, 11px); color: #556; margin-top: 2px; }
+
+  /* ========== 主布局 ========== */
+  .top-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; }
+
+  /* ========== 工具栏 ========== */
+  .toolbar {
+    display: flex; flex-direction: column; gap: 5px;
+    background: #121e36; padding: 10px; border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    min-width: 130px; flex-shrink: 0;
+  }
+  .panel-title {
+    font-size: 9.5px; color: #667788; text-transform: uppercase;
+    letter-spacing: 1.2px; margin-bottom: 2px;
+    border-bottom: 1px solid #1e3050; padding-bottom: 3px;
+  }
+  .panel-title .help { font-size: 9px; color: #445; text-transform: none; letter-spacing: 0; }
+  .tool-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 9px; border: 2px solid transparent; border-radius: 6px;
+    background: #182a48; color: #ccc;
+    font-size: clamp(10px, 2.5vw, 12px);
+    cursor: pointer; transition: all 0.2s ease;
+    user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  }
+  .tool-btn:hover { background: #203558; transform: translateX(2px); }
+  .tool-btn:active { transform: scale(0.96); }
+  .tool-btn.active { border-color: currentColor; background: #203558; box-shadow: 0 0 8px rgba(255,255,255,0.05); }
+  .tool-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 -2px 3px rgba(0,0,0,0.3), 0 0 4px currentColor; }
+  .tool-btn[data-type="proliferate"] { color: #ff6b6b; }
+  .tool-btn[data-type="migrate"] { color: #4ea8ff; }
+  .tool-btn[data-type="apoptose"] { color: #51cf66; }
+  .tool-btn[data-type="drug"] { color: #a78bfa; }
+  .tool-btn[data-type="chemo"] { color: #ffd93d; }
+  .tool-btn .shortcut { margin-left: auto; font-size: 9px; color: #556; background: #1e3050; padding: 1px 3px; border-radius: 3px; }
+  .tool-btn .badge { margin-left: auto; font-size: 8px; color: #ffd93d; }
+
+  /* ========== 画布区 ========== */
+  .canvas-wrap {
+    position: relative; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    flex: 1; min-width: 260px; max-width: 800px; margin: 0 auto;
+  }
+  canvas#mainCanvas { display: block; width: 100%; height: auto; cursor: crosshair; background: #d0d0d0; touch-action: none; }
+  canvas#heatmapCanvas { display: block; width: 100%; height: auto; position: absolute; top: 0; left: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+  canvas#heatmapCanvas.visible { opacity: 0.4; }
+
+  /* ========== FPS面板 ========== */
+  .fps-panel {
+    position: absolute; top: 6px; right: 6px;
+    background: rgba(20,20,40,0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    padding: 5px 9px; border-radius: 5px; font-size: 10px; color: #4ecdc4;
+    pointer-events: none; border: 1px solid rgba(255,255,255,0.06); z-index: 6;
+    font-family: 'Courier New', monospace; line-height: 1.5;
+  }
+  .fps-panel .fps-value { font-weight: bold; font-size: 11px; }
+  .fps-panel .fps-warn { color: #f6d365; }
+  .fps-panel .fps-bad { color: #ff6b6b; }
+
+  /* ========== 统计面板 ========== */
+  .stats-panel {
+    position: absolute; top: 6px; left: 6px;
+    background: rgba(20,20,40,0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    padding: 5px 9px; border-radius: 5px; font-size: clamp(9px, 2.2vw, 11px);
+    line-height: 1.6; pointer-events: none; border: 1px solid rgba(255,255,255,0.06); z-index: 5;
+  }
+  .stats-total { color: #fff; font-weight: bold; font-size: clamp(10px, 2.5vw, 12px); }
+  .stats-row { display: flex; align-items: center; gap: 3px; }
+  .stats-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+
+  /* ========== Tooltip ========== */
+  .tooltip {
+    position: absolute; pointer-events: none; z-index: 10;
+    background: rgba(15,15,35,0.92); color: #fff;
+    padding: 4px 8px; border-radius: 4px; font-size: 10px;
+    white-space: nowrap; display: none; border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ========== 参数面板 ========== */
+  .params-panel {
+    display: flex; flex-direction: column; gap: 7px;
+    background: #121e36; padding: 10px; border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    width: 200px; flex-shrink: 0; max-height: 600px; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .params-panel::-webkit-scrollbar { width: 3px; }
+  .params-panel::-webkit-scrollbar-thumb { background: #1e3050; border-radius: 2px; }
+
+  .param-group { display: flex; flex-direction: column; gap: 1px; }
+  .param-label { font-size: 10px; color: #99aabb; display: flex; justify-content: space-between; align-items: center; }
+  .param-value { font-size: 9.5px; color: #4ecdc4; font-family: 'Courier New', monospace; font-weight: bold; }
+  .param-slider {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 5px;
+    border-radius: 3px; background: #1e3050; outline: none; margin-top: 2px;
+  }
+  .param-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #4ecdc4; cursor: pointer; box-shadow: 0 0 4px rgba(78,205,196,0.3); }
+  .param-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #4ecdc4; cursor: pointer; border: none; }
+  .param-select { background: #182a48; color: #ccd; border: 1px solid #1e3050; border-radius: 4px; padding: 3px 6px; font-size: 10px; outline: none; }
+  .param-checkbox { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #99aabb; cursor: pointer; }
+  .param-checkbox input { accent-color: #4ecdc4; }
+  .params-info { font-size: 9.5px; color: #556677; line-height: 1.5; }
+
+  /* ========== 按钮 ========== */
+  .btn {
+    padding: 6px 10px; border: none; border-radius: 6px;
+    font-size: clamp(10px, 2.5vw, 11.5px); cursor: pointer;
+    transition: all 0.2s; font-weight: 500; text-align: center;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: linear-gradient(135deg, #5b6abf, #6a4b9a); color: #fff; box-shadow: 0 2px 6px rgba(91,106,191,0.3); }
+  .btn-primary:hover { transform: scale(1.02); }
+  .btn-success { background: linear-gradient(135deg, #0e8a80, #2ecd6e); color: #fff; box-shadow: 0 2px 6px rgba(14,138,128,0.3); }
+  .btn-success:hover { transform: scale(1.02); }
+  .btn-warning { background: linear-gradient(135deg, #d68320, #e6c050); color: #333; box-shadow: 0 2px 6px rgba(214,131,32,0.3); }
+  .btn-warning:hover { transform: scale(1.02); }
+  .btn-danger { background: #2a1a2a; color: #e88; border: 1px solid #533; }
+  .btn-danger:hover { background: #3a2a3a; }
+  .btn-info { background: linear-gradient(135deg, #20a0d6, #4ecdc4); color: #fff; box-shadow: 0 2px 6px rgba(32,160,214,0.3); }
+  .btn-info:hover { transform: scale(1.02); }
+
+  .toolbar .btn { width: 100%; justify-content: center; }
+  .control-row { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+  .control-row .btn { flex: 1; min-width: 70px; font-size: 10px; padding: 5px 6px; }
+
+  /* ========== 曲线图 ========== */
+  .chart-section {
+    margin-top: 10px; background: #121e36; border-radius: 10px;
+    padding: 10px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    width: 100%; overflow: hidden;
+  }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
+  .chart-title { font-size: clamp(11px, 2.8vw, 13px); color: #ccd; font-weight: 600; }
+  .chart-stats { display: flex; gap: clamp(5px, 1.5vw, 12px); font-size: clamp(9px, 2.2vw, 10.5px); flex-wrap: wrap; }
+  .chart-stat-item { display: flex; align-items: center; gap: 3px; }
+  .chart-stat-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .growth-rate-label { font-size: clamp(9px, 2.2vw, 11px); color: #f6d365; font-weight: bold; font-family: 'Courier New', monospace; }
+  .phase-label { font-size: clamp(8px, 2vw, 10px); padding: 1px 6px; border-radius: 8px; font-weight: bold; white-space: nowrap; }
+  .phase-lag { background: #555; color: #fff; }
+  .phase-exp { background: #00a884; color: #fff; }
+  .phase-stable { background: #e6c050; color: #333; }
+  .phase-death { background: #d66040; color: #fff; }
+
+  .chart-canvas-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  canvas#chartCanvas { display: block; width: 100%; max-width: 1100px; height: auto; border-radius: 5px; background: #0a1525; }
+
+  /* ========== 汇总视图 ========== */
+  .summary-section {
+    margin-top: 10px; background: #121e36; border-radius: 10px;
+    padding: 10px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: none;
+  }
+  .summary-section.visible { display: block; }
+  .summary-grid { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .summary-canvas-wrap { flex: 1; min-width: 280px; }
+  .summary-stats { min-width: 180px; font-size: 10.5px; color: #99aabb; line-height: 2; }
+  .summary-stats .stat-highlight { color: #4ecdc4; font-weight: bold; }
+  .summary-stats .stat-warn { color: #f6d365; font-weight: bold; }
+
+  /* ========== 剂量响应视图 ========== */
+  .dose-section {
+    margin-top: 10px; background: #121e36; border-radius: 10px;
+    padding: 10px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: none;
+  }
+  .dose-section.visible { display: block; }
+  canvas#doseCanvas { display: block; width: 100%; max-width: 1100px; height: auto; border-radius: 5px; background: #0a1525; }
+
+  /* ========== 时间-杀伤视图 ========== */
+  .timekill-section {
+    margin-top: 10px; background: #121e36; border-radius: 10px;
+    padding: 10px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: none;
+  }
+  .timekill-section.visible { display: block; }
+  canvas#timeKillCanvas { display: block; width: 100%; max-width: 1100px; height: auto; border-radius: 5px; background: #0a1525; }
+
+  /* ========== 自动运行遮罩 ========== */
+  .auto-overlay {
+    display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,10,30,0.7); z-index: 20;
+    align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+    border-radius: 10px; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  }
+  .auto-overlay.active { display: flex; }
+  .auto-overlay .spinner {
+    width: clamp(28px, 6vw, 36px); height: clamp(28px, 6vw, 36px);
+    border: 3px solid rgba(255,255,255,0.2); border-top-color: #4ecdc4;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .auto-overlay .auto-text { font-size: clamp(11px, 2.8vw, 13px); color: #4ecdc4; font-weight: 600; text-align: center; padding: 0 10px; }
+  .auto-overlay .auto-progress { width: clamp(140px, 45vw, 200px); height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+  .auto-overlay .auto-progress-bar { height: 100%; background: #4ecdc4; border-radius: 2px; transition: width 0.1s; }
+
+  /* ========== 图例 ========== */
+  .legend { display: flex; gap: clamp(6px, 2.5vw, 14px); font-size: clamp(8px, 2vw, 10px); color: #778; margin-top: 6px; flex-wrap: wrap; justify-content: center; }
+  .legend-item { display: flex; align-items: center; gap: 3px; }
+  .legend-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ========== 模态弹窗 ========== */
+  .modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.65); z-index: 100;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: #16213e; border-radius: 12px;
+    padding: clamp(16px, 4vw, 24px) clamp(18px, 5vw, 32px);
+    text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.08); max-width: 420px; width: 100%;
+  }
+  .modal-box h2 { font-size: clamp(15px, 3.5vw, 18px); color: #4ecdc4; margin-bottom: 8px; }
+  .modal-box p { font-size: clamp(11px, 2.8vw, 12.5px); color: #99aabb; margin-bottom: 12px; line-height: 1.6; }
+  .modal-box .btn { font-size: clamp(11px, 2.8vw, 13px); padding: 8px 18px; }
+
+  /* ========== 参数面板折叠 ========== */
+  .params-toggle { display: none; width: 100%; padding: 7px; background: #182a48; color: #4ecdc4; border: 1px solid #1e3050; border-radius: 6px; font-size: 11px; cursor: pointer; text-align: center; margin-bottom: 5px; -webkit-tap-highlight-color: transparent; }
+
+  /* ========== 响应式 ========== */
+  @media (max-width: 1024px) {
+    .top-row { gap: 8px; }
+    .toolbar { min-width: 110px; padding: 8px; }
+    .params-panel { width: 175px; padding: 8px; }
+  }
+  @media (max-width: 820px) {
+    .top-row { flex-direction: column; align-items: stretch; }
+    .toolbar { flex-direction: row; flex-wrap: wrap; min-width: unset; width: 100%; gap: 4px; }
+    .toolbar .panel-title { width: 100%; }
+    .tool-btn { flex: 1; min-width: 70px; justify-content: center; padding: 5px 6px; }
+    .tool-btn .shortcut { display: none; }
+    .params-toggle { display: block; }
+    .params-panel { width: 100%; max-height: 0; padding: 0 10px; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; gap: 0; }
+    .params-panel.open { max-height: 500px; padding: 10px; overflow-y: auto; gap: 7px; }
+    .params-panel.open .param-group, .params-panel.open .panel-title, .params-panel.open .params-info, .params-panel.open .param-checkbox, .params-panel.open .param-select { opacity: 1; }
+    .params-panel .param-group, .params-panel .panel-title, .params-panel .params-info, .params-panel .param-checkbox, .params-panel .param-select { opacity: 0; transition: opacity 0.3s; }
+    .canvas-wrap { order: -1; max-width: 100%; }
+  }
+  @media (max-width: 480px) {
+    body { padding: 5px 7px; }
+    h1 { font-size: 14px; }
+    .tool-btn { min-width: 60px; font-size: 9.5px; padding: 4px 5px; gap: 3px; }
+    .tool-dot { width: 8px; height: 8px; }
+    .stats-panel { padding: 3px 6px; font-size: 8.5px; }
+    .fps-panel { padding: 3px 6px; font-size: 9px; }
+    .param-slider::-webkit-slider-thumb { width: 18px; height: 18px; }
+    .param-slider::-moz-range-thumb { width: 18px; height: 18px; }
+    .control-row .btn { font-size: 9.5px; padding: 4px 5px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    body { padding: 3px 7px; }
+    .header { margin-bottom: 3px; }
+    h1 { font-size: 13px; }
+    .top-row { margin-bottom: 4px; }
+    .toolbar { padding: 5px; gap: 2px; }
+    .tool-btn { padding: 3px 6px; font-size: 9.5px; }
+    .chart-section, .summary-section, .dose-section, .timekill-section { margin-top: 4px; padding: 6px 10px; }
+  }
+  @media (min-width: 1400px) {
+    body { max-width: 1400px; margin: 0 auto; }
+  }
+  @media print {
+    .toolbar, .params-panel, .btn, .params-toggle { display: none !important; }
+    body { background: #fff; color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🧪 肿瘤生长动力学实验工具 v2</h1>
+  <div class="subtitle">Tumor Growth Dynamics · 空间哈希 · 趋化因子 · 营养梯度 · 剂量响应 · 批量统计</div>
+</div>
+
+<div class="top-row">
+  <!-- 左侧工具栏 -->
+  <div class="toolbar">
+    <div class="panel-title">🔬 细胞工具</div>
+    <div class="tool-btn active" data-type="proliferate">
+      <div class="tool-dot" style="background:#ff6b6b"></div><span>增殖</span><span class="shortcut">P</span>
+    </div>
+    <div class="tool-btn" data-type="migrate">
+      <div class="tool-dot" style="background:#4ea8ff"></div><span>迁移</span><span class="shortcut">M</span>
+    </div>
+    <div class="tool-btn" data-type="apoptose">
+      <div class="tool-dot" style="background:#51cf66"></div><span>凋亡</span><span class="shortcut">A</span>
+    </div>
+    <div class="tool-btn" data-type="drug">
+      <div class="tool-dot" style="background:#a78bfa"></div><span>药物</span><span class="shortcut">D</span>
+    </div>
+
+    <div class="panel-title" style="margin-top:4px;">🧭 趋化工具 <span class="help">(C放置/拖拽)</span></div>
+    <div class="tool-btn" data-type="chemo">
+      <div class="tool-dot" style="background:#ffd93d"></div><span>趋化源</span><span class="shortcut">C</span>
+    </div>
+
+    <div class="panel-title" style="margin-top:4px;">⚙️ 实验控制</div>
+    <button class="btn btn-success" id="autoRunBtn">▶ 自动运行</button>
+    <button class="btn btn-warning" id="pauseBtn">⏸ 暂停</button>
+    <button class="btn btn-danger" id="clearBtn">🗑 清空</button>
+    <div class="control-row">
+      <button class="btn btn-primary" id="exportZipBtn">📦 ZIP</button>
+      <button class="btn btn-info" id="exportChartBtn">📊 图表</button>
+    </div>
+
+    <div class="panel-title" style="margin-top:4px;">🧪 批量实验</div>
+    <button class="btn btn-primary" id="batchRunBtn">▶ 运行批量</button>
+    <div class="control-row">
+      <button class="btn btn-info" id="doseRespBtn">💊 剂量响应</button>
+      <button class="btn btn-info" id="timeKillBtn">⏱ 时间杀伤</button>
+    </div>
+  </div>
+
+  <!-- 中间画布 -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="mainCanvas" width="800" height="600"></canvas>
+    <canvas id="heatmapCanvas" width="800" height="600"></canvas>
+
+    <div class="auto-overlay" id="autoOverlay">
+      <div class="spinner"></div>
+      <div class="auto-text" id="autoText">自动运行中...</div>
+      <div class="auto-progress"><div class="auto-progress-bar" id="autoProgressBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="stats-panel" id="statsPanel">
+      <div class="stats-total">总数: <span id="statTotal">0</span></div>
+      <div class="stats-row"><span class="stats-dot" style="background:#ff6b6b"></span>增殖: <span id="statProliferate">0</span></div>
+      <div class="stats-row"><span class="stats-dot" style="background:#4ea8ff"></span>迁移: <span id="statMigrate">0</span></div>
+      <div class="stats-row"><span class="stats-dot" style="background:#51cf66"></span>凋亡: <span id="statApoptose">0</span></div>
+    </div>
+
+    <div class="fps-panel" id="fpsPanel">
+      <span class="fps-value" id="fpsValue">60</span> FPS<br>
+      Cells: <span id="fpsCells">0</span><br>
+      <span id="fpsSpeed">1.0x</span>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <!-- 右侧参数面板 -->
+  <button class="params-toggle" id="paramsToggle">🎛 参数面板 (点击展开/折叠)</button>
+  <div class="params-panel" id="paramsPanel">
+    <div class="panel-title">🎚 细胞参数</div>
+    <div class="param-group">
+      <div class="param-label">增殖概率 <span class="param-value" id="valProb">1/200</span></div>
+      <input type="range" class="param-slider" id="sliderProb" min="50" max="500" step="10" value="200" dir="rtl">
+    </div>
+    <div class="param-group">
+      <div class="param-label">迁移倍率 <span class="param-value" id="valMigrate">1.0</span></div>
+      <input type="range" class="param-slider" id="sliderMigrate" min="0.1" max="3.0" step="0.1" value="1.0">
+    </div>
+    <div class="param-group">
+      <div class="param-label">凋亡速率 <span class="param-value" id="valApop">0.020</span></div>
+      <input type="range" class="param-slider" id="sliderApop" min="0.005" max="0.05" step="0.001" value="0.02">
+    </div>
+    <div class="param-group">
+      <div class="param-label">排斥系数 <span class="param-value" id="valRepel">0.08</span></div>
+      <input type="range" class="param-slider" id="sliderRepel" min="0.02" max="0.2" step="0.01" value="0.08">
+    </div>
+
+    <div class="panel-title" style="margin-top:4px;">🧪 药物设置</div>
+    <div class="param-group">
+      <div class="param-label">药物浓度(μM) <span class="param-value" id="valDrug">0</span></div>
+      <input type="range" class="param-slider" id="sliderDrug" min="0" max="100" step="1" value="0">
+    </div>
+    <div class="param-group">
+      <div class="param-label">作用模式</div>
+      <select class="param-select" id="drugMode">
+        <option value="none">无药物</option>
+        <option value="cycle">细胞周期阻滞</option>
+        <option value="toxic">细胞毒性</option>
+        <option value="combo" selected>联合作用</option>
+      </select>
+    </div>
+    <div class="param-group">
+      <div class="param-label">杀伤帧数 <span class="param-value" id="valKillFrames">3000</span></div>
+      <input type="range" class="param-slider" id="sliderKillFrames" min="500" max="10000" step="500" value="3000">
+    </div>
+
+    <div class="panel-title" style="margin-top:4px;">📋 实验设置</div>
+    <div class="param-group">
+      <div class="param-label">重复次数</div>
+      <select class="param-select" id="repeatCount">
+        <option value="1">1次</option>
+        <option value="3">3次</option>
+        <option value="5" selected>5次</option>
+        <option value="10">10次</option>
+      </select>
+    </div>
+    <div class="param-group">
+      <div class="param-label">每轮帧数 <span class="param-value" id="valRunFrames">3000</span></div>
+      <input type="range" class="param-slider" id="sliderRunFrames" min="500" max="10000" step="500" value="3000">
+    </div>
+    <label class="param-checkbox"><input type="checkbox" id="fixedSeed" checked> 固定随机种子</label>
+
+    <div class="panel-title" style="margin-top:4px;">👁 显示选项</div>
+    <label class="param-checkbox"><input type="checkbox" id="showHeatmap"> 显示营养热力图</label>
+    <label class="param-checkbox"><input type="checkbox" id="showTrails" checked> 显示迁移尾迹</label>
+    <label class="param-checkbox"><input type="checkbox" id="enableSpatialHash" checked> 空间哈希加速</label>
+    <label class="param-checkbox"><input type="checkbox" id="adaptiveFps" checked> 帧率自适应</label>
+
+    <div class="panel-title" style="margin-top:4px;">ℹ️ 说明</div>
+    <div class="params-info">
+      趋化源(C)：放置后拖拽移动，迁移细胞向其移动。<br>
+      营养源：画布边缘自动生成，影响增殖/凋亡。<br>
+      药物：浓度越高效果越强，联合=阻滞+毒性。<br>
+      批量实验：多次独立运行+统计汇总。<br>
+      剂量响应：自动扫描6个浓度点。
+    </div>
+  </div>
+</div>
+
+<!-- 主曲线图 -->
+<div class="chart-section">
+  <div class="chart-header">
+    <div class="chart-title">📈 细胞群体动力学曲线</div>
+    <div class="chart-stats">
+      <div class="chart-stat-item"><div class="chart-stat-dot" style="background:#ff6b6b"></div>增殖(<span id="curveP">0</span>)</div>
+      <div class="chart-stat-item"><div class="chart-stat-dot" style="background:#4ea8ff"></div>迁移(<span id="curveM">0</span>)</div>
+      <div class="chart-stat-item"><div class="chart-stat-dot" style="background:#51cf66"></div>凋亡(<span id="curveA">0</span>)</div>
+      <div class="chart-stat-item" style="border-left:1px solid #1e3050;padding-left:8px;"><span style="color:#889">速率:</span><span class="growth-rate-label" id="growthRate">0/min</span></div>
+      <div class="chart-stat-item"><span class="phase-label phase-lag" id="phaseLabel">等待数据</span></div>
+    </div>
+  </div>
+  <div class="chart-canvas-wrap">
+    <canvas id="chartCanvas" width="1100" height="260"></canvas>
+  </div>
+</div>
+
+<!-- 汇总统计视图 -->
+<div class="summary-section" id="summarySection">
+  <div class="chart-header">
+    <div class="chart-title">📊 批量实验汇总 (均值±SD)</div>
+    <div class="chart-stats" id="summaryStatsTop"></div>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-canvas-wrap">
+      <canvas id="summaryCanvas" width="1100" height="240" style="width:100%;max-width:1100px;height:auto;border-radius:5px;background:#0a1525;display:block;"></canvas>
+    </div>
+    <div class="summary-stats" id="summaryStatsDetail"></div>
+  </div>
+</div>
+
+<!-- 剂量响应曲线 -->
+<div class="dose-section" id="doseSection">
+  <div class="chart-header">
+    <div class="chart-title">💊 剂量-响应曲线 (四参数Logistic拟合)</div>
+    <div class="chart-stats" id="doseStatsTop"></div>
+  </div>
+  <canvas id="doseCanvas" width="1100" height="240"></canvas>
+</div>
+
+<!-- 时间-杀伤曲线 -->
+<div class="timekill-section" id="timeKillSection">
+  <div class="chart-header">
+    <div class="chart-title">⏱ 时间-杀伤曲线 (固定浓度)</div>
+    <div class="chart-stats" id="tkStatsTop"></div>
+  </div>
+  <canvas id="timeKillCanvas" width="1100" height="240"></canvas>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b;box-shadow:0 0 3px #ff6b6b"></div>增殖</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4ea8ff;box-shadow:0 0 3px #4ea8ff"></div>迁移</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#51cf66;box-shadow:0 0 3px #51cf66"></div>凋亡</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;box-shadow:0 0 3px #a78bfa"></div>药物</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffd93d;box-shadow:0 0 3px #ffd93d"></div>趋化源</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff6b35;box-shadow:0 0 3px #ff6b35"></div>营养源</div>
+</div>
+
+<!-- 完成弹窗 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h2 id="modalTitle">✅ 实验完成！</h2>
+    <p id="modalText">数据已自动导出。</p>
+    <button class="btn btn-primary" id="modalClose">确定</button>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//  全局配置
+// ================================================================
+const W = 800, H = 600;
+const RADIUS = 8;
+const GRID_SIZE = 40; // 空间哈希网格
+const COLS = Math.ceil(W / GRID_SIZE); // 20
+const ROWS = Math.ceil(H / GRID_SIZE); // 15
+const CHART_W = 1100, CHART_H = 260;
+const SAMPLE_INTERVAL = 60;
+const AUTO_RUN_FRAMES = 3000;
+
+const CELL_TYPES = {
+  proliferate: { color: '#ff6b6b', label: '增殖细胞' },
+  migrate:     { color: '#4ea8ff', label: '迁移细胞' },
+  apoptose:    { color: '#51cf66', label: '凋亡细胞' },
+  drug:        { color: '#a78bfa', label: '药物橡皮擦' },
+  chemo:       { color: '#ffd93d', label: '趋化因子源' },
+};
+
+// ================================================================
+//  全局状态
+// ================================================================
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const heatmapCanvas = document.getElementById('heatmapCanvas');
+const heatmapCtx = heatmapCanvas.getContext('2d');
+const chartCanvas = document.getElementById('chartCanvas');
+const chartCtx = chartCanvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+
+// 细胞数据（TypedArray存储核心数据）
+let maxCells = 5000;
+let cellCount = 0;
+let cellX, cellY, cellVX, cellVY, cellR, cellType, cellShrinkTimer, cellIsShrunk, cellAgeApop, cellTrailX, cellTrailY;
+
+function allocCellArrays(n) {
+  cellX = new Float32Array(n);
+  cellY = new Float32Array(n);
+  cellVX = new Float32Array(n);
+  cellVY = new Float32Array(n);
+  cellR = new Float32Array(n);
+  cellType = new Uint8Array(n);  // 0=proliferate,1=migrate,2=apoptose
+  cellShrinkTimer = new Uint16Array(n);
+  cellIsShrunk = new Uint8Array(n);
+  cellAgeApop = new Uint16Array(n);
+  cellTrailX = new Float32Array(n * 10); // 最近10帧x
+  cellTrailY = new Float32Array(n * 10);
+}
+allocCellArrays(maxCells);
+
+// 类型映射
+const TYPE_MAP = { proliferate: 0, migrate: 1, apoptose: 2 };
+const TYPE_NAME = ['proliferate', 'migrate', 'apoptose'];
+
+// 空间哈希
+let gridBuckets = []; // 每个网格存细胞索引数组
+let gridDirty = true;
+
+// 趋化因子源
+let chemoSources = []; // {x, y, strength, maxStrength}
+let draggingChemo = -1;
+
+// 营养源
+let nutrientSources = []; // {x, y, strength, radius}
+
+// 实验状态
+let currentTool = 'proliferate';
+let mouseX = W/2, mouseY = H/2;
+let isDrawing = false;
+let hoveredCell = -1;
+let frameCount = 0;
+let isPaused = false;
+let isAutoRunning = false;
+let simSpeed = 1;
+let autoRunTarget = AUTO_RUN_FRAMES;
+
+// 参数
+let params = {
+  prolifProb: 1/200,
+  migrateMult: 1.0,
+  apopRate: 0.02,
+  repelCoeff: 0.08,
+  drugConc: 0,
+  drugMode: 'combo',
+  linkDist: 50,
+};
+
+// 时间序列
+let timeSeriesData = [];
+let allRunData = []; // 批量实验
+let doseResponseData = []; // 剂量响应
+let timeKillData = []; // 时间杀伤
+
+// 性能监控
+let frameTimes = [];
+let lastFrameTime = performance.now();
+let currentFPS = 60;
+let adaptiveSpeed = 1.0;
+
+// 热力图
+let heatmapDirty = true;
+let heatmapFrameCounter = 0;
+
+// UI选项
+let showHeatmap = false;
+let showTrails = true;
+let enableSpatialHash = true;
+let adaptiveFps = true;
+
+// ================================================================
+//  初始化
+// ================================================================
+function initNutrientSources() {
+  nutrientSources = [];
+  const count = 2 + Math.floor(Math.random() * 2); // 2-3个
+  const positions = [
+    {x: 30, y: 30}, {x: W-30, y: 30}, {x: 30, y: H-30}, {x: W-30, y: H-30}
+  ];
+  for (let i = 0; i < count; i++) {
+    const idx = Math.floor(Math.random() * positions.length);
+    const p = positions.splice(idx, 1)[0];
+    nutrientSources.push({ x: p.x, y: p.y, strength: 100, radius: 200 });
+  }
+}
+
+function initCells() {
+  cellCount = 0;
+  // 中心增殖细胞群
+  for (let i = 0; i < 20; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.random() * 40;
+    addCell(W/2 + Math.cos(angle)*dist, H/2 + Math.sin(angle)*dist, 0);
+  }
+  // 外围迁移细胞
+  for (let i = 0; i < 6; i++) {
+    addCell(100 + Math.random()*600, 80 + Math.random()*440, 1);
+  }
+}
+
+function addCell(x, y, typeIdx) {
+  if (cellCount >= maxCells) return -1;
+  const idx = cellCount++;
+  cellX[idx] = x;
+  cellY[idx] = y;
+  cellVX[idx] = (Math.random() - 0.5) * 1.0;
+  cellVY[idx] = (Math.random() - 0.5) * 1.0;
+  cellR[idx] = RADIUS;
+  cellType[idx] = typeIdx;
+  cellShrinkTimer[idx] = 0;
+  cellIsShrunk[idx] = 0;
+  cellAgeApop[idx] = 0;
+  for (let t = 0; t < 10; t++) {
+    cellTrailX[idx*10 + t] = x;
+    cellTrailY[idx*10 + t] = y;
+  }
+  gridDirty = true;
+  return idx;
+}
+
+function removeCell(idx) {
+  if (idx >= cellCount) return;
+  const last = cellCount - 1;
+  if (idx !== last) {
+    cellX[idx] = cellX[last];
+    cellY[idx] = cellY[last];
+    cellVX[idx] = cellVX[last];
+    cellVY[idx] = cellVY[last];
+    cellR[idx] = cellR[last];
+    cellType[idx] = cellType[last];
+    cellShrinkTimer[idx] = cellShrinkTimer[last];
+    cellIsShrunk[idx] = cellIsShrunk[last];
+    cellAgeApop[idx] = cellAgeApop[last];
+    for (let t = 0; t < 10; t++) {
+      cellTrailX[idx*10+t] = cellTrailX[last*10+t];
+      cellTrailY[idx*10+t] = cellTrailY[last*10+t];
+    }
+  }
+  cellCount--;
+  gridDirty = true;
+}
+
+// ================================================================
+//  空间哈希网格
+// ================================================================
+function rebuildGrid() {
+  gridBuckets = new Array(COLS * ROWS);
+  for (let i = 0; i < COLS * ROWS; i++) gridBuckets[i] = [];
+  for (let i = 0; i < cellCount; i++) {
+    const gx = Math.min(COLS-1, Math.max(0, Math.floor(cellX[i] / GRID_SIZE)));
+    const gy = Math.min(ROWS-1, Math.max(0, Math.floor(cellY[i] / GRID_SIZE)));
+    gridBuckets[gy * COLS + gx].push(i);
+  }
+  gridDirty = false;
+}
+
+function getNearbyCells(gx, gy) {
+  const result = [];
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = gx + dx, ny = gy + dy;
+      if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+        const bucket = gridBuckets[ny * COLS + nx];
+        for (let k = 0; k < bucket.length; k++) result.push(bucket[k]);
+      }
+    }
+  }
+  return result;
+}
+
+// ================================================================
+//  营养浓度计算
+// ================================================================
+function getNutrientAt(x, y) {
+  let total = 0;
+  for (let i = 0; i < nutrientSources.length; i++) {
+    const ns = nutrientSources[i];
+    const dx = x - ns.x, dy = y - ns.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < ns.radius) {
+      total += ns.strength * (1 - dist / ns.radius);
+    }
+  }
+  return Math.min(100, total);
+}
+
+// ================================================================
+//  热力图渲染（离屏Canvas）
+// ================================================================
+function renderHeatmap() {
+  if (!showHeatmap) { heatmapCanvas.classList.remove('visible'); return; }
+  heatmapCanvas.classList.add('visible');
+
+  const hctx = heatmapCtx;
+  hctx.clearRect(0, 0, W, H);
+
+  // 低分辨率渲染后放大
+  const scale = 8;
+  const lw = Math.ceil(W/scale), lh = Math.ceil(H/scale);
+  const imgData = hctx.createImageData(lw, lh);
+
+  for (let py = 0; py < lh; py++) {
+    for (let px = 0; px < lw; px++) {
+      const x = px * scale + scale/2;
+      const y = py * scale + scale/2;
+      const nut = getNutrientAt(x, y);
+      const idx = (py * lw + px) * 4;
+      // 红=高营养, 蓝=低营养
+      const t = nut / 100;
+      imgData.data[idx]   = Math.round(255 * t + 30 * (1-t));   // R
+      imgData.data[idx+1] = Math.round(60 * t + 60 * (1-t));    // G
+      imgData.data[idx+2] = Math.round(30 * t + 200 * (1-t));   // B
+      imgData.data[idx+3] = 255;
+    }
+  }
+
+  // 用临时canvas绘制低分辨率再放大
+  const tmpCv = document.createElement('canvas');
+  tmpCv.width = lw; tmpCv.height = lh;
+  tmpCv.getContext('2d').putImageData(imgData, 0, 0);
+  hctx.imageSmoothingEnabled = true;
+  hctx.drawImage(tmpCv, 0, 0, W, H);
+}
+
+// ================================================================
+//  参数面板绑定
+// ================================================================
+const $ = id => document.getElementById(id);
+
+$('sliderProb').addEventListener('input', () => {
+  params.prolifProb = 1 / parseInt($('sliderProb').value);
+  $('valProb').textContent = '1/' + $('sliderProb').value;
+});
+$('sliderMigrate').addEventListener('input', () => {
+  params.migrateMult = parseFloat($('sliderMigrate').value);
+  $('valMigrate').textContent = params.migrateMult.toFixed(1);
+});
+$('sliderApop').addEventListener('input', () => {
+  params.apopRate = parseFloat($('sliderApop').value);
+  $('valApop').textContent = params.apopRate.toFixed(3);
+});
+$('sliderRepel').addEventListener('input', () => {
+  params.repelCoeff = parseFloat($('sliderRepel').value);
+  $('valRepel').textContent = params.repelCoeff.toFixed(2);
+});
+$('sliderDrug').addEventListener('input', () => {
+  params.drugConc = parseInt($('sliderDrug').value);
+  $('valDrug').textContent = params.drugConc;
+});
+$('drugMode').addEventListener('change', () => {
+  params.drugMode = $('drugMode').value;
+});
+$('sliderKillFrames').addEventListener('input', () => {
+  $('valKillFrames').textContent = $('sliderKillFrames').value;
+});
+$('sliderRunFrames').addEventListener('input', () => {
+  $('valRunFrames').textContent = $('sliderRunFrames').value;
+});
+
+$('showHeatmap').addEventListener('change', () => {
+  showHeatmap = $('showHeatmap').checked;
+  heatmapDirty = true;
+});
+$('showTrails').addEventListener('change', () => {
+  showTrails = $('showTrails').checked;
+});
+$('enableSpatialHash').addEventListener('change', () => {
+  enableSpatialHash = $('enableSpatialHash').checked;
+});
+$('adaptiveFps').addEventListener('change', () => {
+  adaptiveFps = $('adaptiveFps').checked;
+});
+
+// ================================================================
+//  工具栏
+// ================================================================
+document.querySelectorAll('.tool-btn[data-type]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (isAutoRunning) return;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTool = btn.dataset.type;
+    canvas.style.cursor = (currentTool === 'drug') ? 'cell' : 'crosshair';
+  });
+});
+
+if (window.matchMedia('(hover: hover)').matches) {
+  document.addEventListener('keydown', e => {
+    if (isAutoRunning) return;
+    const map = { p:'proliferate', m:'migrate', a:'apoptose', d:'drug', c:'chemo' };
+    const t = map[e.key.toLowerCase()];
+    if (t) document.querySelector(`.tool-btn[data-type="${t}"]`).click();
+    if (e.key === ' ') { e.preventDefault(); togglePause(); }
+  });
+}
+
+// 参数面板折叠
+$('paramsToggle').addEventListener('click', () => {
+  $('paramsPanel').classList.toggle('open');
+  $('paramsToggle').textContent = $('paramsPanel').classList.contains('open')
+    ? '🎛 参数面板 (点击折叠)' : '🎛 参数面板 (点击展开)';
+});
+
+// ================================================================
+//  坐标获取
+// ================================================================
+function getEventPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  let cx, cy;
+  if (e.touches && e.touches.length > 0) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+  else { cx = e.clientX; cy = e.clientY; }
+  return { x: (cx - rect.left) * (W/rect.width), y: (cy - rect.top) * (H/rect.height), cx, cy };
+}
+
+// ================================================================
+//  鼠标/触摸事件
+// ================================================================
+canvas.addEventListener('mousemove', e => {
+  const p = getEventPos(e);
+  mouseX = p.x; mouseY = p.y;
+  if (isDrawing && !isAutoRunning) handleDraw(p.x, p.y);
+  updateTooltip(p, e);
+  // 拖拽趋化源
+  if (draggingChemo >= 0) {
+    chemoSources[draggingChemo].x = p.x;
+    chemoSources[draggingChemo].y = p.y;
+  }
+});
+canvas.addEventListener('mousedown', e => {
+  if (isAutoRunning) return;
+  const p = getEventPos(e);
+  // 检查是否点击了趋化源
+  for (let i = 0; i < chemoSources.length; i++) {
+    const cs = chemoSources[i];
+    const dx = cs.x - p.x, dy = cs.y - p.y;
+    if (dx*dx + dy*dy < 225) { draggingChemo = i; return; }
+  }
+  isDrawing = true;
+  handleDraw(p.x, p.y);
+});
+canvas.addEventListener('mouseup', () => { isDrawing = false; draggingChemo = -1; });
+canvas.addEventListener('mouseleave', () => { isDrawing = false; tooltip.style.display='none'; draggingChemo = -1; });
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (isAutoRunning) return;
+  isDrawing = true;
+  const p = getEventPos(e);
+  mouseX = p.x; mouseY = p.y;
+  for (let i = 0; i < chemoSources.length; i++) {
+    const cs = chemoSources[i];
+    const dx = cs.x - p.x, dy = cs.y - p.y;
+    if (dx*dx + dy*dy < 400) { draggingChemo = i; return; }
+  }
+  handleDraw(p.x, p.y);
+}, {passive:false});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const p = getEventPos(e);
+  mouseX = p.x; mouseY = p.y;
+  if (isDrawing && !isAutoRunning) handleDraw(p.x, p.y);
+  updateTooltip(p, e);
+  if (draggingChemo >= 0) { chemoSources[draggingChemo].x = p.x; chemoSources[draggingChemo].y = p.y; }
+}, {passive:false});
+canvas.addEventListener('touchend', e => { e.preventDefault(); isDrawing = false; draggingChemo = -1; tooltip.style.display='none'; }, {passive:false});
+
+// ================================================================
+//  Tooltip
+// ================================================================
+function updateTooltip(p, e) {
+  hoveredCell = -1;
+  for (let i = 0; i < cellCount; i++) {
+    const dx = cellX[i] - p.x, dy = cellY[i] - p.y;
+    if (dx*dx + dy*dy < cellR[i]*cellR[i]) { hoveredCell = i; break; }
+  }
+  if (hoveredCell >= 0) {
+    tooltip.style.display = 'block';
+    tooltip.style.left = (p.cx + 14) + 'px';
+    tooltip.style.top = (p.cy + 14) + 'px';
+    const tname = TYPE_NAME[cellType[hoveredCell]] || 'unknown';
+    tooltip.textContent = CELL_TYPES[tname].label + ` (r=${cellR[hoveredCell].toFixed(1)})`;
+  } else {
+    tooltip.style.display = 'none';
+  }
+}
+
+// ================================================================
+//  绘制/擦除
+// ================================================================
+function handleDraw(x, y) {
+  if (currentTool === 'drug') {
+    const r20 = 20;
+    for (let i = 0; i < cellCount; i++) {
+      const dx = cellX[i]-x, dy = cellY[i]-y;
+      if (dx*dx+dy*dy < r20*r20) {
+        cellType[i] = 2; // apoptose
+        cellVX[i] = (Math.random()-0.5)*1.5;
+        cellVY[i] = (Math.random()-0.5)*1.5;
+      }
+    }
+  } else if (currentTool === 'chemo') {
+    if (chemoSources.length < 3) {
+      chemoSources.push({ x, y, strength: 100, maxStrength: 100 });
+    } else {
+      // 替换最远的
+      let farthest = 0, fd = 0;
+      for (let i = 0; i < chemoSources.length; i++) {
+        const cs = chemoSources[i];
+        const d = (cs.x-W/2)**2 + (cs.y-H/2)**2;
+        if (d > fd) { fd = d; farthest = i; }
+      }
+      chemoSources[farthest] = { x, y, strength: 100, maxStrength: 100 };
+    }
+  } else {
+    const typeIdx = TYPE_MAP[currentTool] ?? 0;
+    let placed = false, tries = 0;
+    while (!placed && tries < 8) {
+      const nx = x + (Math.random()-0.5)*6;
+      const ny = y + (Math.random()-0.5)*6;
+      let overlap = false;
+      // 只检查附近
+      const gx = Math.floor(nx/GRID_SIZE), gy = Math.floor(ny/GRID_SIZE);
+      if (enableSpatialHash && !gridDirty) {
+        const nearby = getNearbyCells(gx, gy);
+        for (let k = 0; k < nearby.length; k++) {
+          const j = nearby[k];
+          const dx = cellX[j]-nx, dy = cellY[j]-ny;
+          if (dx*dx+dy*dy < (RADIUS*2-2)**2) { overlap = true; break; }
+        }
+      } else {
+        for (let j = 0; j < cellCount; j++) {
+          const dx = cellX[j]-nx, dy = cellY[j]-ny;
+          if (dx*dx+dy*dy < (RADIUS*2-2)**2) { overlap = true; break; }
+        }
+      }
+      if (!overlap && nx>RADIUS && nx<W-RADIUS && ny>RADIUS && ny<H-RADIUS) {
+        addCell(nx, ny, typeIdx);
+        placed = true;
+      }
+      tries++;
+    }
+  }
+}
+
+// ================================================================
+//  药物效果计算
+// ================================================================
+function getDrugProlifMultiplier() {
+  const c = params.drugConc / 100;
+  if (params.drugMode === 'cycle' || params.drugMode === 'combo') {
+    return 1 - c * 0.8;
+  }
+  return 1;
+}
+
+function getDrugApopBonus() {
+  const c = params.drugConc / 100;
+  if (params.drugMode === 'toxic' || params.drugMode === 'combo') {
+    return c * 0.01;
+  }
+  return 0;
+}
+
+// ================================================================
+//  核心更新（每帧）
+// ================================================================
+function updateCells() {
+  frameCount++;
+
+  // 动态调整连线距离
+  const linkDist = cellCount > 2000 ? 30 : params.linkDist;
+  const linkDistSq = linkDist * linkDist;
+
+  // 更新轨迹
+  for (let i = 0; i < cellCount; i++) {
+    // shift trail
+    for (let t = 9; t > 0; t--) {
+      cellTrailX[i*10+t] = cellTrailX[i*10+t-1];
+      cellTrailY[i*10+t] = cellTrailY[i*10+t-1];
+    }
+    cellTrailX[i*10] = cellX[i];
+    cellTrailY[i*10] = cellY[i];
+  }
+
+  // 趋化源自然衰减
+  for (let cs = 0; cs < chemoSources.length; cs++) {
+    chemoSources[cs].strength = Math.max(0, chemoSources[cs].strength - 0.01);
+  }
+
+  // 第一遍：行为更新
+  for (let i = 0; i < cellCount; i++) {
+    const type = cellType[i];
+    const nut = getNutrientAt(cellX[i], cellY[i]);
+    const nutFactor = nut / 100; // 0~1
+
+    // 增殖细胞
+    if (type === 0) {
+      let prob = params.prolifProb * nutFactor * getDrugProlifMultiplier();
+      if (Math.random() < prob) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 10 + Math.random() * 20;
+        let nx = cellX[i] + Math.cos(angle)*dist;
+        let ny = cellY[i] + Math.sin(angle)*dist;
+        nx = Math.max(RADIUS, Math.min(W-RADIUS, nx));
+        ny = Math.max(RADIUS, Math.min(H-RADIUS, ny));
+        // 检查重叠
+        let canPlace = true;
+        const gx = Math.floor(nx/GRID_SIZE), gy = Math.floor(ny/GRID_SIZE);
+        if (enableSpatialHash) {
+          const nearby = getNearbyCells(gx, gy);
+          for (let k = 0; k < nearby.length; k++) {
+            const j = nearby[k];
+            const dx = cellX[j]-nx, dy = cellY[j]-ny;
+            if (dx*dx+dy*dy < (RADIUS*2-3)**2) { canPlace = false; break; }
+          }
+        }
+        if (canPlace && cellCount < maxCells) {
+          const ni = addCell(nx, ny, 0);
+          if (ni >= 0) {
+            cellR[i] = 6;
+            cellIsShrunk[i] = 1;
+            cellShrinkTimer[i] = 0;
+          }
+        }
+      }
+      if (cellIsShrunk[i]) {
+        cellShrinkTimer[i]++;
+        if (cellShrinkTimer[i] >= 300) {
+          cellR[i] = RADIUS;
+          cellIsShrunk[i] = 0;
+        }
+      }
+    }
+
+    // 迁移细胞
+    if (type === 1) {
+      let targetX = mouseX, targetY = mouseY;
+      let foundChemo = false;
+
+      if (chemoSources.length > 0) {
+        // 加权朝向最高浓度趋化源
+        let bestDist = Infinity, bestIdx = -1;
+        for (let cs = 0; cs < chemoSources.length; cs++) {
+          const src = chemoSources[cs];
+          if (src.strength <= 0) continue;
+          const dx = src.x - cellX[i], dy = src.y - cellY[i];
+          const d = Math.sqrt(dx*dx+dy*dy);
+          if (d < 20) {
+            // 驻留：停止并消耗
+            cellVX[i] *= 0.9;
+            cellVY[i] *= 0.9;
+            src.strength = Math.max(0, src.strength - 0.5);
+            foundChemo = true;
+            break;
+          }
+          if (d < bestDist) { bestDist = d; bestIdx = cs; }
+        }
+        if (bestIdx >= 0 && !foundChemo) {
+          const src = chemoSources[bestIdx];
+          targetX = src.x; targetY = src.y;
+          foundChemo = true;
+        }
+      }
+
+      const dx = targetX - cellX[i], dy = targetY - cellY[i];
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const speed = 0.3 * params.migrateMult;
+
+      if (foundChemo && dist < 400) {
+        cellVX[i] += (dx/dist)*speed*0.15;
+        cellVY[i] += (dy/dist)*speed*0.15;
+      } else if (!foundChemo && dist < 400) {
+        cellVX[i] += (dx/dist)*speed*0.15;
+        cellVY[i] += (dy/dist)*speed*0.15;
+      } else {
+        cellVX[i] += (Math.random()-0.5)*0.2;
+        cellVY[i] += (Math.random()-0.5)*0.2;
+      }
+      const sp = Math.sqrt(cellVX[i]*cellVX[i]+cellVY[i]*cellVY[i]);
+      const maxSp = 1.8 * params.migrateMult;
+      if (sp > maxSp) { cellVX[i]=cellVX[i]/sp*maxSp; cellVY[i]=cellVY[i]/sp*maxSp; }
+    }
+
+    // 凋亡细胞
+    if (type === 2) {
+      const nut = getNutrientAt(cellX[i], cellY[i]);
+      const nutFactor = nut / 100;
+      let apopR = params.apopRate * (2 - nutFactor) * (1 + getDrugApopBonus()*100);
+      apopR += getDrugApopBonus() * 2; // 药物额外加速凋亡
+      cellR[i] -= apopR;
+      cellAgeApop[i]++;
+    }
+
+    // 药物毒性：随机诱导凋亡
+    if (type !== 2 && getDrugApopBonus() > 0) {
+      if (Math.random() < getDrugApopBonus()) {
+        cellType[i] = 2;
+        cellVX[i] = (Math.random()-0.5)*1.5;
+        cellVY[i] = (Math.random()-0.5)*1.5;
+      }
+    }
+
+    // 通用运动
+    cellX[i] += cellVX[i];
+    cellY[i] += cellVY[i];
+
+    // 边界
+    if (cellX[i] < cellR[i]) { cellX[i] = cellR[i]; cellVX[i]*=-0.8; }
+    if (cellX[i] > W-cellR[i]) { cellX[i] = W-cellR[i]; cellVX[i]*=-0.8; }
+    if (cellY[i] < cellR[i]) { cellY[i] = cellR[i]; cellVY[i]*=-0.8; }
+    if (cellY[i] > H-cellR[i]) { cellY[i] = H-cellR[i]; cellVY[i]*=-0.8; }
+  }
+
+  // 第二遍：空间哈希排斥 + 连线
+  if (enableSpatialHash) rebuildGrid();
+
+  for (let i = 0; i < cellCount; i++) {
+    const gx = Math.floor(cellX[i]/GRID_SIZE);
+    const gy = Math.floor(cellY[i]/GRID_SIZE);
+
+    // 排斥
+    let neighbors;
+    if (enableSpatialHash && !gridDirty) {
+      neighbors = getNearbyCells(gx, gy);
+    } else {
+      neighbors = [];
+      for (let k = 0; k < cellCount; k++) if (k !== i) neighbors.push(k);
+    }
+
+    for (let k = 0; k < neighbors.length; k++) {
+      const j = neighbors[k];
+      if (j <= i) continue; // 避免重复
+      const dx = cellX[j]-cellX[i], dy = cellY[j]-cellY[i];
+      const distSq = dx*dx+dy*dy;
+      const minDist = cellR[i]+cellR[j];
+      if (distSq < minDist*minDist && distSq > 0.01) {
+        const dist = Math.sqrt(distSq);
+        const overlap = minDist - dist;
+        const force = overlap * params.repelCoeff;
+        const fx = (dx/dist)*force, fy = (dy/dist)*force;
+        cellVX[i] -= fx; cellVY[i] -= fy;
+        cellVX[j] += fx; cellVY[j] += fy;
+      }
+    }
+  }
+
+  // 移除凋亡完毕
+  for (let i = cellCount-1; i >= 0; i--) {
+    if (cellType[i] === 2 && cellR[i] < 2) {
+      removeCell(i);
+    }
+  }
+
+  // 阻尼
+  for (let i = 0; i < cellCount; i++) {
+    cellVX[i] *= 0.985;
+    cellVY[i] *= 0.985;
+  }
+
+  // 热力图脏标记
+  heatmapFrameCounter++;
+  if (heatmapFrameCounter >= 100) {
+    heatmapDirty = true;
+    heatmapFrameCounter = 0;
+  }
+}
+
+// ================================================================
+//  渲染
+// ================================================================
+function drawCell(i) {
+  const type = cellType[i];
+  let baseColor;
+  if (type === 0) baseColor = '#ff6b6b';
+  else if (type === 1) baseColor = '#4ea8ff';
+  else baseColor = '#51cf66';
+
+  // 驻留闪烁（迁移细胞在趋化源附近）
+  if (type === 1) {
+    for (let cs = 0; cs < chemoSources.length; cs++) {
+      const src = chemoSources[cs];
+      const dx = src.x - cellX[i], dy = src.y - cellY[i];
+      if (dx*dx+dy*dy < 400 && frameCount%20 < 10) {
+        baseColor = '#7dffb0'; // 驻留绿色
+      }
+    }
+  }
+
+  const r = cellR[i];
+  const grad = ctx.createRadialGradient(
+    cellX[i]-r*0.35, cellY[i]-r*0.35, r*0.1,
+    cellX[i], cellY[i], r
+  );
+  const c = hexToRgb(baseColor);
+  grad.addColorStop(0, `rgb(${Math.min(255,c.r+55)},${Math.min(255,c.g+55)},${Math.min(255,c.b+55)})`);
+  grad.addColorStop(0.4, baseColor);
+  grad.addColorStop(1, `rgb(${Math.max(0,c.r-40)},${Math.max(0,c.g-40)},${Math.max(0,c.b-40)})`);
+
+  ctx.beginPath();
+  ctx.arc(cellX[i], cellY[i], r, 0, Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // 高光
+  ctx.beginPath();
+  ctx.arc(cellX[i]-r*0.3, cellY[i]-r*0.3, r*0.2, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fill();
+
+  // 描边
+  ctx.beginPath();
+  ctx.arc(cellX[i], cellY[i], r, 0, Math.PI*2);
+  ctx.strokeStyle = `rgb(${Math.max(0,c.r-50)},${Math.max(0,c.g-50)},${Math.max(0,c.b-50)})`;
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // 凋亡闪烁
+  if (type === 2 && frameCount%20 < 10) {
+    ctx.beginPath();
+    ctx.arc(cellX[i], cellY[i], r+2, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(255,100,100,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+function drawTrail(i) {
+  if (cellType[i] !== 1) return;
+  ctx.beginPath();
+  ctx.moveTo(cellTrailX[i*10+9], cellTrailY[i*10+9]);
+  for (let t = 8; t >= 0; t--) {
+    ctx.lineTo(cellTrailX[i*10+t], cellTrailY[i*10+t]);
+  }
+  ctx.strokeStyle = 'rgba(78,168,255,0.15)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function drawSignals() {
+  const linkDist = cellCount > 2000 ? 30 : params.linkDist;
+  if (enableSpatialHash) {
+    for (let gy = 0; gy < ROWS; gy++) {
+      for (let gx = 0; gx < COLS; gx++) {
+        const bucket = gridBuckets[gy*COLS+gx];
+        for (let k = 0; k < bucket.length; k++) {
+          const i = bucket[k];
+          // 只连右侧和下方的邻居避免重复
+          for (let dx = 0; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+              if (dx===0 && dy<=0) continue;
+              const nx = gx+dx, ny = gy+dy;
+              if (nx>=COLS||ny<0||ny>=ROWS) continue;
+              const otherBucket = gridBuckets[ny*COLS+nx];
+              for (let m = 0; m < otherBucket.length; m++) {
+                const j = otherBucket[m];
+                const dist = Math.sqrt((cellX[j]-cellX[i])**2+(cellY[j]-cellY[i])**2);
+                if (dist < linkDist) {
+                  const alpha = (1-dist/linkDist)*0.25;
+                  ctx.beginPath();
+                  ctx.moveTo(cellX[i],cellY[i]);
+                  ctx.lineTo(cellX[j],cellY[j]);
+                  ctx.strokeStyle = `rgba(180,200,255,${alpha.toFixed(3)})`;
+                  ctx.lineWidth = 0.4;
+                  ctx.stroke();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function drawChemoSources() {
+  for (let cs = 0; cs < chemoSources.length; cs++) {
+    const src = chemoSources[cs];
+    const s = src.strength / src.maxStrength;
+    // 星形标记
+    const spikes = 5, outerR = 12 + s*6, innerR = 5 + s*3;
+    ctx.beginPath();
+    for (let a = 0; a < spikes*2; a++) {
+      const angle = a * Math.PI / spikes - Math.PI/2;
+      const r = a%2===0 ? outerR : innerR;
+      const x = src.x + Math.cos(angle)*r;
+      const y = src.y + Math.sin(angle)*r;
+      if (a===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `rgba(255,217,61,${0.4+0.5*s})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255,217,61,${0.6+0.4*s})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 浓度文字
+    ctx.fillStyle = '#ffd93d';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(Math.round(src.strength), src.x, src.y - outerR - 4);
+  }
+}
+
+function drawNutrientSources() {
+  for (let ns = 0; ns < nutrientSources.length; ns++) {
+    const src = nutrientSources[ns];
+    // 半透明大圆
+    const grad = ctx.createRadialGradient(src.x, src.y, 5, src.x, src.y, src.radius);
+    grad.addColorStop(0, 'rgba(255,107,53,0.15)');
+    grad.addColorStop(0.5, 'rgba(255,107,53,0.06)');
+    grad.addColorStop(1, 'rgba(255,107,53,0)');
+    ctx.beginPath();
+    ctx.arc(src.x, src.y, src.radius, 0, Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // 中心点
+    ctx.beginPath();
+    ctx.arc(src.x, src.y, 4, 0, Math.PI*2);
+    ctx.fillStyle = '#ff6b35';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,107,53,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+function render() {
+  ctx.fillStyle = '#d8d8d8';
+  ctx.fillRect(0, 0, W, H);
+
+  // 网格线（淡）
+  ctx.strokeStyle = 'rgba(0,0,0,0.025)';
+  ctx.lineWidth = 0.5;
+  for (let gx = 0; gx < W; gx += 40) { ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke(); }
+  for (let gy = 0; gy < H; gy += 40) { ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke(); }
+
+  drawNutrientSources();
+  if (showTrails) for (let i = 0; i < cellCount; i++) drawTrail(i);
+  drawSignals();
+  for (let i = 0; i < cellCount; i++) drawCell(i);
+  drawChemoSources();
+
+  // 药物预览
+  if (currentTool === 'drug' && !isAutoRunning) {
+    ctx.beginPath();
+    ctx.arc(mouseX, mouseY, 20, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(167,139,250,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // 热力图
+  if (showHeatmap && heatmapDirty) { renderHeatmap(); heatmapDirty = false; }
+}
+
+// ================================================================
+//  统计
+// ================================================================
+function getCounts() {
+  let p=0,m=0,a=0;
+  for (let i=0;i<cellCount;i++) {
+    if(cellType[i]===0)p++;
+    else if(cellType[i]===1)m++;
+    else if(cellType[i]===2)a++;
+  }
+  return {p,m,a,total:cellCount};
+}
+
+function updateStats() {
+  const c = getCounts();
+  $('statTotal').textContent = c.total;
+  $('statProliferate').textContent = c.p;
+  $('statMigrate').textContent = c.m;
+  $('statApoptose').textContent = c.a;
+  $('curveP').textContent = c.p;
+  $('curveM').textContent = c.m;
+  $('curveA').textContent = c.a;
+  $('fpsCells').textContent = c.total;
+}
+
+// ================================================================
+//  曲线图
+// ================================================================
+function sampleData() {
+  const c = getCounts();
+  timeSeriesData.push({ frame: frameCount, total: c.total, proliferate: c.p, migrate: c.m, apoptose: c.a });
+}
+
+function drawChart() {
+  const cw = CHART_W, ch = CHART_H;
+  chartCtx.fillStyle = '#0a1525';
+  chartCtx.fillRect(0,0,cw,ch);
+
+  if (timeSeriesData.length < 2) {
+    chartCtx.fillStyle = '#445';
+    chartCtx.font = '12px sans-serif';
+    chartCtx.textAlign = 'center';
+    chartCtx.fillText('等待数据采样...', cw/2, ch/2);
+    return;
+  }
+
+  const pad = {top:15,right:15,bottom:30,left:45};
+  const pw = cw-pad.left-pad.right, ph = ch-pad.top-pad.bottom;
+  const maxFrame = timeSeriesData[timeSeriesData.length-1].frame;
+  const maxVal = Math.max(10, Math.ceil(Math.max(...timeSeriesData.map(d=>d.total))/50)*50);
+
+  // 网格
+  chartCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+  chartCtx.lineWidth = 0.5;
+  for (let i=0;i<=5;i++) {
+    const y = pad.top+ph*i/5;
+    chartCtx.beginPath(); chartCtx.moveTo(pad.left,y); chartCtx.lineTo(cw-pad.right,y); chartCtx.stroke();
+    chartCtx.fillStyle='#556'; chartCtx.font='9px monospace'; chartCtx.textAlign='right';
+    chartCtx.fillText(Math.round(maxVal*(1-i/5)), pad.left-4, y+3);
+  }
+  for (let i=0;i<=5;i++) {
+    const x = pad.left+pw*i/5;
+    chartCtx.fillStyle='#556'; chartCtx.textAlign='center';
+    chartCtx.fillText(((maxFrame*i/5)/60).toFixed(0)+'s', x, ch-pad.bottom+16);
+  }
+
+  // 轴
+  chartCtx.strokeStyle='rgba(255,255,255,0.12)';
+  chartCtx.lineWidth=1;
+  chartCtx.beginPath(); chartCtx.moveTo(pad.left,pad.top); chartCtx.lineTo(pad.left,ch-pad.bottom); chartCtx.lineTo(cw-pad.right,ch-pad.bottom); chartCtx.stroke();
+
+  const curves = [
+    {key:'total',color:'#f6d365',lw:2},
+    {key:'proliferate',color:'#ff6b6b',lw:1.3},
+    {key:'migrate',color:'#4ea8ff',lw:1.3},
+    {key:'apoptose',color:'#51cf66',lw:1.3},
+  ];
+  curves.forEach(curve=>{
+    chartCtx.beginPath();
+    chartCtx.strokeStyle=curve.color;
+    chartCtx.lineWidth=curve.lw;
+    chartCtx.globalAlpha=curve.key==='total'?0.9:0.65;
+    timeSeriesData.forEach((d,i)=>{
+      const x = pad.left+(d.frame/maxFrame)*pw;
+      const y = pad.top+ph-(d[curve.key]/maxVal)*ph;
+      i===0?chartCtx.moveTo(x,y):chartCtx.lineTo(x,y);
+    });
+    chartCtx.stroke();
+    chartCtx.globalAlpha=1;
+  });
+
+  // 生长速率
+  if (timeSeriesData.length >= 5) {
+    const recent = timeSeriesData.slice(-Math.min(50,timeSeriesData.length));
+    const rate = (recent[recent.length-1].total - recent[0].total)/(recent[recent.length-1].frame-recent[0].frame)*3600;
+    $('growthRate').textContent = rate.toFixed(1)+'/min';
+    const pe = $('phaseLabel');
+    if(rate>5){pe.textContent='📈指数期';pe.className='phase-label phase-exp';}
+    else if(rate>0){pe.textContent='📊缓增期';pe.className='phase-label phase-stable';}
+    else if(rate>-5){pe.textContent='⚠️平台期';pe.className='phase-label phase-stable';}
+    else{pe.textContent='📉衰亡期';pe.className='phase-label phase-death';}
+  }
+}
+
+// ================================================================
+//  汇总视图
+// ================================================================
+function drawSummary(allRuns) {
+  const cv = $('summaryCanvas');
+  const cx = cv.getContext('2d');
+  const w = 1100, h = 240;
+  cx.fillStyle='#0a1525'; cx.fillRect(0,0,w,h);
+
+  if (allRuns.length === 0) return;
+
+  const pad={top:15,right:15,bottom:25,left:45};
+  const pw=w-pad.left-pad.right, ph=h-pad.top-pad.bottom;
+  const maxFrame = Math.max(...allRuns.map(r=>r[r.length-1].frame));
+  const maxVal = Math.max(10, Math.ceil(Math.max(...allRuns.map(r=>Math.max(...r.map(d=>d.total))))/50)*50);
+
+  // 颜色
+  const colors = ['#ff6b6b','#4ea8ff','#51cf66','#ffd93d','#a78bfa','#ff6b35','#00b894','#f6d365','#e17055','#74b9ff'];
+
+  // 网格
+  cx.strokeStyle='rgba(255,255,255,0.04)'; cx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){const y=pad.top+ph*i/5;cx.beginPath();cx.moveTo(pad.left,y);cx.lineTo(w-pad.right,y);cx.stroke();}
+
+  // 各次运行（淡色细线）
+  allRuns.forEach((run,ri)=>{
+    cx.beginPath();
+    cx.strokeStyle=colors[ri%colors.length]+'66';
+    cx.lineWidth=1;
+    run.forEach((d,i)=>{
+      const x=pad.left+(d.frame/maxFrame)*pw;
+      const y=pad.top+ph-(d.total/maxVal)*ph;
+      i===0?cx.moveTo(x,y):cx.lineTo(x,y);
+    });
+    cx.stroke();
+  });
+
+  // 均值曲线
+  const meanData = [];
+  const sdData = [];
+  const maxLen = Math.max(...allRuns.map(r=>r.length));
+  for (let fi=0; fi<maxLen; fi++) {
+    const vals = allRuns.map(r=>r[Math.min(fi,r.length-1)].total);
+    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+    const sd = Math.sqrt(vals.reduce((s,v)=>s+(v-mean)**2,0)/vals.length);
+    meanData.push(mean); sdData.push(sd);
+  }
+
+  // SD阴影带
+  cx.beginPath();
+  for (let fi=0;fi<maxLen;fi++) {
+    const x=pad.left+(fi/(maxLen-1))*pw;
+    const y=pad.top+ph-((meanData[fi]+sdData[fi])/maxVal)*ph;
+    fi===0?cx.moveTo(x,y):cx.lineTo(x,y);
+  }
+  for (let fi=maxLen-1;fi>=0;fi--) {
+    const x=pad.left+(fi/(maxLen-1))*pw;
+    const y=pad.top+ph-((meanData[fi]-sdData[fi])/maxVal)*ph;
+    cx.lineTo(x,y);
+  }
+  cx.closePath();
+  cx.fillStyle='rgba(246,211,101,0.12)'; cx.fill();
+
+  // 均值线
+  cx.beginPath();
+  cx.strokeStyle='#f6d365'; cx.lineWidth=2.5;
+  meanData.forEach((v,fi)=>{
+    const x=pad.left+(fi/(maxLen-1))*pw;
+    const y=pad.top+ph-(v/maxVal)*ph;
+    fi===0?cx.moveTo(x,y):cx.lineTo(x,y);
+  });
+  cx.stroke();
+
+  // 统计文字
+  const finalMeans = allRuns.map(r=>r[r.length-1].total);
+  const finalMean = finalMeans.reduce((a,b)=>a+b,0)/finalMeans.length;
+  const finalSD = Math.sqrt(finalMeans.reduce((s,v)=>s+(v-finalMean)**2,0)/finalMeans.length);
+
+  // 最大生长速率
+  const rates = allRuns.map(run=>{
+    const r=run.slice(-Math.min(50,run.length));
+    return (r[r.length-1].total-r[0].total)/Math.max(1,r[r.length-1].frame-r[0].frame)*3600;
+  });
+  const rateMean=rates.reduce((a,b)=>a+b,0)/rates.length;
+  const rateSD=Math.sqrt(rates.reduce((s,v)=>s+(v-rateMean)**2,0)/rates.length);
+
+  $('summaryStatsDetail').innerHTML = `
+    <div>最终细胞数: <span class="stat-highlight">${finalMean.toFixed(0)} ± ${finalSD.toFixed(0)}</span></div>
+    <div>最大生长速率: <span class="stat-warn">${rateMean.toFixed(1)} ± ${rateSD.toFixed(1)} /min</span></div>
+    <div>重复次数: <span style="color:#aab">${allRuns.length}</span></div>
+    <div>药物浓度: <span style="color:#aab">${params.drugConc} μM (${params.drugMode})</span></div>
+  `;
+}
+
+// ================================================================
+//  剂量响应 + 四参数Logistic拟合
+// ================================================================
+function fourParamLogistic(X, Y) {
+  // Y = Bottom + (Top-Bottom)/(1+(IC50/X)^Hill)
+  // 网格搜索
+  let best = { ic50:1, hill:1, bottom:0, top:100, err:Infinity };
+  const top = 100, bottom = 0;
+  for (let hill = 0.3; hill <= 3; hill += 0.1) {
+    for (let logIC = -1; logIC <= 3; logIC += 0.05) {
+      const ic50 = Math.pow(10, logIC);
+      let err = 0;
+      for (let i = 0; i < X.length; i++) {
+        const pred = bottom + (top-bottom)/(1+Math.pow(ic50/Math.max(0.01,X[i]),hill));
+        err += (Y[i]-pred)**2;
+      }
+      if (err < best.err) { best = {ic50, hill, bottom, top, err}; }
+    }
+  }
+  return best;
+}
+
+function drawDoseResponse(doses, survival, fit) {
+  const cv = $('doseCanvas');
+  const cx = cv.getContext('2d');
+  const w=1100,h=240;
+  cx.fillStyle='#0a1525'; cx.fillRect(0,0,w,h);
+
+  if (doses.length < 2) return;
+
+  const pad={top:15,right:15,bottom:30,left:45};
+  const pw=w-pad.left-pad.right, ph=h-pad.top-pad.bottom;
+
+  // 网格
+  cx.strokeStyle='rgba(255,255,255,0.05)'; cx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){const y=pad.top+ph*i/5;cx.beginPath();cx.moveTo(pad.left,y);cx.lineTo(w-pad.right,y);cx.stroke();}
+
+  // X轴 log10
+  const logMin = -1, logMax = 3;
+  const xPos = v => pad.left + ((Math.log10(Math.max(0.01,v))-logMin)/(logMax-logMin))*pw;
+  const yPos = v => pad.top + ph - (v/100)*ph;
+
+  // 拟合曲线
+  if (fit) {
+    cx.beginPath();
+    cx.strokeStyle='#f6d365'; cx.lineWidth=2;
+    for (let lx = -1; lx <= 3.001; lx+=0.02) {
+      const x = Math.pow(10,lx);
+      const y = fit.bottom + (fit.top-fit.bottom)/(1+Math.pow(fit.ic50/x,fit.hill));
+      const px = xPos(x), py = yPos(y);
+      lx===-1?cx.moveTo(px,py):cx.lineTo(px,py);
+    }
+    cx.stroke();
+
+    // IC50标注
+    const icx = xPos(fit.ic50), icy = yPos(50);
+    cx.setLineDash([4,4]); cx.strokeStyle='rgba(255,100,100,0.6)'; cx.lineWidth=1;
+    cx.beginPath(); cx.moveTo(icx,pad.top); cx.lineTo(icx,pad.top+ph); cx.stroke();
+    cx.setLineDash([]);
+    cx.fillStyle='#ff6b6b'; cx.font='10px monospace'; cx.textAlign='center';
+    cx.fillText('IC50='+fit.ic50.toFixed(1)+'μM', icx, pad.top+12);
+  }
+
+  // 数据点
+  doses.forEach((d,i)=>{
+    const px=xPos(d), py=yPos(survival[i]);
+    cx.beginPath(); cx.arc(px,py,5,0,Math.PI*2);
+    cx.fillStyle='#4ea8ff'; cx.fill();
+    cx.strokeStyle='#fff'; cx.lineWidth=1; cx.stroke();
+    cx.fillStyle='#889'; cx.font='9px monospace'; cx.textAlign='center';
+    cx.fillText(d, px, py-8);
+  });
+
+  // X轴标签
+  cx.fillStyle='#556'; cx.font='9px monospace'; cx.textAlign='center';
+  for (let lx=-1;lx<=3;lx++) {
+    const v=Math.pow(10,lx);
+    cx.fillText(v>=1?v.toFixed(0):v.toFixed(1), xPos(v), h-pad.bottom+18);
+  }
+  cx.fillText('浓度 (μM, log10)', pad.left+pw/2, h-5);
+
+  $('doseStatsTop').innerHTML = fit ?
+    `<span style="color:#f6d365">IC50=${fit.ic50.toFixed(2)}μM</span> | <span style="color:#4ea8ff">Hill=${fit.hill.toFixed(2)}</span>` : '';
+}
+
+// ================================================================
+//  时间-杀伤曲线
+// ================================================================
+function drawTimeKill(datasets) {
+  const cv = $('timeKillCanvas');
+  const cx = cv.getContext('2d');
+  const w=1100,h=240;
+  cx.fillStyle='#0a1525'; cx.fillRect(0,0,w,h);
+
+  if (datasets.length===0) return;
+
+  const pad={top:15,right:15,bottom:30,left:45};
+  const pw=w-pad.left-pad.right, ph=h-pad.top-pad.bottom;
+  const maxFrame = Math.max(...datasets.map(d=>d.data[d.data.length-1].frame));
+  const maxVal = 100;
+
+  cx.strokeStyle='rgba(255,255,255,0.05)'; cx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){const y=pad.top+ph*i/5;cx.beginPath();cx.moveTo(pad.left,y);cx.lineTo(w-pad.right,y);cx.stroke();}
+
+  const colors = ['#ff6b6b','#4ea8ff','#51cf66','#ffd93d','#a78bfa','#ff6b35'];
+
+  datasets.forEach((ds,di)=>{
+    cx.beginPath();
+    cx.strokeStyle=colors[di%colors.length];
+    cx.lineWidth=2;
+    ds.data.forEach((d,i)=>{
+      const x=pad.left+(d.frame/maxFrame)*pw;
+      const y=pad.top+ph-(d.survival/100)*ph;
+      i===0?cx.moveTo(x,y):cx.lineTo(x,y);
+    });
+    cx.stroke();
+    // 标签
+    const last = ds.data[ds.data.length-1];
+    const lx=pad.left+(last.frame/maxFrame)*pw;
+    const ly=pad.top+ph-(last.survival/100)*ph;
+    cx.fillStyle=colors[di%colors.length]; cx.font='9px monospace'; cx.textAlign='left';
+    cx.fillText(ds.label, lx+5, ly-3);
+  });
+
+  // 轴标签
+  cx.fillStyle='#556'; cx.font='9px monospace'; cx.textAlign='center';
+  for(let i=0;i<=5;i++){cx.fillText(((maxFrame*i/5)/60).toFixed(0)+'s',pad.left+pw*i/5,h-pad.bottom+16);}
+}
+
+// ================================================================
+//  主循环 + 帧率自适应
+// ================================================================
+function loop() {
+  const now = performance.now();
+  const dt = now - lastFrameTime;
+  lastFrameTime = now;
+  frameTimes.push(dt);
+  if (frameTimes.length > 30) frameTimes.shift();
+
+  if (!isPaused) {
+    const steps = simSpeed;
+    for (let s = 0; s < steps; s++) {
+      updateCells();
+      if (frameCount % SAMPLE_INTERVAL === 0) sampleData();
+      if (isAutoRunning && frameCount >= autoRunTarget) { finishAutoRun(); break; }
+    }
+  }
+
+  render();
+  updateStats();
+  drawChart();
+
+  // FPS计算
+  if (frameTimes.length >= 10) {
+    const avg = frameTimes.reduce((a,b)=>a+b,0)/frameTimes.length;
+    currentFPS = Math.round(1000/avg);
+    $('fpsValue').textContent = currentFPS;
+    $('fpsValue').className = currentFPS < 20 ? 'fps-value fps-bad' : currentFPS < 40 ? 'fps-value fps-warn' : 'fps-value';
+    $('fpsSpeed').textContent = adaptiveSpeed.toFixed(1)+'x';
+
+    // 帧率自适应
+    if (adaptiveFps && !isAutoRunning) {
+      if (avg > 20 && adaptiveSpeed > 0.5) adaptiveSpeed = Math.max(0.5, adaptiveSpeed - 0.05);
+      else if (avg < 14 && adaptiveSpeed < 2.0) adaptiveSpeed = Math.min(2.0, adaptiveSpeed + 0.05);
+      simSpeed = adaptiveSpeed;
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+
+// ================================================================
+//  暂停/自动运行
+// ================================================================
+function togglePause() {
+  isPaused = !isPaused;
+  $('pauseBtn').textContent = isPaused ? '▶ 继续' : '⏸ 暂停';
+}
+
+$('pauseBtn').addEventListener('click', togglePause);
+
+function startAutoRun(target) {
+  if (isAutoRunning) return;
+  isAutoRunning = true;
+  simSpeed = 3; adaptiveSpeed = 3;
+  isPaused = false;
+  autoRunTarget = target || AUTO_RUN_FRAMES;
+  $('pauseBtn').textContent = '⏸ 暂停';
+  $('autoOverlay').classList.add('active');
+  $('autoText').textContent = '自动运行中... (3x)';
+  document.querySelectorAll('.tool-btn').forEach(b=>b.style.opacity='0.4');
+}
+
+function finishAutoRun() {
+  isAutoRunning = false; simSpeed = adaptiveSpeed;
+  $('autoOverlay').classList.remove('active');
+  document.querySelectorAll('.tool-btn').forEach(b=>b.style.opacity='1');
+}
+
+$('autoRunBtn').addEventListener('click', ()=>startAutoRun(parseInt($('sliderRunFrames').value)));
+
+// ================================================================
+//  批量实验
+// ================================================================
+$('batchRunBtn').addEventListener('click', async ()=>{
+  const repeats = parseInt($('repeatCount').value);
+  const runFrames = parseInt($('sliderRunFrames').value);
+  const fixedSeed = $('fixedSeed').checked;
+
+  allRunData = [];
+  $('summarySection').classList.add('visible');
+  $('summaryStatsTop').innerHTML = `<span style="color:#4ecdc4">正在运行批量实验...</span>`;
+
+  useSeeded = false;
+  for (let r = 0; r < repeats; r++) {
+    // 重置
+    cellCount = 0;
+    frameCount = 0;
+    timeSeriesData = [];
+    chemoSources = [];
+    if (fixedSeed) { rngSeed = 42 + r; useSeeded = true; }
+    initNutrientSources();
+    initCells();
+
+    // 运行
+    autoRunTarget = runFrames;
+    await runFramesAsync(runFrames, (pct)=>{
+      $('autoText').textContent = `批量实验 第${r+1}/${repeats}次 (${(pct*100).toFixed(0)}%)`;
+      $('autoProgressBar').style.width = ((r+pct)/repeats*100).toFixed(0)+'%';
+    });
+
+    allRunData.push([...timeSeriesData]);
+  }
+
+  useSeeded = false;
+  $('autoOverlay').classList.remove('active');
+  drawSummary(allRunData);
+  $('summaryStatsTop').innerHTML = `<span style="color:#4ecdc4">✅ ${repeats}次重复完成</span>`;
+
+  // 自动导出
+  setTimeout(()=>exportBatchZIP(), 500);
+});
+
+function runFramesAsync(targetFrames, onProgress) {
+  return new Promise(resolve=>{
+    let startF = frameCount;
+    function step() {
+      const pct = (frameCount - startF) / targetFrames;
+      onProgress(Math.min(1,pct));
+      if (frameCount - startF >= targetFrames) { resolve(); return; }
+      // 多步推进
+      const stepsThisFrame = 3;
+      for (let s=0; s<stepsThisFrame && frameCount-startF<targetFrames; s++) {
+        updateCells();
+        if (frameCount%SAMPLE_INTERVAL===0) sampleData();
+      }
+      render(); updateStats(); drawChart();
+      requestAnimationFrame(step);
+    }
+    step();
+  });
+}
+
+// ================================================================
+//  剂量响应实验
+// ================================================================
+$('doseRespBtn').addEventListener('click', async ()=>{
+  const doses = [0, 1, 3, 10, 30, 100];
+  const runFrames = parseInt($('sliderKillFrames').value);
+  doseResponseData = [];
+  $('doseSection').classList.add('visible');
+  $('doseStatsTop').innerHTML = '<span style="color:#4ecdc4">运行中...</span>';
+
+  const origConc = params.drugConc;
+  const origMode = params.drugMode;
+  params.drugMode = 'combo';
+  useSeeded = fixedSeed;
+
+  for (let di = 0; di < doses.length; di++) {
+    params.drugConc = doses[di];
+    cellCount = 0; frameCount = 0; timeSeriesData = [];
+    chemoSources = []; initNutrientSources(); initCells();
+
+    $('autoText').textContent = `剂量响应: ${doses[di]}μM (${di+1}/${doses.length})`;
+    $('autoProgressBar').style.width = (di/doses.length*100).toFixed(0)+'%';
+    $('autoOverlay').classList.add('active');
+
+    await runFramesAsync(runFrames);
+    const c = getCounts();
+    const survival = doses[di]===0 ? 100 : (c.total / 20 * 100); // 标准化
+    doseResponseData.push({dose:doses[di], survival:Math.min(100,survival)});
+  }
+
+  params.drugConc = origConc;
+  params.drugMode = origMode;
+  useSeeded = false;
+  $('autoOverlay').classList.remove('active');
+
+  // 拟合
+  const X = doseResponseData.map(d=>d.dose);
+  const Y = doseResponseData.map(d=>d.survival);
+  const fit = fourParamLogistic(X, Y);
+
+  drawDoseResponse(X, Y, fit);
+
+  // 存到全局供导出
+  window._lastDoseFit = fit;
+  window._lastDoseData = doseResponseData.slice();
+});
+
+// ================================================================
+//  时间-杀伤曲线
+// ================================================================
+$('timeKillBtn').addEventListener('click', async ()=>{
+  const concentrations = [1, 3, 10, 30];
+  const runFrames = parseInt($('sliderKillFrames').value);
+  timeKillData = [];
+  $('timekillSection').classList.add('visible');
+  $('tkStatsTop').innerHTML = '<span style="color:#4ecdc4">运行中...</span>';
+
+  const origConc = params.drugConc;
+  const origMode = params.drugMode;
+  params.drugMode = 'combo';
+  useSeeded = $('fixedSeed').checked;
+
+  for (let ci = 0; ci < concentrations.length; ci++) {
+    params.drugConc = concentrations[ci];
+    cellCount = 0; frameCount = 0; timeSeriesData = [];
+    chemoSources = []; initNutrientSources(); initCells();
+    const initialCount = cellCount;
+
+    $('autoText').textContent = `时间杀伤: ${concentrations[ci]}μM (${ci+1}/${concentrations.length})`;
+    $('autoOverlay').classList.add('active');
+
+    await runFramesAsync(runFrames);
+
+    // 计算存活率序列
+    const survivalData = timeSeriesData.map(d=>({
+      frame: d.frame,
+      survival: (d.total / initialCount * 100)
+    }));
+    timeKillData.push({label: concentrations[ci]+'μM', data: survivalData});
+  }
+
+  params.drugConc = origConc;
+  params.drugMode = origMode;
+  useSeeded = false;
+  $('autoOverlay').classList.remove('active');
+  drawTimeKill(timeKillData);
+  $('tkStatsTop').innerHTML = '<span style="color:#4ecdc4">✅ 完成</span>';
+});
+
+// ================================================================
+//  导出ZIP
+// ================================================================
+$('exportZipBtn').addEventListener('click', ()=>exportFullZIP());
+
+function exportFullZIP() {
+  const zip = new JSZip();
+
+  // 当前cells
+  let csv = 'id,x,y,type,radius,vx,vy\n';
+  for (let i=0;i<cellCount;i++) {
+    const t = TYPE_NAME[cellType[i]]||'?';
+    csv += `${i},${cellX[i].toFixed(2)},${cellY[i].toFixed(2)},${t},${cellR[i].toFixed(2)},${cellVX[i].toFixed(3)},${cellVY[i].toFixed(3)}\n`;
+  }
+  zip.file('cells_data.csv', csv);
+
+  // 曲线
+  let cc = 'frame,time_s,total,proliferate,migrate,apoptose\n';
+  timeSeriesData.forEach(d=>{cc+=`${d.frame},${(d.frame/60).toFixed(2)},${d.total},${d.proliferate},${d.migrate},${d.apoptose}\n`;});
+  zip.file('growth_curve.csv', cc);
+
+  // 画布截图
+  const b64 = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/,'');
+  zip.file('canvas_snapshot.png', b64, {base64:true});
+
+  // 参数
+  let pt=`实验参数\n==========\n增殖概率:1/${$('sliderProb').value}\n迁移倍率:${params.migrateMult}\n凋亡速率:${params.apopRate}\n排斥系数:${params.repelCoeff}\n药物浓度:${params.drugConc}μM\n药物模式:${params.drugMode}\n总帧数:${frameCount}\n最终细胞数:${cellCount}\n空间哈希:${enableSpatialHash}\n`;
+  zip.file('experiment_params.txt', pt);
+
+  // 批量数据
+  if (allRunData.length > 0) {
+    allRunData.forEach((run,ri)=>{
+      let rc = `frame,total,proliferate,migrate,apoptose\n`;
+      run.forEach(d=>{rc+=`${d.frame},${d.total},${d.proliferate},${d.migrate},${d.apoptose}\n`;});
+      zip.file(`run_${String(ri+1).padStart(2,'0')}/curve.csv`, rc);
+    });
+    // summary
+    let sc = 'repeat,final_total,max_growth_rate\n';
+    allRunData.forEach((run,ri)=>{
+      const r=run.slice(-Math.min(50,run.length));
+      const rate=(r[r.length-1].total-r[0].total)/Math.max(1,r[r.length-1].frame-r[0].frame)*3600;
+      sc+=`${ri+1},${run[run.length-1].total},${rate.toFixed(2)}\n`;
+    });
+    zip.file('summary_stats.csv', sc);
+  }
+
+  // 剂量响应
+  if (window._lastDoseData) {
+    let dc = 'dose_um,survival_pct\n';
+    window._lastDoseData.forEach(d=>{dc+=`${d.dose},${d.survival}\n`;});
+    if (window._lastDoseFit) {
+      const f=window._lastDoseFit;
+      dc+=`\n# IC50=${f.ic50.toFixed(4)}\n# Hill=${f.hill.toFixed(4)}\n# Top=${f.top}\n# Bottom=${f.bottom}\n`;
+    }
+    zip.file('dose_response_data.csv', dc);
+  }
+
+  // 时间杀伤
+  if (timeKillData.length>0) {
+    let tk = 'frame';
+    timeKillData.forEach(ds=>{tk+=`,survival_${ds.label.replace('μM','')}`;});
+    tk+='\n';
+    const maxLen=Math.max(...timeKillData.map(d=>d.data.length));
+    for(let i=0;i<maxLen;i++){
+      tk+=timeKillData[0].data[Math.min(i,timeKillData[0].data.length-1)].frame;
+      timeKillData.forEach(ds=>{tk+=`,${(ds.data[Math.min(i,ds.data.length-1)].survival).toFixed(2)}`;});
+      tk+='\n';
+    }
+    zip.file('time_kill_data.csv', tk);
+  }
+
+  // 报告
+  let report = `肿瘤生长动力学实验报告\n===================\n\n【参数设置】\n`;
+  report += `增殖概率: 1/${$('sliderProb').value}\n迁移倍率: ${params.migrateMult}\n凋亡速率: ${params.apopRate}\n排斥系数: ${params.repelCoeff}\n药物浓度: ${params.drugConc} μM\n药物模式: ${params.drugMode}\n\n`;
+  report += `【结果摘要】\n最终细胞数: ${cellCount}\n总帧数: ${frameCount}\n`;
+  if (allRunData.length>0) {
+    report += `\n【批量统计】\n重复次数: ${allRunData.length}\n`;
+  }
+  if (window._lastDoseFit) {
+    report += `\n【剂量响应】\nIC50: ${window._lastDoseFit.ic50.toFixed(2)} μM\nHill斜率: ${window._lastDoseFit.hill.toFixed(2)}\n`;
+  }
+  zip.file('experiment_report.txt', report);
+
+  zip.generateAsync({type:'blob'}).then(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`tumor_exp_v2_${Date.now()}.zip`; a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+function exportBatchZIP() {
+  // 简化版：只导出汇总
+  const zip = new JSZip();
+  let sc='repeat,final_total,max_growth_rate\n';
+  allRunData.forEach((run,ri)=>{
+    const r=run.slice(-Math.min(50,run.length));
+    const rate=(r[r.length-1].total-r[0].total)/Math.max(1,r[r.length-1].frame-r[0].frame)*3600;
+    sc+=`${ri+1},${run[run.length-1].total},${rate.toFixed(2)}\n`;
+  });
+  zip.file('batch_summary.csv',sc);
+  allRunData.forEach((run,ri)=>{
+    let rc='frame,total\n';
+    run.forEach(d=>{rc+=`${d.frame},${d.total}\n`;});
+    zip.file(`run_${String(ri+1).padStart(2,'0')}/curve.csv`,rc);
+  });
+  zip.generateAsync({type:'blob'}).then(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`batch_experiment_${Date.now()}.zip`; a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+// ================================================================
+//  导出图表
+// ================================================================
+$('exportChartBtn').addEventListener('click', ()=>{
+  const ec=document.createElement('canvas');
+  ec.width=1200; ec.height=360;
+  const ectx=ec.getContext('2d');
+  ectx.fillStyle='#0a1525'; ectx.fillRect(0,0,1200,360);
+  // 绘制（简化版高分辨率）
+  if(timeSeriesData.length<2){ectx.fillStyle='#556';ectx.font='16px sans-serif';ectx.textAlign='center';ectx.fillText('暂无数据',600,180);}
+  else{
+    const pad={top:30,right:25,bottom:40,left:60};
+    const pw=1200-pad.left-pad.right, ph=360-pad.top-pad.bottom;
+    const mf=timeSeriesData[timeSeriesData.length-1].frame;
+    const mv=Math.ceil(Math.max(...timeSeriesData.map(d=>d.total))/50)*50;
+    ectx.strokeStyle='rgba(255,255,255,0.06)';ectx.lineWidth=0.5;
+    for(let i=0;i<=10;i++){const y=pad.top+ph*i/10;ectx.beginPath();ectx.moveTo(pad.left,y);ectx.lineTo(1200-pad.right,y);ectx.stroke();ectx.fillStyle='#556';ectx.font='11px monospace';ectx.textAlign='right';ectx.fillText(Math.round(mv*(1-i/10)),pad.left-6,y+4);}
+    const curves=[{key:'total',c:'#f6d365',lw:2.5},{key:'proliferate',c:'#ff6b6b',lw:1.8},{key:'migrate',c:'#4ea8ff',lw:1.8},{key:'apoptose',c:'#51cf66',lw:1.8}];
+    curves.forEach(cu=>{ectx.beginPath();ectx.strokeStyle=cu.c;ectx.lineWidth=cu.lw;ectx.globalAlpha=cu.key==='total'?0.95:0.8;timeSeriesData.forEach((d,i)=>{const x=pad.left+(d.frame/mf)*pw;const y=pad.top+ph-(d[cu.key]/mv)*ph;i===0?ectx.moveTo(x,y):ectx.lineTo(x,y);});ectx.stroke();ectx.globalAlpha=1;});
+    ectx.fillStyle='#ccd';ectx.font='bold 14px sans-serif';ectx.textAlign='center';ectx.fillText('Tumor Growth Dynamics - Growth Curve',pad.left+pw/2,20);
+  }
+  const url=ec.toDataURL('image/png');
+  const a=document.createElement('a');a.href=url;a.download=`growth_chart_${Date.now()}.png`;a.click();
+});
+
+// ================================================================
+//  清空
+// ================================================================
+$('clearBtn').addEventListener('click', ()=>{
+  cellCount=0; frameCount=0; timeSeriesData=[]; chemoSources=[]; allRunData=[];
+  $('summarySection').classList.remove('visible');
+  $('doseSection').classList.remove('visible');
+  $('timekillSection').classList.remove('visible');
+  initNutrientSources(); initCells();
+});
+
+// ================================================================
+//  弹窗
+// ================================================================
+$('modalClose').addEventListener('click', ()=>$('modalOverlay').classList.remove('active'));
+
+// ================================================================
+//  工具函数
+// ================================================================
+let rngSeed = 42;
+function seededRandom() {
+  rngSeed = (rngSeed * 9301 + 49297) % 233280;
+  return rngSeed / 233280;
+}
+// 替换全局Math.random为可种子化的版本（批量实验时使用）
+let useSeeded = false;
+const _origRandom = Math.random;
+Math.random = function() { return useSeeded ? seededRandom() : _origRandom(); };
+
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return{r,g,b};
+}
+function lighten(hex,pct){const c=hexToRgb(hex);return`rgb(${Math.min(255,c.r+pct)},${Math.min(255,c.g+pct)},${Math.min(255,c.b+pct)})`;}
+function darken(hex,pct){const c=hexToRgb(hex);return`rgb(${Math.max(0,c.r-pct)},${Math.max(0,c.g-pct)},${Math.max(0,c.b-pct)})`;}
+function randSeed(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280;};}
+
+// ================================================================
+//  窗口resize
+// ================================================================
+let rzTimer;
+window.addEventListener('resize',()=>{clearTimeout(rzTimer);rzTimer=setTimeout(()=>{drawChart();heatmapDirty=true;},100);});
+
+// ================================================================
+//  初始化启动
+// ================================================================
+initNutrientSources();
+initCells();
+loop();
+</script>
+</body>
+</html>

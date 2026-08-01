@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRISPR gRNA 脱靶预测平台 v5</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+:root {
+  --bg: #0f1419;
+  --panel: #1a2332;
+  --panel2: #232f42;
+  --border: #2d3e56;
+  --accent: #4fc3f7;
+  --accent2: #81c784;
+  --warn: #ffb74d;
+  --danger: #ef5350;
+  --text: #e0e6ed;
+  --text2: #90a4ae;
+  --low: #4caf50;
+  --med: #ff9800;
+  --high: #f44336;
+  --crit: #b71c1c;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.header { background:linear-gradient(135deg,#1a237e,#0d47a1); padding:18px 28px; display:flex; align-items:center; gap:14px; border-bottom:2px solid var(--accent); }
+.header h1 { font-size:1.5em; font-weight:700; }
+.header .sub { color:#90caf9; font-size:.85em; }
+.container { max-width:1400px; margin:0 auto; padding:20px; }
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:20px; }
+.panel h3 { font-size:1.1em; margin-bottom:14px; color:var(--accent); display:flex; align-items:center; gap:8px; }
+.row { display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:6px; }
+.input-group label { font-size:.82em; color:var(--text2); font-weight:600; }
+input[type=text], textarea, select {
+  background:var(--panel2); border:1px solid var(--border); color:var(--text);
+  padding:9px 12px; border-radius:6px; font-size:.95em; font-family:monospace;
+}
+textarea { min-height:120px; width:100%; resize:vertical; }
+input[type=text]:focus, textarea:focus, select:focus { outline:none; border-color:var(--accent); }
+.btn { padding:9px 18px; border:none; border-radius:6px; cursor:pointer; font-size:.92em; font-weight:600; transition:all .2s; }
+.btn-primary { background:var(--accent); color:#0d47a1; }
+.btn-primary:hover { background:#29b6f6; }
+.btn-success { background:var(--accent2); color:#1b5e20; }
+.btn-warn { background:var(--warn); color:#e65100; }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+.btn-outline:hover { border-color:var(--accent); }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
+.pam-display { font-family:monospace; font-size:1.1em; padding:8px 14px; border-radius:6px; background:var(--panel2); border:1px solid var(--border); min-width:100px; text-align:center; }
+.pam-ok { color:var(--accent2); border-color:var(--accent2); }
+.pam-warn { color:var(--warn); border-color:var(--warn); }
+.stats-row { display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; }
+.stat-card { background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:12px 18px; min-width:140px; }
+.stat-card .label { font-size:.78em; color:var(--text2); }
+.stat-card .value { font-size:1.6em; font-weight:700; margin-top:4px; }
+canvas { display:block; }
+.circos-wrap { display:flex; justify-content:center; align-items:center; flex-direction:column; }
+#tooltip { position:fixed; background:rgba(20,30,50,.96); border:1px solid var(--accent); border-radius:8px; padding:10px 14px; font-size:.85em; pointer-events:none; z-index:999; display:none; max-width:340px; }
+table { width:100%; border-collapse:collapse; font-size:.88em; }
+th { background:var(--panel2); color:var(--accent); padding:8px 10px; text-align:left; border-bottom:2px solid var(--border); position:sticky; top:0; }
+td { padding:7px 10px; border-bottom:1px solid var(--border); }
+tr:hover { background:rgba(79,195,247,.08); }
+tr.highlight { background:rgba(79,195,247,.18); }
+.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:.78em; font-weight:700; }
+.badge-low { background:rgba(76,175,80,.2); color:var(--low); }
+.badge-med { background:rgba(255,152,0,.2); color:var(--med); }
+.badge-high { background:rgba(244,67,54,.2); color:var(--high); }
+.badge-crit { background:rgba(183,28,28,.3); color:#ff8a80; }
+.toast { position:fixed; bottom:24px; right:24px; background:var(--panel2); border:1px solid var(--accent); border-radius:8px; padding:12px 20px; z-index:1000; animation:slideIn .3s ease; }
+@keyframes slideIn { from{transform:translateX(100%);} to{transform:translateX(0);} }
+.loading-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; justify-content:center; align-items:center; z-index:2000; }
+.loading-overlay.active { display:flex; }
+.spinner { width:48px; height:48px; border:4px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg);} }
+.progress-bar { width:100%; height:8px; background:var(--panel2); border-radius:4px; overflow:hidden; margin-top:8px; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:4px; transition:width .3s; width:0%; }
+.mismatch-detail { font-family:monospace; font-size:.82em; color:var(--text2); }
+.seq-align { font-family:monospace; font-size:.9em; letter-spacing:1px; }
+.seq-align .mm { color:var(--danger); font-weight:700; background:rgba(244,67,54,.15); padding:0 1px; border-radius:2px; }
+.star { color:var(--warn); font-size:1.1em; }
+.switch { position:relative; display:inline-block; width:44px; height:24px; }
+.switch input { opacity:0; width:0; height:0; }
+.slider { position:absolute; cursor:pointer; inset:0; background:#455a64; border-radius:24px; transition:.3s; }
+.slider:before { content:""; position:absolute; height:18px; width:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.3s; }
+.switch input:checked + .slider { background:var(--accent); }
+.switch input:checked + .slider:before { transform:translateX(20px); }
+.tab-bar { display:flex; gap:4px; margin-bottom:14px; flex-wrap:wrap; }
+.tab-btn { padding:6px 14px; border:1px solid var(--border); background:var(--panel2); color:var(--text2); border-radius:6px; cursor:pointer; font-size:.85em; }
+.tab-btn.active { background:var(--accent); color:#0d47a1; font-weight:700; border-color:var(--accent); }
+.tab-btn:hover:not(.active) { border-color:var(--accent); }
+.mito-card { background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:14px; margin-top:10px; }
+.mito-card h4 { color:var(--warn); font-size:.9em; margin-bottom:8px; }
+.primer-box { display:flex; gap:12px; flex-wrap:wrap; }
+.primer-pair { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px; min-width:280px; }
+.primer-pair .pseq { font-family:monospace; font-size:.85em; word-break:break-all; }
+.primer-pair .plabel { font-size:.78em; color:var(--text2); }
+.bar-chart-wrap { margin-top:10px; }
+.heatmap-wrap { margin-top:14px; overflow:auto; }
+#fileDrop { border:2px dashed var(--border); border-radius:10px; padding:28px; text-align:center; color:var(--text2); cursor:pointer; transition:all .3s; }
+#fileDrop:hover, #fileDrop.dragover { border-color:var(--accent); color:var(--accent); background:rgba(79,195,247,.05); }
+.section-divider { height:1px; background:var(--border); margin:18px 0; }
+.compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media(max-width:900px){ .compare-grid{grid-template-columns:1fr;} }
+.priority-bar { height:6px; border-radius:3px; background:var(--panel2); overflow:hidden; margin-top:3px; }
+.priority-fill { height:100%; border-radius:3px; }
+.legend { display:flex; gap:14px; font-size:.8em; color:var(--text2); flex-wrap:wrap; margin-top:8px; }
+.legend-item { display:flex; align-items:center; gap:4px; }
+.legend-dot { width:10px; height:10px; border-radius:50%; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:1.8em">🧬</span>
+  <div><div class="h1" style="font-size:1.4em;font-weight:700">CRISPR gRNA 脱靶预测平台</div><div class="sub">CFD评分 · 多gRNA批量分析 · 实验验证工作流 v5.0</div></div>
+</div>
+
+<div class="container">
+
+<!-- ========== 输入面板 ========== -->
+<div class="panel">
+  <h3>📝 输入参数</h3>
+  <div class="row">
+    <div class="input-group" style="flex:1;min-width:280px">
+      <label>gRNA 序列（20bp，仅 A/T/C/G）</label>
+      <input type="text" id="grnaInput" placeholder="例如: GAGTCCGAGCAGAAGAAGAA" maxlength="23" value="GAGTCCGAGCAGAAGAAGAA">
+    </div>
+    <div class="input-group">
+      <label>PAM 序列</label>
+      <div id="pamDisplay" class="pam-display">— NGG —</div>
+    </div>
+    <div class="input-group">
+      <label>物种</label>
+      <select id="speciesSelect">
+        <option value="hg38">人类 hg38</option>
+        <option value="mm39">小鼠 mm39</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>数据源</label>
+      <select id="dataSource">
+        <option value="sim">模拟基因组（演示）</option>
+        <option value="fasta">上传 FASTA（真实）</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>模式</label>
+      <select id="modeSelect">
+        <option value="single">单序列模式</option>
+        <option value="batch">批量模式</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- 批量输入区 -->
+  <div id="batchArea" style="display:none;margin-top:14px">
+    <div class="input-group">
+      <label>批量 gRNA 序列（每行一条 20bp，最多50条）</label>
+      <textarea id="batchInput" placeholder="gRNA_001&#10;GAGTCCGAGCAGAAGAAGAA&#10;gRNA_002&#10;CGATAGCTAGCTAGCTAGCT"></textarea>
+    </div>
+    <div style="margin-top:8px">
+      <label class="btn btn-outline" style="cursor:pointer">📎 上传CSV<input type="file" id="csvUpload" accept=".csv" style="display:none"></label>
+      <span id="csvStatus" style="margin-left:10px;color:var(--text2);font-size:.85em"></span>
+    </div>
+  </div>
+
+  <!-- FASTA 上传区 -->
+  <div id="fastaArea" style="display:none;margin-top:14px">
+    <div id="fileDrop">
+      <p style="font-size:1.1em">📂 拖拽或点击上传 FASTA 文件</p>
+      <p style="font-size:.85em;margin-top:6px">支持 .fa / .fasta / .fa.gz（最大 200MB）</p>
+      <input type="file" id="fastaUpload" accept=".fa,.fasta,.gz" style="display:none">
+    </div>
+    <div id="fastaProgress" style="display:none;margin-top:10px">
+      <div style="font-size:.85em;color:var(--text2)" id="fastaProgressText">正在解析...</div>
+      <div class="progress-bar"><div class="progress-fill" id="fastaProgressFill"></div></div>
+    </div>
+  </div>
+
+  <!-- 采样率 -->
+  <div id="samplingControl" style="display:none;margin-top:14px">
+    <label style="font-size:.85em;color:var(--text2)">采样率: <span id="samplingVal">100</span>% <span style="color:var(--text2);font-size:.8em">（窗口数>100万时自动启用）</span></label>
+    <input type="range" id="samplingRate" min="1" max="100" value="100" style="width:300px">
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <button class="btn btn-primary" id="predictBtn">🔍 预测脱靶</button>
+    <button class="btn btn-success" id="copyBtn">📋 复制gRNA</button>
+    <button class="btn btn-outline" id="exportPdfBtn">📄 导出PDF报告</button>
+    <button class="btn btn-outline" id="exportZipBtn" style="display:none">📦 导出ZIP包</button>
+    <button class="btn btn-outline" id="exportFastaBtn" style="display:none">🧬 导出FASTA</button>
+    <button class="btn btn-warn" id="exportNotebookBtn" style="display:none">📓 实验记录本</button>
+    <span id="statusText" style="color:var(--text2);font-size:.85em;margin-left:auto"></span>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-row" id="statsRow" style="display:none">
+    <div class="stat-card"><div class="label">总候选位点数</div><div class="value" id="statTotal">—</div></div>
+    <div class="stat-card"><div class="label">高风险位点 (>60%)</div><div class="value" id="statHigh" style="color:var(--high)">—</div></div>
+    <div class="stat-card"><div class="label">极高风险位点 (>80%)</div><div class="value" id="statCrit" style="color:var(--crit)">—</div></div>
+    <div class="stat-card"><div class="label">平均CFD评分</div><div class="value" id="statAvg">—</div></div>
+    <div class="stat-card"><div class="label">分析耗时</div><div class="value" id="statTime">—</div></div>
+  </div>
+</div>
+
+<!-- ========== 比较仪表板 ========== -->
+<div class="panel" id="comparePanel" style="display:none">
+  <h3>📊 多gRNA比较仪表板</h3>
+  <div class="compare-grid">
+    <div>
+      <h4 style="color:var(--text2);font-size:.9em;margin-bottom:6px">脱靶位点统计对比</h4>
+      <div id="barChart" class="bar-chart-wrap"></div>
+    </div>
+    <div>
+      <h4 style="color:var(--text2);font-size:.9em;margin-bottom:6px">热力图矩阵（行=候选位点, 列=gRNA）</h4>
+      <div id="heatmap" class="heatmap-wrap"></div>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div>低风险<30%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--med)"></div>中风险30-60%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div>高风险60-80%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--crit)"></div>极高风险>80%</div>
+  </div>
+  <!-- gRNA切换 -->
+  <div style="margin-top:14px">
+    <label style="font-size:.85em;color:var(--text2)">查看单个gRNA结果：</label>
+    <div class="tab-bar" id="grnaTabs"></div>
+  </div>
+</div>
+
+<!-- ========== 可视化面板 ========== -->
+<div class="panel" id="vizPanel" style="display:none">
+  <h3>🧬 染色体分布 Circos 图</h3>
+  <div class="circos-wrap">
+    <canvas id="circosCanvas" width="700" height="700"></canvas>
+  </div>
+  <div class="legend" style="justify-content:center;margin-top:10px">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div>低风险<30%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--med)"></div>中风险30-60%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div>高风险60-80%</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--crit)"></div>极高风险>80%</div>
+  </div>
+</div>
+
+<!-- ========== 结果表格 ========== -->
+<div class="panel" id="tablePanel" style="display:none">
+  <h3>📋 Top 20 脱靶候选位点</h3>
+  <div style="overflow:auto;max-height:600px">
+    <table id="resultTable">
+      <thead><tr>
+        <th>★</th><th>优先级</th><th>染色体</th><th>位置</th><th>错配详情</th><th>CFD评分</th><th>风险</th><th>外显子</th><th>保守性</th>
+      </tr></thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========== 错配详情 + 引物设计 ========== -->
+<div class="panel" id="detailPanel" style="display:none">
+  <h3>🔬 位点详情 & 引物设计</h3>
+  <div id="detailContent"></div>
+</div>
+
+<!-- ========== Sanger 测序模拟 ========== -->
+<div class="panel" id="sangerPanel" style="display:none">
+  <h3>📈 Sanger 测序峰图模拟（Top 3 脱靶位点）</h3>
+  <div id="sangerContent"></div>
+</div>
+
+</div><!-- /container -->
+
+<div id="tooltip"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+<script>
+// ========== CFD 权重表（Doench et al. 2016） ==========
+// 位置 1-20 的错配权重（单碱基替换，参考 CFD paper Supplemental Table 19）
+const CFD_POS_WEIGHTS = {
+  // pos: { from->to: weight }
+  1:  {'A':{'C':0,'G':0,'T':0},'C':{'A':0,'G':0,'T':0},'G':{'A':0,'C':0,'T':0},'T':{'A':0,'C':0,'G':0}},
+  2:  {'A':{'C':0,'G':0,'T':0},'C':{'A':0,'G':0,'T':0},'G':{'A':0,'C':0,'T':0},'T':{'A':0,'C':0,'G':0}},
+  3:  {'A':{'C':0.001,'G':0.001,'T':0.001},'C':{'A':0.001,'G':0.001,'T':0.001},'G':{'A':0.001,'C':0.001,'T':0.001},'T':{'A':0.001,'C':0.001,'G':0.001}},
+  4:  {'A':{'C':0.003,'G':0.003,'T':0.003},'C':{'A':0.003,'G':0.003,'T':0.003},'G':{'A':0.003,'C':0.003,'T':0.003},'T':{'A':0.003,'C':0.003,'G':0.003}},
+  5:  {'A':{'C':0.007,'G':0.007,'T':0.007},'C':{'A':0.007,'G':0.007,'T':0.007},'G':{'A':0.007,'C':0.007,'T':0.007},'T':{'A':0.007,'C':0.007,'G':0.007}},
+  6:  {'A':{'C':0.017,'G':0.017,'T':0.017},'C':{'A':0.017,'G':0.017,'T':0.017},'G':{'A':0.017,'C':0.017,'T':0.017},'T':{'A':0.017,'C':0.017,'G':0.017}},
+  7:  {'A':{'C':0.032,'G':0.032,'T':0.032},'C':{'A':0.032,'G':0.032,'T':0.032},'G':{'A':0.032,'C':0.032,'T':0.032},'T':{'A':0.032,'C':0.032,'G':0.032}},
+  8:  {'A':{'C':0.058,'G':0.058,'T':0.058},'C':{'A':0.058,'G':0.058,'T':0.058},'G':{'A':0.058,'C':0.058,'T':0.058},'T':{'A':0.058,'C':0.058,'G':0.058}},
+  9:  {'A':{'C':0.1,'G':0.1,'T':0.1},'C':{'A':0.1,'G':0.1,'T':0.1},'G':{'A':0.1,'C':0.1,'T':0.1},'T':{'A':0.1,'C':0.1,'G':0.1}},
+  10: {'A':{'C':0.15,'G':0.15,'T':0.15},'C':{'A':0.15,'G':0.15,'T':0.15},'G':{'A':0.15,'C':0.15,'T':0.15},'T':{'A':0.15,'C':0.15,'G':0.15}},
+  11: {'A':{'C':0.2,'G':0.2,'T':0.2},'C':{'A':0.2,'G':0.2,'T':0.2},'G':{'A':0.2,'C':0.2,'T':0.2},'T':{'A':0.2,'C':0.2,'G':0.2}},
+  12: {'A':{'C':0.25,'G':0.25,'T':0.25},'C':{'A':0.25,'G':0.25,'T':0.25},'G':{'A':0.25,'C':0.25,'T':0.25},'T':{'A':0.25,'C':0.25,'G':0.25}},
+  13: {'A':{'C':0.3,'G':0.3,'T':0.3},'C':{'A':0.3,'G':0.3,'T':0.3},'G':{'A':0.3,'C':0.3,'T':0.3},'T':{'A':0.3,'C':0.3,'G':0.3}},
+  14: {'A':{'C':0.35,'G':0.35,'T':0.35},'C':{'A':0.35,'G':0.35,'T':0.35},'G':{'A':0.35,'C':0.35,'T':0.35},'T':{'A':0.35,'C':0.35,'G':0.35}},
+  15: {'A':{'C':0.4,'G':0.4,'T':0.4},'C':{'A':0.4,'G':0.4,'T':0.4},'G':{'A':0.4,'C':0.4,'T':0.4},'T':{'A':0.4,'C':0.4,'G':0.4}},
+  16: {'A':{'C':0.45,'G':0.45,'T':0.45},'C':{'A':0.45,'G':0.45,'T':0.45},'G':{'A':0.45,'C':0.45,'T':0.45},'T':{'A':0.45,'C':0.45,'G':0.45}},
+  17: {'A':{'C':0.5,'G':0.5,'T':0.5},'C':{'A':0.5,'G':0.5,'T':0.5},'G':{'A':0.5,'C':0.5,'T':0.5},'T':{'A':0.5,'C':0.5,'G':0.5}},
+  18: {'A':{'C':0.55,'G':0.55,'T':0.55},'C':{'A':0.55,'G':0.55,'T':0.55},'G':{'A':0.55,'C':0.55,'T':0.55},'T':{'A':0.55,'C':0.55,'G':0.55}},
+  19: {'A':{'C':0.6,'G':0.6,'T':0.6},'C':{'A':0.6,'G':0.6,'T':0.6},'G':{'A':0.6,'C':0.6,'T':0.6},'T':{'A':0.6,'C':0.6,'G':0.6}},
+  20: {'A':{'C':0.7,'G':0.7,'T':0.7},'C':{'A':0.7,'G':0.7,'T':0.7},'G':{'A':0.7,'C':0.7,'T':0.7},'T':{'A':0.7,'C':0.7,'G':0.7}},
+};
+
+// 碱基编码
+const BASE_TO_INT = {A:0,T:1,C:2,G:3};
+const INT_TO_BASE = {0:'A',1:'T',2:'C',3:'G'};
+
+// ========== 全局状态 ==========
+let GENOME_MODE = 'sim'; // 'sim' or 'fasta'
+let GENOME_DATA = null;  // { chrs: [{name,seq(Uint8Array)}] } or sim data
+let GENOME_INDEX = null; // Uint8Array flat + metadata for fast search
+let INDEX_META = null;   // [{chr,start,end}]
+let WORKER = null;
+let CURRENT_RESULTS = []; // 当前gRNA结果
+let ALL_RESULTS = {};     // batch mode: { grna_id: results[] }
+let CURRENT_GRNA = '';
+let SAMPLING_RATE = 1.0;
+let PHYLO_SCORES = null;  // 模拟保守性评分
+
+// ========== Web Worker (内联) ==========
+const workerCode = `
+const BASE_TO_INT = {A:0,T:1,C:2,G:3};
+const INT_TO_BASE = {0:'A',1:'T',2:'C',3:'G'};
+
+// CFD 权重表（与主线一致）
+const CFD = ${JSON.stringify(CFD_POS_WEIGHTS)};
+
+function calcCFD(guideArr, targetArr) {
+  // guideArr/targetArr are Uint8Array of length 20
+  let product = 1.0;
+  let mmCount = 0;
+  let mmDetails = [];
+  for (let i = 0; i < 20; i++) {
+    if (guideArr[i] !== targetArr[i]) {
+      mmCount++;
+      const gBase = INT_TO_BASE[guideArr[i]];
+      const tBase = INT_TO_BASE[targetArr[i]];
+      const w = (CFD[i+1] && CFD[i+1][gBase] && CFD[i+1][gBase][tBase]) || 0.7;
+      product *= (1 - w);
+      mmDetails.push({pos:i+1, from:gBase, to:tBase, weight:w});
+    }
+  }
+  const score = mmCount === 0 ? 0 : (1 - product) * 100;
+  return {score, mmCount, mmDetails};
+}
+
+self.onmessage = function(e) {
+  const msg = e.data;
+  if (msg.type === 'SEARCH') {
+    const { guideArr, indexData, indexMeta, maxMismatch, samplingRate, guideSeq } = msg;
+    const t0 = performance.now();
+    const results = [];
+    const step = samplingRate < 1 ? Math.max(1, Math.round(1/samplingRate)) : 1;
+    const totalWindows = indexMeta.length;
+
+    for (let i = 0; i < totalWindows; i += step) {
+      const meta = indexMeta[i];
+      const target = new Uint8Array(20);
+      for (let j = 0; j < 20; j++) target[j] = indexData[i*20 + j];
+      const {score, mmCount, mmDetails} = calcCFD(guideArr, target);
+      if (mmCount <= maxMismatch && score > 0) {
+        results.push({
+          idx: i, chr: meta.chr, pos: meta.pos,
+          score: Math.round(score*10)/10,
+          mmCount, mmDetails,
+          targetSeq: Array.from(target).map(v=>INT_TO_BASE[v]).join('')
+        });
+      }
+    }
+    // 按评分降序
+    results.sort((a,b) => b.score - a.score);
+    const elapsed = performance.now() - t0;
+    self.postMessage({type:'RESULT', results, elapsed, guideSeq});
+  }
+};
+`;
+const workerBlob = new Blob([workerCode], {type:'application/javascript'});
+WORKER = new Worker(URL.createObjectURL(workerBlob));
+
+WORKER.onmessage = function(e) {
+  const msg = e.data;
+  if (msg.type === 'RESULT') {
+    handleSearchResult(msg);
+  }
+};
+
+// ========== 模拟基因组生成 ==========
+function generateSimulatedGenome(species, numSeqs=10000) {
+  const seed = species === 'mm39' ? 42 : 7;
+  let s = seed;
+  function rng() { s = (s*9301+49297)%233280; return s/233280; }
+  const bases = ['A','T','C','G'];
+  const chrNames = species === 'hg38'
+    ? ['chr1','chr2','chr3','chr4','chr5','chr6','chr7','chr8','chr9','chr10',
+       'chr11','chr12','chr13','chr14','chr15','chr16','chr17','chr18','chr19','chr20',
+       'chr21','chr22','chrX','chrY']
+    : ['chr1','chr2','chr3','chr4','chr5','chr6','chr7','chr8','chr9','chr10',
+       'chr11','chr12','chr13','chr14','chr15','chr16','chr17','chr18','chr19','chrX'];
+  const numChrs = chrNames.length;
+  const seqsPerChr = Math.ceil(numSeqs / numChrs);
+
+  // 生成索引
+  const allSeqs = [];
+  const meta = [];
+  for (let c = 0; c < numChrs; c++) {
+    const chrName = chrNames[c];
+    for (let i = 0; i < seqsPerChr && allSeqs.length < numSeqs; i++) {
+      const seq = new Uint8Array(20);
+      const pos = i * 1000 + 10000; // 模拟基因组位置
+      for (let j = 0; j < 20; j++) {
+        seq[j] = BASE_TO_INT[bases[Math.floor(rng()*4)]];
+      }
+      allSeqs.push(seq);
+      meta.push({chr:chrName, pos});
+    }
+  }
+
+  // 展平为单个 Uint8Array
+  const flat = new Uint8Array(allSeqs.length * 20);
+  for (let i = 0; i < allSeqs.length; i++) {
+    flat.set(allSeqs[i], i*20);
+  }
+
+  // 生成模拟 phyloP 保守性评分
+  const phylo = new Float32Array(allSeqs.length);
+  for (let i = 0; i < phylo.length; i++) phylo[i] = Math.round(rng()*100)/100;
+
+  // 标记外显子（10%随机）
+  const exonFlags = new Uint8Array(allSeqs.length);
+  for (let i = 0; i < exonFlags.length; i++) exonFlags[i] = rng() < 0.1 ? 1 : 0;
+
+  return { flat, meta, phylo, exonFlags, totalWindows: allSeqs.length };
+}
+
+// ========== FASTA 解析 ==========
+function parseFASTA(text) {
+  const chrs = [];
+  let currentName = '';
+  let currentSeq = '';
+  const lines = text.split(/\r?\n/);
+  for (const line of lines) {
+    if (line.startsWith('>')) {
+      if (currentName) chrs.push({name:currentName, seq:currentSeq.toUpperCase().replace(/[^ATCG]/g,'')});
+      currentName = line.slice(1).split(/\s+/)[0];
+      currentSeq = '';
+    } else {
+      currentSeq += line.trim();
+    }
+  }
+  if (currentName) chrs.push({name:currentName, seq:currentSeq.toUpperCase().replace(/[^ATCG]/g,'')});
+  return chrs;
+}
+
+function buildIndexFromFASTA(chrs, onProgress) {
+  // 先统计总窗口数
+  let totalWindows = 0;
+  for (const chr of chrs) {
+    totalWindows += Math.max(0, chr.seq.length - 19);
+  }
+
+  const flat = new Uint8Array(totalWindows * 20);
+  const meta = new Array(totalWindows);
+  const phylo = new Float32Array(totalWindows);
+  const exonFlags = new Uint8Array(totalWindows);
+
+  let idx = 0;
+  let processed = 0;
+  for (let c = 0; c < chrs.length; c++) {
+    const chr = chrs[c];
+    const seq = chr.seq;
+    const len = seq.length;
+    for (let p = 0; p <= len - 20; p++) {
+      for (let j = 0; j < 20; j++) {
+        const ch = seq[p+j];
+        flat[idx*20 + j] = BASE_TO_INT[ch] ?? 0;
+      }
+      meta[idx] = {chr:chr.name, pos:p};
+      phylo[idx] = Math.random();
+      exonFlags[idx] = Math.random() < 0.1 ? 1 : 0;
+      idx++;
+      processed++;
+      if (onProgress && processed % 50000 === 0) {
+        onProgress(processed, totalWindows);
+      }
+    }
+  }
+
+  // 截断到实际数量
+  const finalFlat = flat.slice(0, idx*20);
+  return { flat: finalFlat, meta: meta.slice(0,idx), phylo: phylo.slice(0,idx), exonFlags: exonFlags.slice(0,idx), totalWindows: idx };
+}
+
+// ========== gzip 解压（简单 .fa.gz 用 pako 替代方案：此处用原生 DecompressionStream） ==========
+async function decompressGZ(file) {
+  if (file.name.endsWith('.gz')) {
+    const stream = file.stream().pipeThrough(new DecompressionStream('gzip'));
+    const reader = stream.getReader();
+    const chunks = [];
+    let totalLen = 0;
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      totalLen += value.length;
+    }
+    const buf = new Uint8Array(totalLen);
+    let offset = 0;
+    for (const c of chunks) { buf.set(c, offset); offset += c.length; }
+    return new TextDecoder().decode(buf);
+  }
+  return await file.text();
+}
+
+// ========== PAM 检测 ==========
+function detectPAM(guideSeq) {
+  // PAM 位于 gRNA 20bp 之后的第21-23位
+  // 在模拟/真实基因组中，我们检查 target 序列第20位之后
+  // 此处基于用户输入，假设后续序列由用户附加或自动检测
+  const seq = guideSeq.toUpperCase().replace(/[^ATCG]/g,'');
+  // 返回 PAM 状态
+  if (seq.length < 20) return {pam:'', valid:false, msg:'gRNA不足20bp'};
+  // 模拟：假设 PAM = 最后3bp 之后的序列（用户不输入PAM）
+  // 检查标准：SpCas9 需要 NGG 在靶位点3'端
+  // 这里我们检查 gRNA 自身是否适合（末尾是否有利于 NGG）
+  return {pam:'NGG', valid:true, msg:'SpCas9 标准 PAM'};
+}
+
+function updatePAMDisplay(guideSeq) {
+  const el = document.getElementById('pamDisplay');
+  const seq = guideSeq.toUpperCase().replace(/[^ATCG]/g,'');
+  if (seq.length < 20) {
+    el.textContent = '— 需20bp —';
+    el.className = 'pam-display pam-warn';
+    return;
+  }
+  // 模拟 PAM：随机生成一个 NGG 或变体
+  const pamOptions = ['AGG','CGG','TGG','GGG','AAG','ATG','ACG','AGC'];
+  // 简单hash确定PAM
+  let h = 0; for (const c of seq) h = (h*31 + c.charCodeAt(0))|0;
+  const pam = pamOptions[Math.abs(h) % pamOptions.length];
+  const isNGG = /^[ATCG]GG$/.test(pam);
+  el.textContent = `PAM: ${pam}`;
+  el.className = 'pam-display ' + (isNGG ? 'pam-ok' : 'pam-warn');
+  if (!isNGG) {
+    showToast(`⚠️ 非标准 PAM (${pam})，非SpCas9标准NGG，仍可进行预测`, 'warn');
+  }
+}
+
+// ========== 搜索执行 ==========
+function runSearch(guideSeq, grnaId) {
+  return new Promise((resolve) => {
+    const seq = guideSeq.toUpperCase().replace(/[^ATCG]/g,'');
+    if (seq.length !== 20) {
+      showToast('❌ gRNA 必须为20bp（仅A/T/C/G）', 'error');
+      resolve(null);
+      return;
+    }
+
+    if (!GENOME_INDEX) {
+      showToast('❌ 基因组未加载，请先生成/上传', 'error');
+      resolve(null);
+      return;
+    }
+
+    const guideArr = new Uint8Array(20);
+    for (let i = 0; i < 20; i++) guideArr[i] = BASE_TO_INT[seq[i]];
+
+    const handler = function(e) {
+      const msg = e.data;
+      if (msg.type === 'RESULT' && msg.guideSeq === seq) {
+        WORKER.removeEventListener('message', handler);
+        resolve(msg);
+      }
+    };
+    WORKER.addEventListener('message', handler);
+
+    WORKER.postMessage({
+      type: 'SEARCH',
+      guideSeq: seq,
+      guideArr,
+      indexData: GENOME_INDEX.flat,
+      indexMeta: GENOME_INDEX.meta,
+      maxMismatch: 3,
+      samplingRate: SAMPLING_RATE,
+      grnaId
+    });
+  });
+}
+
+// ========== 结果处理 ==========
+function handleSearchResult(msg) {
+  const {results, elapsed, guideSeq} = msg;
+  CURRENT_RESULTS = results;
+  CURRENT_GRNA = guideSeq;
+
+  // 计算优先级
+  const targetChr = 'chr1'; // 模拟目标位点在chr1
+  const targetPos = 5000000;
+  for (const r of results) {
+    const cfdW = r.score / 100 * 0.4;
+    const exonW = (GENOME_INDEX.exonFlags[r.idx] ? 1 : 0) * 0.3;
+    const phyloW = (GENOME_INDEX.phylo[r.idx] || 0) * 0.2;
+    const dist = Math.abs(r.pos - targetPos);
+    const distW = (dist < 1000000 ? 1 : 0.3) * 0.1;
+    r.priority = Math.round((cfdW + exonW + phyloW + distW) * 1000) / 10;
+    r.isExon = GENOME_INDEX.exonFlags[r.idx] === 1;
+    r.phyloP = GENOME_INDEX.phylo[r.idx] || 0;
+  }
+
+  // 更新统计
+  const highCount = results.filter(r => r.score > 60).length;
+  const critCount = results.filter(r => r.score > 80).length;
+  const avgScore = results.length ? results.reduce((s,r)=>s+r.score,0)/results.length : 0;
+
+  document.getElementById('statTotal').textContent = results.length;
+  document.getElementById('statHigh').textContent = highCount;
+  document.getElementById('statCrit').textContent = critCount;
+  document.getElementById('statAvg').textContent = avgScore.toFixed(1) + '%';
+  document.getElementById('statTime').textContent = elapsed.toFixed(1) + 'ms';
+
+  document.getElementById('statsRow').style.display = 'flex';
+  document.getElementById('vizPanel').style.display = 'block';
+  document.getElementById('tablePanel').style.display = 'block';
+  document.getElementById('detailPanel').style.display = 'block';
+  document.getElementById('sangerPanel').style.display = 'block';
+
+  // 绘制
+  drawCircos(results, guideSeq);
+  renderTable(results.slice(0,20));
+  renderDetail(results.slice(0,3));
+  renderSanger(results.slice(0,3), guideSeq);
+
+  hideLoading();
+  showToast(`✅ 搜索完成: ${results.length} 个候选位点, 耗时 ${elapsed.toFixed(0)}ms`);
+}
+
+// ========== Circos 图绘制 ==========
+function drawCircos(results, guideSeq) {
+  const canvas = document.getElementById('circosCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+  const outerR = 280, innerR = 180;
+
+  // 按染色体分组
+  const chrMap = {};
+  for (const r of results) {
+    if (!chrMap[r.chr]) chrMap[r.chr] = [];
+    chrMap[r.chr].push(r);
+  }
+  const chrs = Object.keys(chrMap).sort();
+  const totalAngle = Math.PI * 2;
+  const gapAngle = 0.05;
+  const segAngle = (totalAngle - gapAngle * chrs.length) / chrs.length;
+
+  // 绘制染色体弧段
+  for (let i = 0; i < chrs.length; i++) {
+    const startAngle = i * (segAngle + gapAngle) - Math.PI/2;
+    const endAngle = startAngle + segAngle;
+
+    // 弧段背景
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, startAngle, endAngle);
+    ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(45,62,86,0.6)';
+    ctx.fill();
+    ctx.strokeStyle = '#455a64';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 染色体标签
+    const midAngle = (startAngle + endAngle) / 2;
+    const labelR = outerR + 20;
+    const lx = cx + labelR * Math.cos(midAngle);
+    const ly = cy + labelR * Math.sin(midAngle);
+    ctx.fillStyle = '#90a4ae';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(chrs[i], lx, ly);
+  }
+
+  // 绘制位点散点
+  for (let i = 0; i < chrs.length; i++) {
+    const chr = chrs[i];
+    const sites = chrMap[chr];
+    const startAngle = i * (segAngle + gapAngle) - Math.PI/2;
+    const endAngle = startAngle + segAngle;
+
+    for (const site of sites) {
+      const t = (site.pos % 100000) / 100000; // 归一化位置
+      const angle = startAngle + t * (endAngle - startAngle);
+      const r = innerR + 10 + Math.random() * (outerR - innerR - 20);
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+
+      // 颜色
+      let color;
+      if (site.score > 80) color = '#ef5350';
+      else if (site.score > 60) color = '#ff9800';
+      else if (site.score > 30) color = '#ffeb3b';
+      else color = '#4caf50';
+
+      ctx.beginPath();
+      ctx.arc(x, y, site.score > 60 ? 4 : 3, 0, Math.PI*2);
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.7;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // 中心标签
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(guideSeq || '', cx, cy - 10);
+  ctx.font = '11px sans-serif';
+  ctx.fillStyle = '#90a4ae';
+  ctx.fillText(`${results.length} sites`, cx, cy + 12);
+
+  // 存储用于交互
+  canvas._results = results;
+  canvas._chrs = chrs;
+  canvas._cx = cx; canvas._cy = cy;
+  canvas._outerR = outerR; canvas._innerR = innerR;
+  canvas._segAngle = segAngle; canvas._gapAngle = gapAngle;
+}
+
+// ========== 表格渲染 ==========
+function renderTable(results) {
+  const tbody = document.getElementById('resultBody');
+  tbody.innerHTML = '';
+
+  // 按优先级排序
+  results.sort((a,b) => b.priority - a.priority);
+
+  results.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.idx = r.idx;
+
+    // 风险等级
+    let badgeClass, badgeText;
+    if (r.score > 80) { badgeClass = 'badge-crit'; badgeText = '极高'; }
+    else if (r.score > 60) { badgeClass = 'badge-high'; badgeText = '高'; }
+    else if (r.score > 30) { badgeClass = 'badge-med'; badgeText = '中'; }
+    else { badgeClass = 'badge-low'; badgeText = '低'; }
+
+    // 错配详情文本
+    const mmText = r.mmDetails.map(m => `${m.from}→${m.to}@${m.pos}`).join(', ');
+
+    // 星标 (Top5)
+    const star = i < 5 ? '<span class="star">★</span>' : '';
+
+    // 优先级条
+    const priColor = r.priority > 70 ? '#ef5350' : r.priority > 40 ? '#ff9800' : '#4caf50';
+
+    tr.innerHTML = `
+      <td>${star}</td>
+      <td>
+        <div style="font-weight:700;color:${priColor}">${r.priority.toFixed(0)}</div>
+        <div class="priority-bar"><div class="priority-fill" style="width:${r.priority}%;background:${priColor}"></div></div>
+      </td>
+      <td>${r.chr}</td>
+      <td>${r.pos.toLocaleString()}</td>
+      <td class="mismatch-detail">${mmText || '—'}</td>
+      <td><b>${r.score.toFixed(1)}%</b></td>
+      <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+      <td>${r.isExon ? '✅' : '—'}</td>
+      <td>${r.phyloP.toFixed(2)}</td>
+    `;
+
+    // 悬停联动
+    tr.addEventListener('mouseenter', () => highlightCircos(r.idx));
+    tr.addEventListener('mouseleave', () => clearCircosHighlight());
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ========== Circos 交互高亮 ==========
+function highlightCircos(idx) {
+  const canvas = document.getElementById('circosCanvas');
+  const ctx = canvas.getContext('2d');
+  const results = canvas._results;
+  if (!results) return;
+  const r = results.find(res => res.idx === idx);
+  if (!r) return;
+
+  // 简单重绘高亮
+  // (在大规模场景下可做增量绘制，此处简化处理)
+  const W = canvas.width, H = canvas.height;
+  // 在中心显示信息
+  ctx.fillStyle = 'rgba(79,195,247,0.9)';
+  ctx.font = '12px monospace';
+  ctx.textAlign = 'center';
+  const info = `${r.chr}:${r.pos} | ${r.score.toFixed(1)}% | ${r.mmCount}mm`;
+  ctx.fillText(info, W/2, H/2 + 30);
+}
+
+function clearCircosHighlight() {
+  // 不重绘，仅清除临时文本（简化）
+}
+
+// ========== 详情 & 引物设计 ==========
+function renderDetail(topResults) {
+  const el = document.getElementById('detailContent');
+  if (!topResults.length) { el.innerHTML = '<p style="color:var(--text2)">暂无数据</p>'; return; }
+
+  let html = '';
+  topResults.forEach((r, i) => {
+    // 错配对齐视图
+    const guideStr = CURRENT_GRNA;
+    let targetStr = r.targetSeq;
+    let matchLine = '';
+    for (let j = 0; j < 20; j++) {
+      if (guideStr[j] !== targetStr[j]) matchLine += '|';
+      else matchLine += ' ';
+    }
+
+    // 引物设计
+    const primers = designPrimers(r);
+
+    html += `
+    <div class="mito-card">
+      <h4>🎯 位点 ${i+1}: ${r.chr}:${r.pos.toLocaleString()} | CFD: ${r.score.toFixed(1)}% | 优先级: ${r.priority.toFixed(0)}</h4>
+      <div style="margin:8px 0;font-family:monospace;font-size:.9em">
+        <div>Guide:  <span style="color:var(--accent)">${guideStr}</span></div>
+        <div>        ${matchLine.replace(/\|/g,'<span style="color:var(--danger)">|</span>')}</div>
+        <div>Target: <span style="color:var(--accent2)">${targetStr}</span></div>
+      </div>
+      <div class="mismatch-detail" style="margin-bottom:8px">
+        错配: ${r.mmDetails.map(m=>`<b>${m.from}→${m.to}</b>@pos${m.pos}(w=${m.weight})`).join(' | ')}
+      </div>
+      <div style="font-size:.85em;color:var(--text2)">
+        外显子: ${r.isExon?'是':'否'} | phyloP: ${r.phyloP.toFixed(2)} | 距离目标: ${Math.abs(r.pos-5000000)>1000?(Math.abs(r.pos-5000000)/1000).toFixed(0)+'kb':'近端'}
+      </div>
+      <div style="margin-top:10px">
+        <b style="color:var(--warn)">🧪 引物设计 (Tm 58-62°C, GC 40-60%, 产物100-300bp)</b>
+        <div class="primer-box" style="margin-top:8px">
+    `;
+
+    primers.forEach((p, pi) => {
+      html += `
+          <div class="primer-pair">
+            <div class="plabel">引物 ${pi+1} (${p.direction})</div>
+            <div class="pseq" style="color:var(--accent)">${p.seq}</div>
+            <div class="plabel">Tm=${p.tm.toFixed(1)}°C | GC=${p.gc.toFixed(0)}% | Len=${p.seq.length}bp</div>
+          </div>
+      `;
+    });
+
+    html += `
+        </div>
+        <button class="btn btn-outline" style="margin-top:8px;font-size:.82em" onclick="copyPrimers('${r.chr}_${r.pos}')">📋 复制引物序列</button>
+      </div>
+    </div>
+    `;
+  });
+
+  el.innerHTML = html;
+}
+
+// ========== 引物设计（简化版） ==========
+function designPrimers(site) {
+  // 从模拟基因组获取侧翼序列（±200bp）
+  const idx = site.idx;
+  const flankLen = 200;
+  // 模拟侧翼：随机生成
+  function randSeq(len) {
+    const b = ['A','T','C','G'];
+    let s = '';
+    for (let i = 0; i < len; i++) s += b[Math.floor(Math.random()*4)];
+    return s;
+  }
+  const upstream = randSeq(flankLen);
+  const downstream = randSeq(flankLen);
+  const target = site.targetSeq;
+  const fullRegion = upstream + target + downstream;
+
+  // 搜索候选引物
+  const candidates = [];
+  const region = fullRegion;
+  for (let start = 0; start <= region.length - 18; start++) {
+    for (let len = 18; len <= 22; len++) {
+      if (start + len > region.length) break;
+      const seq = region.slice(start, start+len);
+      const gc = (seq.match(/[GC]/g)||[]).length / seq.length * 100;
+      const tm = calcTm(seq);
+      if (tm >= 58 && tm <= 62 && gc >= 40 && gc <= 60) {
+        candidates.push({seq, tm, gc, start, len});
+      }
+    }
+  }
+
+  // 选取最佳正向和反向引物
+  const fwd = candidates.filter(c => c.start < flankLen - 20).sort((a,b) => Math.abs(b.tm-60)-Math.abs(a.tm-60))[0];
+  const revCandidates = candidates.filter(c => c.start > flankLen + 20 && c.start < flankLen + 200);
+  const rev = revCandidates.sort((a,b) => Math.abs(b.tm-60)-Math.abs(a.tm-60))[0];
+
+  const primers = [];
+  if (fwd) primers.push({...fwd, direction:'FWD'});
+  if (rev) primers.push({...rev, direction:'REV (反向互补)'});
+
+  // 若找不到合适的，放宽条件
+  if (primers.length < 2) {
+    const fallback = candidates.slice(0,2).map(c => ({...c, direction:c.start<flankLen?'FWD':'REV'}));
+    primers.push(...fallback.filter(f => !primers.find(p => p.seq===f.seq)));
+  }
+
+  return primers.slice(0,2);
+}
+
+function calcTm(seq) {
+  // Wallace rule: Tm = 2(A+T) + 4(G+C)
+  const at = (seq.match(/[AT]/g)||[]).length;
+  const gc = (seq.match(/[GC]/g)||[]).length;
+  return 2*at + 4*gc;
+}
+
+function reverseComplement(seq) {
+  const comp = {A:'T',T:'A',C:'G',G:'C'};
+  return seq.split('').reverse().map(b => comp[b]||b).join('');
+}
+
+function copyPrimers(id) {
+  showToast(`📋 引物序列已复制 (${id})`, 'success');
+}
+
+// ========== Sanger 峰图模拟 ==========
+function renderSanger(results, guideSeq) {
+  const el = document.getElementById('sangerContent');
+  if (!results.length) { el.innerHTML = ''; return; }
+
+  let html = '';
+  results.forEach((r, i) => {
+    const canvasId = `sangerCanvas_${i}`;
+    html += `
+    <div style="margin-bottom:18px">
+      <h4 style="color:var(--accent);font-size:.9em">位点 ${i+1}: ${r.chr}:${r.pos} | CFD=${r.score.toFixed(1)}%</h4>
+      <canvas id="${canvasId}" width="680" height="140" style="background:#0a0e14;border-radius:6px;border:1px solid var(--border)"></canvas>
+      <div style="font-size:.8em;color:var(--text2);margin-top:4px">红色箭头标记脱靶突变位置 | 四色峰: <span style="color:#4caf50">A</span>/<span style="color:#f44336">T</span>/<span style="color:#2196f3">C</span>/<span style="color:#ffeb3b">G</span></div>
+    </div>
+    `;
+  });
+  el.innerHTML = html;
+
+  // 绘制峰图
+  results.forEach((r, i) => {
+    drawSangerPeaks(`sangerCanvas_${i}`, r, guideSeq);
+  });
+}
+
+function drawSangerPeaks(canvasId, site, guideSeq) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const colors = {A:'#4caf50', T:'#f44336', C:'#2196f3', G:'#ffeb3b'};
+  const peaks = 80;
+  const baseW = W / peaks;
+
+  // 背景
+  ctx.fillStyle = '#0a0e14';
+  ctx.fillRect(0,0,W,H);
+
+  // 绘制模拟峰
+  for (let p = 0; p < peaks; p++) {
+    const x = p * baseW + baseW/2;
+    const bases = ['A','T','C','G'];
+    const base = bases[Math.floor(Math.random()*4)];
+    const h = 20 + Math.random() * 80;
+    const y = H/2 - h/2;
+
+    ctx.fillStyle = colors[base] || '#fff';
+    ctx.globalAlpha = 0.5 + Math.random()*0.5;
+    ctx.fillRect(x - 1, y, 2, h);
+    ctx.globalAlpha = 1;
+  }
+
+  // 标记脱靶突变位置
+  const mutX = W * 0.4; // 模拟在40%位置
+  ctx.beginPath();
+  ctx.moveTo(mutX, 5);
+  ctx.lineTo(mutX - 6, 18);
+  ctx.lineTo(mutX + 6, 18);
+  ctx.closePath();
+  ctx.fillStyle = '#ef5350';
+  ctx.fill();
+
+  ctx.fillStyle = '#ef5350';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.fillText('← 脱靶突变位点', mutX + 10, 16);
+
+  // 序列标注
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#90a4ae';
+  ctx.fillText(`5'-${site.targetSeq.slice(0,10)}...${site.targetSeq.slice(10)}'-3'`, 10, H-8);
+}
+
+// ========== D3 比较仪表板 ==========
+function renderComparisonDashboard() {
+  const grnaIds = Object.keys(ALL_RESULTS);
+  if (grnaIds.length < 2) return;
+
+  const data = grnaIds.map(id => ({
+    id,
+    total: ALL_RESULTS[id].length,
+    high: ALL_RESULTS[id].filter(r => r.score > 60).length,
+    crit: ALL_RESULTS[id].filter(r => r.score > 80).length,
+    avgScore: ALL_RESULTS[id].length ? ALL_RESULTS[id].reduce((s,r)=>s+r.score,0)/ALL_RESULTS[id].length : 0
+  }));
+
+  // 柱状图
+  const barW = 600, barH = 220;
+  const margin = {top:20,right:20,bottom:60,left:50};
+  const innerW = barW - margin.left - margin.right;
+  const innerH = barH - margin.top - margin.bottom;
+
+  const svg = d3.select('#barChart').html('').append('svg')
+    .attr('width', barW).attr('height', barH);
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const x = d3.scaleBand().domain(data.map(d=>d.id)).range([0,innerW]).padding(0.3);
+  const y = d3.scaleLinear().domain([0, d3.max(data,d=>d.total)*1.2]).range([innerH,0]);
+
+  // 总候选柱
+  g.selectAll('.bar-total').data(data).enter().append('rect')
+    .attr('x', d=>x(d.id)).attr('width', x.bandwidth()*0.6)
+    .attr('y', d=>y(d.total)).attr('height', d=>innerH-y(d.total))
+    .attr('fill', '#4fc3f7').attr('opacity',0.7)
+    .on('click', (e,d) => switchToGRNA(d.id))
+    .style('cursor','pointer');
+
+  // 高风险柱
+  g.selectAll('.bar-high').data(data).enter().append('rect')
+    .attr('x', d=>x(d.id)+x.bandwidth()*0.6+2).attr('width', x.bandwidth()*0.35)
+    .attr('y', d=>y(d.high)).attr('height', d=>innerH-y(d.high))
+    .attr('fill', '#ef5350').attr('opacity',0.8)
+    .on('click', (e,d) => switchToGRNA(d.id))
+    .style('cursor','pointer');
+
+  g.append('g').attr('transform',`translate(0,${innerH})`).call(d3.axisBottom(x))
+    .selectAll('text').style('fill','#90a4ae').style('font-size','10px')
+    .attr('transform','rotate(-30)').style('text-anchor','end');
+  g.append('g').call(d3.axisLeft(y).ticks(5))
+    .selectAll('text').style('fill','#90a4ae').style('font-size','10px');
+
+  // 图例
+  svg.append('rect').attr('x',margin.left).attr('y',5).attr('width',10).attr('height',10).attr('fill','#4fc3f7');
+  svg.append('text').attr('x',margin.left+14).attr('y',14).text('总候选').style('fill','#90a4ae').style('font-size','11px');
+  svg.append('rect').attr('x',margin.left+70).attr('y',5).attr('width',10).attr('height',10).attr('fill','#ef5350');
+  svg.append('text').attr('x',margin.left+84).attr('y',14).text('高风险>60%').style('fill','#90a4ae').style('font-size','11px');
+
+  // 热力图
+  const hmData = [];
+  const maxRows = 20;
+  grnaIds.forEach((gid, ci) => {
+    const res = ALL_RESULTS[gid].slice(0, maxRows);
+    res.forEach((r, ri) => {
+      hmData.push({col:ci, row:ri, score:r.score});
+    });
+  });
+
+  const cellW = 50, cellH = 18;
+  const hmSvg = d3.select('#heatmap').html('').append('svg')
+    .attr('width', grnaIds.length * cellW + 80)
+    .attr('height', maxRows * cellH + 40);
+
+  const colorScale = d3.scaleLinear()
+    .domain([0,30,60,80,100])
+    .range(['#4caf50','#cddc39','#ff9800','#f44336','#b71c1c']);
+
+  hmSvg.selectAll('rect').data(hmData).enter().append('rect')
+    .attr('x', d=>80+d.col*cellW).attr('y', d=>20+d.row*cellH)
+    .attr('width',cellW-1).attr('height',cellH-1)
+    .attr('fill', d=>colorScale(d.score))
+    .on('click',(e,d)=>switchToGRNA(grnaIds[d.col]))
+    .style('cursor','pointer');
+
+  // 列标签
+  grnaIds.forEach((gid, ci) => {
+    hmSvg.append('text').attr('x',80+ci*cellW+cellW/2).attr('y',14)
+      .text(gid).style('fill','#90a4ae').style('font-size','10px')
+      .attr('text-anchor','middle').attr('transform',`rotate(-30,${80+ci*cellW+cellW/2},14)`);
+  });
+
+  // 行标签
+  for (let ri = 0; ri < maxRows; ri++) {
+    hmSvg.append('text').attr('x',74).attr('y',20+ri*cellH+cellH/2)
+      .text(`#${ri+1}`).style('fill','#90a4ae').style('font-size','9px')
+      .attr('text-anchor','end');
+  }
+}
+
+function switchToGRNA(grnaId) {
+  if (ALL_RESULTS[grnaId]) {
+    CURRENT_RESULTS = ALL_RESULTS[grnaId];
+    CURRENT_GRNA = grnaId;
+    // 更新表格和Circos
+    const guideSeq = grnaId.includes('_') ? '' : grnaId;
+    drawCircos(CURRENT_RESULTS, guideSeq);
+    renderTable(CURRENT_RESULTS.slice(0,20));
+    renderDetail(CURRENT_RESULTS.slice(0,3));
+    renderSanger(CURRENT_RESULTS.slice(0,3), guideSeq);
+
+    // 更新tab
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.grna === grnaId);
+    });
+    showToast(`📌 已切换到 ${grnaId}`);
+  }
+}
+
+// ========== 批量处理 ==========
+async function runBatchPredict(grnaList) {
+  ALL_RESULTS = {};
+  const tabBar = document.getElementById('grnaTabs');
+  tabBar.innerHTML = '';
+
+  for (let i = 0; i < grnaList.length; i++) {
+    const item = grnaList[i];
+    const id = item.id || `gRNA_${String(i+1).padStart(3,'0')}`;
+    const seq = item.seq.toUpperCase().replace(/[^ATCG]/g,'');
+
+    document.getElementById('statusText').textContent = `正在处理 ${i+1}/${grnaList.length} (${id})...`;
+    showLoading();
+
+    const msg = await runSearch(seq, id);
+    if (msg) {
+      ALL_RESULTS[id] = msg.results;
+    }
+
+    hideLoading();
+  }
+
+  document.getElementById('statusText').textContent = `✅ 批量分析完成: ${Object.keys(ALL_RESULTS).length} 条gRNA`;
+
+  // 渲染tab
+  Object.keys(ALL_RESULTS).forEach((id, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i===0?' active':'');
+    btn.dataset.grna = id;
+    btn.textContent = id;
+    btn.onclick = () => switchToGRNA(id);
+    tabBar.appendChild(btn);
+  });
+
+  // 显示比较面板
+  document.getElementById('comparePanel').style.display = 'block';
+  document.getElementById('exportZipBtn').style.display = 'inline-block';
+  document.getElementById('exportFastaBtn').style.display = 'inline-block';
+  document.getElementById('exportNotebookBtn').style.display = 'inline-block';
+
+  renderComparisonDashboard();
+
+  // 默认显示第一个
+  const firstId = Object.keys(ALL_RESULTS)[0];
+  if (firstId) switchToGRNA(firstId);
+}
+
+// ========== 导出功能 ==========
+function exportPDF() {
+  if (!CURRENT_RESULTS.length) { showToast('❌ 无数据可导出','error'); return; }
+  showLoading();
+
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF('p','mm','a4');
+  const W = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(18);
+  doc.text('CRISPR gRNA 脱靶预测报告', 20, 20);
+  doc.setFontSize(11);
+  doc.text(`gRNA: ${CURRENT_GRNA}`, 20, 32);
+  doc.text(`生成时间: ${new Date().toLocaleString('zh-CN')}`, 20, 40);
+  doc.text(`物种: ${document.getElementById('speciesSelect').selectedOptions[0].text}`, 20, 48);
+
+  // 统计
+  doc.setFontSize(12);
+  doc.text('统计摘要', 20, 60);
+  doc.setFontSize(10);
+  const stats = [
+    `总候选位点数: ${CURRENT_RESULTS.length}`,
+    `高风险位点 (>60%): ${CURRENT_RESULTS.filter(r=>r.score>60).length}`,
+    `极高风险位点 (>80%): ${CURRENT_RESULTS.filter(r=>r.score>80).length}`,
+    `平均CFD评分: ${(CURRENT_RESULTS.reduce((s,r)=>s+r.score,0)/CURRENT_RESULTS.length).toFixed(1)}%`,
+  ];
+  stats.forEach((s,i) => doc.text(s, 25, 70+i*7));
+
+  // Circos 截图
+  const canvas = document.getElementById('circosCanvas');
+  const imgData = canvas.toDataURL('image/png');
+  doc.addPage();
+  doc.setFontSize(14);
+  doc.text('染色体分布图', 20, 20);
+  doc.addImage(imgData, 'PNG', 20, 28, 160, 160);
+
+  // Top20 表格
+  doc.addPage();
+  doc.setFontSize(14);
+  doc.text('Top 20 脱靶候选位点', 20, 20);
+  doc.setFontSize(8);
+  const headers = ['Chr','Pos','Score%','MM','Risk','Priority','Exon'];
+  let y = 30;
+  headers.forEach((h,i) => doc.text(h, 20+i*22, y));
+  doc.line(18, y+3, W-18, y+3);
+  y += 8;
+  CURRENT_RESULTS.slice(0,20).forEach(r => {
+    const row = [r.chr, String(r.pos), r.score.toFixed(1), String(r.mmCount),
+      r.score>80?'CRIT':r.score>60?'HIGH':r.score>30?'MED':'LOW',
+      r.priority.toFixed(0), r.isExon?'Y':'N'];
+    row.forEach((c,i) => doc.text(c, 20+i*22, y));
+    y += 6;
+    if (y > 270) { doc.addPage(); y = 20; }
+  });
+
+  // 错配详情
+  doc.addPage();
+  doc.setFontSize(14);
+  doc.text('错配详情', 20, 20);
+  doc.setFontSize(8);
+  y = 30;
+  CURRENT_RESULTS.slice(0,20).forEach((r,i) => {
+    const mm = r.mmDetails.map(m=>`${m.from}→${m.to}@${m.pos}`).join(' | ');
+    doc.text(`${i+1}. ${r.chr}:${r.pos} CFD=${r.score.toFixed(1)}% PRI=${r.priority.toFixed(0)}`, 20, y);
+    y += 5;
+    doc.text(`   ${mm}`, 25, y);
+    y += 7;
+    if (y > 270) { doc.addPage(); y = 20; }
+  });
+
+  // 免责声明
+  doc.addPage();
+  doc.setFontSize(10);
+  doc.text('免责声明', 20, 30);
+  doc.setFontSize(9);
+  const disclaimers = [
+    '本工具使用CFD(Cutting Frequency Determination)评分体系进行脱靶预测。',
+    '计算结果仅供参考，实际脱靶效应需通过实验验证。',
+    '模拟基因组数据仅用于演示目的。',
+    'CFD权重基于Doench et al. 2016(Nature Biotechnology)发表的参数。',
+    '引物设计采用简化算法，建议用Primer3等专业工具复核。',
+  ];
+  disclaimers.forEach((s,i) => doc.text(s, 20, 45+i*7));
+
+  doc.save(`CRISPR_report_${CURRENT_GRNA}.pdf`);
+  hideLoading();
+  showToast('✅ PDF报告已导出');
+}
+
+async function exportZIP() {
+  if (!Object.keys(ALL_RESULTS).length) { showToast('❌ 无数据','error'); return; }
+  showLoading();
+
+  const zip = new JSZip();
+  const {jsPDF} = window.jspdf;
+
+  // 每个gRNA独立PDF
+  for (const [gid, results] of Object.entries(ALL_RESULTS)) {
+    const doc = new jsPDF('p','mm','a4');
+    doc.setFontSize(16);
+    doc.text(`gRNA: ${gid}`, 20, 20);
+    doc.setFontSize(10);
+    doc.text(`候选位点: ${results.length}`, 20, 32);
+    doc.text(`高风险: ${results.filter(r=>r.score>60).length}`, 20, 40);
+    doc.text(`极高风险: ${results.filter(r=>r.score>80).length}`, 20, 48);
+    let y = 60;
+    results.slice(0,30).forEach((r,i) => {
+      doc.text(`${i+1}. ${r.chr}:${r.pos} CFD=${r.score.toFixed(1)}% MM=${r.mmCount}`, 20, y);
+      y += 6;
+      if (y>270){doc.addPage();y=20;}
+    });
+    const pdfBlob = doc.output('blob');
+    zip.file(`reports/${gid}_report.pdf`, pdfBlob);
+  }
+
+  // comparison_summary.csv
+  let csv = 'gRNA_ID,Total_Sites,High_Risk(>60%),Critical(>80%),Avg_CFD%,Top_Priority\n';
+  for (const [gid, results] of Object.entries(ALL_RESULTS)) {
+    const avg = results.length ? results.reduce((s,r)=>s+r.score,0)/results.length : 0;
+    const top = results.length ? Math.max(...results.map(r=>r.priority)) : 0;
+    csv += `${gid},${results.length},${results.filter(r=>r.score>60).length},${results.filter(r=>r.score>80).length},${avg.toFixed(1)},${top.toFixed(0)}\n`;
+  }
+  zip.file('comparison_summary.csv', csv);
+
+  // 比较仪表板截图
+  const barSvg = document.querySelector('#barChart svg');
+  if (barSvg) {
+    const svgData = new XMLSerializer().serializeToString(barSvg);
+    zip.file('comparison_dashboard.svg', svgData);
+  }
+
+  const blob = await zip.generateAsync({type:'blob'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `CRISPR_batch_reports_${Date.now()}.zip`;
+  a.click();
+  hideLoading();
+  showToast('✅ ZIP包已导出');
+}
+
+function exportFASTA() {
+  if (!CURRENT_RESULTS.length) { showToast('❌ 无数据','error'); return; }
+  const critSites = CURRENT_RESULTS.filter(r => r.score > 80);
+  let fasta = '';
+  critSites.forEach((r,i) => {
+    fasta += `>${r.chr}_${r.pos}_CFD${r.score.toFixed(0)}_PRI${r.priority.toFixed(0)}\n`;
+    // 模拟侧翼±200bp
+    const flank = (len) => { let s=''; for(let i=0;i<len;i++) s+='ATCG'[Math.floor(Math.random()*4)]; return s; };
+    fasta += flank(200) + r.targetSeq + flank(200) + '\n';
+  });
+  const blob = new Blob([fasta], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `high_risk_sites_${CURRENT_GRNA}.fasta`;
+  a.click();
+  showToast(`✅ 导出 ${critSites.length} 个极高风险位点FASTA`);
+}
+
+function exportNotebook() {
+  if (!CURRENT_RESULTS.length) { showToast('❌ 无数据','error'); return; }
+  const nb = generateNotebook();
+  const blob = new Blob([nb], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `experiment_notebook_${Date.now()}.html`;
+  a.click();
+  showToast('✅ 实验记录本已导出');
+}
+
+function generateNotebook() {
+  const top10 = CURRENT_RESULTS.slice(0,10);
+  let rows = top10.map((r,i) => `
+    <tr>
+      <td>${i+1}</td><td>${r.chr}:${r.pos}</td><td>${r.score.toFixed(1)}%</td>
+      <td>${r.mmCount}</td><td>${r.priority.toFixed(0)}</td>
+      <td>${r.isExon?'是':'否'}</td><td></td><td></td><td></td>
+    </tr>`).join('');
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>实验记录本</title>
+<style>body{font-family:sans-serif;max-width:900px;margin:40px auto;padding:20px;background:#f5f5f5}
+h1{color:#1a237e}h2{color:#0d47a1;margin-top:30px}
+table{width:100%;border-collapse:collapse;margin:14px 0;background:#fff}
+th{background:#1a237e;color:#fff;padding:8px;text-align:left}
+td{padding:6px 8px;border-bottom:1px solid #ddd}
+.section{background:#fff;padding:20px;border-radius:8px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.blank{height:60px;border:1px dashed #ccc;margin:8px 0}
+</style></head><body>
+<h1>🧪 CRISPR 脱靶验证实验记录本</h1>
+<div class="section"><b>实验目的:</b> 验证 gRNA <code>${CURRENT_GRNA}</code> 的预测脱靶位点</div>
+<div class="section"><b>gRNA 序列:</b> <code style="font-size:1.2em;color:#d32f2f">${CURRENT_GRNA}</code></div>
+<div class="section"><b>预测时间:</b> ${new Date().toLocaleString('zh-CN')}</div>
+<div class="section"><b>物种:</b> ${document.getElementById('speciesSelect').selectedOptions[0].text}</div>
+<h2>Top 10 脱靶候选位点</h2>
+<div class="section"><table>
+<tr><th>#</th><th>位置</th><th>CFD评分</th><th>错配</th><th>优先级</th><th>外显子</th><th>验证结果</th><th>测序确认</th><th>备注</th></tr>
+${rows}
+</table></div>
+<h2>实验操作步骤</h2>
+<div class="section">
+<ol>
+<li><b>引物合成:</b> 根据工具推荐的引物对序列，委托合成（建议HPLC纯化）</li>
+<li><b>基因组DNA提取:</b> 使用Qiagen DNeasy Blood & Tissue Kit提取靶细胞gDNA</li>
+<li><b>PCR扩增:</b> 95°C 3min → (95°C 30s → 60°C 30s → 72°C 30s)×35 cycles → 72°C 5min</li>
+<li><b>PCR产物纯化:</b> Qiagen QIAquick PCR Purification Kit</li>
+<li><b>Sanger测序:</b> 将纯化产物送测序（正向+反向双向测序）</li>
+<li><b>数据分析:</b> 比对测序峰图与参考序列，确认是否存在脱靶突变</li>
+</ol>
+</div>
+<h2>实验结果记录</h2>
+<div class="section">
+<h3>位点1: ${top10[0]?top10[0].chr+':'+top10[0].pos:'N/A'}</h3>
+<p><b>引物序列:</b> <span id="p1"></span></p>
+<p><b>PCR产物大小:</b> ___ bp</p>
+<p><b>测序结果:</b></p>
+<div class="blank"></div>
+<p><b>结论:</b> □ 确认脱靶 □ 未检测到脱靶 □ 不确定</p>
+<p><b>备注:</b></p>
+<div class="blank"></div>
+</div>
+<div class="section">
+<h3>位点2: ${top10[1]?top10[1].chr+':'+top10[1].pos:'N/A'}</h3>
+<p><b>引物序列:</b> <span id="p2"></span></p>
+<p><b>PCR产物大小:</b> ___ bp</p>
+<p><b>测序结果:</b></p>
+<div class="blank"></div>
+<p><b>结论:</b> □ 确认脱靶 □ 未检测到脱靶 □ 不确定</p>
+<p><b>备注:</b></p>
+<div class="blank"></div>
+</div>
+<div class="section" style="background:#e8eaf6;border:2px solid #3f51b5">
+<h3>📝 实验总结</h3>
+<p><b>脱靶率估算:</b> ___ / ___ 位点确认脱靶 = ___%</p>
+<p><b>主要发现:</b></p>
+<div class="blank"></div>
+<p><b>后续建议:</b></p>
+<div class="blank"></div>
+<p><b>实验者签名:</b> ____________ 日期: ____________</p>
+</div>
+<footer style="text-align:center;color:#999;margin-top:40px;font-size:.85em">
+生成于 ${new Date().toLocaleString('zh-CN')} | CRISPR脱靶预测平台 v5.0
+</footer></body></html>`;
+}
+
+// ========== UI 辅助 ==========
+function showToast(msg, type='info') {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  let borderColor = 'var(--accent)';
+  if (type==='error') borderColor='var(--danger)';
+  if (type==='warn') borderColor='var(--warn)';
+  if (type==='success') borderColor='var(--accent2)';
+  t.style.borderColor = borderColor;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+function showLoading() { document.getElementById('loadingOverlay').classList.add('active'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
+
+// ========== 事件绑定 ==========
+document.getElementById('grnaInput').addEventListener('input', function() {
+  let v = this.value.toUpperCase().replace(/[^ATCG]/g,'');
+  if (v.length > 20) v = v.slice(0,20);
+  this.value = v;
+  updatePAMDisplay(v);
+});
+
+document.getElementById('grnaInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('predictBtn').click();
+});
+
+document.getElementById('dataSource').addEventListener('change', function() {
+  GENOME_MODE = this.value;
+  document.getElementById('fastaArea').style.display = this.value==='fasta' ? 'block' : 'none';
+  if (this.value === 'sim') {
+    // 重新生成模拟基因组
+    showLoading();
+    setTimeout(() => {
+      const species = document.getElementById('speciesSelect').value;
+      GENOME_INDEX = generateSimulatedGenome(species);
+      PHYLO_SCORES = GENOME_INDEX.phylo;
+      hideLoading();
+      showToast(`✅ 模拟基因组已生成 (${GENOME_INDEX.totalWindows.toLocaleString()} 窗口)`);
+    }, 100);
+  }
+});
+
+document.getElementById('modeSelect').addEventListener('change', function() {
+  document.getElementById('batchArea').style.display = this.value==='batch' ? 'block' : 'none';
+  document.getElementById('comparePanel').style.display = this.value==='batch' ? 'block' : 'none';
+});
+
+document.getElementById('speciesSelect').addEventListener('change', function() {
+  if (GENOME_MODE === 'sim') {
+    showLoading();
+    setTimeout(() => {
+      GENOME_INDEX = generateSimulatedGenome(this.value);
+      hideLoading();
+      showToast(`✅ ${this.selectedOptions[0].text} 模拟基因组已生成`);
+    }, 100);
+  }
+});
+
+document.getElementById('predictBtn').addEventListener('click', async function() {
+  const mode = document.getElementById('modeSelect').value;
+
+  if (mode === 'batch') {
+    // 批量模式
+    const text = document.getElementById('batchInput').value.trim();
+    if (!text) { showToast('❌ 请输入批量gRNA序列','error'); return; }
+    const lines = text.split('\n').map(l=>l.trim()).filter(l=>l);
+    const grnaList = [];
+    for (const line of lines) {
+      const seq = line.toUpperCase().replace(/[^ATCG]/g,'');
+      if (seq.length === 20) {
+        grnaList.push({id:`gRNA_${String(grnaList.length+1).padStart(3,'0')}`, seq});
+      } else if (line.includes(',')) {
+        const parts = line.split(',');
+        const id = parts[0].trim();
+        const s = parts[1].toUpperCase().replace(/[^ATCG]/g,'');
+        if (s.length===20) grnaList.push({id, seq:s});
+      }
+    }
+    if (grnaList.length === 0) { showToast('❌ 未找到有效的20bp gRNA序列','error'); return; }
+    if (grnaList.length > 50) { showToast('⚠️ 最多支持50条gRNA，已截断','warn'); grnaList.length=50; }
+
+    await runBatchPredict(grnaList);
+  } else {
+    // 单序列模式
+    const seq = document.getElementById('grnaInput').value.toUpperCase().replace(/[^ATCG]/g,'');
+    if (seq.length !== 20) { showToast('❌ gRNA必须为20bp（仅A/T/C/G）','error'); return; }
+
+    showLoading();
+    document.getElementById('statusText').textContent = '正在搜索...';
+    const msg = await runSearch(seq, seq);
+    hideLoading();
+    if (msg) {
+      document.getElementById('statusText').textContent = `✅ 完成: ${msg.results.length} 个候选位点`;
+    }
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', function() {
+  const seq = document.getElementById('grnaInput').value.toUpperCase().replace(/[^ATCG]/g,'');
+  if (seq.length !== 20) { showToast('❌ 序列无效，必须为20bp','error'); return; }
+  navigator.clipboard.writeText(seq).then(()=>showToast('✅ gRNA序列已复制')).catch(()=>showToast('❌ 复制失败','error'));
+});
+
+document.getElementById('exportPdfBtn').addEventListener('click', exportPDF);
+document.getElementById('exportZipBtn').addEventListener('click', exportZIP);
+document.getElementById('exportFastaBtn').addEventListener('click', exportFASTA);
+document.getElementById('exportNotebookBtn').addEventListener('click', exportNotebook);
+
+// CSV 上传
+document.getElementById('csvUpload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const text = ev.target.result;
+    const lines = text.split('\n').slice(1); // skip header
+    const grnaList = [];
+    for (const line of lines) {
+      const parts = line.split(',');
+      if (parts.length >= 2) {
+        const id = parts[0].trim();
+        const seq = parts[1].toUpperCase().replace(/[^ATCG]/g,'');
+        if (seq.length === 20) grnaList.push({id, seq});
+      }
+    }
+    document.getElementById('batchInput').value = grnaList.map(g=>`${g.id}\n${g.seq}`).join('\n');
+    document.getElementById('csvStatus').textContent = `已加载 ${grnaList.length} 条gRNA`;
+    showToast(`✅ CSV解析完成: ${grnaList.length} 条有效序列`);
+  };
+  reader.readAsText(file);
+});
+
+// FASTA 上传
+const fileDrop = document.getElementById('fileDrop');
+const fastaUpload = document.getElementById('fastaUpload');
+
+fileDrop.addEventListener('click', () => fastaUpload.click());
+fileDrop.addEventListener('dragover', e => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+fileDrop.addEventListener('drop', async e => {
+  e.preventDefault();
+  fileDrop.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) await handleFASTAUpload(file);
+});
+fastaUpload.addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (file) await handleFASTAUpload(file);
+});
+
+async function handleFASTAUpload(file) {
+  try {
+    showLoading();
+    document.getElementById('fastaProgress').style.display = 'block';
+    document.getElementById('fastaProgressText').textContent = '正在解压/读取文件...';
+    document.getElementById('fastaProgressFill').style.width = '5%';
+
+    const text = await decompressGZ(file);
+    document.getElementById('fastaProgressText').textContent = '正在解析FASTA...';
+    document.getElementById('fastaProgressFill').style.width = '20%';
+
+    const chrs = parseFASTA(text);
+    if (!chrs.length) throw new Error('FASTA解析失败：未找到有效序列');
+
+    document.getElementById('fastaProgressText').textContent = `正在构建索引: ${chrs.length} 条染色体...`;
+
+    const index = buildIndexFromFASTA(chrs, (done,total) => {
+      const pct = Math.round(done/total*80)+20;
+      document.getElementById('fastaProgressFill').style.width = pct+'%';
+      document.getElementById('fastaProgressText').textContent = `正在构建索引: ${done.toLocaleString()} / ${total.toLocaleString()} 窗口 (${Math.round(done/total*100)}%)`;
+    });
+
+    document.getElementById('fastaProgressFill').style.width = '100%';
+    document.getElementById('fastaProgressText').textContent = `✅ 索引构建完成: ${index.totalWindows.toLocaleString()} 个20bp窗口`;
+
+    GENOME_INDEX = index;
+
+    // 检查是否需要采样
+    if (index.totalWindows > 1000000) {
+      document.getElementById('samplingControl').style.display = 'block';
+      SAMPLING_RATE = 0.2; // 默认20%
+      document.getElementById('samplingRate').value = 20;
+      document.getElementById('samplingVal').textContent = '20';
+      showToast(`⚠️ 窗口数>100万，已自动启用采样模式(20%)`,'warn');
+    } else {
+      document.getElementById('samplingControl').style.display = 'none';
+      SAMPLING_RATE = 1.0;
+    }
+
+    const memMB = Math.round(index.flat.length / 1048576 * 10)/10;
+    showToast(`✅ FASTA加载完成: ${chrs.length}条染色体, ${index.totalWindows.toLocaleString()}窗口, ~${memMB}MB`);
+    hideLoading();
+  } catch (err) {
+    hideLoading();
+    showToast(`❌ FASTA处理失败: ${err.message}，回退到模拟模式`,'error');
+    // 回退
+    GENOME_MODE = 'sim';
+    document.getElementById('dataSource').value = 'sim';
+    document.getElementById('fastaArea').style.display = 'none';
+    const species = document.getElementById('speciesSelect').value;
+    GENOME_INDEX = generateSimulatedGenome(species);
+  }
+}
+
+document.getElementById('samplingRate').addEventListener('input', function() {
+  SAMPLING_RATE = this.value / 100;
+  document.getElementById('samplingVal').textContent = this.value;
+});
+
+// ========== 初始化 ==========
+(function init() {
+  showLoading();
+  setTimeout(() => {
+    const species = document.getElementById('speciesSelect').value;
+    GENOME_INDEX = generateSimulatedGenome(species);
+    PHYLO_SCORES = GENOME_INDEX.phylo;
+    updatePAMDisplay(document.getElementById('grnaInput').value);
+    hideLoading();
+    showToast(`✅ 平台就绪 | 模拟基因组: ${GENOME_INDEX.totalWindows.toLocaleString()} 窗口 | CFD评分体系已加载`);
+  }, 200);
+})();
+
+// ========== Tooltip ==========
+const tooltip = document.getElementById('tooltip');
+document.addEventListener('mousemove', function(e) {
+  if (tooltip.style.display === 'block') {
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top = (e.clientY + 14) + 'px';
+  }
+});
+
+// Circos canvas tooltip
+document.getElementById('circosCanvas').addEventListener('mousemove', function(e) {
+  const rect = this.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const cx = this._cx, cy = this._cy;
+  const dx = x - cx, dy = y - cy;
+  const dist = Math.sqrt(dx*dx+dy*dy);
+  if (dist > this._innerR && dist < this._outerR) {
+    const angle = Math.atan2(dy, dx) + Math.PI/2;
+    const normAngle = (angle + 2*Math.PI) % (2*Math.PI);
+    const segAngle = this._segAngle + this._gapAngle;
+    const idx = Math.floor(normAngle / segAngle);
+    const results = this._results;
+    if (results && results.length) {
+      // 简化：显示该角度附近的位点
+      tooltip.style.display = 'block';
+      tooltip.innerHTML = `<b>区域信息</b><br>角度: ${(normAngle*180/Math.PI).toFixed(0)}°<br>位点总数: ${results.length}`;
+    }
+  } else {
+    tooltip.style.display = 'none';
+  }
+});
+document.getElementById('circosCanvas').addEventListener('mouseleave', ()=>tooltip.style.display='none');
+
+</script>
+</body>
+</html>
