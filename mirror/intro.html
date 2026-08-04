@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于本站 - 软件镜像站</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        /* 返回链接 */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #4f46e5;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 标题区 */
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* 正文区块 */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            padding-left: 0.75rem;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .section p {
+            color: #555;
+            margin-bottom: 0.75rem;
+        }
+
+        .section ul {
+            padding-left: 1.25rem;
+            color: #555;
+        }
+
+        .section li {
+            margin-bottom: 0.4rem;
+        }
+
+        /* 标签 */
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .tag {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .tag-blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .tag-green {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .tag-orange {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .tag-purple {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+
+        /* 提示框 */
+        .notice {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        .notice strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        /* 分割线 */
+        hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 2.5rem 0;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.8rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        footer a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.5rem; }
+            .container { padding: 2rem 1rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <a href="javascript:history.back()" class="back-link">← 返回首页</a>
+
+    <h1>关于本站</h1>
+    <p class="subtitle">一个简洁实用的软件镜像与下载导航站</p>
+
+    <hr>
+
+    <!-- 简介 -->
+    <div class="section">
+        <h2>这是什么？</h2>
+        <p>
+            本站是一个个人维护的<strong>开源软件镜像与下载导航站</strong>，旨在为开发者和技术爱好者提供常用编程工具、开发环境及办公软件的快速获取渠道。
+        </p>
+        <p>
+            在这里你可以找到日常开发和办公中最常需要的软件，无需到处搜索，一站式直达。
+        </p>
+    </div>
+
+    <!-- 提供什么 -->
+    <div class="section">
+        <h2>本站提供</h2>
+        <p>软件资源分为以下几种类型：</p>
+        <div class="tags">
+            <span class="tag tag-blue">💻 编程开发工具</span>
+            <span class="tag tag-green">📝 办公效率软件</span>
+            <span class="tag tag-purple">🔧 实用系统工具</span>
+        </div>
+        <br>
+        <ul>
+            <li><strong>本地下载</strong> — 部分常用软件的安装包托管在本站服务器，可直接高速下载</li>
+            <li><strong>官方链接</strong> — 跳转至软件官方网站获取最新版本</li>
+            <li><strong>镜像加速</strong> — 链接至国内知名开源镜像站（如清华大学、中科大等），加速下载体验</li>
+        </ul>
+    </div>
+
+    <!-- 适用人群 -->
+    <div class="section">
+        <h2>适合谁用？</h2>
+        <ul>
+            <li>刚配置新电脑、需要快速装齐开发环境的程序员</li>
+            <li>不想花时间在搜索引擎里辨别真假下载按钮的人</li>
+            <li>需要给团队或实验室统一准备软件清单的管理员</li>
+            <li>任何希望高效获取正版开源软件的用户</li>
+        </ul>
+    </div>
+
+    <!-- 注意事项 -->
+    <div class="notice">
+        <strong>⚠️ 使用须知</strong>
+        本站所有软件均来自官方公开渠道或合法开源项目，不提供任何破解、激活工具或盗版资源。<br>
+        如有版权问题请联系移除。下载后请遵守各软件对应的开源协议或许可条款。
+    </div>
+
+    <!-- 技术说明 -->
+    <div class="section">
+        <h2>技术说明</h2>
+        <p>
+            本站是一个纯静态页面，无任何后端服务、无用户追踪、无广告植入。
+            所有外链均经过筛选，确保指向官方或可信赖的镜像源。
+        </p>
+        <p>
+            如果你发现某个链接失效或有更好的建议，欢迎通过下方联系方式反馈。
+        </p>
+    </div>
+
+    <!-- 更新日志 -->
+    <div class="section">
+        <h2>更新记录</h2>
+        <ul>
+            <li><strong>2024-01</strong> — 新增 Rust、Go 语言工具链镜像</li>
+            <li><strong>2023-11</strong> — 新增办公软件分类</li>
+            <li><strong>2023-09</strong> — 站点首次发布</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>Made with ❤️ by <a href="#">Your Name</a></p>
+        <p style="margin-top: 0.5rem;">© 2024 软件镜像站 · 仅供学习与交流使用</p>
+    </footer>
+
+</div>
+
+</body>
+</html>
