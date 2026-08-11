@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习资料</title>
+  <!-- 安全头（meta 等效） -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
+  <style>
+    /* 全局重置 & 字体 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f7f9fc;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      line-height: 1.5;
+      color: #1e293b;
+    }
+
+    .nav-grid {
+      max-width: 1200px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(2px);
+      border-radius: 2.5rem;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 8px 24px -6px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      transition: all 0.2s ease;
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.8rem 2rem;
+    }
+
+    .col {
+      background: #ffffff;
+      border-radius: 1.8rem;
+      padding: 1.8rem 1.2rem 1.5rem 1.2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      border: 1px solid #f1f5f9;
+      transition: transform 0.15s ease, border-color 0.2s;
+    }
+
+    .col:hover {
+      border-color: #d9e2ef;
+      transform: translateY(-2px);
+    }
+
+    .col-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #64748b;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #eef2f6;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .col-title span {
+      background: #eef2f6;
+      padding: 0.1rem 0.6rem;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      color: #475569;
+    }
+
+    .link-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      padding: 0.6rem 0.8rem;
+      border-radius: 1rem;
+      background: #f8fafc;
+      color: #1e293b;
+      text-decoration: none;
+      font-size: 0.98rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s, box-shadow 0.1s;
+      border: 1px solid transparent;
+      pointer-events: auto;
+      word-break: break-word;
+    }
+
+    a::before {
+      content: "▹";
+      margin-right: 10px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      transition: color 0.2s, transform 0.15s;
+    }
+
+    a:hover {
+      background: #eef2ff;
+      color: #1e4b8a;
+      border-color: #d4e0f0;
+      box-shadow: 0 2px 6px rgba(0, 60, 130, 0.04);
+    }
+
+    a:hover::before {
+      color: #2563eb;
+      transform: translateX(2px);
+    }
+
+    /* 示例链接的小标记 */
+    .col:nth-child(1) a:nth-child(2)::after {
+      content: " β";
+      font-size: 0.65rem;
+      background: #dbeafe;
+      color: #1e4b8a;
+      padding: 0.1rem 0.5rem;
+      border-radius: 30px;
+      margin-left: auto;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .col:nth-child(3) a:last-child::after {
+      content: " · 示例";
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-left: auto;
+      background: #f1f5f9;
+      padding: 0.1rem 0.6rem;
+      border-radius: 30px;
+      font-weight: 400;
+    }
+
+    .col:nth-child(2) a:nth-child(3)::after {
+      content: " 🧪";
+      font-size: 0.75rem;
+      margin-left: auto;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 860px) {
+      .columns {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+      .nav-grid {
+        padding: 1.8rem 1.2rem;
+        border-radius: 2rem;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .columns {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+      }
+      body {
+        padding: 1rem 0.8rem;
+        justify-content: flex-start;
+        padding-top: 2rem;
+      }
+      .nav-grid {
+        padding: 1.5rem 0.8rem;
+        border-radius: 1.8rem;
+      }
+      .col {
+        padding: 1.2rem 0.8rem;
+      }
+      a {
+        font-size: 0.95rem;
+        padding: 0.55rem 0.7rem;
+      }
+    }
+
+    .footer-note {
+      margin-top: 2.2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      letter-spacing: 0.02em;
+      border-top: 1px solid #e9edf3;
+      padding-top: 1.8rem;
+      width: 100%;
+    }
+
+    .footer-note span {
+      background: #f1f5f9;
+      padding: 0.15rem 0.9rem;
+      border-radius: 40px;
+      color: #475569;
+    }
+
+    .col-title .count {
+      margin-left: auto;
+      background: #e9edf3;
+      padding: 0.1rem 0.6rem;
+      border-radius: 30px;
+      font-size: 0.65rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-grid">
+    <div class="columns">
+
+      <!-- 第一栏：核心工具 — 全部替换为示例链接 -->
+      <div class="col">
+        <div class="col-title">
+          <span>⚙️</span> 核心工具
+          <span class="count">3</span>
+        </div>
+        <div class="link-group">
+          <a href="#" target="_blank" rel="noopener noreferrer">示例链接 · 首页</a>
+          <a href="https://example.com/page1" target="_blank" rel="noopener noreferrer">示例 · 平台 A</a>
+          <a href="https://example.com/page2" target="_blank" rel="noopener noreferrer">示例 · 工具 B</a>
+        </div>
+      </div>
+
+      <!-- 第二栏：笔记 & 资源 — 全部替换为示例链接 -->
+      <div class="col">
+        <div class="col-title">
+          <span>📘</span> 笔记 · 资源
+          <span class="count">3</span>
+        </div>
+        <div class="link-group">
+          <a href="https://example.com/notes" target="_blank" rel="noopener noreferrer">示例笔记</a>
+          <a href="https://example.com/test" target="_blank" rel="noopener noreferrer">示例 · 测试</a>
+          <a href="https://example.com/love" target="_blank" rel="noopener noreferrer">❤️ 示例 love</a>
+        </div>
+      </div>
+
+      <!-- 第三栏：其他 / 外部 — 全部替换为示例链接 -->
+      <div class="col">
+        <div class="col-title">
+          <span>🌐</span> 其他
+          <span class="count">1</span>
+        </div>
+        <div class="link-group">
+          <a href="https://example.com" target="_blank" rel="noopener noreferrer">示例 · 外部链接</a>
+          <!-- 占位保持视觉平衡 -->
+          <div style="opacity:0; pointer-events:none; font-size:0.8rem; padding:0.3rem 0.8rem; background:transparent; border:1px dashed #e2e8f0; border-radius:2rem; margin-top:0.3rem;">—</div>
+        </div>
+        <div style="margin-top: 1rem; font-size: 0.7rem; color: #94a3b8; border-left: 2px solid #e2e8f0; padding-left: 0.7rem; opacity:0.7;">
+          安全 · 无追踪
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-note">
+      <span>✦ 笔记导航 · 示例链接 ✦</span>
+    </div>
+  </div>
+</body>
+</html>
