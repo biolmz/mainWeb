@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年12月四级作文预测笔记</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#1a237e;
+  --primary-light:#3949ab;
+  --accent-blue:#1565c0;
+  --accent-green:#2e7d32;
+  --accent-red:#c62828;
+  --accent-amber:#f57f17;
+  --bg:#eef2f7;
+  --card:#ffffff;
+  --text:#212121;
+  --text-soft:#424242;
+  --text-mute:#666;
+  --line:#e0e0e0;
+  --shadow:0 2px 12px rgba(0,0,0,.06);
+  --shadow-hover:0 8px 28px rgba(0,0,0,.12);
+  /* 英文字体栈 */
+  --font-en-serif:'EB Garamond','Iowan Old Style','Palatino Linotype','Palatino','Georgia',serif;
+  --font-en-sans:'Inter','Helvetica Neue','Segoe UI',sans-serif;
+  --font-zh:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  --font-zh-title:'Noto Serif SC','Songti SC','SimSun',serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:var(--font-zh);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.85;
+  padding:32px 16px 60px;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.wrap{max-width:860px;margin:0 auto}
+
+/* ===== Header ===== */
+header{
+  background:linear-gradient(135deg,#0d47a1 0%,#1565c0 40%,#1a237e 100%);
+  color:#fff;
+  border-radius:16px;
+  padding:40px 36px;
+  text-align:center;
+  margin-bottom:28px;
+  box-shadow:0 10px 30px rgba(13,71,161,.3);
+  position:relative;
+  overflow:hidden;
+}
+header::before{
+  content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.08) 0%,transparent 50%),
+                 radial-gradient(circle at 70% 80%,rgba(255,255,255,.05) 0%,transparent 50%);
+}
+header h1{
+  font-family:var(--font-zh-title);
+  font-size:28px;font-weight:700;
+  letter-spacing:2px;
+  position:relative;
+}
+header .sub{
+  margin-top:14px;
+  font-size:14.5px;
+  font-weight:300;
+  color:rgba(255,255,255,.9);
+  position:relative;
+  line-height:1.7;
+}
+header .sub strong{font-weight:500;color:#fff}
+
+/* ===== Section ===== */
+.section{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  margin-bottom:22px;
+  overflow:hidden;
+  transition:box-shadow .3s ease,transform .3s ease;
+}
+.section:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+
+/* 顶部色条 */
+.section-bar{height:5px}
+.section-bar.blue{background:linear-gradient(90deg,#1565c0,#42a5f5)}
+.section-bar.red{background:linear-gradient(90deg,#c62828,#ef5350)}
+.section-bar.green{background:linear-gradient(90deg,#2e7d32,#66bb6a)}
+
+.section-body{padding:26px 30px 30px}
+
+/* 标题区 */
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.num-badge{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-zh-title);font-size:18px;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.num-badge.blue{background:linear-gradient(135deg,#1565c0,#42a5f5);box-shadow:0 3px 10px rgba(21,101,192,.35)}
+.num-badge.red{background:linear-gradient(135deg,#c62828,#ef5350);box-shadow:0 3px 10px rgba(198,40,40,.35)}
+.num-badge.green{background:linear-gradient(135deg,#2e7d32,#66bb6a);box-shadow:0 3px 10px rgba(46,125,50,.35)}
+.sec-title{font-family:var(--font-zh-title);font-size:20px;font-weight:600;color:var(--primary)}
+
+/* 背景条 */
+.bg-strip{
+  background:#f5f7ff;
+  border-left:4px solid var(--accent-blue);
+  padding:12px 16px;
+  border-radius:0 8px 8px 0;
+  margin:14px 0 18px;
+  font-size:14px;
+  color:var(--text-soft);
+}
+.section.red .bg-strip{border-left-color:var(--accent-red);background:#fff5f5}
+.section.green .bg-strip{border-left-color:var(--accent-green);background:#f1f8f1}
+
+/* 小标题 */
+.mini-title{
+  font-size:13px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;
+  margin:18px 0 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.mini-title::before{content:"";width:4px;height:16px;border-radius:2px;display:inline-block}
+.blue .mini-title::before{background:var(--accent-blue)}
+.red .mini-title::before{background:var(--accent-red)}
+.green .mini-title::before{background:var(--accent-green)}
+.mini-title.eng{color:var(--accent-blue)}
+.mini-title.cnt{color:var(--accent-green)}
+
+/* 题目框 */
+.prompt-box{
+  background:#fff8f8;
+  border:1.5px dashed #ef9a9a;
+  border-radius:10px;
+  padding:18px 20px;
+  margin:8px 0 4px;
+  font-size:14.5px;
+  color:#333;
+}
+.prompt-box .tag{
+  display:inline-block;
+  background:var(--accent-red);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:2px 10px;border-radius:4px;margin-bottom:8px;
+}
+.prompt-box p{margin:0}
+.prompt-box strong{color:var(--primary)}
+
+/* 范文框 */
+.essay-box{
+  background:#f1f8f1;
+  border:1.5px solid #a5d6a7;
+  border-radius:10px;
+  padding:20px 22px;
+  margin:8px 0 4px;
+}
+.essay-box .tag{
+  display:inline-block;
+  background:var(--accent-green);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:2px 10px;border-radius:4px;margin-bottom:10px;
+}
+.essay-box p{
+  font-family:var(--font-en-serif);
+  font-size:16.5px;
+  line-height:2.1;
+  color:#2c2c2c;
+  text-align:justify;
+  text-justify:inter-word;
+  text-indent:2em;
+  margin:0 0 4px;
+  /* 英文排版优化 */
+  -webkit-hyphens:auto;
+  -moz-hyphens:auto;
+  hyphens:auto;
+  hanging-punctuation:first;
+  letter-spacing:.2px;
+}
+.essay-box p:last-child{margin-bottom:0}
+/* 首段不缩进 */
+.essay-box p:first-child{text-indent:0}
+
+/* 亮点解析 */
+.highlights{
+  margin-top:14px;
+  background:#fffbe6;
+  border:1px solid #ffe082;
+  border-radius:10px;
+  padding:16px 20px;
+}
+.highlights .tag{
+  display:inline-block;
+  background:var(--accent-amber);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:2px 10px;border-radius:4px;margin-bottom:8px;
+}
+.highlights ul{list-style:none;padding:0;margin:0}
+.highlights li{
+  position:relative;
+  padding-left:22px;
+  margin-bottom:8px;
+  font-size:14px;
+  line-height:1.75;
+  color:var(--text-soft);
+}
+.highlights li:last-child{margin-bottom:0}
+.highlights li::before{
+  content:"✓";
+  position:absolute;left:0;top:0;
+  color:var(--accent-amber);
+  font-weight:700;
+  font-size:13px;
+}
+.highlights strong{color:var(--primary);font-weight:600}
+
+/* ===== 备考策略 ===== */
+.strategy{
+  background:linear-gradient(135deg,#fff,#f3f6ff);
+  border:1px solid #d0d9ff;
+  border-radius:14px;
+  padding:28px 30px;
+  margin-top:10px;
+  box-shadow:var(--shadow);
+}
+.strategy h2{
+  font-family:var(--font-zh-title);
+  font-size:21px;font-weight:600;color:var(--primary);
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.strategy h2 .ico{font-size:22px}
+.strategy > p.lead{
+  font-size:14px;color:var(--text-mute);margin-bottom:16px;
+}
+.strat-item{
+  display:flex;gap:14px;
+  padding:14px 0;
+  border-bottom:1px dashed #e8e8e8;
+}
+.strat-item:last-child{border-bottom:none}
+.strat-num{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;
+}
+.strat-text{flex:1}
+.strat-text .t{
+  font-weight:600;color:var(--text);font-size:14.5px;margin-bottom:2px;
+}
+.strat-text .d{font-size:13.5px;color:var(--text-mute);line-height:1.7}
+
+.strat-text .d strong{color:var(--accent-red);font-weight:600}
+.strat-text .d em{color:var(--accent-blue);font-style:normal;font-weight:600}
+
+/* ===== 响应式 ===== */
+@media(max-width:600px){
+  body{padding:16px 10px 40px}
+  header{padding:28px 20px;border-radius:12px}
+  header h1{font-size:22px}
+  .section-body{padding:20px 18px 22px}
+  .essay-box p{font-size:15.5px;line-height:2}
+  .strategy{padding:20px 18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <h1>2026年12月四级作文预测笔记</h1>
+    <p class="sub">
+      结合2026年6月四级真题的命题趋势（聚焦校园场景、强调具体方案）<br>
+      以及最新的"反模板化"评分标准，12月的作文大概率会继续围绕<br>
+      <strong>"科技与校园的融合"、"青年素养与校园生活"以及"教育学习方式的变革"</strong>展开
+    </p>
+  </header>
+
+  <!-- ===== 主题一 ===== -->
+  <div class="section blue">
+    <div class="section-bar blue"></div>
+    <div class="section-body">
+      <div class="sec-head">
+        <div class="num-badge blue">Ⅰ</div>
+        <div class="sec-title">科技与校园的融合（AI辅助学习）</div>
+      </div>
+      <div class="bg-strip">
+        <strong>命题背景：</strong> 6月真题已考查"校园机器人"，12月极有可能延伸至"AI助教"或"人工智能对学习的影响"。
+      </div>
+
+      <div class="mini-title eng">Prompt</div>
+      <div class="prompt-box">
+        <span class="tag">SIMULATED QUESTION</span>
+        <p><strong>The Impact of AI on College Students' Learning</strong></p>
+      </div>
+
+      <div class="mini-title eng">Reference Essay</div>
+      <div class="essay-box">
+        <span class="tag">范文</span>
+        <p>As a college student who frequently uses AI tools for research, I have witnessed how artificial intelligence is reshaping our learning landscape. While some worry that AI might weaken independent thinking, I believe it serves as a powerful catalyst for efficiency when used responsibly.</p>
+        <p>Admittedly, AI excels at processing vast amounts of information. It can summarize lengthy papers and generate outlines in seconds, freeing us from repetitive tasks. However, the core of learning lies in critical analysis and creative synthesis, which are uniquely human capabilities. If we rely on AI to do our thinking, we risk becoming passive recipients of information rather than active learners.</p>
+        <p>Therefore, the key is to treat AI as a collaborative partner, not a replacement. We should use it to brainstorm ideas or check grammar, but the final arguments and insights must be our own. Only by maintaining our intellectual autonomy can we truly benefit from this technological revolution.</p>
+      </div>
+
+      <div class="highlights">
+        <span class="tag">亮点解析</span>
+        <ul>
+          <li><strong>去模板化开头：</strong> 用"As a college student who..."直接切入个人视角，替代了空洞的"Nowadays..."。</li>
+          <li><strong>思辨性论证：</strong> 没有简单地说"有利有弊"，而是具体指出了AI的优势（处理信息）和人类的不可替代性（批判性思维）。</li>
+          <li><strong>具体建议：</strong> 结尾给出了"collaborative partner"的具体定位，而非泛泛而谈的"we should use it properly"。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 主题二 ===== -->
+  <div class="section red">
+    <div class="section-bar red"></div>
+    <div class="section-body">
+      <div class="sec-head">
+        <div class="num-badge red">Ⅱ</div>
+        <div class="sec-title">青年素养与校园生活（时间管理/心理健康）</div>
+      </div>
+      <div class="bg-strip">
+        <strong>命题背景：</strong> 延续6月"提升校园生活便利性"的思路，12月可能考查更贴近日常的"时间管理"或"宿舍人际关系"。
+      </div>
+
+      <div class="mini-title eng">Prompt</div>
+      <div class="prompt-box">
+        <span class="tag">SIMULATED QUESTION</span>
+        <p><strong>How to Manage Time Effectively in College</strong></p>
+      </div>
+
+      <div class="mini-title eng">Reference Essay</div>
+      <div class="essay-box">
+        <span class="tag">范文</span>
+        <p>College life offers unprecedented freedom, but this freedom often leads to procrastination and anxiety for many students. Effective time management is not just about squeezing more hours into a day; it is about prioritizing what truly matters.</p>
+        <p>The first step is to distinguish between "urgent" and "important" tasks. Many students spend hours on trivial assignments while neglecting long-term goals like skill acquisition or career planning. Using digital planners or the Pomodoro technique can help visualize these priorities and maintain focus. More importantly, we must learn to say "no" to distractions. In an era of constant notifications, protecting our attention is a form of self-discipline.</p>
+        <p>Ultimately, managing time is managing ourselves. By establishing a balanced routine that includes study, rest, and social interaction, we can navigate college life with both purpose and peace of mind.</p>
+      </div>
+
+      <div class="highlights">
+        <span class="tag">亮点解析</span>
+        <ul>
+          <li><strong>逻辑递进：</strong> 按照"提出问题（自由导致拖延）- 分析原因/方法（区分轻重缓急）- 升华主题（管理时间即管理自我）"的逻辑展开。</li>
+          <li><strong>具体案例：</strong> 提到了"Pomodoro technique（番茄工作法）"和"digital planners"，比单纯说"make a plan"更有说服力。</li>
+          <li><strong>地道表达：</strong> 使用了"procrastination"、"trivial assignments"、"self-discipline"等精准词汇。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 主题三 ===== -->
+  <div class="section green">
+    <div class="section-bar green"></div>
+    <div class="section-body">
+      <div class="sec-head">
+        <div class="num-badge green">Ⅲ</div>
+        <div class="sec-title">教育学习方式的变革（跨学科学习/社会实践）</div>
+      </div>
+      <div class="bg-strip">
+        <strong>命题背景：</strong> 6月考查了"大学生参与科研项目"，12月可能延伸到"跨学科学习体验"或"理论与实践的结合"。
+      </div>
+
+      <div class="mini-title eng">Prompt</div>
+      <div class="prompt-box">
+        <span class="tag">SIMULATED QUESTION</span>
+        <p><strong>The Importance of Interdisciplinary Learning</strong></p>
+      </div>
+
+      <div class="mini-title eng">Reference Essay</div>
+      <div class="essay-box">
+        <span class="tag">范文</span>
+        <p>In today's rapidly evolving world, complex problems rarely fit into a single academic discipline. This is why interdisciplinary learning has become indispensable for college students. It breaks down the walls between majors and fosters innovative thinking.</p>
+        <p>Take environmental protection as an example. Solving climate change requires not only biological knowledge but also economic policies and ethical considerations. When students from different backgrounds collaborate, they bring unique perspectives that lead to more comprehensive solutions. Furthermore, interdisciplinary exposure prepares us for the real job market, where employers value adaptability and diverse skill sets over narrow expertise.</p>
+        <p>To embrace this trend, universities should offer more cross-departmental courses, and students should step out of their comfort zones to explore unfamiliar fields. After all, true innovation often happens at the intersection of different disciplines.</p>
+      </div>
+
+      <div class="highlights">
+        <span class="tag">亮点解析</span>
+        <ul>
+          <li><strong>具体论证：</strong> 用"环境保护"作为具体案例，解释了为什么需要跨学科（生物+经济+伦理），避免了空洞的说理。</li>
+          <li><strong>紧扣现实：</strong> 提到了"real job market"和"employers value"，将学习与未来职业发展挂钩，体现了现实意义。</li>
+          <li><strong>行动导向：</strong> 结尾分别给学校和学生提出了具体建议，符合6月真题强调的"提出具体方案"的趋势。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 备考策略 ===== -->
+  <div class="strategy">
+    <h2><span class="ico">📝</span> 12月备考核心策略（基于最新评分标准）</h2>
+    <p class="lead">根据6月真题释放的信号，12月备考需注意：</p>
+
+    <div class="strat-item">
+      <div class="strat-num">1</div>
+      <div class="strat-text">
+        <div class="t">严禁堆砌模板</div>
+        <div class="d">2026年评分标准明确规定，模板化语句超过30%直接降档。请放弃<strong>"Every coin has two sides"</strong>这类万能句，改用逻辑连接词（如 <em>Admittedly, However, Consequently</em>）来衔接观点。</div>
+      </div>
+    </div>
+
+    <div class="strat-item">
+      <div class="strat-num">2</div>
+      <div class="strat-text">
+        <div class="t">内容质量 &gt; 语言华丽</div>
+        <div class="d">阅卷老师现在更看重"观点是否有深度"和"案例是否具体"。哪怕语法简单一点，只要逻辑清晰、言之有物，分数也会比空洞的华丽文章高。</div>
+      </div>
+    </div>
+
+    <div class="strat-item">
+      <div class="strat-num">3</div>
+      <div class="strat-text">
+        <div class="t">审题圈画限定词</div>
+        <div class="d">12月题目可能会像6月一样给出限定维度（如"必要性+实用性"）。动笔前务必圈出题目要求回应的所有点，确保不遗漏。</div>
+      </div>
+    </div>
+
+    <div class="strat-item">
+      <div class="strat-num">4</div>
+      <div class="strat-text">
+        <div class="t">积累"动作导向"表达</div>
+        <div class="d">针对建议类题目，多积累 <em>implement, optimize, allocate, prioritize</em> 等动词，让文章看起来更有执行力。</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
