@@ -1,726 +1,766 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <!-- ===== 等保2.0四级：安全通信网络 ===== -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
-    <meta http-equiv="Strict-Transport-Security" content="max-age=63072000; includeSubDomains; preload">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="referrer" content="no-referrer-when-downgrade">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()">
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, proxy-revalidate">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>MIRRORS</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233b82f6'/><path d='M50 20 L80 40 L80 60 L50 80 L20 60 L20 40 L50 20 Z' fill='%23ffffff' opacity='0.9'/><path d='M50 35 L65 45 L65 60 L50 70 L35 60 L35 45 L50 35 Z' fill='%233b82f6'/></svg>" type="image/svg+xml">
-    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZAAAAZtJREFUWEftlz1Lw0Acxr93aZJCBbEjKOhgF3HQLi4q4u4iOIj4CvoFXPRjKLh38AMo4mAX0cVBUHTTVbGDSS4p0r6gJvZ5cXAJzeWakP+Bl5Dn+dz9c8c9l0sA1WDT2G6Ak81Q9gBm9AA3LfdISZWF1AI1GIX9qAMq64DFO9pD0rXcI9XANMwCSxfAiC6gsg3kHFJ5sP61BmZgAmz2gN4BVNLiS1eRIgC+4iTQ6BxQ8AR8z1/8pzvOcWx3F+O1PYB+8RE2FQASrdJoC4nbLBCRxwz8JwOYcSb5hUSbI7hKvIEEjsHWBJhP8bWgsQXoX8cZ5KvDE4nOwDkncPcH+HkDqLuAkUMw2wCHcCvmBl8M9i8AAyIweSUg4R0q0qYxMFPVJmQcgi0joNBRgELfCDhLNVUa90g1MIlXBaY+AdlbN3y1pDc4UoAo1TD9hI7BcFppBdRGxYp1DFd54x2vAWv3HCiPge/grGQAKqCb8gBLwHeWHiA1Tj8BqgAVvgDcfy0B8bSW6yHc/Jr9Ax3Bgrq1QZLiAAAAAElFTkSuQmCC" type="image/png" sizes="32x32">
-    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZAAAAepJREFUaEPtmb1rFEEUxt87s3viBWtLCxsRArZWaQJ2/gUitkERLCxS2kbwT9DWxkZtbC1FbKxTsBcsFGwUggl3B8cF7+PLXV6yZzdzm9md3PABs5uZeZ8X88O83bkh/tMNtYDeY5F4b2VpCb4AAGNc8weEoSgo7+Qz8mN6f9T/Mz6gFH9VKT+2G+UOzHdd/TLfA9sC1sA4lOtH4l9aBQx3ALwdYLzPna0EGHwHh3xrV48B/W7c4J1vhqbo2QkD4O04tucA7z6A/TWHu4+6gmsRwLiPsWJEFoUj74DmM3bImcN9u1IDHF5kA1f4lr2NpR+1DTDso0f0+ZQY8Muf74YCAV1XYGMe1m4N7PkL4CAjv23A8Xs2cIuf2amUgOJ9rxP+QooL+BJs2ZzLMdUcMrfnRYFDDK9HwOloEJMBLwUQHvwJgJXXOVY7rH4eB3IhIOB4HnrzgAsfF4HGGbCGYp0A25dp4HMOILrBDQp8A3CHhW80CMh97w2Aw9cs0HkAzL0u6hx4Pw9YJpk9OMGY5ogB9YMMXzINnE9z0LcVIL0ygEMhQNoqHfiR4doW4fwWQXbLJ7MVtgrS0CrTCFj7nJdFwlQhZJw3rB5sZRqQ0kD6YtF5nV2j1zz0t6mowVd8ZfKTwzrFZQAAAABJRU5ErkJggg==" type="image/png" sizes="180x180">
-    <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#f8f9fa" media="(prefers-color-scheme: light)">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta http-equiv="Permissions-Policy" content="camera=(),microphone=(),geolocation=(),interest-cohort=()">
+    
+    <title>LMZ</title>
+    
+    <script>
+  // 页面每次加载，都给CSS/JS链接打上当前时间戳
+  document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('link[rel="stylesheet"]');
+    const scripts = document.querySelectorAll('script[src]');
+    
+    const t = Date.now(); // 当前毫秒时间戳
+    links.forEach(link => {
+      if (!link.href.includes('?') ) {
+        link.href = link.href + '?t=' + t;
+      }
+    });
+    scripts.forEach(script => {
+      if (!script.src.includes('?') ) {
+        script.src = script.src + '?t=' + t;
+      }
+    });
+  });
+   </script>
+    <link rel="dns-prefetch" href="https://bio2025.site/download.html"/>
+    <link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com" />
+    <link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com" />
+    <link rel="dns-prefetch" href="https://in-bio2025-d6gfpdwu36a210919.webapps.tcloudbase.com/" />
+    
+  
     <style>
-        /* 页面允许正常复制选中；仅禁止图片被拖拽 */
-        body { -webkit-user-select: text; user-select: text; }
-        img, a { -webkit-user-drag: none; user-drag: none; }
-
+        /* ============================================================
+               全局变量 & 重置
+               ============================================================ */
         :root {
-            --bg-primary:#0a0a0f;--bg-secondary:#111118;--bg-card:#16161f;--bg-card-hover:#1c1c28;--bg-elevated:#1e1e2a;--bg-skeleton:#1e1e2a;
-            --border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
-            --text-primary:#f0f0f5;--text-secondary:#a0a0b0;--text-tertiary:#6b6b7b;
-            --accent:#3b82f6;--accent-glow:rgba(59,130,246,0.15);--success:#10b981;--success-glow:rgba(16,185,129,0.15);--warning:#f59e0b;--danger:#ef4444;
-            --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
-            --shadow-sm:0 1px 2px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);--shadow-lg:0 8px 32px rgba(0,0,0,0.5);
-            --grid-opacity:0.015;--logo-glow:rgba(59,130,246,0.15);--filter-active-bg:rgba(255,255,255,0.08);--input-bg:#16161f;
-            --hero-gradient-start:#fff;--hero-gradient-end:#a0a0b0;
-            --mirror-card-bg:rgba(255,255,255,0.03);--mirror-card-border:rgba(255,255,255,0.06);--mirror-card-hover:rgba(255,255,255,0.06);
-            --toast-bg:rgba(30,30,42,0.95);--skeleton-shine:rgba(255,255,255,0.05);
+            --bg: #ffffff;
+            --bg-card: #f8f9fc;
+            --bg-nav: rgba(255, 255, 255, 0.92);
+            --bg-hover: #f0f2f5;
+
+            --text: #1a1a2e;
+            --text-secondary: #4a4a5a;
+            --text-muted: #7a7a8a;
+
+            --border: #e4e7ed;
+            --border-hover: #b0b8c8;
+
+            --accent: #2c3e8f;
+            --accent-hover: #1a2a6a;
+            --accent-light: rgba(44, 62, 143, 0.08);
+            --accent-dark: #0f1a3a;
+
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+            --radius: 14px;
+            --radius-sm: 10px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
         }
-        [data-theme="light"] {
-            --bg-primary:#f8f9fa;--bg-secondary:#fff;--bg-card:#fff;--bg-card-hover:#f1f3f5;--bg-elevated:#fff;--bg-skeleton:#e9ecef;
-            --border-subtle:rgba(0,0,0,0.06);--border-medium:rgba(0,0,0,0.1);
-            --text-primary:#1a1a2e;--text-secondary:#5a5a6e;--text-tertiary:#8a8a9e;
-            --accent:#2563eb;--accent-glow:rgba(37,99,235,0.12);--success:#059669;--success-glow:rgba(5,150,105,0.12);
-            --grid-opacity:0.04;--logo-glow:rgba(37,99,235,0.12);--filter-active-bg:rgba(0,0,0,0.06);--input-bg:#fff;
-            --hero-gradient-start:#1a1a2e;--hero-gradient-end:#5a5a6e;
-            --mirror-card-bg:rgba(0,0,0,0.02);--mirror-card-border:rgba(0,0,0,0.06);--mirror-card-hover:rgba(0,0,0,0.04);
-            --toast-bg:rgba(255,255,255,0.95);--skeleton-shine:rgba(0,0,0,0.05);
+
+        [data-theme="dark"] {
+            --bg: #0d1117;
+            --bg-card: #161b22;
+            --bg-nav: rgba(13, 17, 23, 0.92);
+            --bg-hover: #1c2333;
+
+            --text: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+
+            --border: #30363d;
+            --border-hover: #484f58;
+
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --accent-light: rgba(88, 166, 255, 0.12);
+            --accent-dark: #1f3a6a;
+
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
         }
-        @media (prefers-color-scheme:light) {
-            :root:not([data-theme="dark"]):not([data-theme="light"]) {
-                --bg-primary:#f8f9fa;--bg-secondary:#fff;--bg-card:#fff;--bg-card-hover:#f1f3f5;--bg-elevated:#fff;--bg-skeleton:#e9ecef;
-                --border-subtle:rgba(0,0,0,0.06);--border-medium:rgba(0,0,0,0.1);
-                --text-primary:#1a1a2e;--text-secondary:#5a5a6e;--text-tertiary:#8a8a9e;
-                --accent:#2563eb;--accent-glow:rgba(37,99,235,0.12);--success:#059669;
-                --grid-opacity:0.04;--logo-glow:rgba(37,99,235,0.12);--filter-active-bg:rgba(0,0,0,0.06);--input-bg:#fff;
-                --hero-gradient-start:#1a1a2e;--hero-gradient-end:#5a5a6e;
-                --mirror-card-bg:rgba(0,0,0,0.02);--mirror-card-border:rgba(0,0,0,0.06);--mirror-card-hover:rgba(0,0,0,0.04);
-                --toast-bg:rgba(255,255,255,0.95);--skeleton-shine:rgba(0,0,0,0.05);
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color var(--transition), border-color var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent-hover);
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: var(--radius-xs);
+        }
+
+        /* ============================================================
+               导航栏
+               ============================================================ */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: var(--bg-nav);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .navbar .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .navbar .brand svg {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            list-style: none;
+        }
+
+        .navbar .nav-links a {
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+        }
+
+        .navbar .nav-links a:hover,
+        .navbar .nav-links a.active {
+            color: var(--text);
+            background: var(--accent-light);
+        }
+
+        .theme-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--bg-hover);
+        }
+
+        /* ============================================================
+               主容器
+               ============================================================ */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* ============================================================
+               英雄区
+               ============================================================ */
+        .hero {
+            text-align: center;
+            padding: 40px 0 50px;
+        }
+
+        .hero .avatar {
+            font-size: 80px;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .hero .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            font-weight: 450;
+        }
+
+        .hero .bio {
+            max-width: 560px;
+            margin: 0 auto 24px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .hero .social-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .hero .social-row a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+        }
+
+        .hero .social-row a:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================================
+               分割线
+               ============================================================ */
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0 40px;
+        }
+
+        /* ============================================================
+               常用链接（分类）
+               ============================================================ */
+        .quick-links h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .quick-links .category {
+            margin-bottom: 28px;
+        }
+
+        .quick-links .category-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-links .category-title .badge {
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 0 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+        }
+
+        .quick-links .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-links .link-grid a {
+            display: block;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            transition: all var(--transition);
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .quick-links .link-grid a:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-links .link-grid a .tag {
+            display: block;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ============================================================
+               资料下载入口
+               ============================================================ */
+        .download-entry {
+            text-align: center;
+            padding: 30px 0 10px;
+        }
+
+        .download-entry .premium-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 56px;
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a2e;
+            background: #f0f2f7;
+            border: 2px solid #2c3e8f;
+            border-radius: 20px;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 12px rgba(44, 62, 143, 0.10);
+            cursor: pointer;
+        }
+
+        .download-entry .premium-btn:hover {
+            transform: translateY(-3px);
+            background: #2c3e8f;
+            color: #ffffff;
+            border-color: #1a2a6a;
+            box-shadow: 0 8px 32px rgba(44, 62, 143, 0.25);
+        }
+
+        .download-entry .premium-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(44, 62, 143, 0.15);
+        }
+
+        .download-entry .premium-btn .btn-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-entry .premium-btn .btn-icon {
+            width: 28px;
+            height: 28px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .download-entry .premium-btn:hover .btn-icon {
+            transform: translateY(3px);
+        }
+
+        .download-entry .premium-btn .btn-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .download-entry .hint {
+            margin-top: 14px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+               联系区
+               ============================================================ */
+        .contact-section {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .contact-section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .contact-section .desc {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .contact-section .contact-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .contact-section .contact-actions a,
+        .contact-section .contact-actions button {
+            padding: 8px 24px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+
+        .contact-section .contact-actions a:hover,
+        .contact-section .contact-actions button:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+
+        /* ============================================================
+               页脚
+               ============================================================ */
+        .footer {
+            text-align: center;
+            padding: 32px 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ============================================================
+               响应式
+               ============================================================ */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px;
+                height: 56px;
+            }
+            .navbar .nav-links a {
+                padding: 4px 12px;
+                font-size: 13px;
+            }
+            .container {
+                padding: 24px 16px 60px;
+            }
+            .hero h1 {
+                font-size: 28px;
+            }
+            .hero .subtitle {
+                font-size: 16px;
+            }
+            .quick-links .link-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+            .download-entry .premium-btn {
+                padding: 16px 32px;
+                font-size: 20px;
+                gap: 10px;
+            }
+            .download-entry .premium-btn .btn-icon {
+                width: 22px;
+                height: 22px;
             }
         }
-        *{margin:0;padding:0;box-sizing:border-box}
-        html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .3s ease,color .3s ease}
-        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(128,128,128,var(--grid-opacity)) 1px,transparent 1px),linear-gradient(90deg,rgba(128,128,128,var(--grid-opacity)) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;transition:opacity .3s ease}
-        @keyframes skeleton-loading{0%{background-position:200% 0}100%{background-position:-200% 0}}
-        .skeleton{background:linear-gradient(90deg,var(--bg-skeleton) 25%,var(--skeleton-shine) 50%,var(--bg-skeleton) 75%);background-size:200% 100%;animation:skeleton-loading 1.5s ease-in-out infinite;border-radius:var(--radius-sm)}
-        .toast-container{position:fixed;top:80px;right:24px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-        .toast{background:var(--toast-bg);backdrop-filter:blur(12px);border:1px solid var(--border-medium);border-radius:var(--radius-md);padding:12px 20px;font-size:14px;color:var(--text-primary);box-shadow:var(--shadow-lg);transform:translateX(120%);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:auto;max-width:360px;display:flex;align-items:center;gap:10px}
-        .toast.show{transform:translateX(0);opacity:1}
-        .toast svg{width:18px;height:18px;flex-shrink:0}
-        .toast.success svg{color:var(--success)}.toast.error svg{color:var(--danger)}.toast.warning svg{color:var(--warning)}
-        header{position:fixed;top:0;left:0;right:0;z-index:100;background:color-mix(in srgb,var(--bg-primary) 85%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);transition:background .3s ease;contain:layout style}
-        .header-container{max-width:1280px;margin:0 auto;padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between}
-        .logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
-        .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#6366f1);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--logo-glow);transition:box-shadow .3s ease}
-        .logo-icon svg{width:20px;height:20px;color:#fff}
-        .logo-text{font-size:20px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;transition:color .3s ease}
-        .logo-text span{color:var(--accent)}
-        .nav-wrapper{display:flex;align-items:center;gap:16px}
-        nav{display:flex;align-items:center;gap:8px}
-        nav a{color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:var(--radius-sm);transition:all .2s ease;white-space:nowrap;position:relative}
-        nav a:hover{color:var(--text-primary);background:rgba(128,128,128,.06)}
-        nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .nav-cta{background:var(--accent);color:#fff!important}
-        .nav-cta:hover{background:#2563eb;box-shadow:0 0 20px var(--accent-glow)}
-        .theme-switcher{position:relative}
-        .theme-btn{width:40px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--border-medium);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative}
-        .theme-btn:hover{border-color:var(--text-secondary);color:var(--text-primary);background:var(--bg-card-hover)}
-        .theme-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .theme-btn svg{width:18px;height:18px}
-        .theme-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg-card);border:1px solid var(--border-medium);border-radius:var(--radius-md);padding:6px;min-width:160px;box-shadow:var(--shadow-lg);opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s ease;z-index:200}
-        .theme-menu.active{opacity:1;visibility:visible;transform:translateY(0)}
-        .theme-option{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;color:var(--text-secondary);transition:all .15s;border:none;background:transparent;width:100%;text-align:left;font-family:inherit}
-        .theme-option:hover{background:var(--bg-card-hover);color:var(--text-primary)}
-        .theme-option:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .theme-option.active{color:var(--accent);background:var(--accent-glow)}
-        .theme-option svg{width:16px;height:16px;flex-shrink:0}
-        .mobile-menu-btn{display:none;width:40px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--border-medium);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0}
-        .mobile-menu-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .mobile-menu-btn svg{width:20px;height:20px}
-        main{position:relative;z-index:1;padding-top:68px}
-        .hero{text-align:center;padding:80px 24px 60px;max-width:800px;margin:0 auto}
-        .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:100px;font-size:13px;color:var(--success);font-weight:500;margin-bottom:24px;transition:background .3s ease}
-        .hero-badge .dot{width:6px;height:6px;background:var(--success);border-radius:50%;box-shadow:0 0 8px var(--success-glow);animation:pulse 2s infinite}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-        .hero h1{font-size:clamp(32px,6vw,48px);font-weight:700;line-height:1.1;margin-bottom:16px;letter-spacing:-1.5px;background:linear-gradient(135deg,var(--hero-gradient-start) 0%,var(--hero-gradient-end) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .hero p{font-size:clamp(15px,2.5vw,18px);color:var(--text-secondary);margin-bottom:40px;max-width:560px;margin-left:auto;margin-right:auto;transition:color .3s ease}
-        .search-box{position:relative;max-width:640px;margin:0 auto 60px}
-        .search-box input{width:100%;padding:16px 24px 16px 52px;background:var(--input-bg);border:1px solid var(--border-medium);border-radius:var(--radius-lg);color:var(--text-primary);font-size:16px;outline:none;transition:all .3s ease;font-family:inherit;-webkit-background-clip:text}
-        .search-box input::placeholder{color:var(--text-tertiary)}
-        .search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow),var(--shadow-md)}
-        .search-box svg{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--text-tertiary);pointer-events:none}
-        .security-bar{display:flex;justify-content:center;gap:40px;padding:0 24px;margin-bottom:60px;flex-wrap:wrap}
-        .security-item{display:flex;align-items:center;gap:10px;color:var(--text-secondary);font-size:14px;font-weight:500;transition:color .3s ease}
-        .security-item svg{width:18px;height:18px;color:var(--success);flex-shrink:0}
-        .software-section{max-width:1280px;margin:0 auto;padding:0 24px 80px}
-        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px}
-        .section-header h2{font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px;color:var(--text-primary);transition:color .3s ease}
-        .section-header h2 svg{width:20px;height:20px;color:var(--accent)}
-        .filter-tabs{display:flex;gap:4px;background:var(--bg-card);padding:4px;border-radius:var(--radius-md);border:1px solid var(--border-subtle);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;transition:background .3s ease,border-color .3s ease}
-        .filter-tabs::-webkit-scrollbar{display:none}
-        .filter-tabs button{padding:6px 16px;border:none;background:transparent;color:var(--text-secondary);font-size:13px;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;font-family:inherit;white-space:nowrap;flex-shrink:0}
-        .filter-tabs button.active{background:var(--filter-active-bg);color:var(--text-primary)}
-        .filter-tabs button:hover:not(.active){color:var(--text-primary)}
-        .filter-tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .software-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;min-height:200px}
-        .software-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:24px;transition:all .3s ease;position:relative;overflow:hidden;display:flex;flex-direction:column;contain:layout style paint;content-visibility:auto;contain-intrinsic-size:0 200px}
-        .software-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-medium),transparent)}
-        .software-card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
-        .card-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
-        .app-icon{width:48px;height:48px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;background:linear-gradient(135deg,#1e293b,#334155);border:1px solid var(--border-medium)}
-        .app-info{flex:1;min-width:0}
-        .app-info h3{font-size:16px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary);transition:color .3s ease}
-        .app-meta{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-tertiary);flex-wrap:wrap;transition:color .3s ease}
-        .app-meta span{display:flex;align-items:center;gap:4px}
-        .download-row{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:16px}
-        .download-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none;position:relative;overflow:hidden;min-height:44px}
-        .download-btn:hover{background:#2563eb;box-shadow:0 0 20px var(--accent-glow);transform:translateY(-1px)}
-        .download-btn:active{transform:translateY(0)}
-        .download-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .download-btn svg{width:16px;height:16px;flex-shrink:0}
-        .secondary-btn{padding:10px;background:transparent;border:1px solid var(--border-medium);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;min-height:44px;min-width:44px}
-        .secondary-btn:hover{border-color:var(--text-secondary);color:var(--text-primary);background:rgba(128,128,128,.04)}
-        .secondary-btn:focus-visible{outline:2px solid var(--text-secondary);outline-offset:2px}
-        .secondary-btn svg{width:16px;height:16px}
-        .loading-state,.empty-state,.error-state{grid-column:1/-1;text-align:center;padding:60px 24px}
-        .loading-state{color:var(--text-tertiary)}.empty-state{color:var(--text-tertiary)}.error-state{color:var(--danger)}
-        .loading-state svg{width:32px;height:32px;margin-bottom:12px;animation:spin 1s linear infinite}
-        .empty-state svg{width:48px;height:48px;margin-bottom:16px;opacity:.5}
-        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        .mirror-section{max-width:1280px;margin:0 auto;padding:0 24px 80px}
-        .mirror-section .section-header h2 svg{color:var(--success)}
-        .mirror-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-        .mirror-card{background:var(--mirror-card-bg);border:1px solid var(--mirror-card-border);border-radius:var(--radius-lg);padding:24px;transition:all .3s ease;text-decoration:none;display:flex;flex-direction:column;gap:12px;contain:layout style paint;content-visibility:auto;contain-intrinsic-size:0 180px}
-        .mirror-card:hover{background:var(--mirror-card-hover);border-color:var(--border-medium);transform:translateY(-2px);box-shadow:var(--shadow-md)}
-        .mirror-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .mirror-header{display:flex;align-items:center;gap:12px}
-        .mirror-badge{width:40px;height:40px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;background:var(--bg-card);border:1px solid var(--border-medium);color:var(--text-primary)}
-        .mirror-info h3{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;transition:color .3s ease}
-        .mirror-info span{font-size:12px;color:var(--text-tertiary);transition:color .3s ease}
-        .mirror-desc{font-size:13px;color:var(--text-secondary);line-height:1.6;transition:color .3s ease}
-        .mirror-meta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text-tertiary);margin-top:auto;padding-top:8px;transition:color .3s ease}
-        .mirror-meta span{display:flex;align-items:center;gap:4px}
-        .mirror-meta svg{width:12px;height:12px}
-        .audit-section{display:none}
-        footer{position:relative;z-index:1;background:var(--bg-secondary);border-top:1px solid var(--border-subtle);padding:80px 24px;transition:background .3s ease}
-        .footer-container{max-width:1280px;margin:0 auto}
-        .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:60px}
-        .footer-brand{max-width:360px}.footer-brand .logo{margin-bottom:20px}
-        .footer-brand p{color:var(--text-tertiary);font-size:14px;line-height:1.7;margin-bottom:24px;transition:color .3s ease}
-        .footer-brand .placeholder-text{color:var(--text-tertiary);font-size:13px;line-height:1.8;padding:16px;background:var(--bg-card);border-radius:var(--radius-md);border:1px dashed var(--border-medium);transition:background .3s ease,border-color .3s ease}
-        .footer-brand .placeholder-text p{margin-bottom:12px}.footer-brand .placeholder-text p:last-child{margin-bottom:0}
-        .footer-column h4{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:20px;text-transform:uppercase;letter-spacing:.5px;transition:color .3s ease}
-        .footer-column ul{list-style:none}.footer-column li{margin-bottom:12px}
-        .footer-column a{color:var(--text-tertiary);text-decoration:none;font-size:14px;transition:color .2s}.footer-column a:hover{color:var(--text-primary)}
-        .text-reserved-area{display:none}
-        .footer-bottom{border-top:1px solid var(--border-subtle);padding-top:32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-        .footer-bottom p{color:var(--text-tertiary);font-size:13px;transition:color .3s ease}
-        .footer-bottom .links{display:flex;gap:24px}
-        .footer-bottom a{color:var(--text-tertiary);text-decoration:none;font-size:13px;transition:color .2s}.footer-bottom a:hover{color:var(--text-secondary)}
-        .status-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500}
-        .status-tag.stable{background:rgba(16,185,129,.1);color:var(--success);border:1px solid rgba(16,185,129,.2)}
-        .status-tag.beta{background:rgba(245,158,11,.1);color:var(--warning);border:1px solid rgba(245,158,11,.2)}
-        .status-tag svg{width:10px;height:10px}
-        .noscript-warning{position:fixed;top:68px;left:0;right:0;background:rgba(239,68,68,.15);border-bottom:1px solid rgba(239,68,68,.3);color:var(--danger);text-align:center;padding:12px 24px;font-size:14px;z-index:99}
-        @media (max-width:1024px){.software-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}.mirror-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}}
-        @media (max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;gap:40px}.nav-wrapper nav{display:none}.mobile-menu-btn{display:flex}}
-        @media (max-width:768px){.header-container{padding:0 16px;height:60px}main{padding-top:60px}.hero{padding:48px 16px 40px}.software-section,.mirror-section,.pan-section{padding:0 16px 60px}.software-grid{grid-template-columns:1fr;gap:12px}.mirror-grid{grid-template-columns:1fr;gap:12px}.security-bar{gap:16px}.security-item{font-size:12px}.search-box input{padding:14px 16px 14px 44px;font-size:16px}.search-box svg{left:16px}.section-header{flex-direction:column;align-items:flex-start}.filter-tabs{width:100%}footer{padding:48px 16px}.toast-container{right:16px;left:16px}.toast{max-width:none}}
-        @media (max-width:480px){.hero h1{font-size:28px}.logo-text{font-size:16px}.logo-icon{width:32px;height:32px}.app-icon{width:40px;height:40px;font-size:16px}.software-card{padding:16px}.mirror-card{padding:16px}.pan-card{padding:16px}.pan-item{padding:8px 10px}.footer-grid{grid-template-columns:1fr;gap:32px}.footer-bottom{flex-direction:column;text-align:center}.download-btn{min-height:48px}}
-        @media (max-width:360px){.hero h1{font-size:24px}.security-bar{flex-direction:column;align-items:flex-start;gap:10px}}
-        .mobile-nav{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:var(--bg-primary);z-index:99;padding:24px;flex-direction:column;gap:8px;overflow-y:auto}
-        .mobile-nav.active{display:flex}.mobile-nav a{color:var(--text-secondary);text-decoration:none;font-size:16px;font-weight:500;padding:12px 16px;border-radius:var(--radius-sm);transition:all .2s}.mobile-nav a:hover{color:var(--text-primary);background:rgba(128,128,128,.06)}.mobile-nav .nav-cta{background:var(--accent);color:#fff!important;text-align:center;margin-top:8px}
-        @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-        @media (prefers-contrast:high){:root{--border-medium:rgba(128,128,128,.5)}.software-card,.mirror-card,.pan-card{border-width:2px}}
 
-        /* ========== 网盘链接下载区域（数据驱动渲染） ========== */
-        .pan-section{max-width:1280px;margin:0 auto;padding:0 24px 60px}
-        .pan-section .section-header h2 svg{color:#f59e0b}
-        .pan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
-        .pan-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:20px 22px;transition:all .3s ease;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px;contain:layout style paint}
-        .pan-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#8b5cf6)}
-        .pan-card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);transform:translateY(-2px);box-shadow:var(--shadow-md)}
-        .pan-header{display:flex;align-items:center;gap:12px}
-        .pan-icon{width:42px;height:42px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;color:#fff}
-        .pan-icon.baidu{background:linear-gradient(135deg,#1a3a6c,#2563eb)}
-        .pan-icon.quark{background:linear-gradient(135deg,#3b0764,#7c3aed)}
-        .pan-icon.aliyun{background:linear-gradient(135deg,#7c2d12,#ea580c)}
-        .pan-icon.google{background:linear-gradient(135deg,#1e3a5f,#0ea5e9)}
-        .pan-icon.default{background:linear-gradient(135deg,#1a1a2e,#3d3d5c)}
-        .pan-info h4{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;transition:color .3s ease}
-        .pan-info span{font-size:12px;color:var(--text-tertiary);transition:color .3s ease}
-        .pan-list{display:flex;flex-direction:column;gap:8px}
-        .pan-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);transition:all .2s}
-        .pan-item:hover{border-color:var(--accent);background:var(--bg-card-hover)}
-        .pan-item-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
-        .pan-item-left svg{flex-shrink:0;color:var(--text-tertiary);transition:color .2s}
-        .pan-item:hover .pan-item-left svg{color:var(--accent)}
-        .pan-item-name{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .3s ease}
-        .pan-item-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-        .pan-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.3px;flex-shrink:0;cursor:default;transition:all .2s}
-        .pan-tag.pwd{background:rgba(245,158,11,.12);color:var(--warning);border:1px solid rgba(245,158,11,.25)}
-        .pan-tag.pwd:hover{background:rgba(245,158,11,.22);color:#fbbf24}
-        .pan-tag.free{background:rgba(16,185,129,.12);color:var(--success);border:1px solid rgba(16,185,129,.25)}
-        .pan-link-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;font-family:inherit;white-space:nowrap;min-height:30px}
-        .pan-link-btn:hover{background:#2563eb;box-shadow:0 0 12px var(--accent-glow);transform:translateY(-1px)}
-        .pan-link-btn:active{transform:translateY(0)}
-        .pan-link-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .pan-link-btn svg{width:12px;height:12px}
-        .pan-footer{margin-top:auto;padding-top:10px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-tertiary)}
-        .pan-footer svg{width:12px;height:12px;flex-shrink:0}
-        .pan-empty{grid-column:1/-1;text-align:center;padding:40px;color:var(--text-tertiary);font-size:13px}
-        .pan-copy-tip{font-size:10px;color:var(--text-tertiary);margin-top:2px;transition:color .2s}
-        .pan-copy-tip.copied{color:var(--success)}
+        @media (max-width: 400px) {
+            .hero .social-row a {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+            .quick-links .link-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .quick-links .link-grid a {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .download-entry .premium-btn {
+                padding: 14px 24px;
+                font-size: 17px;
+            }
+            .contact-section .contact-actions a,
+            .contact-section .contact-actions button {
+                font-size: 13px;
+                padding: 6px 16px;
+            }
+        }
+
+        /* ============================================================
+               打印样式
+               ============================================================ */
+        @media print {
+            .navbar,
+            .theme-toggle,
+            .footer {
+                display: none;
+            }
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .download-entry .premium-btn {
+                border: 2px solid #2c3e8f;
+                color: #1a1a2e !important;
+                background: #f0f2f7 !important;
+                box-shadow: none !important;
+                transform: none !important;
+            }
+            .quick-links .link-grid a {
+                border-color: #d0d4dc;
+                background: #f8f9fc;
+            }
+            .section-divider {
+                border-color: #d0d4dc;
+            }
+        }
     </style>
 </head>
 <body>
-    <noscript><div class="noscript-warning">请启用 JavaScript 以正常使用本站功能。本站所有软件下载均需要脚本验证后才能展示。</div></noscript>
-    <div class="toast-container" id="toastContainer"></div>
-    <header>
-        <div class="header-container">
-            <a href="#" class="logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </div>
-                <div class="logo-text">Secure<span>Mirror</span></div>
-            </a>
-            <div class="nav-wrapper">
-                <nav>
-                    <a href="#">首页</a><a href="#">关于我们</a><a href="/content/index.html" class="nav-cta" rel="noopener noreferrer">导航页</a>
-                </nav>
-                <div class="theme-switcher">
-                    <button class="theme-btn" id="themeBtn" aria-label="切换主题" title="切换主题">
-                        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                    </button>
-                    <div class="theme-menu" id="themeMenu">
-                        <button class="theme-option" data-theme="light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>白天模式</button>
-                        <button class="theme-option" data-theme="dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>黑夜模式</button>
-                        <button class="theme-option active" data-theme="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>跟随系统</button>
-                    </div>
-                </div>
-                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="打开菜单"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-            </div>
-        </div>
-    </header>
-    <div class="mobile-nav" id="mobileNav">
-        <a href="#" rel="noopener noreferrer">首页</a>
-        <a href="#" rel="noopener noreferrer">关于我们</a>
-        <a href="/content/index.html" class="nav-cta" rel="noopener noreferrer">导航页</a>
-    </div>
-    <main>
+
+    <!-- ============================================================
+    导航栏
+    ============================================================ -->
+    <nav class="navbar" role="navigation" aria-label="主导航">
+        <a href="/content" class="brand" aria-label="首页">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+            lmz
+        </a>
+        <ul class="nav-links">
+            <li><a href="#links">链接</a></li>
+            <li><a href="download.html" target="_blank" rel="noopener noreferrer">资料</a></li>
+            <li><a href="#contact">联系</a></li>
+            <li><a href="https://in-bio2025-d6gfpdwu36a210919.webapps.tcloudbase.com/" target="_blank" rel="noopener noreferrer">备用网址</a></li>
+            <li>
+                <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换深色/浅色主题">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ============================================================
+    主容器
+    ============================================================ -->
+    <main class="container" id="top">
+
+        <!-- ====== 英雄区 ====== -->
         <section class="hero">
-            <div class="hero-badge"><span class="dot"></span>高效、稳定</div>
-            <h1>MIRRORS</h1>
-            <p>为开发者和用户提供软件下载服务。</p>
-            <div class="search-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" id="searchInput" placeholder="搜索软件名称、版本或平台..." autocomplete="off" maxlength="100" enterkeyhint="search">
-            </div>
-            <div class="security-bar">
-                <div class="security-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>HTTPS 加密传输</div>
-                <div class="security-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>SHA-256 完整性校验</div>
-                <div class="security-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>病毒扫描通过</div>
-                <div class="security-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>多节点加速</div>
+            <div class="avatar" aria-hidden="true">🧬</div>
+            <h1>M.Z.LIU</h1>
+            <p class="subtitle">生物工程 · 人工智能爱好者 · 终身学习者</p>
+            <p class="bio">
+                生命本质上是一个对抗熵增的过程。我们穷尽一生构建秩序、维持稳态，
+                却在基因里写着衰亡的指令。所谓活着，不过是暂时赢得了这场与混乱的战争。
+            </p>
+            <div class="social-row">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>
+                <a href="https://blog.csdn.net" target="_blank" rel="noopener noreferrer">📝 博客</a>
+                <a href="mailto:qflmz2007@163.com">✉️ 邮箱</a>
             </div>
         </section>
-        <section class="software-section">
-            <div class="section-header">
-                <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>热门软件</h2>
-                <div class="filter-tabs" id="filterTabs">
-                    <button class="active" data-category="all">全部</button>
-                    <button data-category="dev">开发工具</button>
-                    <button data-category="system">系统工具</button>
-                    <button data-category="media">多媒体</button>
+
+        <hr class="section-divider" />
+
+        <!-- ====== 常用链接（分类） ====== -->
+        <section class="quick-links" id="links">
+            <h2>🔗 常用链接</h2>
+
+            <!-- 学习平台 -->
+            <div class="category">
+                <div class="category-title">📚 学习平台 <span class="badge">6</span></div>
+                <div class="link-grid">
+                    <a href="https://passport2.chaoxing.com/login" target="_blank" rel="noopener noreferrer">超星学习通 <span class="tag">课程</span></a>
+                    <a href="https://www.zhihuishu.com/" target="_blank" rel="noopener noreferrer">智慧树 <span class="tag">课程</span></a>
+                    <a href="https://www.icourse163.org/" target="_blank" rel="noopener noreferrer">MOOC <span class="tag">课程</span></a>
+                    <a href="https://www.xuetangx.com/" target="_blank" rel="noopener noreferrer">学堂在线 <span class="tag">课程</span></a>
+                    <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer">Desmos <span class="tag">计算器</span></a>
+                    <a href="https://www.paperpass.com/" target="_blank" rel="noopener noreferrer">PaperPass <span class="tag">查重</span></a>
                 </div>
             </div>
-            <div class="software-grid" id="softwareGrid">
-                <div class="software-card" style="pointer-events:none"><div class="card-header"><div class="skeleton" style="width:48px;height:48px;border-radius:8px"></div><div class="app-info" style="flex:1"><div class="skeleton" style="width:60%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:40%;height:12px"></div></div></div><div class="skeleton" style="width:100%;height:40px;border-radius:8px;margin-top:8px"></div></div>
-                <div class="software-card" style="pointer-events:none"><div class="card-header"><div class="skeleton" style="width:48px;height:48px;border-radius:8px"></div><div class="app-info" style="flex:1"><div class="skeleton" style="width:55%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:35%;height:12px"></div></div></div><div class="skeleton" style="width:100%;height:40px;border-radius:8px;margin-top:8px"></div></div>
-                <div class="software-card" style="pointer-events:none"><div class="card-header"><div class="skeleton" style="width:48px;height:48px;border-radius:8px"></div><div class="app-info" style="flex:1"><div class="skeleton" style="width:65%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:45%;height:12px"></div></div></div><div class="skeleton" style="width:100%;height:40px;border-radius:8px;margin-top:8px"></div></div>
-                <div class="software-card" style="pointer-events:none"><div class="card-header"><div class="skeleton" style="width:48px;height:48px;border-radius:8px"></div><div class="app-info" style="flex:1"><div class="skeleton" style="width:50%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:40%;height:12px"></div></div></div><div class="skeleton" style="width:100%;height:40px;border-radius:8px;margin-top:8px"></div></div>
+
+            <!-- 文献数据库 -->
+            <div class="category">
+                <div class="category-title">📖 文献数据库 <span class="badge">7</span></div>
+                <div class="link-grid">
+                    <a href="https://www.cnki.net/" target="_blank" rel="noopener noreferrer">中国知网 <span class="tag">文献</span></a>
+                    <a href="https://www.wanfangdata.com.cn/" target="_blank" rel="noopener noreferrer">万方数据 <span class="tag">文献</span></a>
+                    <a href="https://qikan.cqvip.com/" target="_blank" rel="noopener noreferrer">维普期刊 <span class="tag">文献</span></a>
+                    <a href="https://www.webofscience.com" target="_blank" rel="noopener noreferrer">Web of Science <span class="tag">文献</span></a>
+                    <a href="https://pubscholar.cn/" target="_blank" rel="noopener noreferrer">PubScholar <span class="tag">文献</span></a>
+                    <a href="https://zh.kid1412.by/" target="_blank" rel="noopener noreferrer">Z-Library <span class="tag">电子书</span></a>
+                    <a href="https://scholar.google.com/" target="_blank" rel="noopener noreferrer">Google Scholar <span class="tag">文献</span></a>
+                </div>
+            </div>
+
+            <!-- 生物信息学 -->
+            <div class="category">
+                <div class="category-title">🧬 生物信息学 <span class="badge">7</span></div>
+                <div class="link-grid">
+                    <a href="https://www.cncb.ac.cn/" target="_blank" rel="noopener noreferrer">CNCB <span class="tag">国家生物信息中心</span></a>
+                    <a href="https://www.ncbi.nlm.nih.gov/" target="_blank" rel="noopener noreferrer">NCBI <span class="tag">PubMed / GenBank</span></a>
+                    <a href="https://www.uniprot.org/" target="_blank" rel="noopener noreferrer">UniProt <span class="tag">蛋白质数据库</span></a>
+                    <a href="https://www.ebi.ac.uk/" target="_blank" rel="noopener noreferrer">EBI <span class="tag">欧洲生物信息所</span></a>
+                    <a href="https://www.rcsb.org/" target="_blank" rel="noopener noreferrer">RCSB PDB <span class="tag">蛋白质结构</span></a>
+                    <a href="https://www.ensembl.org/" target="_blank" rel="noopener noreferrer">Ensembl <span class="tag">基因组浏览器</span></a>
+                    <a href="https://www.ebi.ac.uk/interpro/" target="_blank" rel="noopener noreferrer">InterPro <span class="tag">蛋白功能分析</span></a>
+                </div>
+            </div>
+
+
+
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ====== 资料下载入口 ====== -->
+        <section class="download-entry">
+            <a href="download.html" target="_blank" rel="noopener noreferrer" class="premium-btn">
+                <span class="btn-text">📂 资料下载中心</span>
+                <span class="btn-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </span>
+            </a>
+            <p class="hint">文档 · 视频 · 工具 · 持续更新</p>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ====== 联系 ====== -->
+        <section class="contact-section" id="contact">
+            <h2>📬 联系我</h2>
+            <p class="desc">欢迎交流 · 我会在 24 小时内回复</p>
+            <div class="contact-actions">
+                <a href="mailto:qflmz2007@163.com">📧 qflmz2007@163.com</a>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>
+                <button type="button" onclick="navigator.clipboard.writeText('qflmz2007y').then(()=>alert('✅ 微信号已复制'))">💬 复制微信</button>
             </div>
         </section>
-        <!-- 网盘链接下载（在镜像站之前） -->
-        <section class="pan-section">
-            <div class="section-header">
-                <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>网盘链接下载</h2>
-            </div>
-            <div class="pan-grid" id="panGrid"></div>
-        </section>
-        <section class="mirror-section">
-            <div class="section-header">
-                <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 4 3 9 3s9-1.34 9-3v-5"/></svg>大学镜像站</h2>
-            </div>
-            <div class="mirror-grid" id="mirrorGrid">
-                <div class="mirror-card" style="pointer-events:none"><div class="mirror-header"><div class="skeleton" style="width:40px;height:40px;border-radius:8px"></div><div style="flex:1"><div class="skeleton" style="width:70%;height:14px;margin-bottom:6px"></div><div class="skeleton" style="width:40%;height:10px"></div></div></div><div class="skeleton" style="width:100%;height:60px"></div></div>
-                <div class="mirror-card" style="pointer-events:none"><div class="mirror-header"><div class="skeleton" style="width:40px;height:40px;border-radius:8px"></div><div style="flex:1"><div class="skeleton" style="width:60%;height:14px;margin-bottom:6px"></div><div class="skeleton" style="width:35%;height:10px"></div></div></div><div class="skeleton" style="width:100%;height:60px"></div></div>
-                <div class="mirror-card" style="pointer-events:none"><div class="mirror-header"><div class="skeleton" style="width:40px;height:40px;border-radius:8px"></div><div style="flex:1"><div class="skeleton" style="width:65%;height:14px;margin-bottom:6px"></div><div class="skeleton" style="width:45%;height:10px"></div></div></div><div class="skeleton" style="width:100%;height:60px"></div></div>
-            </div>
-        </section>
+
     </main>
 
-    <footer>
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a href="#" class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="logo-text">Secure<span>Mirror</span></div></a>
-                    <p>SecureMirror 是一个致力于提供安全、稳定、高速的软件下载服务的开源镜像站。</p>
-                    <p>根据相关法律法规，本站不对欧盟用户提供服务</p>
-                    <div class="placeholder-text"><p>联系邮箱：qflmz2007@163.com</p></div>
-                </div>
-                
-                    <h4>关于我们</h4>
-                    <ul><li><a href="/mirror/intro">镜像站介绍</a></li><li><a href="/mirror/yinsi.html">使用条款</a></li><li><a href="/mirror/yinsi.html">隐私政策</a></li><li><a href="/mirror/yinsi.html">联系我们</a></li></ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p> 2026 SecureMirror. 保留所有权利 <a href="https://beian.miit.gov.cn/" target="_blank">鲁ICP备2025209153号-1</a></p>
-                <div class="links"><a href="/mirror/yinsi.html">服务条款</a><a href="/mirror/yinsi.html">隐私政策</a><a href="#">Cookie 设置</a></div>
-            </div>
-        </div>
-    </footer>
+    <!-- ============================================================
+    页脚
+    ============================================================ -->
+<footer class="footer">
+    <p>&copy; 2026 lmz · 版权所有</p>
+    <p style="margin-top: 6px;"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted);">鲁ICP备2025209153号-1</a></p>
+</footer>
 
+    <!-- ============================================================
+    JavaScript（轻量，仅主题切换）
+    ============================================================ -->
     <script>
-    (function() {
-        'use strict';
+        (function() {
+            'use strict';
 
-        // ==================== 右键 / 快捷键防护 ====================
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && ['u','s','i','j','c'].includes(e.key.toLowerCase())) e.preventDefault();
-            if (e.key === 'F12') e.preventDefault();
-        });
+            const root = document.documentElement;
+            const toggleBtn = document.getElementById('themeToggle');
 
-        // ==================== 工具函数（集中定义，避免重复） ====================
-        const Util = {
-            escape(text) {
-                if (typeof text !== 'string') return '';
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            },
-            isSecureUrl(url) {
-                if (typeof url !== 'string') return false;
-                try { return new URL(url).protocol === 'https:'; } catch(e) { return false; }
-            },
-            debounce(func, wait) {
-                let t;
-                return function(...args) { clearTimeout(t); t = setTimeout(() => func.apply(this, args), wait); };
-            },
-            idle(cb) { (window.requestIdleCallback || (fn => setTimeout(fn, 1)))(cb); },
-            copyText(text) {
-                if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
-                const ta = document.createElement('textarea');
-                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-                document.body.appendChild(ta); ta.select();
-                try { document.execCommand('copy'); } catch(e) {}
-                document.body.removeChild(ta);
-            }
-        };
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+            root.setAttribute('data-theme', savedTheme);
 
-        // ==================== 审计日志（后台静默运行） ====================
-        const AuditLog = {
-            max: 50, logs: [],
-            init() { this.add('INFO','安全审计系统初始化完成'); this.add('INFO','CSP策略已生效'); },
-            add(level, msg) {
-                this.logs.push({ time: new Date().toLocaleTimeString('zh-CN',{hour12:false}), level, msg });
-                if (this.logs.length > this.max) this.logs.shift();
-                console.log('[AUDIT]', level, msg);
-            }
-        };
-
-        // ==================== 防爬虫 ====================
-        const AntiCrawler = {
-            isBot: false, reasons: [], moves: 0, keys: 0,
-            init() { this._detect(); this._bind(); this._check(); this._antiDebug(); },
-            _detect() {
-                const ua = navigator.userAgent.toLowerCase();
-                ['headlesschrome','phantomjs','selenium','webdriver','puppeteer','playwright','cypress'].forEach(p => {
-                    if (ua.includes(p)) { this.isBot = true; this.reasons.push('UA:'+p); }
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    const current = root.getAttribute('data-theme');
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    root.setAttribute('data-theme', next);
+                    localStorage.setItem('theme', next);
                 });
-                if (window.webdriver) { this.isBot = true; this.reasons.push('webdriver'); }
-                if (window.outerWidth === 0 && window.outerHeight === 0) { this.isBot = true; this.reasons.push('no window size'); }
-            },
-            _bind() {
-                const tick = () => this.moves++;
-                document.addEventListener('mousemove', tick, {passive:true});
-                document.addEventListener('keydown', () => this.keys++, {passive:true});
-            },
-            _check() {
-                setTimeout(() => {
-                    if (this.isBot) { AuditLog.add('ERROR','爬虫触发:'+this.reasons.join(';')); Toast.show('warning','检测到异常访问行为'); }
-                    else { AuditLog.add('INFO','人机验证通过'); }
-                }, 2500);
-            },
-            _antiDebug() {
-                setInterval(() => { const s = performance.now(); debugger; if (performance.now()-s > 160) AuditLog.add('WARN','调试器检测触发'); }, 3000);
             }
-        };
 
-        // ==================== Toast ====================
-        const Toast = {
-            el: null,
-            init() { this.el = document.getElementById('toastContainer'); },
-            show(type, msg) {
-                if (!this.el) return;
-                const icons = {
-                    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-                    error:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
-                    warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
-                };
-                const t = document.createElement('div');
-                t.className = 'toast ' + type;
-                t.innerHTML = (icons[type] || icons.warning) + '<span>' + Util.escape(msg) + '</span>';
-                this.el.appendChild(t);
-                requestAnimationFrame(() => t.classList.add('show'));
-                setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 4000);
-            }
-        };
-
-        // ==================== 数据层 ====================
-        const SOFTWARE_DATA = [
-            {id:'vscode',name:'Visual Studio Code',version:'v1.313.0(官网下载)',size:'222 MB',category:'dev',status:'stable',icon:'VS',iconBg:'linear-gradient(135deg,#1e3a5f,#2d5a87)',iconColor:'#60a5fa',url:'https://code.visualstudio.com/thank-you?dv=win64user'},
-            {id:'python',name:'Python',version:'清华源链接',size:'--',category:'dev',status:'stable',icon:'Py',iconBg:'linear-gradient(135deg,#3d1f00,#7c3f00)',iconColor:'#f97316',url:'https://mirrors.tuna.tsinghua.edu.cn/python/'},
-            {id:'git',name:'Git',version:'v2.55.0.3',size:'62.3 MB',category:'dev',status:'stable',icon:'Git',iconBg:'linear-gradient(135deg,#1a1a2e,#2d2d44)',iconColor:'#a78bfa',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Git-2.55.0.3-64-bit.exe'},
-            {id:'nodejs',name:'Node.js',version:'清华源链接',size:'--',category:'dev',status:'stable',icon:'No',iconBg:'linear-gradient(135deg,#0f172a,#1e293b)',iconColor:'#38bdf8',url:'https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/'},
-            {id:'Ali',name:'Ubuntu',version:'阿里源链接',size:'--',category:'dev',status:'stable',icon:'Un',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://mirrors.aliyun.com/ubuntu-releases/'},
-            {id:'R',name:'CRAN',version:'西湖源链接',size:'--',category:'dev',status:'stable',icon:'R',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://mirrors.westlake.edu.cn/CRAN/'},
-            {id:'RStudio',name:'Rstudio',version:'2026.07.1-147',size:'377.47MB',category:'dev',status:'stable',icon:'RS',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://lmz00701.github.io/bin/R'},
-            {id:'7ZIP',name:'7ZIP',version:'南大镜像链接',size:'--',category:'dev',status:'stable',icon:'Z',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://mirror.nju.edu.cn/github-release/ip7z/7zip/'},
-            {id:'typora',name:'typora',version:'1.14.8（x64）',size:'108.43MB',category:'dev',status:'stable',icon:'T',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/typora-setup-x64-1.14.8.exe'},
-            {id:'Design-Expert',name:'Design-Expert',version:'1.14.8（x64）',size:'108.43MB',category:'dev',status:'stable',icon:'D',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Design-Expert%2013.0.5.0%20x64.zip'},
-            {id:'CRAN',name:'CRAN',version:'--',size:'--',category:'dev',status:'stable',icon:'CRAN',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://mirrors.westlake.edu.cn/CRAN/'},
-
-            
-        ];
-
-        const MIRROR_DATA = [
-            {id:'tsinghua',name:'清华大学开源软件镜像站',abbr:'THU',url:'https://mirrors.tuna.tsinghua.edu.cn',desc:'国内最全面的开源软件镜像站之一，提供 Ubuntu、Debian、Python、Node.js 等主流软件的镜像下载服务。',location:'北京',speed:'极速'},
-            {id:'tsinghua',name:'北京大学镜像站',abbr:'PKU',url:'https://mirrors.pku.edu.cn/',desc:'北京大学镜像站',location:'北京',speed:'极速'},
-            {id:'tsinghua',name:'西湖大学镜像站',abbr:'WKU',url:'https://mirrors.westlake.edu.cn/posts/mirrors.html',desc:'西湖大学镜像站',location:'杭州',speed:'快速'},
-            {id:'ustc',name:'中国科学技术大学镜像站',abbr:'USTC',url:'https://mirrors.ustc.edu.cn',desc:'中科大 LUG 维护，支持 IPv6，同步频率高，开发者首选镜像源之一。',location:'合肥',speed:'极速'},
-            {id:'cernet',name:'校园网联合镜像站',abbr:'HW',url:'https://mirrors.cernet.edu.cn/',desc:'校园网联合镜像站',location:'北京',speed:'极速'},
-            {id:'huawei',name:'华为镜像站',abbr:'HW',url:'https://mirrors.huaweicloud.com/home',desc:'华为镜像站',location:'北京',speed:'极速'},
-            {id:'aliyun',name:'阿里云开源镜像站',abbr:'ALI',url:'https://developer.aliyun.com/mirror',desc:'阿里云提供的开源镜像服务，覆盖 Maven、NPM、Docker Hub 等常用仓库。',location:'杭州',speed:'极速'},
-            {id:'sjtug',name:'上海交通大学镜像站',abbr:'SJTU',url:'https://mirror.sjtu.edu.cn',desc:'上海交通大学网络信息中心维护，提供 Arch Linux、Homebrew、PyPI 等镜像。',location:'上海',speed:'快速'},
-            {id:'bfsu',name:'北京外国语大学镜像站',abbr:'BFSU',url:'https://mirrors.bfsu.edu.cn',desc:'北外开源软件镜像站，同步速度快，支持多种 Linux 发行版和开发工具链。',location:'北京',speed:'快速'},
-            {id:'nju',name:'南京大学开源镜像站',abbr:'NJU',url:'https://mirrors.nju.edu.cn',desc:'南京大学 e-Science 中心维护，提供 CRAN、CTAN、GNU 等学术和开源软件镜像。',location:'南京',speed:'快速'},
-            {id:'hust',name:'华中科技大学镜像站',abbr:'HUST',url:'https://mirrors.hust.edu.cn',desc:'华中科技大学开源软件镜像站，提供 CentOS、Debian、Python 等常用软件的镜像。',location:'武汉',speed:'快速'} ,
-            {id:'xjtu',name:'西安交通大学镜像站',abbr:'XJTU',url:'https://mirrors.xjtu.edu.cn',desc:'西安交通大学开源软件镜像站，提供 Ubuntu、Debian、Fedora 等 Linux 发行版的镜像。',location:'西安',speed:'快速'},
-            {id:'scut',name:'山东大学镜像站',abbr:'SCUT',url:'https://mirrors.sdu.edu.cn/mirror',desc:'山东大学开源软件镜像站',location:'山东',speed:'快速'},
-        ];
-
-        /* ========== 网盘链接数据：新增链接只需修改此处 ==========
-         * 分组字段：
-         *   group     → 分组 key（对应 PAN_ICONS 中的图标，自动匹配）
-         *   groupName → 卡片标题
-         *   groupDesc → 卡片副标题
-         *   items[]   → 链接列表
-         *     name    → 显示名称
-         *     url     → 跳转地址
-         *     pwd     → 提取码（空字符串 = 免密，自动显示"免密"标签）
-         *
-         * 新增网盘平台：在 PAN_ICONS 加一条图标 + 颜色即可，无需改渲染逻辑
-         */
-        const PAN_DATA = [
-            {
-                group: 'baidu', groupName: '百度网盘', groupDesc: '大型软件合集 · 需提取码',
-                items: [
-                    { name: 'MATLAB R2024b', url: 'https://pan.baidu.com/s/1qj-xoRH0CDAe0Y0IXd8VqQ?pwd=njpr', pwd: 'njpr' }
-                ]
-            },
-            {
-                group: 'quark', groupName: '夸克网盘', groupDesc: '多版本资源合集 · 免提取码',
-                items: [
-                    { name: 'MATLAB R2023b', url: 'https://pan.quark.cn/s/ac35891c58c0', pwd: '' },
-                    //{ name: 'MATLAB R2023a', url: 'https://pan.quark.cn/s/ac35891c58c0', pwd: '' },
-                    //{ name: 'MATLAB R2022b', url: 'https://pan.quark.cn/s/ac35891c58c0', pwd: '' }
-                ]
-            }
-            /* 新增分组示例（去掉注释即可生效）：
-            ,{
-                group: 'aliyun', groupName: '阿里云盘', groupDesc: '高速下载 · 免提取码',
-                items: [
-                    { name: 'XXX 软件包', url: 'https://www.aliyundrive.com/s/xxxx', pwd: '' }
-                ]
-            }
-            */
-        ];
-
-        // 网盘图标 + 渐变色（集中管理，新增平台加一条）
-        const PAN_ICONS = {
-            baidu:  { svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4.8 12.6c0-3.1 2.5-5.6 5.6-5.6 1.2 0 2.3.4 3.2 1l1.5-1.5C13.6 5.3 11.4 4.5 9 4.5 4.4 4.5.5 8.4.5 13c0 1.2.3 2.4.8 3.4l3.5-2.3c-.2-.5-.3-1-.3-1.5zM18.5 10c-3.9 0-7 3.1-7 7 0 1.3.4 2.5 1 3.5l3.5-2.3c-.2-.5-.3-1-.3-1.5 0-3.1 2.5-5.6 5.6-5.6 1.2 0 2.3.4 3.2 1l1.5-1.5C22.1 10.4 20.4 10 18.5 10z"/></svg>', cls: 'baidu' },
-            quark:  { svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.3L17.5 8 12 11.7 6.5 8 12 4.3zM5 9.5l6 3.3v6.4l-6-3.3V9.5zm14 0v6.4l-6 3.3v-6.4l6-3.3z"/></svg>', cls: 'quark' },
-            aliyun: { svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 13h8L7 3 3 13zm2.5-2l3-5.5L11.5 11h-6zM13 13h8l-4-10-4 10zm2.5-2l3-5.5L19.5 11h-4zM6 15h12l-6 6-6-6z"/></svg>', cls: 'aliyun' },
-            google: { svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 3C7 3 3 7 3 12s4 9 9 9c2.5 0 4.5-1 6-2.5l-2.5-2c-1 .7-2.2 1-3.5 1-3 0-5.5-2.5-5.5-5.5S9 7.5 12 7.5c1.7 0 3 .8 4 2l2-2C17 4.5 14.5 3 12 3zm8 7h-3V7h-2v3h-3v2h3v3h2v-3h3v-2z"/></svg>', cls: 'google' }
-        };
-        function getPanIcon(group) {
-            return PAN_ICONS[group] || { svg: PAN_ICONS.baidu.svg, cls: 'default' };
-        }
-
-        // ==================== 数据校验 ====================
-        function validateApp(app) {
-            return app && typeof app.id === 'string' && typeof app.name === 'string' &&
-                ['dev','system','media','office','security'].includes(app.category) &&
-                ['stable','beta'].includes(app.status) && Util.isSecureUrl(app.url);
-        }
-        function validateMirror(m) {
-            return m && typeof m.id === 'string' && typeof m.name === 'string' && Util.isSecureUrl(m.url);
-        }
-
-        // ==================== 渲染层 ====================
-        function renderCard(app) {
-            const st = app.status === 'stable' ? '稳定版' : '测试版';
-            return `<div class="software-card" data-id="${Util.escape(app.id)}" data-category="${Util.escape(app.category)}">
-                <div class="card-header">
-                    <div class="app-icon" style="background:${Util.escape(app.iconBg)};color:${Util.escape(app.iconColor)}">${Util.escape(app.icon)}</div>
-                    <div class="app-info"><h3>${Util.escape(app.name)}</h3>
-                        <div class="app-meta"><span>${Util.escape(app.version)}</span><span>·</span><span>${Util.escape(app.size)}</span>
-                        <span class="status-tag ${Util.escape(app.status)}"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>${Util.escape(st)}</span></div>
-                    </div>
-                </div>
-                <div class="download-row">
-                    <a href="${Util.escape(app.url)}" class="download-btn" target="_blank" rel="noopener noreferrer" download aria-label="下载 ${Util.escape(app.name)}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>下载</a>
-                    <button class="secondary-btn" title="查看详情" aria-label="${Util.escape(app.name)} 详情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button>
-                </div></div>`;
-        }
-
-        function renderMirrorCard(m) {
-            return `<a href="${Util.escape(m.url)}" class="mirror-card" target="_blank" rel="noopener noreferrer" aria-label="访问 ${Util.escape(m.name)}">
-                <div class="mirror-header"><div class="mirror-badge">${Util.escape(m.abbr)}</div>
-                    <div class="mirror-info"><h3>${Util.escape(m.name)}</h3><span>${Util.escape(m.location)} · ${Util.escape(m.speed)}</span></div></div>
-                <div class="mirror-desc">${Util.escape(m.desc)}</div>
-                <div class="mirror-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>访问镜像站</span></div></a>`;
-        }
-
-        /* ---- 网盘渲染（数据驱动） ---- */
-        function renderPanItem(item) {
-            const hasPwd = item.pwd && item.pwd.length > 0;
-            const tag = hasPwd
-                ? `<span class="pan-tag pwd" title="点击复制提取码" data-pwd="${Util.escape(item.pwd)}">pwd: ${Util.escape(item.pwd)}</span>`
-                : `<span class="pan-tag free">免密</span>`;
-            return `<div class="pan-item">
-                <div class="pan-item-left">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    <span class="pan-item-name">${Util.escape(item.name)}</span>
-                </div>
-                <div class="pan-item-right">${tag}
-                    <a href="${Util.escape(item.url)}" target="_blank" rel="noopener noreferrer" class="pan-link-btn" aria-label="打开 ${Util.escape(item.name)}">打开
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
-                </div></div>`;
-        }
-
-        function renderPanGroup(group) {
-            const icon = getPanIcon(group.group);
-            const itemsHtml = group.items.map(renderPanItem).join('');
-            const hasPwd = group.items.some(i => i.pwd && i.pwd.length > 0);
-            const footer = hasPwd ? '点击「pwd」标签可复制提取码，点击「打开」跳转保存' : '点击「打开」直接跳转保存';
-            return `<div class="pan-card">
-                <div class="pan-header">
-                    <div class="pan-icon ${icon.cls}">${icon.svg}</div>
-                    <div class="pan-info"><h4>${Util.escape(group.groupName)}</h4><span>${Util.escape(group.groupDesc)}</span></div>
-                </div>
-                <div class="pan-list">${itemsHtml}</div>
-                <div class="pan-footer">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>${footer}</div></div>`;
-        }
-
-        function renderPanLinks(data) {
-            const grid = document.getElementById('panGrid');
-            if (!grid) return;
-            if (!Array.isArray(data) || data.length === 0) { grid.innerHTML = '<div class="pan-empty">暂无网盘链接</div>'; return; }
-            const valid = data.filter(g => g && g.group && Array.isArray(g.items) && g.items.length > 0);
-            grid.innerHTML = valid.length ? valid.map(renderPanGroup).join('') : '<div class="pan-empty">暂无网盘链接</div>';
-            AuditLog.add('INFO', '网盘链接渲染完成: ' + valid.length + ' 个分组');
-        }
-
-        // ==================== 列表渲染（带搜索/筛选） ====================
-        function renderSoftwareList(apps, cat, q) {
-            const grid = document.getElementById('softwareGrid');
-            if (!grid) return;
-            let list = apps.filter(validateApp);
-            if (cat !== 'all') list = list.filter(a => a.category === cat);
-            if (q) { const s = q.toLowerCase(); list = list.filter(a => a.name.toLowerCase().includes(s) || a.version.toLowerCase().includes(s)); }
-            grid.innerHTML = list.length ? list.map(renderCard).join('') :
-                '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><p>未找到匹配的软件</p></div>';
-            AuditLog.add('INFO', '软件列表渲染: ' + list.length + ' 项');
-        }
-
-        function renderMirrorList(mirrors) {
-            const grid = document.getElementById('mirrorGrid');
-            if (!grid) return;
-            const valid = mirrors.filter(validateMirror);
-            grid.innerHTML = valid.length ? valid.map(renderMirrorCard).join('') : '<div class="empty-state"><p>暂无镜像站信息</p></div>';
-            AuditLog.add('INFO', '镜像站渲染: ' + valid.length + ' 项');
-        }
-
-        // ==================== 事件绑定 ====================
-        function initEvents() {
-            // 分类切换
-            const tabs = document.getElementById('filterTabs');
-            tabs?.addEventListener('click', e => {
-                if (e.target.tagName !== 'BUTTON') return;
-                tabs.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentCat = e.target.dataset.category || 'all';
-                renderSoftwareList(SOFTWARE_DATA, currentCat, currentQ);
-                AuditLog.add('INFO', '分类: ' + currentCat);
-            });
-            // 搜索（防抖）
-            const search = document.getElementById('searchInput');
-            search?.addEventListener('input', Util.debounce(e => {
-                currentQ = e.target.value.trim().slice(0,100).replace(/[<>"']/g,'');
-                renderSoftwareList(SOFTWARE_DATA, currentCat, currentQ);
-            }, 300));
-            // 移动端菜单
-            const mBtn = document.getElementById('mobileMenuBtn'), mNav = document.getElementById('mobileNav');
-            mBtn?.addEventListener('click', function() {
-                mNav.classList.toggle('active');
-                this.setAttribute('aria-label', mNav.classList.contains('active') ? '关闭菜单' : '打开菜单');
-            });
-            // 下载按钮点击
-            document.addEventListener('click', e => {
-                const btn = e.target.closest('.download-btn');
-                if (btn) { const lbl = btn.getAttribute('aria-label') || ''; AuditLog.add('INFO','下载: '+lbl.replace('下载 ','')); Toast.show('success','开始下载，请检查文件完整性'); }
-            });
-            // 网盘提取码标签点击 → 复制
-            document.getElementById('panGrid')?.addEventListener('click', e => {
-                const tag = e.target.closest('.pan-tag.pwd');
-                if (!tag) return;
-                const pwd = tag.dataset.pwd;
-                if (!pwd) return;
-                Util.copyText(pwd);
-                Toast.show('success', '提取码「' + pwd + '」已复制到剪贴板');
-                AuditLog.add('INFO', '提取码已复制');
-            });
-        }
-
-        // ==================== 主题系统 ====================
-        const THEME_ICONS = {
-            light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
-            dark:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
-            system:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
-        };
-        function applyTheme(t) {
-            const html = document.documentElement;
-            t === 'system' ? html.removeAttribute('data-theme') : html.setAttribute('data-theme', t);
-            const icon = document.getElementById('themeIcon');
-            if (icon) icon.innerHTML = THEME_ICONS[t === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t];
-            document.querySelectorAll('.theme-option').forEach(b => b.classList.toggle('active', b.dataset.theme === t));
-        }
-        function initTheme() {
-            const saved = localStorage.getItem('securemirror-theme') || 'system';
-            applyTheme(saved);
-            const btn = document.getElementById('themeBtn'), menu = document.getElementById('themeMenu');
-            btn?.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('active'); });
-            menu?.querySelectorAll('.theme-option').forEach(opt => {
-                opt.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const t = opt.dataset.theme; applyTheme(t);
-                    try { localStorage.setItem('securemirror-theme', t); } catch(_) {}
-                    AuditLog.add('INFO', '主题: ' + t); menu.classList.remove('active');
-                });
-            });
-            document.addEventListener('click', () => menu?.classList.remove('active'));
-            matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                if ((localStorage.getItem('securemirror-theme') || 'system') === 'system') applyTheme('system');
-            });
-        }
-
-        // ==================== 全局错误捕获 ====================
-        window.addEventListener('error', e => { console.error(e.message); AuditLog.add('ERROR','JS错误:'+e.message.slice(0,50)); });
-        window.addEventListener('unhandledrejection', e => AuditLog.add('ERROR','Promise:'+String(e.reason).slice(0,50)));
-        window.addEventListener('online', () => Toast.show('success','网络已恢复'));
-        window.addEventListener('offline', () => Toast.show('warning','网络已断开'));
-
-        // ==================== 初始化 ====================
-        let currentCat = 'all', currentQ = '';
-        function init() {
-            Toast.init(); AuditLog.init(); AntiCrawler.init();
-            if (SOFTWARE_DATA.filter(validateApp).length === 0) throw new Error('无有效软件数据');
-
-            Util.idle(() => {
-                renderSoftwareList(SOFTWARE_DATA, 'all', '');
-                Util.idle(() => {
-                    renderMirrorList(MIRROR_DATA);
-                    Util.idle(() => renderPanLinks(PAN_DATA));
-                });
-            });
-
-            initEvents(); initTheme();
-            AuditLog.add('INFO', '系统初始化完成');
-            Toast.show('success', 'SecureMirror 加载完成');
-        }
-
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-        else init();
-    })();
+        })();
     </script>
+
 </body>
 </html>
