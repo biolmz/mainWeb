@@ -1,1325 +1,569 @@
 <!DOCTYPE html>
-
 <html lang="zh-CN">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
     <title>学习资料笔记</title>
 
-    <!-- 
-
-        优化说明：所有笔记数据集中在下方 `noteData` 数组中。
-
-        增删改笔记只需操作该数组，页面自动渲染。
-
+    <!--
+        ✅ 维护说明（重要）：
+        1. 所有笔记数据（标题、链接、标签、分类）统一在 同目录的 notes-data.js 中维护。
+           增加 / 修改 / 删除笔记：编辑 notes-data.js，保存后刷新页面即可，无需改动本文件。
+        2. 新增分类：在 notes-data.js 的 categoryMeta 与 categoryOrder 中添加即可。
+        3. 本文件只负责页面样式与渲染逻辑。
     -->
 
     <style>
-
         * {
-
             margin: 0;
-
             padding: 0;
-
             box-sizing: border-box;
-
         }
-
         body {
-
             background: #f5f7fb;
-
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-
             padding: 2rem 1.5rem;
-
             line-height: 1.5;
-
             color: #1e293b;
-
             min-height: 100vh;
-
             display: flex;
-
             flex-direction: column;
-
         }
-
         .container {
-
             max-width: 1280px;
-
             margin: 0 auto;
-
             width: 100%;
-
             flex: 1;
-
         }
-
         .header {
-
             display: flex;
-
             flex-wrap: wrap;
-
             justify-content: space-between;
-
             align-items: center;
-
             gap: 1rem 1.5rem;
-
             margin-bottom: 2rem;
-
             border-bottom: 2px solid #e2e8f0;
-
             padding-bottom: 1.25rem;
-
         }
-
         .header-left {
-
             display: flex;
-
             align-items: baseline;
-
             flex-wrap: wrap;
-
             gap: 0.5rem 1rem;
-
         }
-
         .header-left h1 {
-
             font-size: 2.2rem;
-
             font-weight: 600;
-
             letter-spacing: -0.02em;
-
             background: linear-gradient(135deg, #0f172a, #334155);
-
             -webkit-background-clip: text;
-
             background-clip: text;
-
             color: transparent;
-
         }
-
         .header-left .sub {
-
             font-size: 1rem;
-
             color: #64748b;
-
             font-weight: 400;
-
         }
-
         .badge-total {
-
             background: #e9edf4;
-
             padding: 0.3rem 1rem;
-
             border-radius: 40px;
-
             font-size: 0.85rem;
-
             font-weight: 500;
-
             color: #1e293b;
-
             white-space: nowrap;
-
         }
-
         .badge-total span {
-
             font-weight: 700;
-
             color: #0f172a;
-
         }
-
         .search-section {
-
             display: flex;
-
             flex-wrap: wrap;
-
             align-items: center;
-
             gap: 0.8rem 1.2rem;
-
             margin-bottom: 2rem;
-
             background: #ffffffcc;
-
             backdrop-filter: blur(4px);
-
             -webkit-backdrop-filter: blur(4px);
-
             padding: 0.6rem 1.2rem 0.6rem 1.8rem;
-
             border-radius: 60px;
-
             border: 1px solid #eef2f6;
-
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
-
         .search-wrapper {
-
             flex: 1;
-
             min-width: 180px;
-
             display: flex;
-
             align-items: center;
-
             gap: 0.5rem;
-
         }
-
         .search-wrapper label {
-
             font-size: 1.1rem;
-
             opacity: 0.7;
-
         }
-
         .search-wrapper input {
-
             border: none;
-
             background: transparent;
-
             padding: 0.5rem 0.2rem;
-
             font-size: 0.95rem;
-
             width: 100%;
-
             outline: none;
-
             color: #0f172a;
-
             border-bottom: 1.5px solid transparent;
-
             transition: border-color 0.2s;
-
         }
-
         .search-wrapper input:focus {
-
             border-bottom-color: #2563eb;
-
         }
-
         .search-wrapper input::placeholder {
-
             color: #94a3b8;
-
             font-weight: 300;
-
         }
-
         .search-clear {
-
             background: none;
-
             border: none;
-
             font-size: 1.1rem;
-
             cursor: pointer;
-
             color: #94a3b8;
-
             padding: 0 0.3rem;
-
             display: none;
-
         }
-
         .search-clear.visible {
-
             display: inline-block;
-
         }
-
         .search-status {
-
             font-size: 0.8rem;
-
             color: #475569;
-
             background: #f1f5f9;
-
             padding: 0.2rem 0.9rem;
-
             border-radius: 30px;
-
             white-space: nowrap;
-
         }
-
         .grid {
-
             display: grid;
-
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-
             gap: 1.8rem;
-
             margin-top: 0.5rem;
-
         }
-
         .category-card {
-
             background: #ffffff;
-
             border-radius: 28px;
-
             padding: 1.8rem 1.6rem 1.6rem;
-
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
-
             border: 1px solid #edf2f7;
-
             transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s;
-
             display: flex;
-
             flex-direction: column;
-
         }
-
         .category-card:hover {
-
             transform: translateY(-4px);
-
             box-shadow: 0 20px 32px -12px rgba(0, 0, 0, 0.10);
-
             border-color: #d0d9e8;
-
         }
-
         .card-header {
-
             display: flex;
-
             align-items: center;
-
             gap: 0.75rem;
-
             margin-bottom: 0.3rem;
-
         }
-
         .card-icon {
-
             font-size: 2rem;
-
             line-height: 1;
-
             width: 2.6rem;
-
             height: 2.6rem;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             background: #f1f5f9;
-
             border-radius: 18px;
-
             color: #1e293b;
-
             flex-shrink: 0;
-
         }
-
         .category-card h2 {
-
             font-size: 1.5rem;
-
             font-weight: 600;
-
             letter-spacing: -0.01em;
-
             color: #0f172a;
-
             margin: 0;
-
         }
-
         .category-desc {
-
             color: #475569;
-
             font-size: 0.9rem;
-
             margin: 0.1rem 0 0.8rem 0;
-
             padding-left: 0.2rem;
-
             flex: 0;
-
         }
-
         .note-list {
-
             list-style: none;
-
             margin: 0.2rem 0 0.2rem;
-
             padding: 0;
-
             border-top: 1px dashed #e2e8f0;
-
             padding-top: 0.9rem;
-
         }
-
         .note-list li {
-
             margin-bottom: 0.5rem;
-
             display: flex;
-
             align-items: center;
-
             gap: 0.4rem;
-
             font-size: 0.95rem;
-
             opacity: 1;
-
             transition: opacity 0.15s;
-
         }
-
         .note-list li.hidden-item {
-
             display: none;
-
         }
-
         .note-list li::before {
-
             content: "📄";
-
             font-size: 0.8rem;
-
             opacity: 0.6;
-
             width: 1.4rem;
-
             flex-shrink: 0;
-
         }
-
         .note-list a {
-
             text-decoration: none;
-
             color: #1e293b;
-
             font-weight: 450;
-
             border-bottom: 1px solid transparent;
-
             transition: border-color 0.2s, color 0.15s;
-
             padding: 0.1rem 0;
-
             word-break: break-word;
-
         }
-
         .note-list a:hover {
-
             color: #2563eb;
-
             border-bottom-color: #2563eb;
-
         }
-
-        .note-list .tag {
-
-            font-size: 0.6rem;
-
-            background: #eef2f6;
-
-            color: #334155;
-
-            padding: 0.1rem 0.6rem;
-
-            border-radius: 30px;
-
-            margin-left: auto;
-
-            white-space: nowrap;
-
-            font-weight: 500;
-
-            letter-spacing: 0.02em;
-
-        }
-
-        .card-footer {
-
-            margin-top: 0.9rem;
-
-            font-size: 0.8rem;
-
-            color: #94a3b8;
-
-            border-top: 1px solid #f1f5f9;
-
-            padding-top: 0.8rem;
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            flex-wrap: wrap;
-
-            gap: 0.4rem;
-
-        }
-
-        .card-footer .count {
-
-            background: #f1f5f9;
-
-            padding: 0.1rem 0.8rem;
-
-            border-radius: 30px;
-
-            font-weight: 500;
-
-            color: #1e293b;
-
-            font-size: 0.75rem;
-
-        }
-
-        .more-btn {
-
-            background: transparent;
-
-            border: 1px solid #dce2ec;
-
-            border-radius: 40px;
-
-            padding: 0.15rem 1rem;
-
-            font-size: 0.75rem;
-
-            font-weight: 500;
-
-            color: #1e293b;
-
-            cursor: pointer;
-
-            transition: all 0.2s;
-
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 0.3rem;
-
-            background: #fafcff;
-
-        }
-
-        .more-btn:hover {
-
-            background: #eef2f8;
-
-            border-color: #b0c0d4;
-
-            color: #0f172a;
-
-        }
-
-        .more-btn:disabled {
-
-            opacity: 0.4;
-
+        .note-list a.placeholder-link {
+            color: #cbd5e1;
             cursor: default;
-
-            pointer-events: none;
-
         }
-
-        .more-btn .arrow {
-
-            transition: transform 0.2s;
-
-        }
-
-        .more-btn.expanded .arrow {
-
-            transform: rotate(180deg);
-
-        }
-
-        .empty-msg {
-
-            color: #94a3b8;
-
-            font-style: italic;
-
-            font-size: 0.85rem;
-
-            padding: 0.4rem 0;
-
-        }
-
-        .no-result-banner {
-
-            text-align: center;
-
-            padding: 3rem 1rem;
-
-            color: #64748b;
-
-            font-size: 1.1rem;
-
-            background: #ffffffb0;
-
-            border-radius: 60px;
-
-            border: 1px dashed #d0d9e8;
-
-            margin-top: 1rem;
-
-            display: none;
-
-        }
-
-        .no-result-banner.visible {
-
-            display: block;
-
-        }
-
-        .footer-note {
-
-            margin-top: 3rem;
-
-            text-align: center;
-
-            color: #94a3b8;
-
-            border-top: 1px solid #e2e8f0;
-
-            padding-top: 1.8rem;
-
-            font-size: 0.9rem;
-
-        }
-
-        .footer-note .code-hint {
-
+        .note-list .tag {
+            font-size: 0.6rem;
             background: #eef2f6;
-
+            color: #334155;
             padding: 0.1rem 0.6rem;
-
-            border-radius: 20px;
-
-            font-family: monospace;
-
+            border-radius: 30px;
+            margin-left: auto;
+            white-space: nowrap;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .card-footer {
+            margin-top: 0.9rem;
             font-size: 0.8rem;
-
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .card-footer .count {
+            background: #f1f5f9;
+            padding: 0.1rem 0.8rem;
+            border-radius: 30px;
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 0.75rem;
+        }
+        .more-btn {
+            background: #fafcff;
+            border: 1px solid #dce2ec;
+            border-radius: 40px;
+            padding: 0.15rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .more-btn:hover {
+            background: #eef2f8;
+            border-color: #b0c0d4;
             color: #0f172a;
-
         }
-
-        @media (max-width: 640px) {
-
-            body { padding: 1.2rem 0.8rem; }
-
-            .header { flex-direction: column; align-items: stretch; gap: 0.5rem; }
-
-            .header-left h1 { font-size: 1.9rem; }
-
-            .search-section { border-radius: 40px; padding: 0.6rem 1rem; flex-wrap: wrap; }
-
-            .search-wrapper { min-width: 140px; }
-
-            .grid { gap: 1.2rem; }
-
-            .category-card { padding: 1.4rem; }
-
+        .more-btn .arrow {
+            transition: transform 0.2s;
         }
-
-        @media (max-width: 400px) {
-
-            .card-header h2 { font-size: 1.3rem; }
-
+        .more-btn.expanded .arrow {
+            transform: rotate(180deg);
         }
-
-        .hidden { display: none; }
-
+        .empty-msg {
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 0.85rem;
+            padding: 0.4rem 0;
+        }
+        .no-result-banner {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #64748b;
+            font-size: 1.1rem;
+            background: #ffffffb0;
+            border-radius: 60px;
+            border: 1px dashed #d0d9e8;
+            margin-top: 1rem;
+            display: none;
+        }
+        .no-result-banner.visible {
+            display: block;
+        }
+        .footer-note {
+            margin-top: 3rem;
+            text-align: center;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1.8rem;
+            font-size: 0.9rem;
+        }
+        .footer-note .code-hint {
+            background: #eef2f6;
+            padding: 0.1rem 0.6rem;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #0f172a;
+        }
+        .mt-1 { margin-top: 0.5rem; }
         .text-muted { color: #64748b; }
 
-        .mt-1 { margin-top: 0.5rem; }
-
+        @media (max-width: 640px) {
+            body { padding: 1.2rem 0.8rem; }
+            .header { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+            .header-left h1 { font-size: 1.9rem; }
+            .search-section { border-radius: 40px; padding: 0.6rem 1rem; flex-wrap: wrap; }
+            .search-wrapper { min-width: 140px; }
+            .grid { gap: 1.2rem; }
+            .category-card { padding: 1.4rem; }
+        }
+        @media (max-width: 400px) {
+            .card-header h2 { font-size: 1.3rem; }
+        }
     </style>
-
 </head>
 
 <body>
+    <div class="container">
 
-<div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-left">
+                <h1>✏️ 笔记库</h1>
+                <span class="sub">· 分类导航</span>
+            </div>
+            <div class="badge-total">
+                📚 总计 <span id="totalCount">0</span> 篇笔记
+            </div>
+        </header>
 
-    <!-- 头部 -->
-
-    <header class="header">
-
-        <div class="header-left">
-
-            <h1>✏️ 笔记库</h1>
-
-            <span class="sub">· 分类导航</span>
-
+        <!-- 搜索栏 -->
+        <div class="search-section">
+            <div class="search-wrapper">
+                <label for="searchInput">🔍</label>
+                <input type="text" id="searchInput" placeholder="搜索笔记标题、标签..." autocomplete="off">
+                <button class="search-clear" id="clearSearch" aria-label="清除搜索">✕</button>
+            </div>
+            <span class="search-status" id="searchStatus">显示全部</span>
         </div>
 
-        <div class="badge-total">
+        <!-- 网格容器：由 JavaScript 动态渲染 -->
+        <div class="grid" id="categoryGrid"></div>
 
-            📚 总计 <span id="totalCount">0</span> 篇笔记
+        <!-- 全局无结果提示 -->
+        <div class="no-result-banner" id="noResultBanner">🔎 没有找到匹配的笔记，试试其他关键词</div>
 
+        <!-- 页脚 -->
+        <div class="footer-note">
+            LMZ&nbsp;|&nbsp;
+            <a href="javascript:void(0)" onclick="window.scrollTo({top:0,behavior:'smooth'})">回到顶部 ↑</a>
+            <div class="mt-1 text-muted">📝 笔记数据统一在 <span class="code-hint">notes-data.js</span> 中维护，增删改后刷新页面即可</div>
         </div>
-
-    </header>
-
-    <!-- 搜索栏 -->
-
-    <div class="search-section">
-
-        <div class="search-wrapper">
-
-            <label for="searchInput">🔍</label>
-
-            <input type="text" id="searchInput" placeholder="搜索笔记标题、标签..." autocomplete="off">
-
-            <button class="search-clear" id="clearSearch" aria-label="清除搜索">✕</button>
-
-        </div>
-
-        <span class="search-status" id="searchStatus">显示全部</span>
 
     </div>
 
-    <!-- 网格容器：由 JavaScript 动态渲染 -->
-
-    <div class="grid" id="categoryGrid"></div>
-
-    <!-- 全局无结果提示 -->
-
-    <div class="no-result-banner" id="noResultBanner">🔎 没有找到匹配的笔记，试试其他关键词</div>
-
-    <!-- 页脚（提示维护方式） -->
-
-    <div class="footer-note">
-
-        LMZ&nbsp;|&nbsp;
-
-        <a href="#">回到顶部 ↑</a>
-
-    </div>
-
-</div>
-
-<script>
-
-    (function() {
-
-        "use strict";
-
-        // --------------------------------------------------------------
-
-        //  📌 所有笔记数据集中在此，增删改只需操作这个数组
-
-        //  字段说明： title, url, tag, category (分类标识)
-
-        //  分类标识目前支持: 'frontend' , 'backend' , 'ai' , 'tools'
-
-        //  如需新增分类，在下方 categoryMeta 中添加即可。
-
-        // --------------------------------------------------------------
-
-        const noteData = [
-
-            // 生物信息 (info)
-
-            { title: 'example', url: '#', tag: 'example', category: 'info' },
-
-   
-
-            // 英语 (en)
-
-            { title: '26.12四级作文预测范文', url: 'https://bio2025.site/study/26.12四级作文', tag: '四级作文', category: 'en' },
-            { title: '四级作文', url: 'https://bio2025.site/study/cet4-1', tag: '四级作文', category: 'en' },
-
-
-            // 生物学 (bio)
-
-            { title: 'example', url: '#', tag: 'example', category: 'bio' },
-
-        ];
-
-
-         // 数学 (math)
-
-            { title: '8月数竞规划', url: 'https://bio2025.site/study/八月数竞', tag: '复习重点', category: 'math' },
-
-        ];
-
-        // 分类元数据 (图标、描述、显示名)
-
-        const categoryMeta = {
-
-            info: { icon: '🖥️', name: '生物信息', desc: '数据分析,R,Python' },
-
-            en:  { icon: '🔤', name: '英语资料', desc: '四六级，考研英语' },
-
-            bio:       { icon: '🌱', name: '生物学', desc: '生物资料' },
-            math:       { icon: '🌱', name: '数学', desc: '数学资料' },
-
-           
-
-        };
-
-        // 排序：保持分类顺序 (也可按需调整)
-
-        const categoryOrder = ['info', 'en', 'bio','math'];
-
-        // DOM 元素
-
-        const grid = document.getElementById('categoryGrid');
-
-        const searchInput = document.getElementById('searchInput');
-
-        const clearBtn = document.getElementById('clearSearch');
-
-        const searchStatus = document.getElementById('searchStatus');
-
-        const noResultBanner = document.getElementById('noResultBanner');
-
-        const totalSpan = document.getElementById('totalCount');
-
-        // ----- 渲染引擎 -----
-
-        function render() {
-
-            // 按分类分组
-
-            const groups = {};
-
-            categoryOrder.forEach(cat => { groups[cat] = []; });
-
-            noteData.forEach(item => {
-
-                if (groups[item.category]) {
-
-                    groups[item.category].push(item);
-
-                } else {
-
-                    // 如果分类未在 categoryOrder 中，自动追加 (但为了显示，我们动态创建)
-
-                    if (!groups[item.category]) {
-
-                        groups[item.category] = [];
-
-                    }
-
-                    groups[item.category].push(item);
-
-                }
-
-            });
-
-            // 构建 HTML
-
-            let html = '';
-
-            categoryOrder.forEach(cat => {
-
-                const items = groups[cat] || [];
-
-                const meta = categoryMeta[cat] || { icon: '📁', name: cat, desc: '' };
-
-                // 只渲染有笔记的分类
-
-                if (items.length === 0) return;
-
-                // 生成笔记列表项
-
-                let listItems = '';
-
-                items.forEach((note, index) => {
-
-                    listItems += `
-
-                        <li data-index="${index}" data-title="${note.title.toLowerCase()}" data-tag="${note.tag.toLowerCase()}">
-
-                            <a href="${note.url}">${note.title}</a>
-
-                            <span class="tag">${note.tag}</span>
-
-                        </li>
-
-                    `;
-
+    <!-- 数据文件：笔记内容独立维护，见 notes-data.js -->
+    <script src="notes-data.js"></script>
+
+    <script>
+        (function () {
+            "use strict";
+
+            // ----- 配置 -----
+            const MAX_DISPLAY = 2; // 每个分类折叠时默认显示的条数
+
+            // ----- DOM -----
+            const grid = document.getElementById('categoryGrid');
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearch');
+            const searchStatus = document.getElementById('searchStatus');
+            const noResultBanner = document.getElementById('noResultBanner');
+            const totalSpan = document.getElementById('totalCount');
+
+            // 每个分类的展开状态（true = 已展开）
+            const expandedMap = {};
+
+            // ----- 工具：转义 HTML 防止特殊字符破坏页面 -----
+            function escapeHtml(s) {
+                return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
                 });
-
-                // 最大显示条数 (默认2)
-
-                const maxDisplay = 2;
-
-                const total = items.length;
-
-                const showMore = total > maxDisplay;
-
-                html += `
-
-                    <section class="category-card" data-category="${cat}">
-
-                        <div class="card-header">
-
-                            <span class="card-icon">${meta.icon}</span>
-
-                            <h2>${meta.name}</h2>
-
-                        </div>
-
-                        <p class="category-desc">${meta.desc}</p>
-
-                        <ul class="note-list" data-max="${maxDisplay}" data-total="${total}">
-
-                            ${listItems}
-
-                        </ul>
-
-                        <div class="card-footer">
-
-                            <span class="count">${total} 篇</span>
-
-                            ${showMore ? `<button class="more-btn" data-target="${cat}">查看更多 <span class="arrow">▼</span></button>` : ''}
-
-                        </div>
-
-                    </section>
-
-                `;
-
-            });
-
-            grid.innerHTML = html;
-
-            // 重新绑定事件 & 初始化折叠状态
-
-            initAfterRender();
-
-            // 更新总数
-
-            updateTotalCount();
-
-            // 应用搜索过滤 (重置)
-
-            applySearchFilter();
-
-        }
-
-        // ----- 初始化折叠、事件绑定 (每次渲染后调用) -----
-
-        function initAfterRender() {
-
-            const noteLists = document.querySelectorAll('.note-list');
-
-            // 存储每个列表的展开状态
-
-            const listMap = new Map();
-
-            noteLists.forEach(ul => {
-
-                const max = parseInt(ul.getAttribute('data-max')) || 2;
-
-                const items = Array.from(ul.querySelectorAll('li'));
-
-                // 初始状态：折叠
-
-                listMap.set(ul, {
-
-                    max: max,
-
-                    allItems: items,
-
-                    expanded: false,
-
-                });
-
-                // 应用折叠
-
-                applyVisibility(ul, listMap);
-
-            });
-
-            // 为所有 "查看更多" 按钮绑定事件
-
-            const moreBtns = document.querySelectorAll('.more-btn');
-
-            moreBtns.forEach(btn => {
-
-                btn.removeEventListener('click', handleMoreClick);
-
-                btn.addEventListener('click', handleMoreClick);
-
-            });
-
-            // 存储 listMap 到全局，供搜索使用
-
-            window._listMap = listMap;
-
-            // 重新应用搜索 (因为渲染后列表重建)
-
-            applySearchFilter();
-
-        }
-
-        function handleMoreClick(e) {
-
-            e.stopPropagation();
-
-            const btn = this;
-
-            const target = btn.dataset.target;
-
-            const card = document.querySelector(`.category-card[data-category="${target}"]`);
-
-            if (!card) return;
-
-            const ul = card.querySelector('.note-list');
-
-            if (!ul) return;
-
-            const listMap = window._listMap;
-
-            if (!listMap) return;
-
-            const data = listMap.get(ul);
-
-            if (!data) return;
-
-            data.expanded = !data.expanded;
-
-            applyVisibility(ul, listMap);
-
-            // 更新按钮文字
-
-            updateMoreBtn(ul, listMap);
-
-            // 应用搜索过滤 (保持搜索状态)
-
-            applySearchFilter();
-
-        }
-
-        function applyVisibility(ul, listMap) {
-
-            const data = listMap.get(ul);
-
-            if (!data) return;
-
-            const { max, allItems, expanded } = data;
-
-            allItems.forEach((li, index) => {
-
-                if (expanded) {
-
-                    li.classList.remove('hidden-item');
-
-                } else {
-
-                    if (index >= max) {
-
-                        li.classList.add('hidden-item');
-
-                    } else {
-
-                        li.classList.remove('hidden-item');
-
-                    }
-
-                }
-
-            });
-
-            updateMoreBtn(ul, listMap);
-
-        }
-
-        function updateMoreBtn(ul, listMap) {
-
-            const data = listMap.get(ul);
-
-            if (!data) return;
-
-            const card = ul.closest('.category-card');
-
-            if (!card) return;
-
-            const btn = card.querySelector('.more-btn');
-
-            if (!btn) return;
-
-            const arrow = btn.querySelector('.arrow');
-
-            if (data.expanded) {
-
-                btn.innerHTML = '收起 <span class="arrow">▲</span>';
-
-                btn.classList.add('expanded');
-
-            } else {
-
-                btn.innerHTML = '查看更多 <span class="arrow">▼</span>';
-
-                btn.classList.remove('expanded');
-
             }
 
-        }
-
-        // ----- 搜索过滤 (基于当前 DOM) -----
-
-        function applySearchFilter() {
-
-            const keyword = searchInput.value.trim().toLowerCase();
-
-            const cards = document.querySelectorAll('.category-card');
-
-            const listMap = window._listMap || new Map();
-
-            let totalVisible = 0;
-
-            let anyVisible = false;
-
-            cards.forEach(card => {
-
-                const ul = card.querySelector('.note-list');
-
+            // ----- 折叠控制 -----
+            function applyVisibility(cat) {
+                const ul = grid.querySelector('.note-list[data-category="' + cat + '"]');
                 if (!ul) return;
+                const expanded = !!expandedMap[cat];
+                Array.from(ul.querySelectorAll('li')).forEach(function (li, index) {
+                    if (expanded || index < MAX_DISPLAY) {
+                        li.classList.remove('hidden-item');
+                    } else {
+                        li.classList.add('hidden-item');
+                    }
+                });
+                const btn = ul.closest('.category-card').querySelector('.more-btn');
+                if (btn) {
+                    btn.innerHTML = expanded
+                        ? '收起 <span class="arrow">▲</span>'
+                        : '查看更多 <span class="arrow">▼</span>';
+                }
+            }
 
-                const data = listMap.get(ul);
+            // ----- 渲染 -----
+            function render() {
+                let html = '';
 
-                if (!data) return;
+                categoryOrder.forEach(function (cat) {
+                    const items = noteData.filter(function (n) { return n.category === cat; });
+                    if (items.length === 0) return; // 空分类不渲染
 
-                const { allItems } = data;
+                    const meta = categoryMeta[cat] || { icon: '📁', name: cat, desc: '' };
+                    const showMore = items.length > MAX_DISPLAY;
 
-                let cardHasVisible = false;
+                    const listItems = items.map(function (note) {
+                        const isPlaceholder = note.url === '#';
+                        return '<li data-title="' + escapeHtml(String(note.title).toLowerCase()) + '"' +
+                            ' data-tag="' + escapeHtml(String(note.tag || '').toLowerCase()) + '">' +
+                            '<a href="' + escapeHtml(note.url) + '"' + (isPlaceholder ? ' class="placeholder-link"' : '') + '>' +
+                            escapeHtml(note.title) + '</a>' +
+                            '<span class="tag">' + escapeHtml(note.tag || '') + '</span>' +
+                            '</li>';
+                    }).join('');
 
-                allItems.forEach(li => {
+                    html +=
+                        '<section class="category-card" data-category="' + cat + '">' +
+                        '<div class="card-header">' +
+                        '<span class="card-icon">' + meta.icon + '</span>' +
+                        '<h2>' + escapeHtml(meta.name) + '</h2>' +
+                        '</div>' +
+                        '<p class="category-desc">' + escapeHtml(meta.desc) + '</p>' +
+                        '<ul class="note-list" data-category="' + cat + '">' + listItems + '</ul>' +
+                        '<div class="card-footer">' +
+                        '<span class="count">' + items.length + ' 篇</span>' +
+                        (showMore ? '<button class="more-btn" data-category="' + cat + '">查看更多 <span class="arrow">▼</span></button>' : '') +
+                        '</div>' +
+                        '</section>';
+                });
 
-                    const title = li.dataset.title || '';
+                grid.innerHTML = html;
 
-                    const tag = li.dataset.tag || '';
+                // 应用折叠状态
+                categoryOrder.forEach(function (cat) { applyVisibility(cat); });
 
-                    const text = title + ' ' + tag;
+                updateTotalCount();
+                applySearchFilter();
+            }
 
-                    const match = text.includes(keyword);
+            // ----- 搜索过滤 -----
+            function applySearchFilter() {
+                const keyword = searchInput.value.trim().toLowerCase();
+                const cards = grid.querySelectorAll('.category-card');
+                let totalVisible = 0;
+                let anyVisible = false;
 
-                    const isHiddenByExpand = li.classList.contains('hidden-item');
+                cards.forEach(function (card) {
+                    const ul = card.querySelector('.note-list');
+                    const cat = ul.dataset.category;
+                    const items = Array.from(ul.querySelectorAll('li'));
+                    let cardVisible = false;
 
                     if (keyword === '') {
-
-                        li.style.display = '';
-
-                        li.dataset.searchHidden = 'false';
-
+                        // 无搜索：恢复折叠显示
+                        items.forEach(function (li) { li.style.display = ''; });
+                        applyVisibility(cat);
+                        cardVisible = true;
                     } else {
-
-                        if (match && !isHiddenByExpand) {
-
-                            li.style.display = '';
-
-                            li.dataset.searchHidden = 'false';
-
-                            cardHasVisible = true;
-
-                        } else {
-
-                            li.style.display = 'none';
-
-                            li.dataset.searchHidden = 'true';
-
-                        }
-
+                        // 搜索：命中即显示（不受折叠限制），未命中隐藏
+                        items.forEach(function (li) {
+                            const text = (li.dataset.title || '') + ' ' + (li.dataset.tag || '');
+                            if (text.includes(keyword)) {
+                                li.style.display = '';
+                                li.classList.remove('hidden-item');
+                                cardVisible = true;
+                                totalVisible++;
+                            } else {
+                                li.style.display = 'none';
+                            }
+                        });
                     }
 
+                    card.style.display = cardVisible ? '' : 'none';
+                    if (cardVisible) anyVisible = true;
                 });
 
                 if (keyword === '') {
-
-                    allItems.forEach(li => {
-
-                        li.style.display = '';
-
-                        li.dataset.searchHidden = 'false';
-
-                    });
-
-                    // 重新应用折叠
-
-                    applyVisibility(ul, listMap);
-
-                    const visibleItems = allItems.filter(li => !li.classList.contains('hidden-item'));
-
-                    totalVisible += visibleItems.length;
-
-                    if (visibleItems.length > 0) anyVisible = true;
-
-                    card.style.display = '';
-
-                } else {
-
-                    const visibleItems = allItems.filter(li => li.style.display !== 'none' && !li.classList.contains('hidden-item'));
-
-                    if (visibleItems.length > 0) {
-
-                        card.style.display = '';
-
-                        anyVisible = true;
-
-                        totalVisible += visibleItems.length;
-
-                    } else {
-
-                        card.style.display = 'none';
-
-                    }
-
-                }
-
-            });
-
-            // 更新状态
-
-            if (keyword === '') {
-
-                noResultBanner.classList.remove('visible');
-
-                searchStatus.textContent = '显示全部';
-
-                updateTotalCount();
-
-            } else {
-
-                if (!anyVisible) {
-
-                    noResultBanner.classList.add('visible');
-
-                } else {
-
                     noResultBanner.classList.remove('visible');
-
+                    searchStatus.textContent = '显示全部';
+                    updateTotalCount();
+                } else {
+                    noResultBanner.classList.toggle('visible', !anyVisible);
+                    searchStatus.textContent = '找到 ' + totalVisible + ' 篇';
+                    totalSpan.textContent = totalVisible;
                 }
 
-                searchStatus.textContent = `找到 ${totalVisible} 篇`;
-
-                totalSpan.textContent = totalVisible;
-
+                clearBtn.classList.toggle('visible', keyword.length > 0);
             }
 
-            if (keyword.length > 0) {
-
-                clearBtn.classList.add('visible');
-
-            } else {
-
-                clearBtn.classList.remove('visible');
-
+            function updateTotalCount() {
+                totalSpan.textContent = noteData.length;
             }
 
-        }
+            // ----- 事件绑定 -----
+            searchInput.addEventListener('input', applySearchFilter);
 
-        function updateTotalCount() {
-
-            const listMap = window._listMap || new Map();
-
-            let total = 0;
-
-            listMap.forEach((data) => {
-
-                const visible = data.allItems.filter(li => !li.classList.contains('hidden-item'));
-
-                total += visible.length;
-
+            clearBtn.addEventListener('click', function () {
+                searchInput.value = '';
+                applySearchFilter();
+                searchInput.focus();
             });
 
-            totalSpan.textContent = total;
+            // 事件委托：查看更多 / 收起
+            grid.addEventListener('click', function (e) {
+                const btn = e.target.closest('.more-btn');
+                if (!btn) return;
+                const cat = btn.dataset.category;
+                expandedMap[cat] = !expandedMap[cat];
+                applyVisibility(cat);
+                applySearchFilter(); // 保持搜索状态
+            });
 
-        }
+            // ----- 启动渲染 -----
+            render();
 
-        // ----- 事件绑定 (搜索、清除) -----
+            // 调试 / 动态添加笔记辅助
+            window.__noteData = noteData;
+            window.__categoryMeta = categoryMeta;
+            window.addNote = function (note) { noteData.push(note); render(); };
 
-        searchInput.addEventListener('input', function() {
-
-            applySearchFilter();
-
-        });
-
-        clearBtn.addEventListener('click', function() {
-
-            searchInput.value = '';
-
-            applySearchFilter();
-
-            searchInput.focus();
-
-        });
-
-        // ----- 初始化渲染 -----
-
-        render();
-
-        // 暴露 noteData 方便调试 (可选项)
-
-        window.__noteData = noteData;
-
-        window.__categoryMeta = categoryMeta;
-
-        // 如果未来需要动态添加笔记，可调用 render() 重新渲染
-
-        // 示例: window.addNote = function(note) { noteData.push(note); render(); }
-
-    })();
-
-</script>
+        })();
+    </script>
 
 </body>
-
-</html> 
+</html>
