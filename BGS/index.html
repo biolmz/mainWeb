@@ -1,1 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麦粕新生 — 寒地模块化啤酒糟智能发酵高值饲料转化系统</title>
+<style>
+/* ========== Reset & Base ========== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --green-900:#0d3b27;--green-700:#1a7a4c;--green-600:#209a5f;--green-500:#2bb673;--green-400:#4ec78c;
+  --amber-700:#b8830a;--amber-500:#d4a017;--amber-400:#e6b33a;
+  --dark:#16222e;--dark-2:#1e2d3d;--gray-50:#f7f9fb;--gray-100:#eef2f5;--gray-200:#dde4ea;--gray-300:#c4ccd4;
+  --gray-500:#6b7785;--gray-700:#3d4a57;--white:#fff;
+  --shadow:0 4px 24px rgba(13,59,39,.08);--shadow-lg:0 12px 40px rgba(13,59,39,.12);
+  --radius:14px;--radius-sm:10px;
+  --maxw:1200px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;color:var(--dark);background:var(--white);line-height:1.7;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+img{max-width:100%;display:block}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 
+/* ========== Scroll Reveal ========== */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
+.reveal.show{opacity:1;transform:none}
+.reveal.delay-1{transition-delay:.1s}
+.reveal.delay-2{transition-delay:.2s}
+.reveal.delay-3{transition-delay:.3s}
+.reveal.delay-4{transition-delay:.4s}
+
+/* ========== Navbar ========== */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--gray-100);transition:box-shadow .3s}
+.navbar.scrolled{box-shadow:var(--shadow)}
+.nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:68px}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;color:var(--green-700)}
+.nav-logo .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--green-600),var(--green-400));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{font-size:.9rem;color:var(--gray-700);font-weight:500;transition:color .25s;position:relative}
+.nav-links a:hover{color:var(--green-700)}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--green-600);transition:width .3s}
+.nav-links a:hover::after{width:100%}
+.nav-cta{background:var(--green-700);color:#fff!important;padding:8px 22px;border-radius:30px;font-size:.85rem;transition:background .25s}
+.nav-cta:hover{background:var(--green-900)}
+@media(max-width:860px){.nav-links{display:none}}
+
+/* ========== Hero ========== */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;background:linear-gradient(160deg,#0d3b27 0%,#155e3b 50%,#1a7a4c 100%);overflow:hidden}
+.hero::before{content:'';position:absolute;top:-20%;right:-10%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(212,160,23,.15),transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-30%;left:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(78,199,140,.12),transparent 70%);pointer-events:none}
+.hero-bg-icons{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-bg-icons .float-icon{position:absolute;opacity:.06;color:#fff;font-size:6rem;animation:floatSlow 12s ease-in-out infinite}
+.hero-bg-icons .float-icon:nth-child(1){top:15%;left:10%}
+.hero-bg-icons .float-icon:nth-child(2){top:60%;right:8%;font-size:8rem;animation-delay:-3s}
+.hero-bg-icons .float-icon:nth-child(3){bottom:20%;left:40%;font-size:5rem;animation-delay:-6s}
+@keyframes floatSlow{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-30px) rotate(8deg)}}
+.hero-content{position:relative;z-index:2;color:#fff;padding:120px 0 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:30px;padding:7px 18px;font-size:.82rem;font-weight:500;margin-bottom:24px;backdrop-filter:blur(6px)}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--amber-400);box-shadow:0 0 10px var(--amber-400)}
+.hero h1{font-size:3.4rem;font-weight:900;line-height:1.15;margin-bottom:16px;letter-spacing:-1px}
+.hero h1 .highlight{background:linear-gradient(135deg,var(--amber-400),#f0c75e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .subtitle{font-size:1.18rem;color:rgba(255,255,255,.82);margin-bottom:36px;max-width:640px;line-height:1.8}
+.hero-stats{display:flex;gap:48px;flex-wrap:wrap;margin-bottom:40px}
+.hero-stat .num{font-size:2.4rem;font-weight:800;color:var(--amber-400);line-height:1}
+.hero-stat .label{font-size:.85rem;color:rgba(255,255,255,.7);margin-top:6px}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--amber-500);color:var(--green-900);padding:14px 32px;border-radius:30px;font-weight:700;font-size:.95rem;transition:transform .25s,box-shadow .25s;cursor:pointer;border:none}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(212,160,23,.4)}
+.btn-outline{display:inline-flex;align-items:center;gap:8px;background:transparent;color:#fff;padding:14px 32px;border-radius:30px;font-weight:600;font-size:.95rem;border:2px solid rgba(255,255,255,.3);transition:border-color .25s,background .25s;cursor:pointer}
+.btn-outline:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero .subtitle{font-size:1rem}.hero-stats{gap:24px}.hero-stat .num{font-size:1.8rem}}
+
+/* ========== Section Common ========== */
+.section{padding:100px 0}
+.section-alt{background:var(--gray-50)}
+.section-header{text-align:center;margin-bottom:60px}
+.section-tag{display:inline-block;background:rgba(32,154,95,.1);color:var(--green-700);font-size:.8rem;font-weight:700;padding:6px 16px;border-radius:20px;margin-bottom:16px;letter-spacing:1px}
+.section-title{font-size:2.3rem;font-weight:800;color:var(--dark);margin-bottom:14px;line-height:1.3}
+.section-subtitle{font-size:1.05rem;color:var(--gray-500);max-width:680px;margin:0 auto}
+@media(max-width:640px){.section-title{font-size:1.7rem}.section{padding:64px 0}}
+
+/* ========== Problem Section ========== */
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.problem-card{background:#fff;border:1px solid var(--gray-100);border-radius:var(--radius);padding:36px 28px;transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+.problem-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.problem-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green-600),var(--amber-500))}
+.problem-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(32,154,95,.1),rgba(212,160,23,.1));display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:20px}
+.problem-card h3{font-size:1.25rem;font-weight:700;margin-bottom:12px;color:var(--dark)}
+.problem-card p{font-size:.95rem;color:var(--gray-500);line-height:1.8}
+.problem-card .stat{font-size:2rem;font-weight:800;color:var(--green-700);margin-bottom:8px}
+@media(max-width:860px){.problem-grid{grid-template-columns:1fr}}
+
+/* ========== Solution Section ========== */
+.solution-flow{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:60px;flex-wrap:wrap}
+.flow-node{background:#fff;border:2px solid var(--green-500);border-radius:var(--radius);padding:28px 36px;text-align:center;min-width:200px;position:relative;transition:transform .3s}
+.flow-node:hover{transform:scale(1.05);box-shadow:var(--shadow-lg)}
+.flow-node .icon{font-size:2.5rem;margin-bottom:12px}
+.flow-node h4{font-size:1.1rem;font-weight:700;color:var(--green-900)}
+.flow-node p{font-size:.82rem;color:var(--gray-500);margin-top:6px}
+.flow-arrow{font-size:2rem;color:var(--green-500);margin:0 16px;font-weight:300}
+@media(max-width:768px){.flow-arrow{transform:rotate(90deg);margin:8px 0}.solution-flow{flex-direction:column}}
+.solution-features{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.solution-feature{background:var(--gray-50);border-radius:var(--radius-sm);padding:28px;border-left:4px solid var(--green-600)}
+.solution-feature h4{font-size:1.05rem;font-weight:700;color:var(--dark);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.solution-feature p{font-size:.92rem;color:var(--gray-500);line-height:1.7}
+@media(max-width:768px){.solution-features{grid-template-columns:1fr}}
+
+/* ========== Technology Section ========== */
+.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.tech-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .3s,box-shadow .3s}
+.tech-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+.tech-card-header{padding:32px 28px 20px;background:linear-gradient(135deg,var(--green-700),var(--green-500));color:#fff;position:relative}
+.tech-card-header .tech-num{position:absolute;top:20px;right:24px;font-size:3rem;font-weight:900;opacity:.15}
+.tech-card-header .tech-icon{font-size:2rem;margin-bottom:12px}
+.tech-card-header h3{font-size:1.25rem;font-weight:700}
+.tech-card-body{padding:24px 28px 32px}
+.tech-card-body ul{list-style:none}
+.tech-card-body li{font-size:.92rem;color:var(--gray-700);padding:8px 0;padding-left:24px;position:relative;border-bottom:1px solid var(--gray-100)}
+.tech-card-body li:last-child{border-bottom:none}
+.tech-card-body li::before{content:'';position:absolute;left:0;top:14px;width:8px;height:8px;border-radius:50%;background:var(--green-500)}
+@media(max-width:860px){.tech-grid{grid-template-columns:1fr}}
+
+/* ========== Innovation Section ========== */
+.innovation-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.innovation-card{text-align:center;padding:32px 20px;border-radius:var(--radius);background:#fff;border:1px solid var(--gray-100);transition:all .3s}
+.innovation-card:hover{border-color:var(--green-500);box-shadow:var(--shadow-lg);transform:translateY(-4px)}
+.innovation-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--green-600),var(--green-400));color:#fff;font-weight:800;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.innovation-card h4{font-size:1.1rem;font-weight:700;margin-bottom:10px;color:var(--dark)}
+.innovation-card p{font-size:.88rem;color:var(--gray-500);line-height:1.7}
+@media(max-width:860px){.innovation-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.innovation-grid{grid-template-columns:1fr}}
+
+/* ========== Market Section ========== */
+.market-content{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.market-chart{background:#fff;border-radius:var(--radius);padding:40px;box-shadow:var(--shadow)}
+.market-chart h4{font-size:1.1rem;font-weight:700;margin-bottom:24px;color:var(--dark);text-align:center}
+.bar-chart{display:flex;align-items:flex-end;justify-content:space-around;height:260px;gap:20px;padding:0 10px;border-bottom:2px solid var(--gray-200)}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar{width:60%;border-radius:8px 8px 0 0;transition:height 1s ease;position:relative;min-height:4px}
+.bar.b1{background:linear-gradient(180deg,var(--green-400),var(--green-600))}
+.bar.b2{background:linear-gradient(180deg,var(--amber-400),var(--amber-700))}
+.bar-label{margin-top:10px;font-size:.78rem;color:var(--gray-500);text-align:center;font-weight:500}
+.bar-val{position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-size:.8rem;font-weight:700;color:var(--dark);white-space:nowrap}
+.market-points{display:flex;flex-direction:column;gap:20px}
+.market-point{display:flex;gap:16px;align-items:flex-start}
+.market-point .mp-icon{flex-shrink:0;width:44px;height:44px;border-radius:10px;background:rgba(32,154,95,.1);display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.market-point .mp-content h4{font-size:1.05rem;font-weight:700;margin-bottom:4px}
+.market-point .mp-content p{font-size:.9rem;color:var(--gray-500);line-height:1.7}
+@media(max-width:860px){.market-content{grid-template-columns:1fr}}
+
+/* ========== Business Model ========== */
+.biz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.biz-card{background:#fff;border-radius:var(--radius);padding:36px 28px;text-align:center;box-shadow:var(--shadow);transition:transform .3s;position:relative;overflow:hidden}
+.biz-card:hover{transform:translateY(-6px)}
+.biz-card .biz-icon{width:72px;height:72px;border-radius:20px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff}
+.biz-card:nth-child(1) .biz-icon{background:linear-gradient(135deg,var(--green-600),var(--green-400))}
+.biz-card:nth-child(2) .biz-icon{background:linear-gradient(135deg,var(--amber-700),var(--amber-400))}
+.biz-card:nth-child(3) .biz-icon{background:linear-gradient(135deg,#2196f3,#64b5f6)}
+.biz-card h3{font-size:1.2rem;font-weight:700;margin-bottom:10px}
+.biz-card .biz-price{font-size:1.6rem;font-weight:800;color:var(--green-700);margin:12px 0}
+.biz-card p{font-size:.9rem;color:var(--gray-500);line-height:1.7}
+@media(max-width:860px){.biz-grid{grid-template-columns:1fr}}
+
+/* ========== Achievements Section ========== */
+.achieve-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:48px}
+.achieve-card{text-align:center;padding:32px 16px;border-radius:var(--radius);background:linear-gradient(135deg,var(--green-900),var(--green-700));color:#fff}
+.achieve-card .num{font-size:2.4rem;font-weight:800;color:var(--amber-400);line-height:1}
+.achieve-card .label{font-size:.85rem;color:rgba(255,255,255,.8);margin-top:8px}
+.achieve-info{background:#fff;border-radius:var(--radius);padding:40px;box-shadow:var(--shadow)}
+.achieve-info h3{font-size:1.2rem;font-weight:700;margin-bottom:20px;color:var(--dark)}
+.achieve-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.achieve-info-item h4{font-size:1rem;font-weight:700;color:var(--green-700);margin-bottom:8px}
+.achieve-info-item p{font-size:.88rem;color:var(--gray-500);line-height:1.7}
+@media(max-width:860px){.achieve-grid{grid-template-columns:repeat(2,1fr)}.achieve-info-grid{grid-template-columns:1fr}}
+
+/* ========== Financial Section ========== */
+.financial-content{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.fin-card{background:#fff;border-radius:var(--radius);padding:40px;box-shadow:var(--shadow)}
+.fin-chart{display:flex;align-items:flex-end;justify-content:space-around;height:280px;gap:24px;padding-bottom:30px;border-bottom:2px solid var(--gray-200);margin-bottom:20px}
+.fin-bar-group{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.fin-bar{width:50%;border-radius:8px 8px 0 0;transition:height 1s ease;position:relative;min-height:4px;background:linear-gradient(180deg,var(--green-400),var(--green-700))}
+.fin-bar .val{position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:.85rem;font-weight:700;color:var(--dark);white-space:nowrap}
+.fin-bar-label{margin-top:12px;font-size:.82rem;color:var(--gray-500);text-align:center;font-weight:500}
+.fin-stats{display:flex;flex-direction:column;gap:20px}
+.fin-stat-item{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-radius:var(--radius-sm);background:var(--gray-50)}
+.fin-stat-item .label{font-size:.95rem;color:var(--gray-700);font-weight:500}
+.fin-stat-item .val{font-size:1.5rem;font-weight:800;color:var(--green-700)}
+@media(max-width:860px){.financial-content{grid-template-columns:1fr}}
+
+/* ========== Roadmap Section ========== */
+.timeline{position:relative;max-width:900px;margin:0 auto;padding:20px 0}
+.timeline::before{content:'';position:absolute;top:0;bottom:0;left:50%;width:3px;background:linear-gradient(180deg,var(--green-600),var(--amber-500));transform:translateX(-50%)}
+.timeline-item{position:relative;width:50%;padding:20px 40px;margin-bottom:20px}
+.timeline-item:nth-child(odd){left:0;text-align:right}
+.timeline-item:nth-child(even){left:50%}
+.timeline-item .tl-dot{position:absolute;top:28px;width:16px;height:16px;border-radius:50%;background:#fff;border:4px solid var(--green-600);z-index:1}
+.timeline-item:nth-child(odd) .tl-dot{right:-8px}
+.timeline-item:nth-child(even) .tl-dot{left:-8px}
+.timeline-content{background:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.timeline-content .tl-tag{display:inline-block;font-size:.75rem;font-weight:700;padding:4px 12px;border-radius:12px;margin-bottom:10px}
+.timeline-item:nth-child(odd) .tl-tag{background:rgba(32,154,95,.1);color:var(--green-700)}
+.timeline-item:nth-child(even) .tl-tag{background:rgba(212,160,23,.15);color:var(--amber-700)}
+.timeline-content h4{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.timeline-content p{font-size:.88rem;color:var(--gray-500);line-height:1.7}
+@media(max-width:768px){.timeline::before{left:20px}.timeline-item{width:100%;left:0!important;text-align:left!important;padding-left:50px;padding-right:0}.timeline-item .tl-dot{left:12px!important;right:auto!important}}
+
+/* ========== Risk Section ========== */
+.risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.risk-card{background:#fff;border-radius:var(--radius);padding:32px 28px;border-top:4px solid;box-shadow:var(--shadow)}
+.risk-card:nth-child(1){border-color:#f44336}
+.risk-card:nth-child(2){border-color:var(--amber-500)}
+.risk-card:nth-child(3){border-color:#2196f3}
+.risk-card h4{font-size:1.1rem;font-weight:700;margin-bottom:14px}
+.risk-card .risk-desc{font-size:.88rem;color:var(--gray-500);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--gray-100)}
+.risk-card .risk-solution{font-size:.88rem;color:var(--gray-700);line-height:1.8}
+.risk-card .risk-solution strong{color:var(--green-700)}
+@media(max-width:860px){.risk-grid{grid-template-columns:1fr}}
+
+/* ========== CTA Section ========== */
+.cta-section{background:linear-gradient(135deg,var(--green-900),var(--green-700));color:#fff;text-align:center;padding:100px 0;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;top:-50%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(212,160,23,.1),transparent 70%)}
+.cta-section h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;position:relative}
+.cta-section p{font-size:1.1rem;color:rgba(255,255,255,.8);margin-bottom:32px;position:relative}
+.cta-section .btn-primary{position:relative}
+
+/* ========== Footer ========== */
+.footer{background:var(--dark);color:rgba(255,255,255,.6);padding:60px 0 30px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.footer-brand .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--green-600),var(--green-400));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem}
+.footer-brand span{font-weight:800;font-size:1.1rem;color:#fff}
+.footer p{font-size:.88rem;line-height:1.8}
+.footer h5{font-size:.95rem;font-weight:600;color:#fff;margin-bottom:14px}
+.footer ul{list-style:none}
+.footer ul li{font-size:.85rem;padding:4px 0}
+.footer-bottom{text-align:center;padding-top:30px;border-top:1px solid rgba(255,255,255,.1);font-size:.82rem}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr;gap:24px}}
+
+/* ========== Comparison Table ========== */
+.compare-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.compare-table th,.compare-table td{padding:16px 20px;text-align:center;font-size:.9rem}
+.compare-table thead th{background:var(--green-700);color:#fff;font-weight:600}
+.compare-table tbody tr{border-bottom:1px solid var(--gray-100)}
+.compare-table tbody tr:last-child{border-bottom:none}
+.compare-table td:first-child{text-align:left;font-weight:600;color:var(--gray-700)}
+.compare-table .highlight-col{background:rgba(32,154,95,.05);font-weight:600}
+.compare-table .check{color:var(--green-600);font-weight:700}
+.compare-table .cross{color:var(--gray-300)}
+.compare-wrap{overflow-x:auto}
+
+/* ========== Download Section ========== */
+.download-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;max-width:860px;margin:0 auto}
+.download-card{display:flex;align-items:center;gap:22px;background:#fff;border:1px solid var(--gray-100);border-radius:var(--radius);padding:32px 28px;box-shadow:var(--shadow);transition:transform .3s,box-shadow .3s,border-color .3s}
+.download-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--green-500)}
+.download-card .dl-icon{flex-shrink:0;width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff}
+.download-card:nth-child(1) .dl-icon{background:linear-gradient(135deg,var(--green-600),var(--green-400))}
+.download-card:nth-child(2) .dl-icon{background:linear-gradient(135deg,var(--amber-700),var(--amber-400))}
+.download-card .dl-info{flex:1;min-width:0}
+.download-card .dl-info h4{font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:4px}
+.download-card .dl-info p{font-size:.85rem;color:var(--gray-500);line-height:1.6}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:var(--green-700);color:#fff;font-size:.85rem;font-weight:600;padding:9px 20px;border-radius:24px;transition:background .25s,transform .25s}
+.dl-btn:hover{background:var(--green-900);transform:translateY(-2px)}
+@media(max-width:768px){.download-grid{grid-template-columns:1fr}.download-card{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<!-- ========== Navbar ========== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <span class="logo-icon">麦</span>
+      麦粕新生
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problem">行业痛点</a></li>
+      <li><a href="#solution">解决方案</a></li>
+      <li><a href="#tech">核心技术</a></li>
+      <li><a href="#market">市场分析</a></li>
+      <li><a href="#business">商业模式</a></li>
+      <li><a href="#roadmap">发展规划</a></li>
+      <li><a href="#download">资料下载</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">联系我们</a>
+  </div>
+</nav>
+
+<!-- ========== Hero ========== -->
+<section class="hero" id="hero">
+  <div class="hero-bg-icons">
+    <span class="float-icon">🌾</span>
+    <span class="float-icon">🍺</span>
+    <span class="float-icon">♻️</span>
+  </div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge reveal">
+        <span class="dot"></span>
+        第十五届"挑战杯"中国大学生创业计划竞赛 · 农业绿色发展赛道
+      </div>
+      <h1 class="reveal delay-1">
+        <span class="highlight">麦粕新生</span>
+        <br>寒地循环经济新范式
+      </h1>
+      <p class="subtitle reveal delay-2">
+        针对东北百万吨级啤酒糟处理难题，以4-15℃低温发酵菌剂为核心，打造"啤酒厂→发酵设备→养殖场"闭环循环经济模式，将环保负担变为高附加值饲料。
+      </p>
+      <div class="hero-stats reveal delay-3">
+        <div class="hero-stat">
+          <div class="num">100万吨+</div>
+          <div class="label">东北年产量</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">4-15℃</div>
+          <div class="label">低温发酵启动</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">≥22%</div>
+          <div class="label">粗蛋白含量</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">10亿元</div>
+          <div class="label">潜在市场规模</div>
+        </div>
+      </div>
+      <div class="hero-actions reveal delay-4">
+        <a href="#solution" class="btn-primary">了解方案 →</a>
+        <a href="#tech" class="btn-outline">核心技术</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Problem Section ========== -->
+<section class="section section-alt" id="problem">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">行业痛点</span>
+      <h2 class="section-title reveal delay-1">东北啤酒糟之困——百万吨级资源错配</h2>
+      <p class="section-subtitle reveal delay-2">东北地区啤酒年产量约350万千升，占全国近10%，啤酒糟年产量超百万吨。然而，传统处理方式造成严重的资源浪费和环境污染。</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <div class="problem-icon">🏭</div>
+        <h3>原料富集</h3>
+        <div class="stat">350万千升</div>
+        <p>东北地区啤酒年产量，占全国近10%。每生产1吨啤酒约产生0.2-0.3吨湿糟，年产量超百万吨，原料供给充足但利用率不足20%。</p>
+      </div>
+      <div class="problem-card reveal delay-1">
+        <div class="problem-icon">💧</div>
+        <h3>处理困局</h3>
+        <div class="stat">80%</div>
+        <p>湿糟含水量高达80%，极易腐败变质。传统填埋或低价售卖（约350元/吨），环保压力巨大，蛋白质含量19%-30%未能充分利用。</p>
+      </div>
+      <div class="problem-card reveal delay-2">
+        <div class="problem-icon">❄️</div>
+        <h3>季节性矛盾</h3>
+        <div class="stat">-20℃</div>
+        <p>东北冬季寒冷漫长（-20℃以下），湿糟运输困难、发酵停滞，传统发酵需25-35℃恒温车间，冬季停产造成资源大量闲置浪费。</p>
+      </div>
+    </div>
+    <div style="margin-top:48px" class="reveal delay-3">
+      <div class="solution-features" style="grid-template-columns:repeat(2,1fr)">
+        <div class="solution-feature" style="border-left-color:var(--amber-500)">
+          <h4>📦 饲料蛋白缺口</h4>
+          <p>我国饲料蛋白年缺口达2400万吨，豆粕进口依赖度高，亟需国产替代蛋白源。2022年生物发酵饲料需求量已达570.7万吨，市场规模129.86亿元。</p>
+        </div>
+        <div class="solution-feature" style="border-left-color:var(--amber-500)">
+          <h4>📋 政策机遇</h4>
+          <p>2026年国家《酿酒产业提质升级指导意见》明确要求"加强副产物资源化利用"；国家重点研发计划设立"酿造糟渣饲用资源高效开发利用"专项课题（2022-2027）。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Solution Section ========== -->
+<section class="section" id="solution">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">解决方案</span>
+      <h2 class="section-title reveal delay-1">"麦粕新生"——寒地循环经济新范式</h2>
+      <p class="section-subtitle reveal delay-2">构建"啤酒厂→发酵设备→养殖场"闭环循环经济模式，将百万吨级啤酒糟转化为高蛋白发酵饲料，实现资源高值化利用。</p>
+    </div>
+    <div class="solution-flow reveal">
+      <div class="flow-node">
+        <div class="icon">🍺</div>
+        <h4>啤酒厂</h4>
+        <p>湿糟原料供给</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="border-color:var(--amber-500)">
+        <div class="icon">🚢</div>
+        <h4>智能发酵设备</h4>
+        <p>集装箱式低温发酵</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="border-color:var(--green-700)">
+        <div class="icon">🐄</div>
+        <h4>养殖场</h4>
+        <p>高蛋白饲料供给</p>
+      </div>
+    </div>
+    <div class="solution-features reveal delay-1">
+      <div class="solution-feature">
+        <h4>🎯 项目定位</h4>
+        <p>针对东北啤酒糟处理难题与饲料蛋白缺口，打造"寒地模块化智能发酵系统"，破解冬季发酵"卡脖子"难题。</p>
+      </div>
+      <div class="solution-feature">
+        <h4>🔬 技术内核</h4>
+        <p>低温发酵菌剂（4-15℃启动，突破传统25-35℃限制）+ 可移动式智能发酵集装箱（20英尺标准箱）+ 饲料化工艺。</p>
+      </div>
+      <div class="solution-feature">
+        <h4>💰 产品价值</h4>
+        <p>高蛋白发酵饲料（粗蛋白≥22%，有益活菌≥1×10⁸ CFU/g），售价1500-2500元/吨，售价从350元跃升至1500-2500元/吨。</p>
+      </div>
+      <div class="solution-feature">
+        <h4>🎓 依托成果</h4>
+        <p>东北农业大学李凤兰教授团队（寒地废弃物资源化）+ 孟庆维副教授团队（酒糟饲料化国家重点课题）。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Technology Section ========== -->
+<section class="section section-alt" id="tech">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">核心技术</span>
+      <h2 class="section-title reveal delay-1">三大核心技术，破解寒地发酵难题</h2>
+      <p class="section-subtitle reveal delay-2">依托东北农业大学国家级课题成果，技术来源权威、知识产权明确、转化路径成熟。</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-card reveal">
+        <div class="tech-card-header">
+          <span class="tech-num">01</span>
+          <div class="tech-icon">🧬</div>
+          <h3>低温发酵菌剂</h3>
+        </div>
+        <div class="tech-card-body">
+          <ul>
+            <li>依托李凤兰教授团队专利，4-15℃低温环境启动发酵</li>
+            <li>突破传统发酵需25-35℃的温度限制</li>
+            <li>专为东北冬季研发，已实现单项技术转化金额560万元</li>
+            <li>获授权国家专利10项，发表论文30余篇</li>
+            <li>累计转化金额近1000万元</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tech-card reveal delay-1">
+        <div class="tech-card-header" style="background:linear-gradient(135deg,var(--amber-700),var(--amber-500))">
+          <span class="tech-num">02</span>
+          <div class="tech-icon">🚢</div>
+          <h3>集装箱式智能发酵系统</h3>
+        </div>
+        <div class="tech-card-body">
+          <ul>
+            <li>20英尺标准箱改造为密闭发酵单元</li>
+            <li>集成电加热保温系统，保障冬季恒定温度</li>
+            <li>鼓风供氧系统满足好氧发酵需求</li>
+            <li>多层履带输送系统实现连续进料、出料</li>
+            <li>物联网实时监测温度、湿度、pH值，远程调控</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tech-card reveal delay-2">
+        <div class="tech-card-header" style="background:linear-gradient(135deg,#2196f3,#1565c0)">
+          <span class="tech-num">03</span>
+          <div class="tech-icon">🐄</div>
+          <h3>酒糟饲料化工艺</h3>
+        </div>
+        <div class="tech-card-body">
+          <ul>
+            <li>依据孟庆维副教授国家重点研发子课题成果</li>
+            <li>工艺路线：湿糟→水分调节（50%-60%）→接种→控温发酵（48-72h）→配送</li>
+            <li>产出粗蛋白≥22%的高蛋白发酵饲料</li>
+            <li>有益活菌≥1×10⁸ CFU/g</li>
+            <li>可降低养殖成本15%-20%</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Innovation Section ========== -->
+<section class="section" id="innovation">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">创新亮点</span>
+      <h2 class="section-title reveal delay-1">四大创新重塑产业逻辑</h2>
+      <p class="section-subtitle reveal delay-2">从寒地适应性到产学研融合，构建差异化竞争壁垒。</p>
+    </div>
+    <div class="innovation-grid">
+      <div class="innovation-card reveal">
+        <div class="innovation-num">1</div>
+        <h4>寒地适应性</h4>
+        <p>填补行业空白，设备可在零下20℃环境运行，实现冬季不停产。独有低温菌剂+控温箱体组合。</p>
+      </div>
+      <div class="innovation-card reveal delay-1">
+        <div class="innovation-num">2</div>
+        <h4>模块化部署</h4>
+        <p>投资门槛低（80-120万/台），远低于传统车间（500万+），集装箱可随啤酒厂灵活迁移部署。</p>
+      </div>
+      <div class="innovation-card reveal delay-2">
+        <div class="innovation-num">3</div>
+        <h4>智能管控</h4>
+        <p>物联网赋能，实时监测温度、湿度、pH值，远程调控与标准化生产，保证产品质量一致性。</p>
+      </div>
+      <div class="innovation-card reveal delay-3">
+        <div class="innovation-num">4</div>
+        <h4>产学研基因</h4>
+        <p>依托东北农业大学顶级科研团队，国家重点课题背书，技术来源权威、知识产权明确。</p>
+      </div>
+    </div>
+    <div style="margin-top:48px" class="reveal delay-4">
+      <div class="compare-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>对比维度</th>
+              <th>传统处理<br><small style="opacity:.7">填埋/廉价饲料</small></th>
+              <th>传统发酵企业</th>
+              <th class="highlight-col">本项目</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>投资门槛</td>
+              <td><span class="cross">低</span></td>
+              <td>高（≥500万）</td>
+              <td class="highlight-col"><span class="check">中（80-120万/台）</span></td>
+            </tr>
+            <tr>
+              <td>寒地适应性</td>
+              <td><span class="cross">差（冬季停运）</span></td>
+              <td>差（需恒温车间）</td>
+              <td class="highlight-col"><span class="check">强（-20℃可运行）</span></td>
+            </tr>
+            <tr>
+              <td>产品附加值</td>
+              <td>低（350元/吨）</td>
+              <td>中（1000-1500元/吨）</td>
+              <td class="highlight-col"><span class="check">高（1500-2500元/吨）</span></td>
+            </tr>
+            <tr>
+              <td>可复制性</td>
+              <td>—</td>
+              <td><span class="cross">低（需固定厂房）</span></td>
+              <td class="highlight-col"><span class="check">高（集装箱可移动）</span></td>
+            </tr>
+            <tr>
+              <td>智能化水平</td>
+              <td><span class="cross">无</span></td>
+              <td>中</td>
+              <td class="highlight-col"><span class="check">高（物联网远程监控）</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Market Section ========== -->
+<section class="section section-alt" id="market">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">市场分析</span>
+      <h2 class="section-title reveal delay-1">高速增长的生物发酵饲料市场</h2>
+      <p class="section-subtitle reveal delay-2">行业处于高速成长期，年均增速超过40%，东北市场潜在规模达10亿元。</p>
+    </div>
+    <div class="market-content">
+      <div class="market-chart reveal">
+        <h4>生物发酵饲料市场规模（亿元）</h4>
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bar b1" style="height:15%"><span class="bar-val">20.37</span></div>
+            <div class="bar-label">2016年</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar b1" style="height:40%"><span class="bar-val">50</span></div>
+            <div class="bar-label">2019年</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar b1" style="height:68%"><span class="bar-val">95</span></div>
+            <div class="bar-label">2021年</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar b1" style="height:90%"><span class="bar-val">129.86</span></div>
+            <div class="bar-label">2022年</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar b2" style="height:100%"><span class="bar-val">158</span></div>
+            <div class="bar-label">2023E</div>
+          </div>
+        </div>
+      </div>
+      <div class="market-points">
+        <div class="market-point reveal delay-1">
+          <div class="mp-icon">📈</div>
+          <div class="mp-content">
+            <h4>行业高速增长</h4>
+            <p>2022年国内生物发酵饲料需求量570.7万吨，市场规模129.86亿元，预计2023年达158亿元，年均增速超40%。</p>
+          </div>
+        </div>
+        <div class="market-point reveal delay-2">
+          <div class="mp-icon">🇨🇳</div>
+          <div class="mp-content">
+            <h4>供需缺口巨大</h4>
+            <p>我国饲料蛋白年缺口达2400万吨，豆粕进口依赖度高。东北啤酒糟年产量超百万吨，高值化利用率不足20%。</p>
+          </div>
+        </div>
+        <div class="market-point reveal delay-3">
+          <div class="mp-icon">💰</div>
+          <div class="mp-content">
+            <h4>潜在市场规模</h4>
+            <p>东北50%酒糟饲料化利用，按2000元/吨计，潜在市场规模达10亿元。推广至全国，市场空间超50亿元。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Business Model ========== -->
+<section class="section" id="business">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">商业模式</span>
+      <h2 class="section-title reveal delay-1">"三轨并行"盈利模型</h2>
+      <p class="section-subtitle reveal delay-2">设备租赁/销售 + 技术服务 + 发酵饲料销售，保障收入多元化。</p>
+    </div>
+    <div class="biz-grid">
+      <div class="biz-card reveal">
+        <div class="biz-icon">🚢</div>
+        <h3>设备租赁/销售</h3>
+        <div class="biz-price">80-120万元/台</div>
+        <p>向啤酒厂或饲料企业提供智能发酵集装箱设备，支持直接销售（80-120万元/台）或租赁模式（2-3万元/月）。首年目标部署3台。</p>
+      </div>
+      <div class="biz-card reveal delay-1">
+        <div class="biz-icon">🔬</div>
+        <h3>技术服务收费</h3>
+        <div class="biz-price">50-100元/吨</div>
+        <p>提供低温复合菌剂供应、发酵工艺指导、质量检测等增值服务，按处理量收取技术服务费。包含全套技术服务方案。</p>
+      </div>
+      <div class="biz-card reveal delay-2">
+        <div class="biz-icon">📦</div>
+        <h3>发酵饲料销售</h3>
+        <div class="biz-price">1500-2500元/吨</div>
+        <p>自营设备产出高蛋白发酵饲料，售价1500-2500元/吨。参考双辽DDGS项目，日产量100吨，市场销路畅通。</p>
+      </div>
+    </div>
+    <div style="margin-top:40px" class="reveal delay-3">
+      <div class="solution-features" style="grid-template-columns:repeat(3,1fr)">
+        <div class="solution-feature">
+          <h4>📍 运营模式</h4>
+          <p>"中心工厂（哈尔滨技术中心）+ 分布式设备（啤酒厂周边）"轻资产运营模式，就近处理湿糟，降低运输成本。</p>
+        </div>
+        <div class="solution-feature">
+          <h4>🔗 供应链闭环</h4>
+          <p>上游与啤酒厂签协议保障原料（50-100元/吨补贴），下游与养殖场签合同保障销路，形成完整闭环。</p>
+        </div>
+        <div class="solution-feature">
+          <h4>🏆 品牌定位</h4>
+          <p>打造"寒地发酵饲料第一品牌"，突出"绿色、高值、智能"形象，采用"示范+复制"推广策略。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Achievements Section ========== -->
+<section class="section section-alt" id="achievements">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">科研支撑</span>
+      <h2 class="section-title reveal delay-1">国家级课题背书，大规模实践验证</h2>
+      <p class="section-subtitle reveal delay-2">依托东北农业大学顶级科研团队，技术来源权威，已在大规模实践中验证成熟。</p>
+    </div>
+    <div class="achieve-grid">
+      <div class="achieve-card reveal">
+        <div class="num">10项</div>
+        <div class="label">授权国家专利</div>
+      </div>
+      <div class="achieve-card reveal delay-1">
+        <div class="num">1000万</div>
+        <div class="label">技术转化金额</div>
+      </div>
+      <div class="achieve-card reveal delay-2">
+        <div class="num">2万+</div>
+        <div class="label">培训人次</div>
+      </div>
+      <div class="achieve-card reveal delay-3">
+        <div class="num">近亿元</div>
+        <div class="label">创造经济效益</div>
+      </div>
+    </div>
+    <div class="achieve-info reveal delay-4">
+      <h3>核心科研支撑</h3>
+      <div class="achieve-info-grid">
+        <div class="achieve-info-item">
+          <h4>📋 国家级课题</h4>
+          <p>孟庆维副教授主持国家重点研发子课题"酒糟生物处理技术研发与饲料化应用"（2022-2027），参与"酿造糟渣饲用资源高效开发利用"课题。获黑龙江省科技进步一等奖（2024），入选2025年全球前2%顶尖科学家。</p>
+        </div>
+        <div class="achieve-info-item">
+          <h4>📄 专利与论文</h4>
+          <p>李凤兰团队获授权国家专利10项，发表论文30余篇，累计转化金额近1000万元。孟庆维团队发表论文20余篇。技术覆盖东北、西北、华北地区。</p>
+        </div>
+        <div class="achieve-info-item">
+          <h4>✅ 应用验证</h4>
+          <p>2021-2023年，寒地发酵技术累计处理秸秆超5000余万吨、动物粪便5000万吨以上，为企业带来经济效益近亿元。技术推广覆盖东北、西北、华北，培训超2万人次。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Financial Section ========== -->
+<section class="section" id="financial">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">财务预测</span>
+      <h2 class="section-title reveal delay-1">经济效益与生态效益双赢</h2>
+      <p class="section-subtitle reveal delay-2">首年3台设备预计年营收720万元，投资回收期约6个月，毛利率70%以上。</p>
+    </div>
+    <div class="financial-content">
+      <div class="fin-card reveal">
+        <h4 style="text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:24px">未来三年营收预测（万元）</h4>
+        <div class="fin-chart">
+          <div class="fin-bar-group">
+            <div class="fin-bar" style="height:20%"><span class="val">720</span></div>
+            <div class="fin-bar-label">第一年<br><small>试点落地期</small></div>
+          </div>
+          <div class="fin-bar-group">
+            <div class="fin-bar" style="height:46%"><span class="val">1600</span></div>
+            <div class="fin-bar-label">第二年<br><small>区域拓展期</small></div>
+          </div>
+          <div class="fin-bar-group">
+            <div class="fin-bar" style="height:100%"><span class="val">3500</span></div>
+            <div class="fin-bar-label">第三年<br><small>规模化扩张</small></div>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:.85rem;color:var(--gray-500)">设备数量：3台 → 8台 → 15台</p>
+      </div>
+      <div class="fin-stats">
+        <div class="fin-stat-item reveal delay-1">
+          <span class="label">首年营收</span>
+          <span class="val">720万</span>
+        </div>
+        <div class="fin-stat-item reveal delay-2">
+          <span class="label">毛利率</span>
+          <span class="val">70%+</span>
+        </div>
+        <div class="fin-stat-item reveal delay-3">
+          <span class="label">投资回收期</span>
+          <span class="val">≈6个月</span>
+        </div>
+        <div class="fin-stat-item reveal delay-3">
+          <span class="label">单台年消纳酒糟</span>
+          <span class="val">6000吨</span>
+        </div>
+        <div class="fin-stat-item reveal delay-3">
+          <span class="label">单台年综合收入</span>
+          <span class="val">144万</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:40px" class="reveal delay-4">
+      <div class="solution-features" style="grid-template-columns:repeat(3,1fr)">
+        <div class="solution-feature" style="border-left-color:#4caf50">
+          <h4>🌱 生态效益</h4>
+          <p>单台设备年消纳啤酒糟6000吨，大幅减少有机废弃物污染，助力黑土地保护与"双碳"目标实现。</p>
+        </div>
+        <div class="solution-feature" style="border-left-color:var(--amber-500)">
+          <h4>👥 社会效益</h4>
+          <p>单台设备创造就业岗位10-15个，间接带动上下游就业超50人，推动啤酒行业绿色转型。</p>
+        </div>
+        <div class="solution-feature" style="border-left-color:#2196f3">
+          <h4>💡 融资需求</h4>
+          <p>首轮计划融资240万元，出让股权12%。优先申报大学生创新创业补贴，剩余部分股权融资。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Roadmap Section ========== -->
+<section class="section section-alt" id="roadmap">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">发展规划</span>
+      <h2 class="section-title reveal delay-1">从哈尔滨到全国寒地市场</h2>
+      <p class="section-subtitle reveal delay-2">立足哈尔滨 → 布局东北三省 → 辐射全国寒地市场</p>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="tl-dot"></div>
+        <div class="timeline-content">
+          <span class="tl-tag">第一年 · 试点落地</span>
+          <h4>哈尔滨标杆示范</h4>
+          <p>部署3台设备，对接2-3家啤酒企业，实现年营收720万元。优化菌剂配方，完善物联网系统，形成标准化作业手册。打通"原料—生产—销售—技术服务"完整链条。</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal delay-1">
+        <div class="tl-dot"></div>
+        <div class="timeline-content">
+          <span class="tl-tag">第二年 · 区域拓展</span>
+          <h4>黑龙江、吉林全省布局</h4>
+          <p>设备扩容至8台，拓展设备租赁、技术服务业务。预计年营收突破1600万元，规模扩大摊薄固定成本，整体毛利率保持稳定。组建专业化团队。</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal delay-2">
+        <div class="tl-dot"></div>
+        <div class="timeline-content">
+          <span class="tl-tag">第三年 · 规模化扩张</span>
+          <h4>覆盖东北三省</h4>
+          <p>设备增至15台，构建设备销售、技术服务、发酵饲料产销一体化体系。预计年营收突破3500万元，规模效应进一步释放盈利空间。搭建哈尔滨技术服务中心。</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal delay-3">
+        <div class="tl-dot"></div>
+        <div class="timeline-content">
+          <span class="tl-tag">远期愿景</span>
+          <h4>辐射全国寒地市场</h4>
+          <p>立足寒地农业循环经济，推动酿造废弃物高值化利用，降低饲料蛋白对外依赖。挖掘碳汇增值潜力，实现生态效益、社会效益与经济效益协同发展。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Risk Section ========== -->
+<section class="section" id="risk">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">风险控制</span>
+      <h2 class="section-title reveal delay-1">风险分析与应对预案</h2>
+      <p class="section-subtitle reveal delay-2">从技术、市场、财务三个维度识别潜在风险，制定对应防控方案。</p>
+    </div>
+    <div class="risk-grid">
+      <div class="risk-card reveal">
+        <h4>🔧 技术风险</h4>
+        <p class="risk-desc">低温发酵不稳定、设备故障、品质不达标</p>
+        <p class="risk-solution"><strong>应对：</strong>依托农大持续优化菌种，针对东北低温环境优化发酵工艺；设备配备预警与人工应急双模式，系统故障可切换手动生产；每批次检测，不合格禁止流向市场。</p>
+      </div>
+      <div class="risk-card reveal delay-1">
+        <h4>📊 市场风险</h4>
+        <p class="risk-desc">原料供给波动、价格竞争、需求变化</p>
+        <p class="risk-solution"><strong>应对：</strong>与多家啤酒厂签长期协议锁定原料，分散单一货源依赖；突出降本15%-20%的性价比优势；发展设备租赁、技术服务等多元业务对冲风险。</p>
+      </div>
+      <div class="risk-card reveal delay-2">
+        <h4>💰 财务风险</h4>
+        <p class="risk-desc">前期投入大、成本超支、融资压力</p>
+        <p class="risk-solution"><strong>应对：</strong>分阶段投放设备，试点盈利后再扩张，避免一次性大额投入；就近布局压缩物流成本，严控变动成本；争取双创补贴，降低融资压力。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Download Section ========== -->
+<section class="section section-alt" id="download">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag reveal">资料下载</span>
+      <h2 class="section-title reveal delay-1">项目文档下载</h2>
+      <p class="section-subtitle reveal delay-2">获取项目完整介绍材料与创业计划书，深入了解"麦粕新生"的技术细节与商业规划。</p>
+    </div>
+    <div class="download-grid">
+      <div class="download-card reveal">
+        <div class="dl-icon">📄</div>
+        <div class="dl-info">
+          <h4>项目介绍材料</h4>
+          <p>项目路演演示文稿，包含痛点分析、核心技术、竞争优势、落地计划等核心内容概览。</p>
+          <a class="dl-btn" href="260801.pdf" download="麦粕新生_项目介绍材料.pdf">⬇ 下载 PDF</a>
+        </div>
+      </div>
+      <div class="download-card reveal delay-1">
+        <div class="dl-icon">📑</div>
+        <div class="dl-info">
+          <h4>创业计划书</h4>
+          <p>完整商业计划书，涵盖执行摘要、项目优势、市场分析、商业模式、财务分析、融资需求等全部章节。</p>
+          <a class="dl-btn" href="260802.pdf" download="麦粕新生_创业计划书.pdf">⬇ 下载 PDF</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA Section ========== -->
+<section class="cta-section" id="cta">
+  <div class="container">
+    <h2 class="reveal">让百万吨啤酒糟<br>变废为宝</h2>
+    <p class="reveal delay-1">寒地循环经济新范式 · 东北振兴背景下的新质生产力</p>
+    <a href="#hero" class="btn-primary reveal delay-2">回到顶部 ↑</a>
+  </div>
+</section>
+
+<!-- ========== Footer ========== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <span class="logo-icon">麦</span>
+          <span>麦粕新生</span>
+        </div>
+        <p>寒地模块化啤酒糟智能发酵高值饲料转化系统。依托东北农业大学国家级课题成果，打造"啤酒厂→发酵设备→养殖场"闭环循环经济模式，赋能东北振兴。</p>
+      </div>
+      <div>
+        <h5>项目导航</h5>
+        <ul>
+          <li><a href="#problem" style="color:rgba(255,255,255,.6)">行业痛点</a></li>
+          <li><a href="#solution" style="color:rgba(255,255,255,.6)">解决方案</a></li>
+          <li><a href="#tech" style="color:rgba(255,255,255,.6)">核心技术</a></li>
+          <li><a href="#market" style="color:rgba(255,255,255,.6)">市场分析</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>更多信息</h5>
+        <ul>
+          <li><a href="#business" style="color:rgba(255,255,255,.6)">商业模式</a></li>
+          <li><a href="#financial" style="color:rgba(255,255,255,.6)">财务预测</a></li>
+          <li><a href="#roadmap" style="color:rgba(255,255,255,.6)">发展规划</a></li>
+          <li><a href="#risk" style="color:rgba(255,255,255,.6)">风险控制</a></li>
+          <li><a href="#download" style="color:rgba(255,255,255,.6)">资料下载</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>竞赛信息</h5>
+        <ul>
+          <li>第十五届"挑战杯"</li>
+          <li>中国大学生创业计划竞赛</li>
+          <li>赛道：农业绿色发展</li>
+         
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 麦粕新生项目 · 寒地循环经济新范式</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ========== Navbar Scroll Effect ==========
+const navbar=document.getElementById('navbar');
+window.addEventListener('scroll',()=>{
+  if(window.scrollY>20)navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+});
+
+// ========== Scroll Reveal Animation ==========
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('show');
+    }
+  });
+},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// ========== Animate Bars on Scroll ==========
+const barObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      // Bars already have height set via inline style; they animate via CSS transition
+      entry.target.querySelectorAll('.bar,.fin-bar').forEach(bar=>{
+        const h=bar.style.height;
+        bar.style.height='0';
+        setTimeout(()=>{bar.style.height=h},100);
+      });
+      barObserver.unobserve(entry.target);
+    }
+  });
+},{threshold:0.3});
+
+document.querySelectorAll('.bar-chart,.fin-chart').forEach(el=>barObserver.observe(el));
+</script>
+
+</body>
+</html>
