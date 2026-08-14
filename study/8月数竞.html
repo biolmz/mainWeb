@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非数A类数竞8月重难点复习笔记</title>
+    <style>
+        :root {
+            --primary-dark: #0f1e3d;
+            --primary-blue: #1a56db;
+            --accent-blue: #3b82f6;
+            --accent-red: #e53e3e;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,.1);
+            --radius: 10px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.85;
+            padding: 20px;
+            font-size: 15px;
+        }
+
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 60%, #2563eb 100%);
+            border-radius: var(--radius);
+            padding: 32px 36px 28px;
+            margin-bottom: 28px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 180px; height: 180px;
+            background: rgba(255,255,255,.05);
+            border-radius: 50%;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px; left: 60px;
+            width: 100px; height: 100px;
+            background: rgba(255,255,255,.04);
+            border-radius: 50%;
+        }
+        .page-header h1 {
+            font-family: "Noto Serif SC", "Source Han Serif SC", serif;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: .5px;
+        }
+        .page-header .subtitle {
+            font-size: 14px;
+            opacity: .8;
+            font-weight: 300;
+        }
+
+        /* Section Card */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 22px;
+            overflow: hidden;
+            transition: transform .2s ease, box-shadow .2s ease;
+            border: 1px solid var(--border-light);
+        }
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Card Header */
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 22px;
+            gap: 14px;
+        }
+        .card-header.blue { border-left: 4px solid var(--accent-blue); }
+        .card-header.red { border-left: 4px solid var(--accent-red); }
+        .card-header.green { border-left: 4px solid var(--accent-green); }
+        .card-header.amber { border-left: 4px solid var(--accent-amber); }
+        .card-header.purple { border-left: 4px solid var(--accent-purple); }
+
+        .card-num {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: "Noto Serif SC", serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .card-num.blue { background: var(--accent-blue); }
+        .card-num.red { background: var(--accent-red); }
+        .card-num.green { background: var(--accent-green); }
+        .card-num.amber { background: var(--accent-amber); }
+        .card-num.purple { background: var(--accent-purple); }
+
+        .card-title {
+            font-family: "Noto Serif SC", serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .card-body { padding: 4px 22px 18px 22px; }
+
+        /* Text styles */
+        .card-body p {
+            margin-bottom: 8px;
+            text-align: justify;
+        }
+        .card-body strong {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .card-body em {
+            font-style: italic;
+            color: #475569;
+        }
+
+        /* Ordered list for 重难点 */
+        .topic-list { list-style: none; counter-reset: topic-counter; padding: 0; }
+        .topic-list > li {
+            counter-increment: topic-counter;
+            margin-bottom: 18px;
+            padding: 14px 16px 14px 18px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+            position: relative;
+        }
+        .topic-list > li::before {
+            content: counter(topic-counter);
+            position: absolute;
+            left: -10px; top: -10px;
+            width: 26px; height: 26px;
+            background: var(--accent-blue);
+            color: #fff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(59,130,246,.35);
+        }
+        .topic-list > li:nth-child(2)::before { background: var(--accent-red); box-shadow: 0 2px 6px rgba(229,62,62,.35); }
+        .topic-list > li:nth-child(3)::before { background: var(--accent-green); box-shadow: 0 2px 6px rgba(34,197,94,.35); }
+        .topic-list > li:nth-child(4)::before { background: var(--accent-amber); box-shadow: 0 2px 6px rgba(245,158,11,.35); }
+        .topic-list > li:nth-child(5)::before { background: var(--accent-purple); box-shadow: 0 2px 6px rgba(139,92,246,.35); }
+        .topic-list > li:nth-child(6)::before { background: #0ea5e9; box-shadow: 0 2px 6px rgba(14,165,233,.35); }
+
+        .topic-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            padding-left: 4px;
+        }
+        .topic-title .tag {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 1px 8px;
+            border-radius: 3px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .tag-must { background: #fef2f2; color: #dc2626; }
+        .tag-high { background: #fff7ed; color: #ea580c; }
+        .tag-mid { background: #f0fdf4; color: #16a34a; }
+
+        .topic-content { padding-left: 4px; font-size: 14.5px; }
+        .topic-content p { margin-bottom: 5px; }
+
+        /* TIPS box */
+        .tip-box {
+            background: #fffbeb;
+            border-left: 3px solid var(--accent-amber);
+            border-radius: 0 6px 6px 0;
+            padding: 8px 14px;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .tip-box::before {
+            content: '💡 TIPS：';
+            font-weight: 700;
+            color: #d97706;
+        }
+
+        /* Plan stages */
+        .stage-list { list-style: none; padding: 0; }
+        .stage-list > li {
+            margin-bottom: 14px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            position: relative;
+            padding-left: 52px;
+        }
+        .stage-list > li::before {
+            content: attr(data-stage);
+            position: absolute;
+            left: 12px; top: 14px;
+            font-family: "Noto Serif SC", serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            background: #eff6ff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .stage-list > li:nth-child(2)::before { color: var(--accent-red); background: #fef2f2; }
+        .stage-list > li:nth-child(3)::before { color: var(--accent-green); background: #f0fdf4; }
+
+        .stage-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+        .stage-content { font-size: 14.5px; }
+
+        /* Info highlight bar */
+        .info-bar {
+            background: linear-gradient(90deg, #eff6ff, #f0fdf4);
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            border: 1px solid #dbeafe;
+        }
+        .info-bar strong { color: var(--primary-blue); }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            body { padding: 12px; font-size: 14px; }
+            .page-header { padding: 22px 18px 20px; }
+            .page-header h1 { font-size: 21px; }
+            .card-header { padding: 12px 16px; gap: 10px; }
+            .card-body { padding: 4px 16px 14px; }
+            .topic-list > li { padding: 12px 12px 12px 14px; }
+            .stage-list > li { padding-left: 46px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1>非数 A 类 · 8 月必须啃下的数竞重难点！</h1>
+        <div class="subtitle">全国大学生数学竞赛 · 非数学专业 A 类 · 8 月冲刺复习指南</div>
+    </div>
+
+    <!-- Section 01 -->
+    <div class="section-card">
+        <div class="card-header blue">
+            <div class="card-num blue">01</div>
+            <div class="card-title">先搞懂非数 A 类考什么？</div>
+        </div>
+        <div class="card-body">
+            <div class="info-bar">
+                <strong>考试内容：</strong>初赛 = 高等数学（全部精力放这里）；决赛 = 高数 + 线性代数（约 20%）<br>
+                <strong>适用对象：</strong>理工科考生（专业代码 07、08），难度高于 B 类（经管文史类）<br>
+                <strong>获奖比例：</strong>省一约 <strong>6%</strong>，8 月复习质量决定能否在数百人中脱颖而出
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 02 -->
+    <div class="section-card">
+        <div class="card-header red">
+            <div class="card-num red">02</div>
+            <div class="card-title">8 月必须啃下的重难点</div>
+        </div>
+        <div class="card-body">
+            <ul class="topic-list">
+                <li>
+                    <div class="topic-title">
+                        极限与连续
+                        <span class="tag tag-must">必考 1-2 题 · 送分题必须全拿</span>
+                    </div>
+                    <div class="topic-content">
+                        <p>极限是每年竞赛的<strong>"必考题"</strong>。重点攻克：<strong>等价无穷小替换</strong>、<strong>洛必达法则</strong>、<strong>数列极限夹逼准则</strong>。尤其是<strong>递推关系定义的数列极限</strong>，近年出现频率越来越高，是拉开差距的关键点之一。</p>
+                        <div class="tip-box">极限题做到零失误，夹逼准则和单调有界准则的题型各练透 10 道以上。</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="topic-title">
+                        一元函数微分学
+                        <span class="tag tag-high">中值定理是分水岭</span>
+                    </div>
+                    <div class="topic-content">
+                        <p>导数计算、隐函数求导、极值与最值属于<strong>基础分</strong>。真正卡住大多数人的是<strong>中值定理证明题</strong>——拉格朗日中值定理是绝对主力，泰勒公式要熟记常见展开式。很多同学看到中值定理证明就发怵，但<strong>省一和省二的分水岭往往就在这里</strong>。</p>
+                        <div class="tip-box">8 月必须系统梳理罗尔定理、拉格朗日中值定理、柯西中值定理的典型应用场景，总结"构造辅助函数 + 导数判断"的通法。</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="topic-title">
+                        一元函数积分学
+                        <span class="tag tag-must">计算要快要准</span>
+                    </div>
+                    <div class="topic-content">
+                        <p>不定积分的<strong>换元法</strong>和<strong>分部积分法</strong>是基本功。定积分的<strong>几何应用</strong>（面积、体积）和<strong>反常积分判敛</strong>是高频考点。</p>
+                        <div class="tip-box">8 月重点练两件事：一是计算速度——竞赛时间 150 分钟，积分题计算量大，慢一步就可能做不完；二是积分技巧的灵活运用，比如对称性、周期性、换元技巧的组合使用。</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="topic-title">
+                        多元函数微分学
+                        <span class="tag tag-mid">偏导和极值必须拿分</span>
+                    </div>
+                    <div class="topic-content">
+                        <p><strong>偏导数计算</strong>、<strong>多元函数极值</strong>、<strong>方向导数与梯度</strong>。这部分相对套路化，是性价比极高的拿分板块。</p>
+                        <div class="tip-box">8 月把这些题型练熟，考试时就是送分题。</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="topic-title">
+                        多元函数积分学
+                        <span class="tag tag-must">二重积分是必拿分项</span>
+                    </div>
+                    <div class="topic-content">
+                        <p><strong>二重积分</strong>的直角坐标与极坐标转换是必拿分项。三重积分和曲线曲面积分在非数 A 类中也会出现，但难度通常不会太高。</p>
+                        <div class="tip-box">二重积分做到"看一眼就知道用什么坐标系"，三重积分掌握柱坐标和球坐标的转换。</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="topic-title">
+                        无穷级数与微分方程
+                        <span class="tag tag-high">难点但必考</span>
+                    </div>
+                    <div class="topic-content">
+                        <p><strong>常数项级数敛散性判断</strong>、<strong>幂级数求和</strong>是高频考点。幂级数求和是公认的难点，但也是必考内容。微分方程部分重点掌握<strong>一阶、二阶常系数线性微分方程</strong>的求解。</p>
+                        <div class="tip-box">级数判敛的几种方法（比较判别法、比值判别法、根值判别法）必须烂熟于心；幂级数求和至少练透 5 - 8 道典型题。</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Section 03 -->
+    <div class="section-card">
+        <div class="card-header green">
+            <div class="card-num green">03</div>
+            <div class="card-title">复习规划建议（8 月 · 查漏补缺）</div>
+        </div>
+        <div class="card-body">
+            <ul class="stage-list">
+                <li data-stage="第一阶段">
+                    <div class="stage-title">扫完全部重难点</div>
+                    <div class="stage-content">
+                        优先过完上面所有板块，区分<strong>课本基础知识点</strong>和<strong>竞赛拔高考点</strong>，准备错题本，专门收录证明题、易错题。
+                    </div>
+                </li>
+                <li data-stage="第二阶段">
+                    <div class="stage-title">分题型刷题</div>
+                    <div class="stage-content">
+                        主攻<strong>微分中值定理</strong>、<strong>二重积分</strong>、<strong>级数</strong>三大难关，刷张天德竞赛习题、往届初赛真题。
+                    </div>
+                </li>
+                <li data-stage="第三阶段">
+                    <div class="stage-title">整套限时训练</div>
+                    <div class="stage-content">
+                        按照考试时间做题，适应大题计算量，改掉做题拖沓、步骤简略的坏习惯——<strong>竞赛阅卷十分看重解题步骤</strong>。
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
