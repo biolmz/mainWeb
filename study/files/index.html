@@ -1,21 +1,53 @@
-
-
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-  <style>
-    .box {
-      height: 500px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px solid #ddd;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>导航</title>
+
+    <!-- 安全头 -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        body {
+            font-family: sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        a {
+            display: block;
+            margin: 12px 0;
+            color: #333;
+            text-decoration: none;
+            font-size: 18px;
+            pointer-events: auto;
+        }
+        a:hover {
+            color: #0078d7;
+        }
+    </style>
 </head>
 <body>
-  <div class="box">
-   <p><strong>这里用于提供下载的pdf🎯<strong/><p/>
-  </div>
+    <div class="container">
+        <div class="title">文件下载</div>
+      
+        <a href="https://bio2025.site/study/files/Biopython零基础实战教程" target="_blank">Biopython零基础实战教程</a>
+        <a href="https://bio2025.site/study/files/生信基础知识教程" target="_blank">生信基础知识教程</a>
+        <a href="https://bio2025.site/study/files/生信入门教程" target="_blank">生信入门教程</a>
+      
+    </div>
 </body>
 </html>
