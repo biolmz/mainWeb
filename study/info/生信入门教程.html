@@ -1,0 +1,2777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>生物信息学入门教程 —— 从分子生物学到Linux实战</title>
+<style>
+@page {
+  size: A4;
+  margin: 25mm 20mm 25mm 20mm;
+  @bottom-center {
+    content: counter(page);
+    font-family: "Noto Serif SC", "Source Han Serif SC", serif;
+    font-size: 9pt;
+    color: #666;
+  }
+  @top-right {
+    content: string(chapter-title);
+    font-family: "Noto Sans SC", "Source Han Sans SC", sans-serif;
+    font-size: 8pt;
+    color: #999;
+  }
+}
+@page :first {
+  @bottom-center { content: none; }
+  @top-right { content: none; }
+}
+@page cover {
+  margin: 0;
+  @bottom-center { content: none; }
+  @top-right { content: none; }
+}
+@page toc {
+  @top-right { content: "目录"; }
+}
+:root {
+  --primary: #1a5276;
+  --primary-light: #2980b9;
+  --accent: #c0392b;
+  --accent-light: #e74c3c;
+  --bg-soft: #f8f9fa;
+  --bg-code: #f4f4f4;
+  --border: #dee2e6;
+  --text: #2c3e50;
+  --text-light: #7f8c8d;
+  --green: #27ae60;
+  --orange: #e67e22;
+  --purple: #8e44ad;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; line-height: 1.8; }
+body {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  color: var(--text); background: white;
+}
+.cover {
+  page: cover; page-break-after: always;
+  width: 100%; height: 297mm;
+  background: linear-gradient(135deg, #1a5276 0%, #2c3e50 50%, #1a5276 100%);
+  color: white;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 40mm 30mm; position: relative;
+}
+.cover::before {
+  content: ""; position: absolute; top: 20mm; left: 20mm; right: 20mm; bottom: 20mm;
+  border: 2px solid rgba(255,255,255,0.2); border-radius: 8px;
+}
+.cover-badge {
+  font-family: "Noto Sans SC", sans-serif; font-size: 11px; letter-spacing: 4px;
+  text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 20px;
+}
+.cover-title {
+  font-size: 36px; font-weight: 700; text-align: center; line-height: 1.4;
+  margin-bottom: 12px; letter-spacing: 2px;
+}
+.cover-subtitle {
+  font-size: 16px; font-weight: 400; color: rgba(255,255,255,0.8);
+  text-align: center; margin-bottom: 40px; letter-spacing: 1px;
+}
+.cover-divider {
+  width: 60px; height: 3px; background: var(--accent-light);
+  margin: 20px auto; border-radius: 2px;
+}
+.cover-meta {
+  margin-top: 60px; text-align: center; font-family: "Noto Sans SC", sans-serif;
+  font-size: 12px; color: rgba(255,255,255,0.6); line-height: 2;
+}
+.cover-tag {
+  display: inline-block; padding: 4px 16px; border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px; font-size: 11px; margin: 4px; font-family: "Noto Sans SC", sans-serif;
+}
+.toc-page { page: toc; page-break-before: always; page-break-after: always; }
+.toc-title {
+  font-family: "Noto Sans SC", sans-serif; font-size: 24px; font-weight: 700;
+  color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 30px;
+}
+.toc-list { list-style: none; font-family: "Noto Sans SC", sans-serif; }
+.toc-list > li { margin-bottom: 6px; }
+.toc-part {
+  font-size: 16px; font-weight: 700; color: var(--primary);
+  margin-top: 20px; margin-bottom: 8px;
+}
+.toc-chapter { font-size: 13px; color: var(--text); padding-left: 20px; line-height: 2; }
+.toc-section { font-size: 12px; color: var(--text-light); padding-left: 40px; line-height: 1.8; }
+.part-divider { page-break-before: always; text-align: center; padding-top: 80mm; }
+.part-divider .part-label {
+  font-family: "Noto Sans SC", sans-serif; font-size: 14px; letter-spacing: 6px;
+  color: var(--text-light); margin-bottom: 10px;
+}
+.part-divider .part-title {
+  font-family: "Noto Sans SC", sans-serif; font-size: 28px; font-weight: 700; color: var(--primary);
+}
+.part-divider .part-line { width: 80px; height: 3px; background: var(--accent); margin: 20px auto; }
+h1.chapter {
+  string-set: chapter-title content();
+  font-family: "Noto Sans SC", sans-serif; font-size: 22px; font-weight: 700; color: var(--primary);
+  border-left: 5px solid var(--primary); padding-left: 15px; margin-top: 0; margin-bottom: 25px;
+  page-break-before: always; page-break-after: avoid;
+}
+h1.chapter:first-of-type { page-break-before: auto; }
+h2 {
+  font-family: "Noto Sans SC", sans-serif; font-size: 17px; font-weight: 600; color: #2c3e50;
+  margin-top: 28px; margin-bottom: 12px; page-break-after: avoid;
+  border-bottom: 1px solid var(--border); padding-bottom: 6px;
+}
+h3 {
+  font-family: "Noto Sans SC", sans-serif; font-size: 14px; font-weight: 600; color: var(--primary-light);
+  margin-top: 20px; margin-bottom: 8px; page-break-after: avoid;
+}
+p { margin-bottom: 10px; text-align: justify; }
+ul, ol { margin-left: 20px; margin-bottom: 12px; }
+li { margin-bottom: 5px; line-height: 1.75; }
+strong { color: var(--primary); font-weight: 600; }
+a { color: var(--primary-light); text-decoration: none; }
+.code-block {
+  background: var(--bg-code); border: 1px solid var(--border); border-left: 4px solid var(--primary-light);
+  border-radius: 4px; padding: 12px 16px; margin: 12px 0;
+  font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+  font-size: 12px; line-height: 1.7; overflow-x: auto; page-break-inside: avoid;
+  white-space: pre-wrap; word-wrap: break-word;
+}
+.code-inline {
+  font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace; font-size: 12px;
+  background: var(--bg-code); padding: 1px 5px; border-radius: 3px; color: var(--accent); white-space: nowrap;
+}
+.tip-box {
+  background: #eaf4fc; border: 1px solid #b0d4e8; border-left: 4px solid var(--primary-light);
+  border-radius: 4px; padding: 12px 16px; margin: 12px 0; page-break-inside: avoid;
+}
+.tip-box .tip-label {
+  font-family: "Noto Sans SC", sans-serif; font-weight: 600; color: var(--primary); font-size: 12px; margin-bottom: 4px;
+}
+.warning-box {
+  background: #fef5e7; border: 1px solid #f0d9a0; border-left: 4px solid var(--orange);
+  border-radius: 4px; padding: 12px 16px; margin: 12px 0; page-break-inside: avoid;
+}
+.warning-box .warning-label {
+  font-family: "Noto Sans SC", sans-serif; font-weight: 600; color: var(--orange); font-size: 12px; margin-bottom: 4px;
+}
+.bio-box {
+  background: #eafaf1; border: 1px solid #a9dfbf; border-left: 4px solid var(--green);
+  border-radius: 4px; padding: 12px 16px; margin: 12px 0; page-break-inside: avoid;
+}
+.bio-box .bio-label {
+  font-family: "Noto Sans SC", sans-serif; font-weight: 600; color: var(--green); font-size: 12px; margin-bottom: 4px;
+}
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; page-break-inside: avoid; }
+th {
+  background: var(--primary); color: white; font-family: "Noto Sans SC", sans-serif; font-weight: 600;
+  padding: 8px 10px; text-align: left; border: 1px solid var(--primary);
+}
+td { padding: 7px 10px; border: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) td { background: var(--bg-soft); }
+.cheatsheet {
+  background: var(--bg-soft); border: 2px solid var(--primary); border-radius: 8px;
+  padding: 20px 24px; margin: 20px 0; page-break-inside: avoid;
+}
+.cheatsheet-title {
+  font-family: "Noto Sans SC", sans-serif; font-size: 16px; font-weight: 700; color: var(--primary);
+  text-align: center; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid var(--primary-light);
+}
+.cmd-card { display: flex; align-items: flex-start; margin-bottom: 6px; font-size: 12px; line-height: 1.7; }
+.cmd-card .cmd {
+  font-family: "JetBrains Mono", monospace; color: var(--accent); font-weight: 600; min-width: 200px; flex-shrink: 0;
+}
+.cmd-card .desc { color: var(--text); }
+.figure { text-align: center; margin: 20px 0; page-break-inside: avoid; }
+.figure-caption {
+  font-family: "Noto Sans SC", sans-serif; font-size: 12px; color: var(--text-light);
+  margin-top: 8px; font-style: italic;
+}
+.central-dogma { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px auto; flex-wrap: wrap; }
+.dogma-box {
+  padding: 15px 25px; border-radius: 8px; font-family: "Noto Sans SC", sans-serif;
+  font-weight: 700; font-size: 14px; color: white; text-align: center; min-width: 80px;
+}
+.dogma-dna { background: var(--primary); }
+.dogma-rna { background: var(--green); }
+.dogma-protein { background: var(--orange); }
+.dogma-arrow { font-size: 24px; color: var(--text-light); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.dogma-arrow .arrow-label { font-size: 9px; font-family: "Noto Sans SC", sans-serif; color: var(--text-light); }
+.fastq-visual {
+  background: #1e1e1e; color: #d4d4d4; font-family: "JetBrains Mono", monospace;
+  font-size: 11px; line-height: 1.8; padding: 16px; border-radius: 6px; margin: 12px 0; white-space: pre-wrap;
+}
+.fastq-line1 { color: #569cd6; }
+.fastq-line2 { color: #ce9178; }
+.fastq-line3 { color: #569cd6; }
+.fastq-line4 { color: #dcdcaa; }
+.codon-table { font-size: 10px; font-family: "JetBrains Mono", monospace; }
+.codon-table td { text-align: center; padding: 4px 6px; }
+.codon-table .codon-header { background: var(--primary); color: white; font-weight: 700; }
+.exercise-box {
+  border: 2px dashed var(--primary-light); border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+  background: #f8fbff; page-break-inside: avoid;
+}
+.exercise-box .exercise-num {
+  display: inline-block; background: var(--primary); color: white; font-family: "Noto Sans SC", sans-serif;
+  font-weight: 700; font-size: 12px; padding: 2px 12px; border-radius: 20px; margin-bottom: 8px;
+}
+.exercise-box h3 { color: var(--primary); margin-top: 0; }
+.chapter-end {
+  text-align: center; margin: 30px 0 10px 0; color: var(--text-light);
+  font-size: 12px; border-top: 1px solid var(--border); padding-top: 10px;
+}
+
+/* ============================================================
+   优化版封面
+   ============================================================ */
+.cover {
+  page: cover; page-break-after: always;
+  width: 100%; height: 297mm;
+  background: linear-gradient(160deg, #0d3b66 0%, #1a5276 30%, #2c3e50 65%, #1a5276 100%);
+  color: white;
+  display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+  padding: 0; position: relative; overflow: hidden;
+}
+/* 封面背景DNA纹理 */
+.cover-bg-pattern {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0.06; z-index: 0;
+}
+.cover-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; padding: 0 40mm;
+}
+.cover-top {
+  width: 100%; display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 20mm 0 0 0;
+}
+.cover-badge {
+  font-family: "Noto Sans SC", sans-serif; font-size: 10px; letter-spacing: 4px;
+  text-transform: uppercase; color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.2); padding: 4px 14px; border-radius: 20px;
+}
+.cover-version {
+  font-family: "JetBrains Mono", monospace; font-size: 10px;
+  color: rgba(255,255,255,0.4); letter-spacing: 1px;
+}
+.cover-hero {
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 18mm; margin-bottom: 8mm;
+}
+.cover-title {
+  font-family: "Noto Sans SC", sans-serif;
+  font-size: 34px; font-weight: 700; text-align: center; line-height: 1.4;
+  margin-bottom: 8px; letter-spacing: 3px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.cover-subtitle {
+  font-family: "Noto Sans SC", sans-serif;
+  font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.75);
+  text-align: center; margin-bottom: 6mm; letter-spacing: 2px;
+}
+.cover-divider {
+  width: 50px; height: 3px;
+  background: linear-gradient(90deg, #e74c3c, #f39c12);
+  margin: 0 auto 6mm auto; border-radius: 2px;
+}
+.cover-tags-row {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  margin-bottom: 8mm;
+}
+.cover-tag {
+  font-family: "Noto Sans SC", sans-serif; font-size: 10px;
+  padding: 3px 12px; border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px; color: rgba(255,255,255,0.7); letter-spacing: 1px;
+}
+.cover-bottom {
+  position: absolute; bottom: 18mm; left: 0; right: 0;
+  text-align: center; z-index: 1;
+}
+.cover-bottom-line {
+  width: 80%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  margin: 0 auto 8mm auto;
+}
+.cover-bottom-text {
+  font-family: "Noto Sans SC", sans-serif; font-size: 10px;
+  color: rgba(255,255,255,0.35); letter-spacing: 2px;
+}
+
+/* ============================================================
+   密码子表新样式（4×4格子，无rowspan）
+   ============================================================ */
+.codon-grid {
+  display: grid;
+  grid-template-columns: 50px repeat(4, 1fr);
+  gap: 2px;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 10px;
+  margin: 16px 0;
+  page-break-inside: avoid;
+}
+.codon-cell {
+  padding: 6px 4px;
+  text-align: center;
+  border-radius: 3px;
+  line-height: 1.5;
+}
+.codon-corner {
+  background: transparent;
+}
+.codon-col-header {
+  background: #1a5276; color: white; font-weight: 700; font-size: 12px;
+  padding: 8px 4px;
+}
+.codon-row-header {
+  background: #1a5276; color: white; font-weight: 700; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.codon-data {
+  background: #f8f9fa; border: 1px solid #e0e0e0;
+}
+.codon-data .codon-seq {
+  font-weight: 700; color: #1a5276; font-size: 11px;
+}
+.codon-data .codon-aa {
+  color: #2c3e50; font-size: 10px; margin-top: 1px;
+}
+.codon-stop {
+  background: #fdf2f2; border: 1px solid #f5c6cb;
+}
+.codon-stop .codon-aa {
+  color: #c0392b; font-weight: 700;
+}
+.codon-start {
+  background: #eafaf1; border: 1px solid #a9dfbf;
+}
+.codon-start .codon-aa {
+  color: #27ae60; font-weight: 700;
+}
+
+/* ============================================================
+   SVG 图插图通用样式
+   ============================================================ */
+.svg-figure {
+  text-align: center; margin: 20px 0; page-break-inside: avoid;
+}
+.svg-figure svg {
+  max-width: 100%; height: auto;
+}
+.svg-caption {
+  font-family: "Noto Sans SC", sans-serif; font-size: 12px;
+  color: var(--text-light); margin-top: 8px; font-style: italic;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     封面
+     ============================================================ -->
+<div class="cover">
+  <!-- 背景DNA双螺旋纹理 -->
+  <svg class="cover-bg-pattern" viewBox="0 0 595 842" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="dnaPattern" x="0" y="0" width="80" height="160" patternUnits="userSpaceOnUse">
+        <!-- DNA双螺旋重复单元 -->
+        <path d="M 20 10 Q 60 50 20 90 Q -20 130 20 170" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+        <path d="M 60 10 Q 20 50 60 90 Q 100 130 60 170" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+        <line x1="20" y1="20" x2="60" y2="20" stroke="#ffffff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="25" y1="35" x2="55" y2="35" stroke="#ffffff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="30" y1="50" x2="50" y2="50" stroke="#ffffff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="30" y1="70" x2="50" y2="70" stroke="#ffffff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="25" y1="85" x2="55" y2="85" stroke="#ffffff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="20" y1="100" x2="60" y2="100" stroke="#ffffff" stroke-width="0.8" opacity="0.5"/>
+        <circle cx="20" cy="20" r="2" fill="#e74c3c" opacity="0.4"/>
+        <circle cx="60" cy="20" r="2" fill="#27ae60" opacity="0.4"/>
+        <circle cx="20" cy="50" r="2" fill="#f39c12" opacity="0.4"/>
+        <circle cx="60" cy="50" r="2" fill="#e74c3c" opacity="0.4"/>
+        <circle cx="20" cy="90" r="2" fill="#27ae60" opacity="0.4"/>
+        <circle cx="60" cy="90" r="2" fill="#f39c12" opacity="0.4"/>
+        <circle cx="20" cy="130" r="2" fill="#e74c3c" opacity="0.4"/>
+        <circle cx="60" cy="130" r="2" fill="#27ae60" opacity="0.4"/>
+      </pattern>
+    </defs>
+    <rect width="595" height="842" fill="url(#dnaPattern)"/>
+  </svg>
+
+  <div class="cover-content">
+    <div class="cover-top">
+      <div class="cover-badge">Bioinformatics</div>
+      <div class="cover-version">v1.0 · 2026.08</div>
+    </div>
+
+    <!-- 中心DNA双螺旋装饰 -->
+    <div class="cover-hero">
+      <svg width="120" height="140" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+        <!-- 左侧螺旋链 -->
+        <path d="M 30 10 Q 90 35 30 60 Q -30 85 30 110 Q 90 135 30 160" fill="none" stroke="#2980b9" stroke-width="3" stroke-linecap="round"/>
+        <!-- 右侧螺旋链 -->
+        <path d="M 90 10 Q 30 35 90 60 Q 150 85 90 110 Q 30 135 90 160" fill="none" stroke="#e74c3c" stroke-width="3" stroke-linecap="round"/>
+        <!-- 碱基对连接线 -->
+        <line x1="32" y1="18" x2="88" y2="18" stroke="#27ae60" stroke-width="2" opacity="0.7"/>
+        <line x1="42" y1="35" x2="78" y2="35" stroke="#f39c12" stroke-width="2" opacity="0.7"/>
+        <line x1="50" y1="50" x2="70" y2="50" stroke="#27ae60" stroke-width="2" opacity="0.7"/>
+        <line x1="50" y1="70" x2="70" y2="70" stroke="#e74c3c" stroke-width="2" opacity="0.7"/>
+        <line x1="42" y1="85" x2="78" y2="85" stroke="#f39c12" stroke-width="2" opacity="0.7"/>
+        <line x1="32" y1="102" x2="88" y2="102" stroke="#27ae60" stroke-width="2" opacity="0.7"/>
+        <line x1="42" y1="120" x2="78" y2="120" stroke="#e74c3c" stroke-width="2" opacity="0.7"/>
+        <line x1="50" y1="135" x2="70" y2="135" stroke="#f39c12" stroke-width="2" opacity="0.7"/>
+        <!-- 碱基标记 -->
+        <circle cx="30" cy="18" r="4" fill="#2980b9"/>
+        <circle cx="90" cy="18" r="4" fill="#e74c3c"/>
+        <circle cx="35" cy="50" r="4" fill="#2980b9"/>
+        <circle cx="85" cy="50" r="4" fill="#e74c3c"/>
+        <circle cx="30" cy="90" r="4" fill="#2980b9"/>
+        <circle cx="90" cy="90" r="4" fill="#e74c3c"/>
+        <!-- ATGC标签 -->
+        <text x="20" y="22" font-family="monospace" font-size="7" fill="white" font-weight="bold">A</text>
+        <text x="86" y="22" font-family="monospace" font-size="7" fill="white" font-weight="bold">T</text>
+        <text x="20" y="93" font-family="monospace" font-size="7" fill="white" font-weight="bold">G</text>
+        <text x="86" y="93" font-family="monospace" font-size="7" fill="white" font-weight="bold">C</text>
+      </svg>
+    </div>
+
+    <div class="cover-title">生物信息学入门教程</div>
+    <div class="cover-divider"></div>
+    <div class="cover-subtitle">从分子生物学到 Linux 实战 · 面向零基础学习者</div>
+
+    <div class="cover-tags-row">
+      <span class="cover-tag">分子生物学</span>
+      <span class="cover-tag">测序技术</span>
+      <span class="cover-tag">数据格式</span>
+      <span class="cover-tag">统计学</span>
+      <span class="cover-tag">数据库</span>
+      <span class="cover-tag">Linux 实战</span>
+    </div>
+  </div>
+
+  <div class="cover-bottom">
+    <div class="cover-bottom-line"></div>
+    <div class="cover-bottom-text">ATCG · 探索生命的数据之美</div>
+  </div>
+</div><!-- ============================================================
+     目录
+     ============================================================ -->
+<div class="toc-page">
+  <div class="toc-title">目 录</div>
+  <ul class="toc-list">
+    <li class="toc-part">第一部分　生信知识铺垫</li>
+    <li class="toc-chapter">第 1 章　分子生物学基础</li>
+    <li class="toc-section">1.1 中心法则：生命的"信息流水线"</li>
+    <li class="toc-section">1.2 基因、转录本与基因组结构元件</li>
+    <li class="toc-section">1.3 密码子表与遗传密码</li>
+    <li class="toc-section">1.4 序列比对：从"找相似"到"推断功能"</li>
+    <li class="toc-chapter">第 2 章　测序技术简介</li>
+    <li class="toc-section">2.1 一代 / 二代 / 三代测序原理对比</li>
+    <li class="toc-section">2.2 RNA-seq 实验流程</li>
+    <li class="toc-section">2.3 读长、覆盖度与转录本定量</li>
+    <li class="toc-section">2.4 FASTQ 与 FASTA 格式详解</li>
+    <li class="toc-chapter">第 3 章　核心数据类型</li>
+    <li class="toc-section">3.1 序列数据（DNA / RNA / 蛋白质）</li>
+    <li class="toc-section">3.2 基因组坐标与注释格式（GTF / GFF / BED）</li>
+    <li class="toc-section">3.3 表达量数据（计数矩阵、TPM / FPKM / RPKM）</li>
+    <li class="toc-section">3.4 差异表达结果表（log2FC、P 值、FDR）</li>
+    <li class="toc-chapter">第 4 章　统计学基础</li>
+    <li class="toc-section">4.1 P 值："证据够不够强"</li>
+    <li class="toc-section">4.2 多重假设检验与 FDR 校正</li>
+    <li class="toc-section">4.3 log2FoldChange 解读</li>
+    <li class="toc-section">4.4 PCA 与聚类的基本思想</li>
+    <li class="toc-chapter">第 5 章　常见数据库</li>
+    <li class="toc-section">5.1 NCBI（GenBank / GEO / SRA）</li>
+    <li class="toc-section">5.2 Ensembl</li>
+    <li class="toc-section">5.3 UCSC Genome Browser</li>
+    <li class="toc-section">5.4 GO 与 KEGG 通路数据库</li>
+    <li class="toc-section">5.5 Bioconductor 在生信生态中的位置</li>
+    <li class="toc-chapter">附录 A　术语速查表 · 中心法则示意图 · FASTQ 格式图解</li>
+    <li class="toc-part">第二部分　Linux 基础入门</li>
+    <li class="toc-chapter">第 6 章　为什么学 Linux</li>
+    <li class="toc-chapter">第 7 章　基础概念</li>
+    <li class="toc-section">7.1 文件系统树状结构</li>
+    <li class="toc-section">7.2 绝对路径 vs 相对路径</li>
+    <li class="toc-section">7.3 文件权限（读 / 写 / 执行）</li>
+    <li class="toc-chapter">第 8 章　高频命令精讲</li>
+    <li class="toc-section">8.1 文件与目录操作</li>
+    <li class="toc-section">8.2 文件内容查看与搜索</li>
+    <li class="toc-section">8.3 文本处理三剑客</li>
+    <li class="toc-section">8.4 下载与压缩</li>
+    <li class="toc-section">8.5 进程与会话管理</li>
+    <li class="toc-chapter">第 9 章　管道与重定向</li>
+    <li class="toc-chapter">第 10 章　conda / mamba 实战</li>
+    <li class="toc-chapter">第 11 章　SSH 远程连接</li>
+    <li class="toc-chapter">第 12 章　实用小技巧</li>
+    <li class="toc-chapter">附录 B　命令速查卡 · 实战练习任务</li>
+  </ul>
+</div>
+
+<!-- ============================================================
+     第一部分　生信知识铺垫
+     ============================================================ -->
+<div class="part-divider">
+  <div class="part-label">PART ONE</div>
+  <div class="part-title">生信知识铺垫</div>
+  <div class="part-line"></div>
+</div>
+
+<!-- ============================================================
+     第 1 章　分子生物学基础
+     ============================================================ -->
+<h1 class="chapter">第 1 章　分子生物学基础</h1>
+
+<h2>1.1 中心法则：生命的"信息流水线"</h2>
+<p>分子生物学的<strong>中心法则（Central Dogma）</strong>描述了遗传信息在生物大分子间的流动方向：</p>
+<div class="svg-figure">
+<svg width="520" height="200" viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dnaGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a5276;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="rnaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#2ecc71;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="proteinGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e67e22;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#f39c12;stop-opacity:1"/>
+    </linearGradient>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#7f8c8d"/>
+    </marker>
+  </defs>
+
+  <!-- DNA节点 -->
+  <rect x="20" y="60" width="120" height="80" rx="12" fill="url(#dnaGrad1)" stroke="#1a5276" stroke-width="2"/>
+  <text x="80" y="95" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="700" fill="white">DNA</text>
+  <text x="80" y="115" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">脱氧核糖核酸</text>
+  <text x="80" y="130" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">储存遗传信息</text>
+
+  <!-- DNA装饰: 双螺旋小图 -->
+  <g transform="translate(15, 42)">
+    <path d="M 0 0 Q 10 8 0 16 Q -10 24 0 32" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+    <path d="M 10 0 Q 0 8 10 16 Q 20 24 10 32" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+  </g>
+
+  <!-- 箭头1: 转录 -->
+  <line x1="150" y1="100" x2="210" y2="100" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="180" y="88" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7f8c8d" font-weight="600">转录</text>
+  <text x="180" y="118" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#95a5a6">RNA聚合酶</text>
+
+  <!-- RNA节点 -->
+  <rect x="220" y="60" width="120" height="80" rx="12" fill="url(#rnaGrad)" stroke="#27ae60" stroke-width="2"/>
+  <text x="280" y="95" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="700" fill="white">mRNA</text>
+  <text x="280" y="115" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">信使RNA</text>
+  <text x="280" y="130" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">携带遗传信息</text>
+
+  <!-- RNA装饰: 波浪线 -->
+  <g transform="translate(220, 42)">
+    <path d="M 0 5 Q 5 0 10 5 Q 15 10 20 5 Q 25 0 30 5 Q 35 10 40 5 Q 45 0 50 5 Q 55 10 60 5 Q 65 0 70 5 Q 75 10 80 5 Q 85 0 90 5 Q 95 10 100 5 Q 105 0 110 5 Q 115 10 120 5" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+  </g>
+
+  <!-- 箭头2: 翻译 -->
+  <line x1="350" y1="100" x2="410" y2="100" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="380" y="88" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#7f8c8d" font-weight="600">翻译</text>
+  <text x="380" y="118" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#95a5a6">核糖体</text>
+
+  <!-- 蛋白质节点 -->
+  <rect x="420" y="60" width="100" height="80" rx="12" fill="url(#proteinGrad)" stroke="#e67e22" stroke-width="2"/>
+  <text x="470" y="95" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="white">蛋白质</text>
+  <text x="470" y="115" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">功能分子</text>
+  <text x="470" y="130" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">执行生命功能</text>
+
+  <!-- 蛋白质装饰: 折叠结构小图 -->
+  <g transform="translate(425, 42)">
+    <circle cx="5" cy="8" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="15" cy="3" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="25" cy="10" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="35" cy="5" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="45" cy="8" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="55" cy="3" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="65" cy="10" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="75" cy="5" r="3" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="85" cy="8" r="3" fill="rgba(255,255,255,0.3)"/>
+    <path d="M 5 8 L 15 3 L 25 10 L 35 5 L 45 8 L 55 3 L 65 10 L 75 5 L 85 8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  </g>
+
+  <!-- 底部比喻标签 -->
+  <text x="80" y="165" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#95a5a6" font-style="italic">原版图纸</text>
+  <text x="280" y="165" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#95a5a6" font-style="italic">工作副本</text>
+  <text x="470" y="165" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#95a5a6" font-style="italic">最终产品</text>
+
+  <!-- ATGC碱基装饰 -->
+  <text x="80" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#1a5276" opacity="0.3" font-weight="bold">A T G C</text>
+  <text x="280" y="185" text-anchor="middle" font-family="monospace" font-size="10" fill="#27ae60" opacity="0.3" font-weight="bold">A U G C</text>
+  <text x="470" y="185" text-anchor="middle" font-family="monospace" font-size="9" fill="#e67e22" opacity="0.3" font-weight="bold">Met Lys Gly...</text>
+</svg>
+<div class="svg-caption">图 1-1　中心法则示意图：DNA → RNA → 蛋白质（信息流不可逆）</div>
+</div>
+<p>用一个<strong>工厂比喻</strong>来理解：</p>
+<table>
+  <thead><tr><th style="width:15%">阶段</th><th style="width:20%">生物学过程</th><th style="width:25%">工厂比喻</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>DNA</strong></td><td>储存遗传信息的"总蓝图"</td><td>档案室里的<strong>原版设计图纸</strong></td><td>保存在细胞核中，不直接参与生产，是所有信息的最终来源</td></tr>
+    <tr><td><strong>转录</strong></td><td>DNA → mRNA</td><td>把图纸<strong>复印</strong>一份送到车间</td><td>原版图纸不能拿出来（太珍贵），所以转录一份 mRNA 副本带出细胞核</td></tr>
+    <tr><td><strong>RNA</strong></td><td>mRNA 携带遗传信息</td><td><strong>工作副本 / 工艺单</strong></td><td>mRNA 是 DNA 的"临时复印件"，可以从细胞核运到细胞质中被读取</td></tr>
+    <tr><td><strong>翻译</strong></td><td>mRNA → 蛋白质</td><td>车间按工艺单<strong>组装产品</strong></td><td>核糖体读取 mRNA 上的密码子，将氨基酸逐个连接成蛋白质链</td></tr>
+    <tr><td><strong>蛋白质</strong></td><td>执行生命功能的"工人"</td><td>最终的<strong>产品 / 零件</strong></td><td>蛋白质承担催化（酶）、结构（胶原蛋白）、运输（血红蛋白）等功能</td></tr>
+  </tbody>
+</table>
+<div class="tip-box">
+  <div class="tip-label">一句话记忆</div>
+  DNA 是图纸原件 → 转录出 mRNA 工作副本 → 翻译成蛋白质产品。<strong>信息流始终是 DNA → RNA → 蛋白质</strong>，不会反过来。
+</div>
+
+<h2>1.2 基因、转录本与基因组结构元件</h2>
+<h3>1.2.1 基因（Gene）</h3>
+<p><strong>基因</strong>是 DNA 上一段具有功能的序列，是遗传信息的基本单位。可以理解为一本"操作手册"中的一个完整章节——它包含了生产某种蛋白质（或功能性 RNA）所需的全部指令。</p>
+<h3>1.2.2 转录本（Transcript）</h3>
+<p>同一个基因通过<strong>可变剪接（Alternative Splicing）</strong>可以产生多种不同的 mRNA，这些不同的 mRNA 变体就叫<strong>转录本</strong>。</p>
+<div class="bio-box">
+  <div class="bio-label">生活比喻</div>
+  同一个基因就像一本<strong>菜谱</strong>，可变剪接就像厨师根据不同场合选取不同步骤——有时加辣、有时不加——做出不同口味的菜（不同转录本），但都来自同一本菜谱。
+</div>
+<h3>1.2.3 外显子与内含子（Exon / Intron）</h3>
+<table>
+  <thead><tr><th>概念</th><th>定义</th><th>比喻</th><th>在转录中的命运</th></tr></thead>
+  <tbody>
+    <tr><td><strong>外显子（Exon）</strong></td><td>基因中最终保留在成熟 mRNA 中的序列</td><td>菜谱中"真正有用的步骤"</td><td>被保留，参与翻译</td></tr>
+    <tr><td><strong>内含子（Intron）</strong></td><td>基因中在剪接过程中被去除的序列</td><td>菜谱中的"注释和说明"</td><td>在 RNA 剪接时被切掉丢弃</td></tr>
+  </tbody>
+</table>
+<p>剪接过程：pre-mRNA（含内含子）→ 剪接去除内含子、拼接外显子 → 成熟 mRNA（只含外显子）。</p>
+<h3>1.2.4 启动子（Promoter）</h3>
+<p><strong>启动子</strong>是基因上游的一段 DNA 序列，是 RNA 聚合酶的"停靠码头"。它像工厂的<strong>开工开关</strong>——决定了基因何时、何地、以多大强度被转录。</p>
+<h3>1.2.5 UTR（非翻译区）</h3>
+<p>mRNA 上并非所有序列都会被翻译成蛋白质。成熟 mRNA 的两端各有一段不编码氨基酸的区域，称为<strong>UTR（Untranslated Region）</strong>：</p>
+<table>
+  <thead><tr><th>区域</th><th>位置</th><th>功能</th></tr></thead>
+  <tbody>
+    <tr><td><strong>5' UTR</strong></td><td>mRNA 5' 端，翻译起始密码子上游</td><td>调控翻译效率、核糖体募集</td></tr>
+    <tr><td><strong>3' UTR</strong></td><td>mRNA 3' 端，终止密码子下游</td><td>mRNA 稳定性调控、microRNA 结合位点</td></tr>
+    <tr><td><strong>CDS</strong></td><td>起始密码子到终止密码子之间</td><td>实际编码蛋白质氨基酸序列的区域</td></tr>
+  </tbody>
+</table>
+<div class="svg-figure">
+<svg width="500" height="100" viewBox="0 0 500 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 基因线 -->
+  <line x1="20" y1="50" x2="480" y2="50" stroke="#bdc3c7" stroke-width="2"/>
+
+  <!-- 启动子 -->
+  <rect x="20" y="38" width="50" height="24" rx="3" fill="#95a5a6" opacity="0.3"/>
+  <text x="45" y="55" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7f8c8d">启动子</text>
+
+  <!-- 5'UTR -->
+  <rect x="75" y="38" width="50" height="24" rx="3" fill="#e67e22" opacity="0.25" stroke="#e67e22" stroke-width="1"/>
+  <text x="100" y="55" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#e67e22" font-weight="600">5'UTR</text>
+
+  <!-- CDS -->
+  <rect x="130" y="32" width="240" height="36" rx="3" fill="#27ae60" opacity="0.2" stroke="#27ae60" stroke-width="1.5"/>
+  <text x="160" y="55" font-family="monospace" font-size="10" fill="#27ae60" font-weight="bold">ATG</text>
+  <text x="250" y="55" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#27ae60" font-weight="600">CDS 编码区</text>
+  <text x="345" y="55" font-family="monospace" font-size="10" fill="#27ae60" font-weight="bold">TAA</text>
+
+  <!-- 3'UTR -->
+  <rect x="375" y="38" width="55" height="24" rx="3" fill="#e67e22" opacity="0.25" stroke="#e67e22" stroke-width="1"/>
+  <text x="402" y="55" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#e67e22" font-weight="600">3'UTR</text>
+
+  <!-- poly-A -->
+  <rect x="435" y="38" width="45" height="24" rx="3" fill="#95a5a6" opacity="0.3"/>
+  <text x="457" y="55" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#7f8c8d">poly-A</text>
+
+  <!-- 标注线 -->
+  <line x1="100" y1="72" x2="100" y2="82" stroke="#e67e22" stroke-width="1"/>
+  <text x="100" y="92" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#e67e22">非翻译区</text>
+
+  <line x1="250" y1="72" x2="250" y2="82" stroke="#27ae60" stroke-width="1"/>
+  <text x="250" y="92" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#27ae60">蛋白质编码序列</text>
+
+  <line x1="402" y1="72" x2="402" y2="82" stroke="#e67e22" stroke-width="1"/>
+  <text x="402" y="92" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#e67e22">非翻译区</text>
+</svg>
+<div class="svg-caption">图 1-2　基因结构与 mRNA 各区域示意图</div>
+</div>
+
+<h2>1.3 密码子表与遗传密码</h2>
+<p>mRNA 上每<strong> 3 个相邻的核苷酸</strong>组成一个<strong>密码子（Codon）</strong>，对应一个氨基酸。4 种碱基（A/U/G/C）的组合产生 4³ = <strong>64 种密码子</strong>，编码 20 种标准氨基酸，加上起始和终止信号。</p>
+<div class="warning-box">
+  <div class="warning-label">注意</div>
+  密码子表中的碱基是 <strong>RNA 碱基</strong>（A、U、G、C），不是 DNA 碱基（A、T、G、C）。在 DNA 中 T 对应 RNA 中的 U。
+</div>
+<div class="svg-figure" style="page-break-inside: avoid;">
+<div class="codon-grid">
+<div class="codon-cell codon-corner"></div>
+<div class="codon-cell codon-col-header">U</div>
+<div class="codon-cell codon-col-header">C</div>
+<div class="codon-cell codon-col-header">A</div>
+<div class="codon-cell codon-col-header">G</div>
+<div class="codon-cell codon-row-header">U</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">UUU</span> <span class="codon-aa">Phe</span></div>
+<div><span class="codon-seq">UUC</span> <span class="codon-aa">Phe</span></div>
+<div><span class="codon-seq">UUA</span> <span class="codon-aa">Leu</span></div>
+<div><span class="codon-seq">UUG</span> <span class="codon-aa">Leu</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">UCU</span> <span class="codon-aa">Ser</span></div>
+<div><span class="codon-seq">UCC</span> <span class="codon-aa">Ser</span></div>
+<div><span class="codon-seq">UCA</span> <span class="codon-aa">Ser</span></div>
+<div><span class="codon-seq">UCG</span> <span class="codon-aa">Ser</span></div>
+</div>
+<div class="codon-cell codon-stop">
+<div><span class="codon-seq">UAU</span> <span class="codon-aa">Tyr</span></div>
+<div><span class="codon-seq">UAC</span> <span class="codon-aa">Tyr</span></div>
+<div><span class="codon-seq">UAA</span> <span class="codon-aa">Stop</span></div>
+<div><span class="codon-seq">UAG</span> <span class="codon-aa">Stop</span></div>
+</div>
+<div class="codon-cell codon-stop">
+<div><span class="codon-seq">UGU</span> <span class="codon-aa">Cys</span></div>
+<div><span class="codon-seq">UGC</span> <span class="codon-aa">Cys</span></div>
+<div><span class="codon-seq">UGA</span> <span class="codon-aa">Stop</span></div>
+<div><span class="codon-seq">UGG</span> <span class="codon-aa">Trp</span></div>
+</div>
+<div class="codon-cell codon-row-header">C</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">CUU</span> <span class="codon-aa">Leu</span></div>
+<div><span class="codon-seq">CUC</span> <span class="codon-aa">Leu</span></div>
+<div><span class="codon-seq">CUA</span> <span class="codon-aa">Leu</span></div>
+<div><span class="codon-seq">CUG</span> <span class="codon-aa">Leu</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">CCU</span> <span class="codon-aa">Pro</span></div>
+<div><span class="codon-seq">CCC</span> <span class="codon-aa">Pro</span></div>
+<div><span class="codon-seq">CCA</span> <span class="codon-aa">Pro</span></div>
+<div><span class="codon-seq">CCG</span> <span class="codon-aa">Pro</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">CAU</span> <span class="codon-aa">His</span></div>
+<div><span class="codon-seq">CAC</span> <span class="codon-aa">His</span></div>
+<div><span class="codon-seq">CAA</span> <span class="codon-aa">Gln</span></div>
+<div><span class="codon-seq">CAG</span> <span class="codon-aa">Gln</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">CGU</span> <span class="codon-aa">Arg</span></div>
+<div><span class="codon-seq">CGC</span> <span class="codon-aa">Arg</span></div>
+<div><span class="codon-seq">CGA</span> <span class="codon-aa">Arg</span></div>
+<div><span class="codon-seq">CGG</span> <span class="codon-aa">Arg</span></div>
+</div>
+<div class="codon-cell codon-row-header">A</div>
+<div class="codon-cell codon-start">
+<div><span class="codon-seq">AUU</span> <span class="codon-aa">Ile</span></div>
+<div><span class="codon-seq">AUC</span> <span class="codon-aa">Ile</span></div>
+<div><span class="codon-seq">AUA</span> <span class="codon-aa">Ile</span></div>
+<div><span class="codon-seq">AUG</span> <span class="codon-aa">Met</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">ACU</span> <span class="codon-aa">Thr</span></div>
+<div><span class="codon-seq">ACC</span> <span class="codon-aa">Thr</span></div>
+<div><span class="codon-seq">ACA</span> <span class="codon-aa">Thr</span></div>
+<div><span class="codon-seq">ACG</span> <span class="codon-aa">Thr</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">AAU</span> <span class="codon-aa">Asn</span></div>
+<div><span class="codon-seq">AAC</span> <span class="codon-aa">Asn</span></div>
+<div><span class="codon-seq">AAA</span> <span class="codon-aa">Lys</span></div>
+<div><span class="codon-seq">AAG</span> <span class="codon-aa">Lys</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">AGU</span> <span class="codon-aa">Ser</span></div>
+<div><span class="codon-seq">AGC</span> <span class="codon-aa">Ser</span></div>
+<div><span class="codon-seq">AGA</span> <span class="codon-aa">Arg</span></div>
+<div><span class="codon-seq">AGG</span> <span class="codon-aa">Arg</span></div>
+</div>
+<div class="codon-cell codon-row-header">G</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">GUU</span> <span class="codon-aa">Val</span></div>
+<div><span class="codon-seq">GUC</span> <span class="codon-aa">Val</span></div>
+<div><span class="codon-seq">GUA</span> <span class="codon-aa">Val</span></div>
+<div><span class="codon-seq">GUG</span> <span class="codon-aa">Val</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">GCU</span> <span class="codon-aa">Ala</span></div>
+<div><span class="codon-seq">GCC</span> <span class="codon-aa">Ala</span></div>
+<div><span class="codon-seq">GCA</span> <span class="codon-aa">Ala</span></div>
+<div><span class="codon-seq">GCG</span> <span class="codon-aa">Ala</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">GAU</span> <span class="codon-aa">Asp</span></div>
+<div><span class="codon-seq">GAC</span> <span class="codon-aa">Asp</span></div>
+<div><span class="codon-seq">GAA</span> <span class="codon-aa">Glu</span></div>
+<div><span class="codon-seq">GAG</span> <span class="codon-aa">Glu</span></div>
+</div>
+<div class="codon-cell codon-data">
+<div><span class="codon-seq">GGU</span> <span class="codon-aa">Gly</span></div>
+<div><span class="codon-seq">GGC</span> <span class="codon-aa">Gly</span></div>
+<div><span class="codon-seq">GGA</span> <span class="codon-aa">Gly</span></div>
+<div><span class="codon-seq">GGG</span> <span class="codon-aa">Gly</span></div>
+</div>
+</div>
+<div class="svg-caption">表 1-1　标准遗传密码子表（RNA 密码子）—— Met* 为起始密码子，红色为终止密码子</div>
+</div>
+<div class="tip-box">
+  <div class="tip-label">关键记忆点</div>
+  <ul style="margin-bottom: 0;">
+    <li><strong>AUG</strong> 既是起始密码子（编码甲硫氨酸 Met），也是翻译开始的信号</li>
+    <li><strong>UAA、UAG、UGA</strong> 是终止密码子（Stop），不编码任何氨基酸</li>
+    <li>遗传密码是<strong>简并的</strong>（degenerate）：多数氨基酸有多个密码子对应，如亮氨酸（Leu）有 6 个</li>
+    <li>遗传密码是<strong>通用的</strong>（universal）：几乎所有生物共用同一套密码子表</li>
+  </ul>
+</div>
+
+<h2>1.4 序列比对：从"找相似"到"推断功能"</h2>
+<h3>什么是序列比对？</h3>
+<p><strong>序列比对（Sequence Alignment）</strong>是将两条或多条生物序列（DNA / RNA / 蛋白质）逐位置对齐，找出它们之间的对应关系和差异（替换、插入、缺失）的过程。</p>
+<div class="bio-box">
+  <div class="bio-label">生活比喻</div>
+  就像<strong>校对两篇文章的异同</strong>：把两段文字逐字对齐，标出哪些字相同、哪些字被替换了、哪里多了一行或少了一行。序列比对做的是同样的事，只不过"字"变成了碱基（A/T/G/C）或氨基酸。
+</div>
+
+<div class="svg-figure">
+<svg width="480" height="170" viewBox="0 0 480 170" xmlns="http://www.w3.org/2000/svg">
+  <!-- 参考序列 -->
+  <text x="10" y="30" font-family="monospace" font-size="13" fill="#1a5276" font-weight="bold">参考:</text>
+  <text x="70" y="30" font-family="monospace" font-size="13" fill="#2c3e50">A T G C C T A G G T C A G C T A G C T</text>
+
+  <!-- 比对序列 -->
+  <text x="10" y="60" font-family="monospace" font-size="13" fill="#27ae60" font-weight="bold">样本:</text>
+  <text x="70" y="60" font-family="monospace" font-size="13" fill="#2c3e50">A T G C C T A G G T C A G C T A G C T</text>
+
+  <!-- 匹配标记 -->
+  <g transform="translate(70, 38)">
+    <rect x="0" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="12" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="24" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="36" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="48" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="60" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="72" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="84" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="96" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="108" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="120" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="132" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="144" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="156" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="168" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="180" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="192" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+    <rect x="204" y="0" width="11" height="14" fill="#27ae60" opacity="0.15"/>
+  </g>
+  <text x="200" y="48" font-family="sans-serif" font-size="9" fill="#27ae60">✓ 完全匹配</text>
+
+  <!-- 第二组：有SNP -->
+  <text x="10" y="95" font-family="monospace" font-size="13" fill="#1a5276" font-weight="bold">参考:</text>
+  <text x="70" y="95" font-family="monospace" font-size="13" fill="#2c3e50">A T G C C T A G G T C A G C T A G C T</text>
+
+  <text x="10" y="120" font-family="monospace" font-size="13" fill="#e74c3c" font-weight="bold">变异:</text>
+  <text x="70" y="120" font-family="monospace" font-size="13"><tspan fill="#2c3e50">A T G C C T A G G T C A G C T A G C T</tspan></text>
+
+  <!-- 高亮SNP位置 -->
+  <rect x="178" y="107" width="12" height="16" fill="#e74c3c" opacity="0.2" rx="2"/>
+  <text x="70" y="120" font-family="monospace" font-size="13"><tspan fill="#2c3e50">A T G C C T A G G T C A G C T A G C T</tspan></text>
+  <text x="184" y="138" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#e74c3c">↑ SNP变异</text>
+
+  <!-- 连接线 -->
+  <line x1="184" y1="100" x2="184" y2="107" stroke="#e74c3c" stroke-width="1" stroke-dasharray="2,2"/>
+</svg>
+<div class="svg-caption">图 1-3　序列比对示意：上方为完全匹配，下方显示一个 SNP 变异位点</div>
+</div>
+
+<h3>为什么需要比对？</h3>
+<table>
+  <thead><tr><th>应用场景</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>功能推断</strong></td><td>未知功能的序列与已知功能序列高度相似 → 大概率有类似功能</td></tr>
+    <tr><td><strong>进化分析</strong></td><td>比较不同物种的同源基因 → 推断亲缘关系和进化时间</td></tr>
+    <tr><td><strong>变异检测</strong></td><td>将测序 reads 比对到参考基因组 → 找出 SNP、Indel 等变异</td></tr>
+    <tr><td><strong>基因注释</strong></td><td>通过比对已知基因模型来注释新组装的基因组</td></tr>
+    <tr><td><strong>差异表达分析</strong></td><td>RNA-seq 的第一步就是把 reads 比对到基因组/转录组上</td></tr>
+  </tbody>
+</table>
+<h3>比对的基本类型</h3>
+<ul>
+  <li><strong>全局比对（Global Alignment）</strong>：两条序列从头到尾全部对齐（如 Needleman-Wunsch 算法），适合长度相近的序列</li>
+  <li><strong>局部比对（Local Alignment）</strong>：只比对最相似的区域（如 BLAST、Smith-Waterman 算法），适合找保守片段</li>
+  <li><strong>多重序列比对（MSA）</strong>：同时比对三条以上序列，用于找保守位点、构建系统发育树</li>
+</ul>
+<div class="tip-box">
+  <div class="tip-label">生信中最常用的比对工具</div>
+  <ul style="margin-bottom:0;">
+    <li><strong>BLAST</strong>：序列相似性搜索的"瑞士军刀"，快速从数据库中找相似序列</li>
+    <li><strong>BWA / Bowtie2</strong>：将大量短 reads 快速比对到参考基因组（DNA-seq）</li>
+    <li><strong>STAR / HISAT2</strong>：RNA-seq 专用比对工具，能处理剪接位点</li>
+  </ul>
+</div>
+<div class="chapter-end">—— 第 1 章结束 ——</div>
+
+<!-- ============================================================
+     第 2 章　测序技术简介
+     ============================================================ -->
+<h1 class="chapter">第 2 章　测序技术简介</h1>
+
+<h2>2.1 一代 / 二代 / 三代测序原理对比</h2>
+<p><strong>测序（Sequencing）</strong>就是"读取 DNA/RNA 分子上的碱基排列顺序"的技术。自 1977 年 Sanger 测序法诞生以来，测序技术已经历了三代更迭。</p>
+<table>
+  <thead>
+    <tr><th>特征</th><th>一代测序（Sanger）</th><th>二代测序（NGS / Illumina）</th><th>三代测序（PacBio / Nanopore）</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>原理</strong></td><td>链终止法：用荧光标记的 ddNTP 随机终止合成，通过电泳/毛细管读取荧光信号</td><td>边合成边测序（SBS）：DNA 聚合酶逐个添加荧光标记 dNTP，高分辨率摄像头实时拍照读信号</td><td>单分子实时测序：无需 PCR 扩增，直接读取单条 DNA 分子</td></tr>
+    <tr><td><strong>读长</strong></td><td>~800–1,000 bp</td><td>50–300 bp（短读长）</td><td>10 kb – >100 kb（长读长）</td></tr>
+    <tr><td><strong>通量</strong></td><td>低（一次几十–几百条）</td><td>极高（一次数十亿条 reads）</td><td>高（一次数百万条 reads）</td></tr>
+    <tr><td><strong>准确率</strong></td><td>极高（~99.99%）</td><td>高（~99.9%，Q30+）</td><td>中–高（PacBio HiFi ~99.9%；Nanopore ~95–99%）</td></tr>
+    <tr><td><strong>成本</strong></td><td>高（$500/Mb）</td><td>极低（$0.01/Mb）</td><td>中（$1–10/Mb）</td></tr>
+    <tr><td><strong>典型应用</strong></td><td>验证测序、小片段测序、Sanger 验证金标准</td><td>RNA-seq、全基因组重测序、外显子组、ChIP-seq</td><td>基因组从头组装、结构变异检测、全长转录组</td></tr>
+    <tr><td><strong>代表平台</strong></td><td>ABI 3730xl</td><td>Illumina NovaSeq / NextSeq</td><td>PacBio Sequel IIe、Oxford Nanopore MinION/PromethION</td></tr>
+  </tbody>
+</table>
+<div class="tip-box">
+  <div class="tip-label">一句话总结三代演进</div>
+  一代<span class="code-inline">准但慢且贵</span> → 二代<span class="code-inline">快且便宜但读长短</span> → 三代<span class="code-inline">读长长但准确率略低且成本中等</span>。实际项目中常组合使用，比如用二代做高精度检测、三代补结构变异和组装。
+</div>
+
+<h2>2.2 RNA-seq 实验流程</h2>
+<p><strong>RNA-seq（RNA 测序）</strong>是研究基因表达量最主流的技术。完整流程如下：</p>
+<div class="svg-figure">
+<svg width="500" height="200" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="rnaseqArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#7f8c8d"/>
+    </marker>
+  </defs>
+
+  <!-- Step 1 -->
+  <rect x="5" y="20" width="85" height="55" rx="8" fill="#1a5276"/>
+  <text x="47" y="42" text-anchor="middle" font-family="sans-serif" font-size="10" fill="white" font-weight="700">1. RNA提取</text>
+  <text x="47" y="57" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.7)">TRIzol/柱法</text>
+  <text x="47" y="69" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">RIN≥7</text>
+
+  <line x1="92" y1="47" x2="108" y2="47" stroke="#7f8c8d" stroke-width="2" marker-end="url(#rnaseqArrow)"/>
+
+  <!-- Step 2 -->
+  <rect x="110" y="20" width="85" height="55" rx="8" fill="#27ae60"/>
+  <text x="152" y="42" text-anchor="middle" font-family="sans-serif" font-size="10" fill="white" font-weight="700">2. 去rRNA</text>
+  <text x="152" y="57" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.7)">poly-A富集</text>
+  <text x="152" y="69" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">去除>80%rRNA</text>
+
+  <line x1="197" y1="47" x2="213" y2="47" stroke="#7f8c8d" stroke-width="2" marker-end="url(#rnaseqArrow)"/>
+
+  <!-- Step 3 -->
+  <rect x="215" y="20" width="85" height="55" rx="8" fill="#e67e22"/>
+  <text x="257" y="42" text-anchor="middle" font-family="sans-serif" font-size="10" fill="white" font-weight="700">3. 反转录</text>
+  <text x="257" y="57" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.7)">RNA→cDNA</text>
+  <text x="257" y="69" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">双链合成</text>
+
+  <line x1="302" y1="47" x2="318" y2="47" stroke="#7f8c8d" stroke-width="2" marker-end="url(#rnaseqArrow)"/>
+
+  <!-- Step 4 -->
+  <rect x="320" y="20" width="85" height="55" rx="8" fill="#8e44ad"/>
+  <text x="362" y="42" text-anchor="middle" font-family="sans-serif" font-size="10" fill="white" font-weight="700">4. 文库构建</text>
+  <text x="362" y="57" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.7)">片段化+接头</text>
+  <text x="362" y="69" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">PCR扩增</text>
+
+  <line x1="407" y1="47" x2="423" y2="47" stroke="#7f8c8d" stroke-width="2" marker-end="url(#rnaseqArrow)"/>
+
+  <!-- Step 5 -->
+  <rect x="425" y="20" width="70" height="55" rx="8" fill="#2980b9"/>
+  <text x="460" y="42" text-anchor="middle" font-family="sans-serif" font-size="10" fill="white" font-weight="700">5. 测序</text>
+  <text x="460" y="57" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.7)">Illumina</text>
+  <text x="460" y="69" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">SBS</text>
+
+  <!-- 向下箭头到Step 6 -->
+  <line x1="460" y1="77" x2="460" y2="100" stroke="#7f8c8d" stroke-width="2" marker-end="url(#rnaseqArrow)" transform="rotate(90, 460, 88)"/>
+
+  <!-- Step 6 (换行) -->
+  <rect x="170" y="110" width="160" height="55" rx="8" fill="#c0392b"/>
+  <text x="250" y="132" text-anchor="middle" font-family="sans-serif" font-size="11" fill="white" font-weight="700">6. FASTQ 原始数据</text>
+  <text x="250" y="147" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.7)">序列 + 质量值</text>
+  <text x="250" y="159" text-anchor="middle" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">生信分析起点</text>
+
+  <!-- 连接线从Step5到Step6 -->
+  <path d="M 460 77 L 460 95 L 250 95 L 250 108" fill="none" stroke="#7f8c8d" stroke-width="2" marker-end="url(#rnaseqArrow)"/>
+
+  <!-- 底部输出标签 -->
+  <rect x="150" y="175" width="200" height="18" rx="9" fill="#eaf4fc" stroke="#b0d4e8" stroke-width="1"/>
+  <text x="250" y="188" text-anchor="middle" font-family="monospace" font-size="9" fill="#1a5276">sample_R1.fastq.gz + sample_R2.fastq.gz</text>
+</svg>
+<div class="svg-caption">图 2-1　RNA-seq 实验流程：从 RNA 提取到 FASTQ 数据产出</div>
+</div>
+<h3>各步骤详解</h3>
+<table>
+  <thead><tr><th style="width:8%">步骤</th><th style="width:22%">名称</th><th>做什么 & 为什么要做</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1</strong></td><td>RNA 提取</td><td>从细胞/组织中提取总 RNA。常用 TRIzol 试剂或柱式试剂盒。需检测 RNA 完整性（RIN 值 ≥ 7 为合格）</td></tr>
+    <tr><td><strong>2</strong></td><td>去除 rRNA / 富集 mRNA</td><td>总 RNA 中 >80% 是核糖体 RNA（rRNA），不关心它。用 poly-A 磁珠富集带 poly-A 尾的 mRNA，或用探针去除 rRNA</td></tr>
+    <tr><td><strong>3</strong></td><td>反转录（RT）</td><td>测序仪只能测 DNA，所以用反转录酶把 RNA 转成互补 DNA（cDNA）。通常做双链 cDNA 合成</td></tr>
+    <tr><td><strong>4</strong></td><td>文库构建</td><td>将 cDNA 打断成短片段 → 末端修复 → 加 A 尾 → 连接接头（adapter）→ PCR 扩增富集。得到的"测序文库"可以直接上机</td></tr>
+    <tr><td><strong>5</strong></td><td>上机测序</td><td>将文库加载到测序芯片（flow cell）上，Illumina 平台通过 SBS（边合成边测序）读取每条片段的碱基序列</td></tr>
+    <tr><td><strong>6</strong></td><td>FASTQ 产出</td><td>测序仪输出 FASTQ 格式文件，包含每条 read 的序列和每个碱基的质量值。这就是生信分析的起点</td></tr>
+  </tbody>
+</table>
+
+<h2>2.3 读长、覆盖度与转录本定量</h2>
+<h3>读长（Read Length）</h3>
+<p>每条测序读取的碱基长度。Illumina 常见读长有 PE150（双端各 150 bp）、SE50（单端 50 bp）等。<strong>读长越长，比对越特异，能覆盖的变异类型越多。</strong></p>
+<h3>覆盖度（Coverage / Depth）</h3>
+<p>基因组上每个碱基平均被多少条 read 覆盖。</p>
+<div class="code-block">覆盖度 = 总测序碱基数 / 基因组大小
+
+例如：人类基因组 ~3 Gb，测序得到 90 Gb 数据
+覆盖度 = 90 Gb / 3 Gb = 30×</div>
+<p>RNA-seq 通常不需要太高的覆盖度，10–30× 即可；全基因组测序一般需要 30× 以上。</p>
+<h3>转录本定量（Transcript Quantification）</h3>
+<p>计算每个基因/转录本表达了多少。核心思想：<strong>一个基因被测到的 read 数越多，说明它表达量越高。</strong></p>
+<table>
+  <thead><tr><th>定量方法</th><th>原理</th><th>常用工具</th></tr></thead>
+  <tbody>
+    <tr><td><strong>基于比对</strong></td><td>先把 reads 比对到基因组，再统计每个基因区域的 read 数</td><td>STAR + featureCounts、HTSeq</td></tr>
+    <tr><td><strong>基于伪比对</strong></td><td>不传统比对，快速判断 read 属于哪个转录本，速度极快</td><td>Kallisto、Salmon、RSEM</td></tr>
+  </tbody>
+</table>
+
+<h2>2.4 FASTQ 与 FASTA 格式详解</h2>
+<h3>2.4.1 FASTA 格式</h3>
+<p><strong>FASTA</strong> 是最简单的序列存储格式，只包含序列信息，用于存储参考基因组、蛋白质序列等。</p>
+<div class="code-block">&gt;基因标识行（以 &gt; 开头，后面跟序列 ID 和描述）
+ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+（序列可以换行，每行通常 60 或 70 个字符）
+
+# 实际示例：人类 BRCA1 基因片段
+&gt;ENST00000357654|BRCA1|Homo sapiens
+ATGGATTTATCTGCTCTTCGCGTTGAAGAAGTACAAAATGTCAT
+TAATGCTATGCAGAAAATCTTAGAGTGTCCCATCTGTCCAGATA</div>
+
+<h3>2.4.2 FASTQ 格式</h3>
+<p><strong>FASTQ</strong> 在 FASTA 基础上增加了每个碱基的<strong>质量值</strong>，是测序仪的原始输出格式。每条 read 占 <strong>4 行</strong>：</p>
+<div class="svg-figure">
+<svg width="540" height="260" viewBox="0 0 540 260" xmlns="http://www.w3.org/2000/svg">
+  <!-- 第1行：@序列标识 -->
+  <rect x="10" y="10" width="520" height="36" rx="6" fill="#1e1e2e"/>
+  <text x="20" y="33" font-family="monospace" font-size="12" fill="#569cd6" font-weight="bold">@SRR1234567.1 HWUSI-AS1234:1:1101:1000:2000 length=150</text>
+  <rect x="475" y="15" width="50" height="26" rx="4" fill="#569cd6" opacity="0.15"/>
+  <text x="500" y="33" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#569cd6">第1行</text>
+  <text x="500" y="55" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#95a5a6">序列标识</text>
+
+  <!-- 箭头 -->
+  <text x="270" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#7f8c8d">↓</text>
+
+  <!-- 第2行：碱基序列 -->
+  <rect x="10" y="68" width="520" height="36" rx="6" fill="#1e1e2e"/>
+  <text x="20" y="91" font-family="monospace" font-size="12" fill="#ce9178" font-weight="bold">ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT</text>
+  <rect x="475" y="73" width="50" height="26" rx="4" fill="#ce9178" opacity="0.15"/>
+  <text x="500" y="91" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#ce9178">第2行</text>
+  <text x="500" y="113" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#95a5a6">碱基序列</text>
+
+  <text x="270" y="118" text-anchor="middle" font-family="monospace" font-size="10" fill="#7f8c8d">↓</text>
+
+  <!-- 第3行：分隔符 -->
+  <rect x="10" y="126" width="520" height="36" rx="6" fill="#1e1e2e"/>
+  <text x="20" y="149" font-family="monospace" font-size="12" fill="#569cd6" font-weight="bold">+</text>
+  <rect x="475" y="131" width="50" height="26" rx="4" fill="#569cd6" opacity="0.15"/>
+  <text x="500" y="149" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#569cd6">第3行</text>
+  <text x="500" y="171" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#95a5a6">分隔符</text>
+
+  <text x="270" y="176" text-anchor="middle" font-family="monospace" font-size="10" fill="#7f8c8d">↓</text>
+
+  <!-- 第4行：质量值 -->
+  <rect x="10" y="184" width="520" height="36" rx="6" fill="#1e1e2e"/>
+  <text x="20" y="207" font-family="monospace" font-size="12" fill="#dcdcaa" font-weight="bold">IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII</text>
+  <rect x="475" y="189" width="50" height="26" rx="4" fill="#dcdcaa" opacity="0.15"/>
+  <text x="500" y="207" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#dcdcaa">第4行</text>
+  <text x="500" y="229" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#95a5a6">质量值</text>
+
+  <!-- 底部说明 -->
+  <rect x="10" y="232" width="520" height="22" rx="4" fill="#eaf4fc" stroke="#b0d4e8" stroke-width="1"/>
+  <text x="270" y="247" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1a5276">每 4 行 = 1 条 read ｜ 质量值用 Phred+33 编码（I=Q40, ?=Q30, 5=Q20）</text>
+</svg>
+<div class="svg-caption">图 2-2　FASTQ 格式图解：4 行构成一条完整的测序 read</div>
+</div>
+<table>
+  <thead><tr><th style="width:10%">行号</th><th style="width:20%">字段</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>第 1 行</strong></td><td>序列标识行（@ 开头）</td><td>以 <span class="code-inline">@</span> 开头，包含 read ID、测序仪信息、坐标等元数据</td></tr>
+    <tr><td><strong>第 2 行</strong></td><td>碱基序列</td><td>测到的 DNA 序列，由 A/T/G/C/N 组成（N 表示无法确定）</td></tr>
+    <tr><td><strong>第 3 行</strong></td><td>分隔符（+ 开头）</td><td>仅一个 <span class="code-inline">+</span>，有时后面会重复 read ID（可省略）</td></tr>
+    <tr><td><strong>第 4 行</strong></td><td>质量值字符串</td><td>每个字符对应第 2 行的一个碱基的质量分值，使用 <strong>Phred +33</strong> 编码</td></tr>
+  </tbody>
+</table>
+<h3>质量值（Phred Score）详解</h3>
+<p>第 4 行的每个 ASCII 字符代表对应碱基的质量分值。Illumina 使用 <strong>Phred+33</strong> 编码：</p>
+<div class="code-block">Phred 值 = ASCII 码 − 33
+
+例如字符 'I' 的 ASCII 码是 73，Phred 值 = 73 − 33 = 40
+表示该碱基的错误率 = 10^(−40/10) = 10^(−4) = 0.01%</div>
+<table>
+  <thead><tr><th>Phred 值</th><th>ASCII 字符</th><th>错误率</th><th>准确率</th><th>质量评级</th></tr></thead>
+  <tbody>
+    <tr><td>Q10</td><td>'+'</td><td>1/10</td><td>90%</td><td><span style="color:var(--accent);">差</span></td></tr>
+    <tr><td>Q20</td><td>'5'</td><td>1/100</td><td>99%</td><td>合格</td></tr>
+    <tr><td>Q30</td><td>'?'</td><td>1/1000</td><td>99.9%</td><td><span style="color:var(--green);">良好</span></td></tr>
+    <tr><td>Q40</td><td>'I'</td><td>1/10000</td><td>99.99%</td><td><span style="color:var(--green);">优秀</span></td></tr>
+  </tbody>
+</table>
+<div class="warning-box">
+  <div class="warning-label">质控标准</div>
+  RNA-seq 数据通常要求 <strong>≥ 80% 的碱基达到 Q30</strong>。如果质量值偏低，需要用 <span class="code-inline">fastp</span> 或 <span class="code-inline">Trimmomatic</span> 进行过滤和裁剪。
+</div>
+<div class="chapter-end">—— 第 2 章结束 ——</div>
+
+<!-- ============================================================
+     第 3 章　核心数据类型
+     ============================================================ -->
+<h1 class="chapter">第 3 章　核心数据类型</h1>
+
+<h2>3.1 序列数据（DNA / RNA / 蛋白质）</h2>
+<p>生信分析的核心对象是<strong>序列</strong>。三种序列的存储和编码各有特点：</p>
+<table>
+  <thead><tr><th>序列类型</th><th>字母表</th><th>格式</th><th>来源</th></tr></thead>
+  <tbody>
+    <tr><td><strong>DNA</strong></td><td>A / T / G / C / N</td><td>FASTA</td><td>基因组测序、PCR 扩增</td></tr>
+    <tr><td><strong>RNA</strong></td><td>A / U / G / C / N</td><td>FASTA</td><td>RNA-seq（通常转为 cDNA 测序，故文件中仍为 T）</td></tr>
+    <tr><td><strong>蛋白质</strong></td><td>20 种氨基酸单字母代码</td><td>FASTA</td><td>基因翻译、质谱鉴定</td></tr>
+  </tbody>
+</table>
+
+<h2>3.2 基因组坐标与注释格式（GTF / GFF / BED）</h2>
+<p>序列数据回答"是什么序列"，注释格式回答"<strong>序列上的某段区域是什么功能</strong>"。</p>
+<h3>3.2.1 GTF 格式（Gene Transfer Format）</h3>
+<p>GTF 是最常用的基因注释格式，每行描述一个特征（feature）。共 <strong>9 列（Tab 分隔）</strong>：</p>
+<div class="code-block">chr1  havana  exon  11869  12227  .  +  .  gene_id "ENSG00000000005"; transcript_id "ENST00000000412";
+ |      |       |      |       |    |  |  |       |
+ |      |       |      |       |    |  |  |       └── 第9列：属性键值对（gene_id, transcript_id 等）
+ |      |       |      |       |    |  |  └── 第8列：帧（0/1/2，CDS 的阅读框）
+ |      |       |      |       |    |  └── 第7列：链（+/-/.）
+ |      |       |      |       |    └── 第6列：得分（通常用 . 占位）
+ |      |       |      |       └── 第5列：结束坐标（1-based，闭区间）
+ |      |       |      └── 第4列：起始坐标（1-based，闭区间）
+ |      |       └── 第3列：特征类型（gene / transcript / exon / CDS / UTR 等）
+ |      └── 第2列：来源（havana / ensembl / . ）
+ └── 第1列：染色体/contig 名称</div>
+
+<h3>3.2.2 GFF 格式（Generic Feature Format）</h3>
+<p>GFF 与 GTF 结构几乎一样（也是 9 列），区别在于第 9 列的属性格式不同：</p>
+<div class="code-block"># GTF 属性格式（键="值"，分号分隔，空格分隔键值）
+gene_id "ENSG00000000005"; transcript_id "ENST00000000412";
+
+# GFF3 属性格式（键=值，分号分隔，无空格无引号）
+ID=ENST00000000412;Parent=ENSG00000000005;Name=TSPAN6</div>
+
+<h3>3.2.3 BED 格式（Browser Extensible Data）</h3>
+<p>BED 是更简洁的区间格式，最少 <strong>3 列</strong>，最多 12 列：</p>
+<div class="code-block"># 前 3 列（必须）：
+chr1    11868    12227    TSPAN6    .    +
+
+# 各列含义：
+# 1. chrom：染色体名
+# 2. chromStart：起始坐标（0-based，半开区间！）
+# 3. chromEnd：结束坐标
+# 4. name（可选）：特征名称
+# 5. score（可选）：得分
+# 6. strand（可选）：链（+/-.）</div>
+
+<div class="warning-box">
+  <div class="warning-label">关键差异：坐标系！</div>
+  <ul style="margin-bottom:0;">
+    <li><strong>GTF/GFF</strong>：1-based，闭区间 → <code>start=100, end=200</code> 表示第 100 到第 200 号碱基（共 101 个碱基）</li>
+    <li><strong>BED</strong>：0-based，半开区间 → <code>start=99, end=200</code> 表示第 100 到第 200 号碱基（共 101 个碱基）</li>
+    <li>这是生信中最常见的<strong>"差一个"bug</strong>来源，务必牢记！</li>
+  </ul>
+</div>
+
+<h2>3.3 表达量数据（计数矩阵、TPM / FPKM / RPKM）</h2>
+<p>RNA-seq 定量后得到的是每个基因/转录本的<strong>表达量</strong>。有几种常见的标准化方式：</p>
+<h3>3.3.1 原始计数矩阵（Count Matrix）</h3>
+<p>最原始的表达量，是每个基因被测到的 read 数。行是基因，列是样本，值是整数。</p>
+<div class="code-block">            Sample_1  Sample_2  Sample_3
+BRCA1           1254      2103       876
+TP53             892       745      1203
+EGFR             456       623       312
+GAPDH          15234     14892     16001</div>
+
+<h3>3.3.2 RPKM / FPKM</h3>
+<table>
+  <thead><tr><th>指标</th><th>全称</th><th>计算公式</th><th>适用场景</th></tr></thead>
+  <tbody>
+    <tr><td><strong>RPKM</strong></td><td>Reads Per Kilobase Million</td><td>RPKM = read_count / (gene_length_kb × total_reads_million)</td><td>单端测序 RNA-seq</td></tr>
+    <tr><td><strong>FPKM</strong></td><td>Fragments Per Kilobase Million</td><td>与 RPKM 相同，但"片段"而非"read"（双端测序一对 = 1 个 fragment）</td><td>双端测序 RNA-seq</td></tr>
+  </tbody>
+</table>
+<p>核心思想：<strong>同时校正基因长度和测序深度</strong>——长基因天然更容易被测到，测序量大的样本 read 数自然多。</p>
+<h3>3.3.3 TPM（Transcripts Per Million）</h3>
+<p>TPM 是目前推荐使用的标准化方式，与 RPKM/FPKM 的区别在于<strong>先校正长度再校正深度</strong>：</p>
+<div class="code-block">TPM = (read_count / gene_length_kb) / Σ(read_count / gene_length_kb) × 10^6
+
+# TPM 的优势：所有样本的 TPM 总和相同（= 1,000,000），便于跨样本比较</div>
+<div class="tip-box">
+  <div class="tip-label">选择建议</div>
+  <ul style="margin-bottom:0;">
+    <li><strong>差异表达分析</strong>（DESeq2 / edgeR）：直接用原始 count 矩阵，软件内部会做自己的标准化</li>
+    <li><strong>跨样本比较表达量</strong>：用 TPM（推荐）或 FPKM</li>
+    <li><strong>不要</strong>用 FPKM/RPKM 做差异表达分析</li>
+  </ul>
+</div>
+
+<h2>3.4 差异表达结果表（log2FC、P 值、FDR）</h2>
+<p>差异表达分析（Differential Expression Analysis）的输出通常是一张表，每行一个基因，包含以下核心列：</p>
+<table>
+  <thead><tr><th style="width:15%">列名</th><th>含义</th><th>解读方式</th></tr></thead>
+  <tbody>
+    <tr><td><strong>gene_id</strong></td><td>基因 ID</td><td>基因标识符</td></tr>
+    <tr><td><strong>baseMean</strong></td><td>所有样本中的平均表达量</td><td>过滤低表达基因用</td></tr>
+    <tr><td><strong>log2FoldChange</strong></td><td>表达量变化的 log2 倍数</td><td><span style="color:var(--green);">正值 = 上调</span>；<span style="color:var(--accent);">负值 = 下调</span>；绝对值越大变化越大</td></tr>
+    <tr><td><strong>pvalue</strong></td><td>原始 P 值</td><td>衡量该基因差异是否显著，但不考虑多重检验</td></tr>
+    <tr><td><strong>padj (FDR)</strong></td><td>校正后的 P 值</td><td>经过 BH 校正，<strong>这是判断显著性的标准</strong></td></tr>
+  </tbody>
+</table>
+<h3>log2FoldChange 解读</h3>
+<div class="code-block">log2FC = log2(处理组表达量 / 对照组表达量)
+
+log2FC = +1  →  处理组是对照组的 2^1 = 2 倍  →  上调 2 倍
+log2FC = +2  →  处理组是对照组的 2^2 = 4 倍  →  上调 4 倍
+log2FC = -1  →  处理组是对照组的 2^(-1) = 0.5 倍  →  下调 2 倍
+log2FC =  0  →  两组表达量相同  →  无变化</div>
+<div class="tip-box">
+  <div class="tip-label">差异基因筛选标准（常见阈值）</div>
+  <ul style="margin-bottom:0;">
+    <li><strong>|log2FC| ≥ 1</strong>（变化至少 2 倍）</li>
+    <li><strong>padj < 0.05</strong>（FDR 校正后仍显著）</li>
+    <li>同时满足以上两个条件的基因，通常被定义为差异表达基因（DEG）</li>
+  </ul>
+</div>
+<div class="chapter-end">—— 第 3 章结束 ——</div>
+
+<!-- ============================================================
+     第 4 章　统计学基础
+     ============================================================ -->
+<h1 class="chapter">第 4 章　统计学基础</h1>
+
+<h2>4.1 P 值："证据够不够强"</h2>
+<p><strong>P 值</strong>是生信统计分析中最核心的概念之一。它回答的问题是：<strong>"如果原假设成立（即两组没有差异），观察到当前数据或更极端情况的概率有多大？"</strong></p>
+<div class="bio-box">
+  <div class="bio-label">生活比喻</div>
+  你怀疑一枚硬币被做了手脚（正面朝上概率 ≠ 50%）。抛了 10 次，9 次正面。<br>
+  原假设：硬币是公平的。<br>
+  P 值 = "如果硬币公平，出现 9 次或更多正面的概率" ≈ 1.1%。<br>
+  P 值很小 → 不像巧合 → <strong>有理由拒绝原假设，认为硬币不公平</strong>。
+</div>
+<table>
+  <thead><tr><th>P 值范围</th><th>含义</th><th>结论</th></tr></thead>
+  <tbody>
+    <tr><td>P < 0.05</td><td>如果没差异，出现这种结果概率 < 5%</td><td>通常认为<strong>显著</strong>（但需校正）</td></tr>
+    <tr><td>P < 0.01</td><td>概率 < 1%</td><td>更<strong>显著</strong></td></tr>
+    <tr><td>P ≥ 0.05</td><td>概率 ≥ 5%，不能排除巧合</td><td><strong>不显著</strong>，不能说有差异</td></tr>
+  </tbody>
+</table>
+<div class="warning-box">
+  <div class="warning-label">P 值的常见误解</div>
+  <ul style="margin-bottom:0;">
+    <li>P 值 <strong>不是</strong> "原假设为真的概率"</li>
+    <li>P 值 <strong>不是</strong> "差异的大小"（差异大小看效应量，如 log2FC）</li>
+    <li>P 值 <strong>只是</strong> "如果没差异，数据有多极端"的概率</li>
+    <li>P < 0.05 不等于"有差异"，只是"有理由怀疑有差异"</li>
+  </ul>
+</div>
+
+<h2>4.2 多重假设检验与 FDR 校正</h2>
+<h3>问题：为什么要校正？</h3>
+<p>RNA-seq 差异表达分析通常同时检验<strong>上万个基因</strong>。如果每个基因用 P < 0.05 的标准，即使所有基因都没有真实差异，纯靠运气也会有约 5% 被误判为显著。</p>
+<div class="code-block"># 假设检验 20,000 个基因，真实差异为 0
+# 每个基因 P < 0.05 的误报概率 = 5%
+# 期望误报基因数 = 20,000 × 0.05 = 1,000 个！
+
+# 也就是说，不做校正的话你会得到 ~1,000 个"假阳性"差异基因</div>
+<h3>FDR（False Discovery Rate）校正</h3>
+<p><strong>FDR（错误发现率）</strong>控制的是：在被判定为显著的结果中，假阳性的比例。</p>
+<p>最常用的方法是 <strong>Benjamini-Hochberg（BH）校正</strong>，校正后的 P 值通常标记为 <span class="code-inline">padj</span> 或 <span class="code-inline">q-value</span>。</p>
+<div class="code-block"># BH 校正简化逻辑：
+1. 把所有 P 值从小到大排列：p(1) ≤ p(2) ≤ ... ≤ p(m)
+2. 对第 i 小的 P 值：padj(i) = p(i) × m / i
+3. 取单调性保证（从大到小取较小值）
+4. 最终用 padj < 0.05 作为显著性阈值</div>
+<table>
+  <thead><tr><th>概念</th><th>控制的是什么</th><th>常用阈值</th></tr></thead>
+  <tbody>
+    <tr><td><strong>原始 P 值</strong></td><td>单个检验的假阳性率</td><td>P < 0.05</td></tr>
+    <tr><td><strong>FDR (padj)</strong></td><td>所有显著结果中假阳性的<strong>比例</strong></td><td>padj < 0.05（即假阳性比例 < 5%）</td></tr>
+  </tbody>
+</table>
+<div class="tip-box">
+  <div class="tip-label">实践建议</div>
+  生信分析中<strong>始终使用校正后的 P 值（padj/FDR）</strong>作为显著性判断标准。DESeq2、edgeR 等工具默认输出 padj 列。
+</div>
+
+<h2>4.3 log2FoldChange 解读</h2>
+<p>差异表达分析中，基因表达变化的幅度用 <strong>log2FoldChange（log2FC）</strong>衡量，已在第 3 章详细说明。这里从统计学角度补充几个要点：</p>
+<ul>
+  <li><strong>为什么用 log2 而不是原始倍数？</strong>原始倍数变化不对称（上调 4 倍 = 4，下调 4 倍 = 0.25），取 log2 后对称（+2 和 −2），便于可视化和统计</li>
+  <li><strong>log2FC 的标准误差</strong>：DESeq2 会同时输出 <span class="code-inline">lfcSE</span>（log2FC 的标准误差），SE 越大说明估计越不可靠</li>
+  <li><strong>效应量与显著性</strong>的关系：P 值衡量"有没有差异"，log2FC 衡量"差异有多大"。两者都重要——P 值小但 log2FC 接近 0 的基因可能只是因为样本量大而检测到了微小差异</li>
+</ul>
+
+<h2>4.4 PCA 与聚类的基本思想</h2>
+<h3>4.4.1 PCA（主成分分析）</h3>
+<p><strong>PCA（Principal Component Analysis）</strong>是一种降维方法，把高维数据（如几万个基因的表达量）压缩到 2D 或 3D 空间中可视化。</p>
+<div class="bio-box">
+  <div class="bio-label">生活比喻</div>
+  想象你要用一张照片展示一个 3D 雕像。你会找一个<strong>最能体现雕像特征的角度</strong>来拍。PCA 做的就是这件事——从几万个维度中找到"最能区分样本"的 2 个方向，画在二维图上。
+</div>
+
+<div class="svg-figure">
+<svg width="440" height="280" viewBox="0 0 440 280" xmlns="http://www.w3.org/2000/svg">
+  <!-- 坐标轴 -->
+  <line x1="60" y1="240" x2="410" y2="240" stroke="#2c3e50" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="60" y1="240" x2="60" y2="30" stroke="#2c3e50" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- 箭头 -->
+  <polygon points="410,240 404,237 404,243" fill="#2c3e50"/>
+  <polygon points="60,30 57,36 63,36" fill="#2c3e50"/>
+
+  <!-- 轴标签 -->
+  <text x="235" y="265" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#2c3e50" font-weight="600">PC1 (42.3% variance)</text>
+  <text x="25" y="135" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#2c3e50" font-weight="600" transform="rotate(-90, 25, 135)">PC2 (18.7% variance)</text>
+
+  <!-- 椭圆圈1: 对照组 -->
+  <ellipse cx="130" cy="170" rx="45" ry="35" fill="none" stroke="#2980b9" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+  <text x="130" y="215" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#2980b9" font-weight="600">对照组</text>
+
+  <!-- 椭圆圈2: 处理组 -->
+  <ellipse cx="320" cy="100" rx="50" ry="38" fill="none" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+  <text x="320" y="55" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#e74c3c" font-weight="600">处理组</text>
+
+  <!-- 对照组散点 (蓝色) -->
+  <circle cx="120" cy="175" r="6" fill="#2980b9" opacity="0.8"/>
+  <circle cx="135" cy="165" r="6" fill="#2980b9" opacity="0.8"/>
+  <circle cx="125" cy="180" r="6" fill="#2980b9" opacity="0.8"/>
+  <circle cx="140" cy="170" r="6" fill="#2980b9" opacity="0.8"/>
+  <circle cx="130" cy="160" r="6" fill="#2980b9" opacity="0.8"/>
+
+  <!-- 处理组散点 (红色) -->
+  <circle cx="310" cy="105" r="6" fill="#e74c3c" opacity="0.8"/>
+  <circle cx="325" cy="95" r="6" fill="#e74c3c" opacity="0.8"/>
+  <circle cx="315" cy="110" r="6" fill="#e74c3c" opacity="0.8"/>
+  <circle cx="330" cy="100" r="6" fill="#e74c3c" opacity="0.8"/>
+  <circle cx="320" cy="90" r="6" fill="#e74c3c" opacity="0.8"/>
+
+  <!-- 样本标签 -->
+  <text x="120" y="178" text-anchor="middle" font-family="monospace" font-size="7" fill="white" font-weight="bold">C1</text>
+  <text x="310" y="108" text-anchor="middle" font-family="monospace" font-size="7" fill="white" font-weight="bold">T1</text>
+
+  <!-- 说明文字 -->
+  <rect x="220" y="250" width="200" height="24" rx="4" fill="#eafaf1" stroke="#a9dfbf" stroke-width="1"/>
+  <text x="320" y="265" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#27ae60">两组明显分离 → 数据质量良好</text>
+</svg>
+<div class="svg-caption">图 4-1　PCA 散点图示意：对照组（蓝）与处理组（红）在 PC1/PC2 空间中明显分离</div>
+</div>
+
+<p>PCA 图的解读：</p>
+<ul>
+  <li>每个点代表一个样本</li>
+  <li>距离越近的样本，表达谱越相似</li>
+  <li>如果生物学重复聚在一起、不同组分开，说明数据质量好</li>
+  <li>PC1（第一主成分）通常解释最大的变异来源</li>
+</ul>
+<div class="tip-box">
+  <div class="tip-label">PCA 在生信中的用途</div>
+  <ul style="margin-bottom:0;">
+    <li><strong>质控</strong>：检查样本是否按实验分组聚集，有无离群样本</li>
+    <li><strong>发现批次效应</strong>：如果 PCA 图上样本按测序日期而非处理组分聚，说明存在批次效应</li>
+    <li><strong>可视化</strong>：在论文中展示组间差异的总体趋势</li>
+  </ul>
+</div>
+<h3>4.4.2 聚类分析（Clustering）</h3>
+<p><strong>聚类</strong>是将相似的样本/基因自动分组的无监督方法。生信中最常用的是<strong>层次聚类（Hierarchical Clustering）</strong>：</p>
+<ul>
+  <li><strong>样本聚类</strong>：表达谱相似的样本聚在一起 → 检查样本重复性</li>
+  <li><strong>基因聚类</strong>：表达模式相似的基因聚在一起 → 找共调控基因模块</li>
+  <li>常配合<strong>热图（Heatmap）</strong>可视化：行 = 基因，列 = 样本，颜色 = 表达量高低</li>
+</ul>
+<div class="tip-box">
+  <div class="tip-label">PCA vs 聚类</div>
+  <ul style="margin-bottom:0;">
+    <li><strong>PCA</strong>：降维可视化，看全局趋势，适合 2D 散点图</li>
+    <li><strong>聚类</strong>：自动分组，适合热图和树状图</li>
+    <li>两者常配合使用：先 PCA 看总体分布，再聚类细分模块</li>
+  </ul>
+</div>
+<div class="chapter-end">—— 第 4 章结束 ——</div>
+
+<!-- ============================================================
+     第 5 章　常见数据库
+     ============================================================ -->
+<h1 class="chapter">第 5 章　常见数据库</h1>
+
+<h2>5.1 NCBI（GenBank / GEO / SRA）</h2>
+<p><a href="https://www.ncbi.nlm.nih.gov/">NCBI</a>（National Center for Biotechnology Information，美国国家生物技术信息中心）是全球最大的生物信息数据库，旗下包含多个子库：</p>
+<table>
+  <thead><tr><th>子库</th><th>全称</th><th>存储内容</th><th>生信用途</th></tr></thead>
+  <tbody>
+    <tr><td><strong>GenBank</strong></td><td>Genetic Sequence Database</td><td>所有已公开的核酸序列</td><td>序列检索、BLAST 搜索、获取参考序列</td></tr>
+    <tr><td><strong>GEO</strong></td><td>Gene Expression Omnibus</td><td>基因表达数据（RNA-seq、微阵列、ChIP-seq 等）</td><td>下载公开表达数据、复现分析、数据挖掘</td></tr>
+    <tr><td><strong>SRA</strong></td><td>Sequence Read Archive</td><td>原始测序数据（FASTQ）</td><td>下载原始 reads 重新分析</td></tr>
+    <tr><td><strong>PubMed</strong></td><td>—</td><td>生物医学文献</td><td>查找文献、获取方法参考</td></tr>
+  </tbody>
+</table>
+<div class="tip-box">
+  <div class="tip-label">生信常用操作</div>
+  <ul style="margin-bottom:0;">
+    <li><strong>从 GEO 找数据</strong>：搜索疾病/组织名 → 找到 GSE 系列 → 查看实验设计 → 下载表达矩阵或原始数据</li>
+    <li><strong>从 SRA 下载 FASTQ</strong>：用 <span class="code-inline">sratoolkit</span> 的 <span class="code-inline">prefetch</span> + <span class="code-inline">fasterq-dump</span> 命令</li>
+    <li><strong>BLAST 搜序列</strong>：输入查询序列 → 选择数据库 → 运行 → 查看相似序列</li>
+  </ul>
+</div>
+
+<h2>5.2 Ensembl</h2>
+<p><a href="https://www.ensembl.org/">Ensembl</a> 是欧洲生物信息研究所（EBI）维护的基因组注释数据库，与 NCBI 并列为两大参考基因组来源。</p>
+<table>
+  <thead><tr><th>特点</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>基因组注释</strong></td><td>提供多物种的参考基因组和高质量基因注释（GTF/GFF3）</td></tr>
+    <tr><td><strong>BioMart</strong></td><td>批量获取基因 ID 转换、序列、注释信息的强大工具</td></tr>
+    <tr><td><strong>ID 系统</strong></td><td>ENSG（基因）、ENST（转录本）、ENSP（蛋白质），稳定且唯一</td></tr>
+    <tr><td><strong>比较基因组</strong></td><td>提供直系同源（ortholog）和旁系同源（paralog）信息</td></tr>
+    <tr><td><strong>变异数据</strong></td><td>整合 dbSNP、ClinVar 等变异数据</td></tr>
+  </tbody>
+</table>
+
+<h2>5.3 UCSC Genome Browser</h2>
+<p><a href="https://genome.ucsc.edu/">UCSC Genome Browser</a> 是加州大学圣克鲁兹分校维护的基因组浏览器，是<strong>可视化基因组区域</strong>的首选工具。</p>
+<ul>
+  <li><strong>基因组浏览</strong>：输入染色体坐标或基因名 → 在基因组上可视化该区域的所有注释 track</li>
+  <li><strong>多 track 叠加</strong>：可以同时查看基因模型、保守性、变异、表达、调控元件等几十种 track</li>
+  <li><strong>序列提取</strong>：提取指定区域的 DNA/蛋白质序列</li>
+  <li><strong>Table Browser</strong>：批量导出指定区域的注释数据（BED/GTF 格式）</li>
+  <li><strong>BLAT</strong>：快速序列比对工具，比 BLAST 更适合找基因组中的精确位置</li>
+</ul>
+
+<h2>5.4 GO 与 KEGG 通路数据库</h2>
+<h3>5.4.1 GO（Gene Ontology）</h3>
+<p><a href="http://geneontology.org/">GO</a> 是一套标准化的基因功能描述体系，分三大类：</p>
+<table>
+  <thead><tr><th>类别</th><th>描述</th><th>示例</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Biological Process（BP）</strong></td><td>生物学过程</td><td>细胞凋亡、DNA 修复、代谢通路</td></tr>
+    <tr><td><strong>Molecular Function（MF）</strong></td><td>分子功能</td><td>激酶活性、DNA 结合、催化活性</td></tr>
+    <tr><td><strong>Cellular Component（CC）</strong></td><td>细胞组分</td><td>细胞核、线粒体、核糖体</td></tr>
+  </tbody>
+</table>
+<p><strong>GO 富集分析</strong>：给定一组差异基因，判断它们是否在某些 GO term 中"过度出现"，从而推断这组基因可能参与的生物学功能。</p>
+<h3>5.4.2 KEGG</h3>
+<p><a href="https://www.kegg.jp/">KEGG</a>（Kyoto Encyclopedia of Genes and Genomes）是<strong>通路（Pathway）数据库</strong>，以图形化方式展示代谢和信号通路。</p>
+<ul>
+  <li>每个通路是一张<strong>可视化图谱</strong>，标注了基因/酶在通路中的位置</li>
+  <li><strong>KEGG 富集分析</strong>：判断差异基因是否在某些通路中显著富集 → 推断受影响的生物学通路</li>
+  <li>常与 GO 富集分析配合使用：GO 看功能分类，KEGG 看通路层面的系统性影响</li>
+</ul>
+
+<h2>5.5 Bioconductor 在生信生态中的位置</h2>
+<p><a href="https://www.bioconductor.org/">Bioconductor</a> 是基于 R 语言的生物信息分析包仓库，是 R 语言生信生态的核心。</p>
+<table>
+  <thead><tr><th>方面</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>定位</strong></td><td>类似 CRAN，但专注于高通量基因组学数据分析</td></tr>
+    <tr><td><strong>包数量</strong></td><td>2000+ 个包，覆盖从数据导入到可视化全流程</td></tr>
+    <tr><td><strong>核心包</strong></td><td><span class="code-inline">DESeq2</span>（差异表达）、<span class="code-inline">edgeR</span>（差异表达）、<span class="code-inline">limma</span>（线性模型）、<span class="code-inline">clusterProfiler</span>（富集分析）</td></tr>
+    <tr><td><strong>数据结构</strong></td><td><span class="code-inline">SummarizedExperiment</span>、<span class="code-inline">GRanges</span> 等标准化数据容器</td></tr>
+    <tr><td><strong>发布周期</strong></td><td>半年一次（4 月和 10 月），与 R 版本对齐</td></tr>
+  </tbody>
+</table>
+<div class="code-block"># 安装 Bioconductor 的标准方式
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("DESeq2")
+BiocManager::install("clusterProfiler")</div>
+<div class="chapter-end">—— 第 5 章结束 ——</div>
+
+<!-- ============================================================
+     附录 A
+     ============================================================ -->
+<h1 class="chapter">附录 A　术语速查表 · 中心法则示意图 · FASTQ 格式图解</h1>
+
+<h2>A.1 术语速查表</h2>
+<div class="cheatsheet">
+  <div class="cheatsheet-title">分子生物学与生信术语速查表</div>
+  <table>
+    <thead><tr><th style="width:18%">术语</th><th style="width:12%">英文</th><th>简要说明</th></tr></thead>
+    <tbody>
+      <tr><td>中心法则</td><td>Central Dogma</td><td>遗传信息流向：DNA → RNA → 蛋白质</td></tr>
+      <tr><td>基因</td><td>Gene</td><td>DNA 上有功能的片段，遗传信息基本单位</td></tr>
+      <tr><td>转录本</td><td>Transcript</td><td>一个基因通过可变剪接产生的 mRNA 变体</td></tr>
+      <tr><td>外显子</td><td>Exon</td><td>基因中保留在成熟 mRNA 中的序列</td></tr>
+      <tr><td>内含子</td><td>Intron</td><td>基因中在剪接时被去除的序列</td></tr>
+      <tr><td>启动子</td><td>Promoter</td><td>基因上游调控转录起始的 DNA 区域</td></tr>
+      <tr><td>UTR</td><td>Untranslated Region</td><td>mRNA 上不被翻译的 5' / 3' 端区域</td></tr>
+      <tr><td>CDS</td><td>Coding Sequence</td><td>编码蛋白质的序列（ATG 到 Stop 之间）</td></tr>
+      <tr><td>密码子</td><td>Codon</td><td>mRNA 上 3 个相邻核苷酸，对应一个氨基酸</td></tr>
+      <tr><td>读长</td><td>Read Length</td><td>单条测序读取的碱基长度</td></tr>
+      <tr><td>覆盖度</td><td>Coverage / Depth</td><td>每个碱基平均被测到的次数</td></tr>
+      <tr><td>FASTA</td><td>—</td><td>只含序列信息的文本格式（&gt; 开头）</td></tr>
+      <tr><td>FASTQ</td><td>—</td><td>含序列 + 质量值的格式，每条 read 4 行</td></tr>
+      <tr><td>Phred 值</td><td>Phred Score</td><td>碱基质量分值，Q30 = 99.9% 准确</td></tr>
+      <tr><td>GTF / GFF</td><td>—</td><td>基因组注释格式，9 列，1-based 闭区间</td></tr>
+      <tr><td>BED</td><td>—</td><td>基因组区间格式，最少 3 列，0-based 半开</td></tr>
+      <tr><td>计数矩阵</td><td>Count Matrix</td><td>基因 × 样本的原始 read 计数表</td></tr>
+      <tr><td>TPM</td><td>Transcripts Per Million</td><td>长度+深度校正后的表达量，推荐使用</td></tr>
+      <tr><td>FPKM / RPKM</td><td>—</td><td>旧版标准化方式，不建议做差异分析</td></tr>
+      <tr><td>log2FC</td><td>log2 Fold Change</td><td>表达量变化的 log2 倍数，正值上调、负值下调</td></tr>
+      <tr><td>P 值</td><td>P-value</td><td>原假设成立时观察到当前数据的概率</td></tr>
+      <tr><td>FDR</td><td>False Discovery Rate</td><td>校正后的 P 值，控制假阳性比例</td></tr>
+      <tr><td>PCA</td><td>Principal Component Analysis</td><td>降维可视化方法，看样本总体分布</td></tr>
+      <tr><td>聚类</td><td>Clustering</td><td>将相似样本/基因自动分组</td></tr>
+      <tr><td>GO</td><td>Gene Ontology</td><td>基因功能标准化分类体系（BP/MF/CC）</td></tr>
+      <tr><td>KEGG</td><td>—</td><td>通路数据库，可视化代谢/信号通路</td></tr>
+      <tr><td>Bioconductor</td><td>—</td><td>R 语言生信包仓库，核心分析工具来源</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>A.2 中心法则示意图</h2>
+<div class="figure">
+  <div class="central-dogma" style="margin-top: 30px;">
+    <div class="dogma-box dogma-dna" style="font-size: 16px; padding: 20px 30px;">DNA<br><span style="font-size:10px;font-weight:400;">脱氧核糖核酸</span></div>
+    <div class="dogma-arrow"><span style="font-size: 30px;">→</span><span class="arrow-label">转录 Transcription<br>（RNA 聚合酶）</span></div>
+    <div class="dogma-box dogma-rna" style="font-size: 16px; padding: 20px 30px;">mRNA<br><span style="font-size:10px;font-weight:400;">信使 RNA</span></div>
+    <div class="dogma-arrow"><span style="font-size: 30px;">→</span><span class="arrow-label">翻译 Translation<br>（核糖体）</span></div>
+    <div class="dogma-box dogma-protein" style="font-size: 16px; padding: 20px 30px;">蛋白质<br><span style="font-size:10px;font-weight:400;">功能分子</span></div>
+  </div>
+  <div class="figure-caption" style="margin-top: 20px;">图 A-1　中心法则完整示意图</div>
+</div>
+<p style="text-align: center; font-size: 12px; color: var(--text-light); margin-top: 15px;">
+  DNA 储存遗传信息 → 转录为 mRNA 携带信息 → 翻译为蛋白质执行功能<br>
+  原版图纸 → 工作副本 → 最终产品
+</p>
+
+<h2>A.3 FASTQ 格式图解</h2>
+<div class="figure">
+  <div class="fastq-visual" style="font-size: 12px; line-height: 2.2;">
+<span class="fastq-line1">@SRR1234567.1 HWUSI-AS1234:1:1101:1000:2000 length=150</span>
+    <span style="color: #6a9955; font-size: 10px;">  ← 第 1 行：@ + read ID + 测序仪元数据</span>
+<span class="fastq-line2">ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT</span>
+    <span style="color: #6a9955; font-size: 10px;">  ← 第 2 行：碱基序列（A/T/G/C/N）</span>
+<span class="fastq-line1">+</span>
+    <span style="color: #6a9955; font-size: 10px;">  ← 第 3 行：分隔符（+）</span>
+<span class="fastq-line4">IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII</span>
+    <span style="color: #6a9955; font-size: 10px;">  ← 第 4 行：质量值（Phred+33 编码）</span>
+  </div>
+  <div class="figure-caption">图 A-2　FASTQ 格式完整图解</div>
+</div>
+<div class="tip-box">
+  <div class="tip-label">质量值字符速查</div>
+  <table style="margin-top: 8px;">
+    <thead><tr><th>字符</th><th>'+'</th><th>'5'</th><th>'?'</th><th>'I'</th></tr></thead>
+    <tbody>
+      <tr><td>Phred 值</td><td>Q10</td><td>Q20</td><td>Q30</td><td>Q40</td></tr>
+      <tr><td>准确率</td><td>90%</td><td>99%</td><td>99.9%</td><td>99.99%</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="chapter-end">—— 附录 A 结束 ——</div>
+
+
+<!-- ============================================================
+     第二部分　Linux 基础入门
+     ============================================================ -->
+<div class="part-divider">
+  <div class="part-label">PART TWO</div>
+  <div class="part-title">Linux 基础入门</div>
+  <div class="part-line"></div>
+</div>
+
+<!-- ============================================================
+     第 6 章
+     ============================================================ -->
+<h1 class="chapter">第 6 章　为什么学 Linux</h1>
+<p>如果你问一个生信工程师："日常工作中最常用的工具是什么？"答案不是某个 R 包，也不是某个数据库——而是 <strong>Linux 命令行</strong>。</p>
+<h2>6.1 生信离不开 Linux 的三大原因</h2>
+<table>
+  <thead><tr><th style="width:5%">#</th><th>原因</th><th>详细说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1</strong></td><td><strong>服务器 / 超算 / 云平台均运行 Linux</strong></td><td>生信数据量动辄几十到上百 GB，个人电脑跑不动。几乎所有生信分析都在 Linux 服务器或超算上完成。你必须通过命令行远程操作这些机器</td></tr>
+    <tr><td><strong>2</strong></td><td><strong>生信软件原生支持 Linux</strong></td><td>STAR、BWA、samtools、DESeq2 的底层依赖……绝大多数生信工具优先甚至<strong>仅</strong>支持 Linux。Windows 上需要 WSL 虚拟环境，macOS 兼容性更好但仍非原生</td></tr>
+    <tr><td><strong>3</strong></td><td><strong>公共数据下载和批量处理需要命令行</strong></td><td>从 SRA 下载数据用 <span class="code-inline">prefetch</span>，批量处理几十个样本用 shell 脚本循环，这些在图形界面下根本无法高效完成</td></tr>
+  </tbody>
+</table>
+<div class="bio-box">
+  <div class="bio-label">真实场景</div>
+  你拿到一个 RNA-seq 项目，30 个样本，每个样本的 FASTQ 约 5 GB。<br>
+  要做的事情：下载 → 质控 → 比对 → 定量 → 差异分析 → 富集分析。<br>
+  这整个流程在 Linux 上用一个 shell 脚本就能批量跑完，而在 Windows 图形界面下几乎不可能高效完成。
+</div>
+<h2>6.2 学习路线建议</h2>
+<div class="tip-box">
+  <div class="tip-label">零基础学习路线</div>
+  <ol style="margin-bottom:0;">
+    <li><strong>先过一遍基础概念</strong>：文件系统结构、路径、权限（第 7 章）</li>
+    <li><strong>掌握 20 个高频命令</strong>：覆盖 90% 日常操作（第 8 章）</li>
+    <li><strong>理解管道与重定向</strong>：组合命令的核心思维（第 9 章）</li>
+    <li><strong>学会 conda 管理环境</strong>：装软件不再痛苦（第 10 章）</li>
+    <li><strong>会用 SSH 连服务器</strong>：实际工作场景（第 11 章）</li>
+    <li><strong>在真实项目中练习</strong>：跑一遍 RNA-seq 流程，自然就熟了</li>
+  </ol>
+</div>
+<div class="chapter-end">—— 第 6 章结束 ——</div>
+
+<!-- ============================================================
+     第 7 章
+     ============================================================ -->
+<h1 class="chapter">第 7 章　基础概念</h1>
+<h2>7.1 文件系统树状结构</h2>
+<p>Linux 的文件系统是一棵<strong>倒置的树</strong>，所有文件和目录都从<strong>根目录 <span class="code-inline">/</span></strong> 开始。</p>
+<div class="svg-figure">
+<svg width="480" height="340" viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="treeBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#eef1f4;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="480" height="340" rx="8" fill="url(#treeBg)" stroke="#dee2e6" stroke-width="1"/>
+
+  <!-- 根节点 -->
+  <rect x="20" y="15" width="40" height="28" rx="4" fill="#1a5276"/>
+  <text x="40" y="34" text-anchor="middle" font-family="monospace" font-size="14" fill="white" font-weight="bold">/</text>
+  <text x="72" y="34" font-family="sans-serif" font-size="10" fill="#7f8c8d">根目录</text>
+
+  <!-- 连接线 -->
+  <line x1="40" y1="43" x2="40" y2="55" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="40" y1="55" x2="20" y2="55" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="40" y1="55" x2="120" y2="55" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="40" y1="55" x2="240" y2="55" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="40" y1="55" x2="360" y2="55" stroke="#bdc3c7" stroke-width="1.5"/>
+
+  <line x1="20" y1="55" x2="20" y2="65" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="120" y1="55" x2="120" y2="65" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="240" y1="55" x2="240" y2="65" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="360" y1="55" x2="360" y2="65" stroke="#bdc3c7" stroke-width="1.5"/>
+
+  <!-- home 目录 -->
+  <rect x="5" y="65" width="50" height="28" rx="4" fill="#2980b9"/>
+  <text x="30" y="84" text-anchor="middle" font-family="monospace" font-size="10" fill="white" font-weight="bold">home</text>
+  <text x="62" y="84" font-family="sans-serif" font-size="9" fill="#2980b9">用户主目录</text>
+
+  <!-- data 目录 -->
+  <rect x="100" y="65" width="45" height="28" rx="4" fill="#27ae60"/>
+  <text x="122" y="84" text-anchor="middle" font-family="monospace" font-size="10" fill="white" font-weight="bold">data</text>
+  <text x="152" y="84" font-family="sans-serif" font-size="9" fill="#27ae60">生信数据</text>
+
+  <!-- usr 目录 -->
+  <rect x="220" y="65" width="40" height="28" rx="4" fill="#8e44ad"/>
+  <text x="240" y="84" text-anchor="middle" font-family="monospace" font-size="10" fill="white" font-weight="bold">usr</text>
+  <text x="268" y="84" font-family="sans-serif" font-size="9" fill="#8e44ad">系统软件</text>
+
+  <!-- opt 目录 -->
+  <rect x="340" y="65" width="40" height="28" rx="4" fill="#e67e22"/>
+  <text x="360" y="84" text-anchor="middle" font-family="monospace" font-size="10" fill="white" font-weight="bold">opt</text>
+  <text x="388" y="84" font-family="sans-serif" font-size="9" fill="#e67e22">第三方软件</text>
+
+  <!-- home 子节点 -->
+  <line x1="30" y1="93" x2="30" y2="110" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="15" y1="110" x2="45" y2="110" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="15" y1="110" x2="15" y2="120" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="45" y1="110" x2="45" y2="120" stroke="#bdc3c7" stroke-width="1.5"/>
+
+  <rect x="5" y="120" width="40" height="24" rx="4" fill="#d6eaf8" stroke="#2980b9" stroke-width="1"/>
+  <text x="25" y="137" text-anchor="middle" font-family="monospace" font-size="9" fill="#2980b9">alice</text>
+
+  <rect x="42" y="120" width="35" height="24" rx="4" fill="#d6eaf8" stroke="#2980b9" stroke-width="1"/>
+  <text x="59" y="137" text-anchor="middle" font-family="monospace" font-size="9" fill="#2980b9">bob</text>
+
+  <!-- data 子节点 -->
+  <line x1="122" y1="93" x2="122" y2="110" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="100" y1="110" x2="145" y2="110" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="100" y1="110" x2="100" y2="120" stroke="#bdc3c7" stroke-width="1.5"/>
+  <line x1="145" y1="110" x2="145" y2="120" stroke="#bdc3c7" stroke-width="1.5"/>
+
+  <rect x="85" y="120" width="45" height="24" rx="4" fill="#d5f5e3" stroke="#27ae60" stroke-width="1"/>
+  <text x="107" y="137" text-anchor="middle" font-family="monospace" font-size="9" fill="#27ae60">fastq</text>
+
+  <rect x="135" y="120" width="55" height="24" rx="4" fill="#d5f5e3" stroke="#27ae60" stroke-width="1"/>
+  <text x="162" y="137" text-anchor="middle" font-family="monospace" font-size="9" fill="#27ae60">reference</text>
+
+  <!-- usr 子节点 -->
+  <line x1="240" y1="93" x2="240" y2="120" stroke="#bdc3c7" stroke-width="1.5"/>
+  <rect x="215" y="120" width="50" height="24" rx="4" fill="#ebdef0" stroke="#8e44ad" stroke-width="1"/>
+  <text x="240" y="137" text-anchor="middle" font-family="monospace" font-size="9" fill="#8e44ad">bin/</text>
+
+  <!-- 文件图标行 -->
+  <line x1="30" y1="144" x2="30" y2="160" stroke="#bdc3c7" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <line x1="107" y1="144" x2="107" y2="160" stroke="#bdc3c7" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+  <!-- 文件示例 -->
+  <rect x="10" y="160" width="80" height="22" rx="3" fill="white" stroke="#dee2e6" stroke-width="1"/>
+  <text x="50" y="175" text-anchor="middle" font-family="monospace" font-size="8" fill="#2c3e50">script.sh</text>
+
+  <rect x="70" y="160" width="90" height="22" rx="3" fill="white" stroke="#dee2e6" stroke-width="1"/>
+  <text x="115" y="175" text-anchor="middle" font-family="monospace" font-size="8" fill="#2c3e50">sample.fq.gz</text>
+
+  <rect x="165" y="160" width="90" height="22" rx="3" fill="white" stroke="#dee2e6" stroke-width="1"/>
+  <text x="210" y="175" text-anchor="middle" font-family="monospace" font-size="8" fill="#2c3e50">hg38.fa</text>
+
+  <!-- 底部图例 -->
+  <rect x="10" y="210" width="460" height="115" rx="6" fill="white" stroke="#dee2e6" stroke-width="1"/>
+  <text x="25" y="232" font-family="sans-serif" font-size="11" fill="#1a5276" font-weight="700">常用目录说明</text>
+
+  <rect x="25" y="245" width="12" height="12" rx="2" fill="#2980b9"/>
+  <text x="45" y="255" font-family="sans-serif" font-size="9" fill="#2c3e50">/home — 用户主目录，存放个人脚本与结果</text>
+
+  <rect x="25" y="265" width="12" height="12" rx="2" fill="#27ae60"/>
+  <text x="45" y="275" font-family="sans-serif" font-size="9" fill="#2c3e50">/data — 数据存储，FASTQ/BAM 等大文件</text>
+
+  <rect x="25" y="285" width="12" height="12" rx="2" fill="#8e44ad"/>
+  <text x="45" y="295" font-family="sans-serif" font-size="9" fill="#2c3e50">/usr — 系统软件安装目录</text>
+
+  <rect x="25" y="305" width="12" height="12" rx="2" fill="#e67e22"/>
+  <text x="45" y="315" font-family="sans-serif" font-size="9" fill="#2c3e50">/opt — 第三方/手动安装的生信软件</text>
+</svg>
+<div class="svg-caption">图 7-1　Linux 文件系统树状结构（不同颜色区分不同用途的目录）</div>
+</div>
+<table>
+  <thead><tr><th>目录</th><th>用途</th><th>生信场景</th></tr></thead>
+  <tbody>
+    <tr><td><span class="code-inline">/</span></td><td>根目录，一切起点</td><td>—</td></tr>
+    <tr><td><span class="code-inline">/home/用户名</span></td><td>用户主目录</td><td>你的分析脚本、结果通常放这里</td></tr>
+    <tr><td><span class="code-inline">/data</span> 或 <span class="code-inline">/mnt/data</span></td><td>数据存储目录</td><td>大文件（FASTQ、BAM）常放此处的共享存储</td></tr>
+    <tr><td><span class="code-inline">/tmp</span></td><td>临时文件</td><td>中间文件可放这里，但注意空间限制</td></tr>
+    <tr><td><span class="code-inline">/opt</span></td><td>第三方软件</td><td>手动安装的生信软件</td></tr>
+  </tbody>
+</table>
+
+<h2>7.2 绝对路径 vs 相对路径</h2>
+<table>
+  <thead><tr><th>类型</th><th>定义</th><th>示例</th><th>特点</th></tr></thead>
+  <tbody>
+    <tr><td><strong>绝对路径</strong></td><td>从根目录 <span class="code-inline">/</span> 开始的完整路径</td><td><span class="code-inline">/home/alice/data/fastq/sample1.fastq</span></td><td>不管你在哪，都指向同一位置</td></tr>
+    <tr><td><strong>相对路径</strong></td><td>从<strong>当前所在目录</strong>出发的路径</td><td><span class="code-inline">data/fastq/sample1.fastq</span></td><td>取决于当前目录，更简洁但可能混淆</td></tr>
+  </tbody>
+</table>
+<h3>特殊目录符号</h3>
+<table>
+  <thead><tr><th>符号</th><th>含义</th><th>示例</th></tr></thead>
+  <tbody>
+    <tr><td><span class="code-inline">.</span></td><td>当前目录</td><td><span class="code-inline">./script.sh</span> = 执行当前目录下的脚本</td></tr>
+    <tr><td><span class="code-inline">..</span></td><td>上一级目录</td><td><span class="code-inline">cd ..</span> = 返回上级</td></tr>
+    <tr><td><span class="code-inline">~</span></td><td>用户主目录（home）</td><td><span class="code-inline">cd ~</span> = 回到 /home/用户名</td></tr>
+    <tr><td><span class="code-inline">-</span></td><td>上一次所在目录</td><td><span class="code-inline">cd -</span> = 在两个目录间切换</td></tr>
+  </tbody>
+</table>
+
+<h2>7.3 文件权限（读 / 写 / 执行）</h2>
+<p>Linux 中每个文件和目录都有权限属性，控制谁能读、写、执行。</p>
+<div class="code-block">$ ls -l
+-rwxr-xr-- 1 alice bioinfo 2.3M Aug 16 10:30 align.sh
+ │┊┊┊┊┊┊┊┊┊
+ │┊┊┊┊┊┊┊┊└── others（其他用户）权限：r--（只读）
+ │┊┊┊┊┊┊┊└── group（同组用户）权限：r-x（读+执行）
+ │┊┊┊┊┊┊└── owner（文件所有者）权限：rwx（读+写+执行）
+ │
+ └── 文件类型：- 普通文件，d 目录，l 符号链接</div>
+<table>
+  <thead><tr><th>权限</th><th>字母</th><th>数字</th><th>对文件</th><th>对目录</th></tr></thead>
+  <tbody>
+    <tr><td>读</td><td>r</td><td>4</td><td>查看文件内容</td><td>列出目录内容（ls）</td></tr>
+    <tr><td>写</td><td>w</td><td>2</td><td>修改文件内容</td><td>在目录中创建/删除文件</td></tr>
+    <tr><td>执行</td><td>x</td><td>1</td><td>运行脚本/程序</td><td>进入目录（cd）</td></tr>
+  </tbody>
+</table>
+
+<div class="svg-figure">
+<svg width="460" height="130" viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg">
+  <!-- 文件信息行 -->
+  <rect x="5" y="10" width="450" height="30" rx="4" fill="#1e1e2e"/>
+  <text x="15" y="30" font-family="monospace" font-size="11" fill="#dcdcaa">-rwxr-xr--  alice bioinfo  2.3M  align.sh</text>
+
+  <!-- 权限分解 -->
+  <text x="15" y="55" font-family="sans-serif" font-size="10" fill="#7f8c8d">权限分解：</text>
+
+  <!-- 类型 -->
+  <rect x="80" y="45" width="25" height="22" rx="3" fill="#95a5a6" opacity="0.2" stroke="#95a5a6"/>
+  <text x="92" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#7f8c8d" font-weight="bold">-</text>
+  <text x="92" y="80" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#95a5a6">类型</text>
+
+  <!-- Owner -->
+  <rect x="110" y="45" width="65" height="22" rx="3" fill="#2980b9" opacity="0.15" stroke="#2980b9"/>
+  <text x="142" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#2980b9" font-weight="bold">rwx</text>
+  <text x="142" y="80" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#2980b9" font-weight="600">所有者</text>
+
+  <!-- Group -->
+  <rect x="180" y="45" width="65" height="22" rx="3" fill="#27ae60" opacity="0.15" stroke="#27ae60"/>
+  <text x="212" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#27ae60" font-weight="bold">r-x</text>
+  <text x="212" y="80" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#27ae60" font-weight="600">同组</text>
+
+  <!-- Others -->
+  <rect x="250" y="45" width="65" height="22" rx="3" fill="#e74c3c" opacity="0.15" stroke="#e74c3c"/>
+  <text x="282" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#e74c3c" font-weight="bold">r--</text>
+  <text x="282" y="80" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#e74c3c" font-weight="600">其他</text>
+
+  <!-- 数字表示 -->
+  <rect x="340" y="45" width="100" height="22" rx="3" fill="#f39c12" opacity="0.15" stroke="#f39c12"/>
+  <text x="390" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#f39c12" font-weight="bold">= 754</text>
+  <text x="390" y="80" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#f39c12" font-weight="600">数字表示</text>
+
+  <!-- 底部说明 -->
+  <rect x="5" y="90" width="450" height="32" rx="4" fill="#eaf4fc" stroke="#b0d4e8"/>
+  <text x="15" y="105" font-family="sans-serif" font-size="9" fill="#1a5276">r=读(4)  w=写(2)  x=执行(1)  ｜  7=rwx  5=r-x  4=r--</text>
+  <text x="15" y="118" font-family="sans-serif" font-size="9" fill="#2980b9">所有者可读写执行  ｜  同组可读和执行  ｜  其他人只能读</text>
+</svg>
+<div class="svg-caption">图 7-2　文件权限可视化：rwx 三组权限对应所有者、同组、其他用户</div>
+</div>
+
+<div class="code-block"># 修改权限的常见方式
+
+# 方式一：数字表示法（owner=7, group=5, others=4）
+chmod 754 align.sh
+# 7 = 4+2+1 = rwx  （所有者：读+写+执行）
+# 5 = 4+0+1 = r-x  （同组：读+执行）
+# 4 = 4+0+0 = r--  （其他：只读）
+
+# 方式二：字母表示法
+chmod +x align.sh      # 给所有人加执行权限
+chmod u+x align.sh     # 仅给 owner 加执行权限
+chmod g-w align.sh     # 去掉 group 的写权限</div>
+<div class="warning-box">
+  <div class="warning-label">生信常见场景</div>
+  下载了一个 shell 脚本或二进制程序，直接运行会报"Permission denied"。这是因为文件没有执行权限。执行 <span class="code-inline">chmod +x 文件名</span> 即可。
+</div>
+<div class="chapter-end">—— 第 7 章结束 ——</div>
+
+<!-- ============================================================
+     第 8 章
+     ============================================================ -->
+<h1 class="chapter">第 8 章　高频命令精讲</h1>
+<p>本章覆盖生信日常工作中最常用的命令，每条命令都附带<strong>实际生信场景示例</strong>。</p>
+
+<h2>8.1 文件与目录操作</h2>
+<h3>ls — 列出目录内容</h3>
+<div class="code-block"># 基本用法
+ls                       # 列出当前目录文件
+ls -l                    # 详细信息（权限、大小、日期）
+ls -lh                   # -h：人类可读大小（K/M/G）
+ls -la                   # -a：显示隐藏文件（以 . 开头）
+ls -lt                   # 按修改时间排序（新的在前）
+ls -lS                   # 按文件大小排序（大的在前）
+
+# 生信示例
+ls -lh /data/fastq/                    # 查看 FASTQ 文件大小
+ls -lh *.fastq.gz                      # 只列出 fastq.gz 文件
+ls -lt /data/results/ | head -10       # 查看最新生成的结果文件</div>
+
+<h3>cd — 切换目录</h3>
+<div class="code-block">cd /data/fastq                # 切换到指定目录（绝对路径）
+cd results/                   # 切换到子目录（相对路径）
+cd ..                         # 返回上一级
+cd ../..                      # 返回上两级
+cd ~                          # 回到主目录
+cd -                          # 回到上次所在目录
+
+# 生信示例
+cd /data/projects/rnaseq/     # 进入 RNA-seq 项目目录
+cd ~/analysis/                 # 进入主目录下的 analysis 文件夹</div>
+
+<h3>pwd — 显示当前目录</h3>
+<div class="code-block">pwd                          # 输出当前绝对路径
+
+# 生信示例
+# 在服务器上不知道自己在哪时，先 pwd 确认
+pwd
+# 输出：/home/alice/projects/rnaseq/results</div>
+
+<h3>mkdir — 创建目录</h3>
+<div class="code-block">mkdir fastq                  # 创建单个目录
+mkdir -p results/figures/heatmap   # -p：递归创建（父目录不存在时自动建）
+
+# 生信示例
+mkdir -p /data/projects/rnaseq/{fastq,aligned,counts,de,figures}
+# 一次创建 5 个子目录（花括号展开）</div>
+
+<h3>cp — 复制文件 / 目录</h3>
+<div class="code-block">cp file.txt backup.txt              # 复制文件
+cp -r results/ results_backup/      # -r：递归复制目录
+cp -i file.txt existing.txt         # -i：覆盖前确认
+
+# 生信示例
+cp /data/reference/hg38.fa ~/analysis/ref/    # 复制参考基因组
+cp *.fastq.gz /backup/fastq/                   # 复制所有 fastq.gz 到备份目录</div>
+
+<h3>mv — 移动 / 重命名</h3>
+<div class="code-block">mv old_name.txt new_name.txt        # 重命名
+mv file.txt /target/dir/            # 移动文件到目录
+
+# 生信示例
+mv sample1.fastq.gz sample1_R1.fastq.gz     # 重命名测序文件
+mv /tmp/*.bam /data/results/bam/            # 把临时目录的 BAM 移到结果目录</div>
+
+<h3>rm — 删除</h3>
+<div class="code-block">rm file.txt                         # 删除文件（不进回收站！）
+rm -r results/                      # -r：递归删除目录
+rm -i important.txt                 # -i：删除前确认
+rm -f temp_*.txt                    # -f：强制删除，不报错
+
+# 生信示例
+rm /tmp/*.sam                       # 清理中间文件（SAM 很大）
+# ⚠️ 警告：rm -rf / 会删除整个系统，永远不要这样用！</div>
+<div class="warning-box">
+  <div class="warning-label">rm 不可逆</div>
+  Linux 没有"回收站"。<span class="code-inline">rm</span> 删除的文件<strong>无法恢复</strong>。建议：<br>
+  1. 删除前先 <span class="code-inline">ls</span> 确认要删的文件<br>
+  2. 重要操作加 <span class="code-inline">-i</span> 参数<br>
+  3. 永远不要在 root 目录下执行 <span class="code-inline">rm -rf *</span>
+</div>
+
+<h2>8.2 文件内容查看与搜索</h2>
+<h3>head / tail — 查看文件开头 / 结尾</h3>
+<div class="code-block">head file.txt                       # 默认前 10 行
+head -n 20 file.txt                 # 前 20 行（-n 20 或 -20 均可）
+tail file.txt                       # 后 10 行
+tail -n 50 file.txt                 # 后 50 行
+tail -f logfile.log                 # -f：实时跟踪新内容（看日志神器）
+
+# 生信示例
+head -4 sample.fastq                # 查看 FASTQ 前 4 行（即第一条 read）
+head -1 *.fastq.gz                  # 检查每个 fastq 文件的 ID 格式
+tail -f star_align.log              # 实时看 STAR 比对进度
+head -100 counts.txt | tail -20     # 看第 81-100 行</div>
+
+<h3>less — 分页查看大文件</h3>
+<div class="code-block">less large_file.txt                 # 分页查看（按 q 退出）
+less -S large_file.txt              # -S：长行不换行（左右滚动）
+
+# 常用快捷键（less 内部）：
+# 空格/f   向下翻页
+# b       向上翻页
+# /关键词  向下搜索
+# ?关键词  向上搜索
+# n       下一个匹配
+# N       上一个匹配
+# q       退出
+
+# 生信示例
+less -S genes.gtf                   # 查看 GTF 注释文件（行很长）
+less counts_matrix.tsv              # 查看表达矩阵</div>
+
+<h3>grep — 文本搜索</h3>
+<div class="code-block">grep "pattern" file.txt             # 搜索包含 pattern 的行
+grep -i "pattern" file.txt          # -i：忽略大小写
+grep -v "pattern" file.txt          # -v：反向匹配（不包含的行）
+grep -c "pattern" file.txt          # -c：只输出匹配行数
+grep -n "pattern" file.txt          # -n：显示行号
+grep -w "BRCA1" genes.txt           # -w：全词匹配（避免匹配 BRCA1-AS）
+grep -A 3 "pattern" file.txt        # -A 3：匹配行后再显示 3 行
+grep -B 2 "pattern" file.txt        # -B 2：匹配行前显示 2 行
+grep -E "pat1|pat2" file.txt        # -E：扩展正则（或匹配）
+
+# 生信示例
+grep -c "^>" reference.fa           # 统计 FASTA 中序列条数（>开头的行数）
+grep "BRCA1" genes.gtf              # 找 GTF 中 BRCA1 的注释行
+grep -v "^#" file.vcf               # 去掉 VCF 文件的注释行（#开头）
+grep -E "exon|CDS" genes.gtf        # 提取 GTF 中 exon 或 CDS 行
+grep -w "chr1" regions.bed          # 在 BED 中找 chr1 的行（全词匹配防止 chr11/chr1* 被误匹配）</div>
+
+<h3>wc — 统计行数 / 词数 / 字节数</h3>
+<div class="code-block">wc -l file.txt                      # -l：统计行数
+wc -w file.txt                      # -w：统计词数
+wc -c file.txt                      # -c：统计字节数
+
+# 生信示例
+wc -l sample.fastq                  # FASTQ 行数 ÷ 4 = read 数
+# 例如输出 12000000 → 3,000,000 条 reads
+echo $(( $(wc -l &lt; sample.fastq) / 4 ))   # 直接算出 read 数</div>
+
+<h2>8.3 文本处理三剑客</h2>
+<h3>sort — 排序</h3>
+<div class="code-block">sort file.txt                       # 按字母排序
+sort -n numbers.txt                 # -n：按数值排序
+sort -r file.txt                    # -r：逆序
+sort -k2 file.txt                   # -k2：按第 2 列排序
+sort -k2,2n file.txt                # 按第 2 列数值排序
+sort -u file.txt                    # -u：排序并去重
+
+# 生信示例
+sort -k1,1 -k2,2n peaks.bed         # 按 chr 排序，chr 内按 start 坐标排序
+sort -k5,5nr gene_counts.txt        # 按第 5 列（count）数值降序排列</div>
+
+<h3>uniq — 去重（通常配合 sort 使用）</h3>
+<div class="code-block">sort file.txt | uniq                # 排序后去重
+sort file.txt | uniq -c             # -c：统计每行出现次数
+sort file.txt | uniq -d             # -d：只显示重复的行
+
+# 生信示例
+cut -f1 genes.gtf | sort | uniq -c  # 统计 GTF 每种特征类型（gene/exon/CDS）的数量
+# 输出示例：
+#  50000 exon
+#  20000 CDS
+#  10000 gene</div>
+
+<h3>cut — 按列提取</h3>
+<div class="code-block">cut -f1 file.txt                    # 提取第 1 列（默认 Tab 分隔）
+cut -f1,3 file.txt                  # 提取第 1 和第 3 列
+cut -d"," -f2 file.csv              # -d：指定分隔符（逗号），提取第 2 列
+cut -c1-10 file.txt                 # -c：提取第 1-10 个字符
+
+# 生信示例
+cut -f1,4,5 genes.gtf               # 提取 GTF 的 chr、start、end 列
+cut -f1 counts.txt | head           # 看计数矩阵的基因 ID 列
+cut -d" " -f1-3 file.sam            # 提取 SAM 文件前三列</div>
+
+<h2>8.4 下载与压缩</h2>
+<h3>wget — 文件下载</h3>
+<div class="code-block">wget https://example.com/file.gz     # 下载文件
+wget -c https://example.com/file.gz  # -c：断点续传
+wget -O newname.gz https://url/old.gz  # -O：指定保存文件名
+wget -q https://example.com/file.gz # -q：静默模式（不输出进度）
+
+# 生信示例
+wget https://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.toplevel.fa.gz
+# 下载 Ensembl 人类参考基因组</div>
+
+<h3>curl — 数据传输（更灵活）</h3>
+<div class="code-block">curl -O https://example.com/file.gz  # -O：用原文件名保存
+curl -o newname.gz https://url/file.gz  # -o：指定文件名
+curl -L https://short.url/abc        # -L：跟随重定向
+curl -s https://api.example.com/data # -s：静默模式
+
+# 生信示例
+curl -L -o miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+# 下载 Miniconda 安装脚本</div>
+
+<h3>tar — 压缩 / 解压</h3>
+<div class="code-block"># 解压 .tar.gz
+tar -zxvf file.tar.gz                # -z：gzip，-x：解压，-v：显示过程，-f：指定文件
+tar -zxvf file.tar.gz -C /target/    # -C：解压到指定目录
+
+# 压缩为 .tar.gz
+tar -zcvf archive.tar.gz dir/        # -c：创建压缩包
+
+# 解压 .tar.bz2
+tar -jxvf file.tar.bz2               # -j：bzip2
+
+# 生信示例
+tar -zxvf fastq_files.tar.gz         # 解压测序数据包
+tar -zcvf results_backup.tar.gz results/  # 打包备份分析结果
+tar -zxvf tools.tar.gz -C /opt/      # 解压软件到 /opt 目录</div>
+
+<h3>gzip / gunzip — 单文件压缩 / 解压</h3>
+<div class="code-block">gzip file.txt                       # 压缩（原文件消失，变为 file.txt.gz）
+gzip -k file.txt                     # -k：保留原文件
+gunzip file.txt.gz                   # 解压
+zcat file.txt.gz                     # 不解压直接查看内容（不占额外空间）
+
+# 生信示例
+zcat sample.fastq.gz | head -4       # 查看压缩 FASTQ 的前 4 行
+zgrep "BRCA1" genes.gtf.gz           # 在压缩 GTF 中搜索
+zless sample.fastq.gz                # 分页查看压缩文件</div>
+
+<h2>8.5 进程与会话管理</h2>
+<h3>top / htop — 查看系统资源</h3>
+<div class="code-block">top                                 # 实时查看 CPU/内存/进程
+htop                                # 更友好的版本（需安装）
+
+# top 内常用按键：
+# P    按 CPU 使用率排序
+# M    按内存使用率排序
+# q    退出
+
+# 生信示例
+top -u alice                        # 只看自己的进程
+# 如果 STAR 占了 32G 内存，说明它在正常运行
+# 如果进程已消失但结果没出来，说明可能报错了</div>
+
+<h3>screen — 终端会话管理</h3>
+<div class="code-block"># 创建新会话
+screen -S rnaseq_align              # -S：给会话命名
+
+# 在会话中运行命令后，按 Ctrl+A 然后按 D 脱离（detach）
+# 命令继续在后台运行！
+
+# 查看已有会话
+screen -ls
+
+# 重新连接会话
+screen -r rnaseq_align              # -r：恢复会话
+
+# 生信示例
+screen -S star_align
+STAR --runThreadN 8 --genomeDir ~/ref/star_index \
+  --readFilesIn sample_R1.fastq.gz sample_R2.fastq.gz \
+  --readFilesCommand zcat \
+  --outSAMtype BAM SortedByCoordinate
+# 按 Ctrl+A D 脱离，关掉电脑回家，命令继续跑
+# 第二天回来：screen -r star_align</div>
+
+<h3>tmux — 更强大的终端复用器</h3>
+<div class="code-block"># 新建会话
+tmux new -s rnaseq
+
+# 脱离：Ctrl+B 然后按 D
+
+# 列出会话
+tmux ls
+
+# 恢复会话
+tmux attach -t rnaseq
+
+# 生信示例：在 tmux 中开多个窗口并行跑不同样本
+# Ctrl+B C    创建新窗口
+# Ctrl+B 0/1  切换窗口
+# 每个窗口跑一个样本的比对</div>
+
+<h3>nohup — 后台运行（断开连接也不中断）</h3>
+<div class="code-block">nohup command &                      # 后台运行，输出重定向到 nohup.out
+nohup command > output.log 2&gt;&amp;1 &amp;   # 自定义输出文件，2&gt;&amp;1 合并标准错误到标准输出
+
+# 查看后台任务
+jobs                                # 查看当前 shell 的后台任务
+jobs -l                             # 包含 PID
+
+# 生信示例
+nohup STAR --runThreadN 16 --genomeDir ref/ \
+  --readFilesIn sample.fq.gz \
+  --readFilesCommand zcat \
+  &gt; star.log 2&gt;&amp;1 &amp;
+
+# 用 tail -f star.log 实时看进度
+# 关掉 SSH 连接，任务继续跑</div>
+
+<h3>chmod — 修改权限</h3>
+<div class="code-block">chmod +x script.sh                  # 加执行权限
+chmod 755 program                   # rwxr-xr-x
+chmod 644 data.txt                  # rw-r--r--
+
+# 生信示例
+chmod +x run_pipeline.sh            # 让脚本可执行
+./run_pipeline.sh                   # 然后才能直接运行</div>
+<div class="chapter-end">—— 第 8 章结束 ——</div>
+
+<!-- ============================================================
+     第 9 章
+     ============================================================ -->
+<h1 class="chapter">第 9 章　管道与重定向</h1>
+<p>管道和重定向是 Linux 命令行的<strong>核心思维方式</strong>——把简单命令组合成强大的数据处理流水线。</p>
+
+<h2>9.1 管道 |</h2>
+<p><strong>管道（|）</strong>将前一个命令的标准输出作为后一个命令的标准输入。可以串联多个命令，形成"流水线"。</p>
+<div class="code-block">命令A | 命令B | 命令C     # A 的输出 → B 的输入 → B 的输出 → C 的输入</div>
+<div class="bio-box">
+  <div class="bio-label">生活比喻</div>
+  就像工厂流水线：第一道工序的半成品直接送到第二道工序，不需要中间仓库暂存。管道让数据在命令间"无缝传递"，无需创建中间文件。
+</div>
+
+<div class="svg-figure">
+<svg width="500" height="130" viewBox="0 0 500 130" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="pipeArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#7f8c8d"/>
+    </marker>
+  </defs>
+
+  <!-- 命令A -->
+  <rect x="10" y="35" width="120" height="50" rx="8" fill="#1a5276"/>
+  <text x="70" y="58" text-anchor="middle" font-family="monospace" font-size="11" fill="white" font-weight="bold">zcat</text>
+  <text x="70" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">解压FASTQ</text>
+
+  <!-- 管道箭头 -->
+  <line x1="135" y1="60" x2="170" y2="60" stroke="#7f8c8d" stroke-width="2.5" marker-end="url(#pipeArrow)"/>
+  <rect x="138" y="48" width="30" height="14" rx="3" fill="#f39c12"/>
+  <text x="153" y="59" text-anchor="middle" font-family="monospace" font-size="9" fill="white" font-weight="bold">|</text>
+
+  <!-- 命令B -->
+  <rect x="175" y="35" width="120" height="50" rx="8" fill="#27ae60"/>
+  <text x="235" y="58" text-anchor="middle" font-family="monospace" font-size="11" fill="white" font-weight="bold">grep</text>
+  <text x="235" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">搜索序列</text>
+
+  <!-- 管道箭头 -->
+  <line x1="300" y1="60" x2="335" y2="60" stroke="#7f8c8d" stroke-width="2.5" marker-end="url(#pipeArrow)"/>
+  <rect x="303" y="48" width="30" height="14" rx="3" fill="#f39c12"/>
+  <text x="318" y="59" text-anchor="middle" font-family="monospace" font-size="9" fill="white" font-weight="bold">|</text>
+
+  <!-- 命令C -->
+  <rect x="340" y="35" width="120" height="50" rx="8" fill="#e74c3c"/>
+  <text x="400" y="58" text-anchor="middle" font-family="monospace" font-size="11" fill="white" font-weight="bold">wc -l</text>
+  <text x="400" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">统计行数</text>
+
+  <!-- 数据流标签 -->
+  <text x="152" y="30" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#f39c12">数据流</text>
+  <text x="317" y="30" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#f39c12">数据流</text>
+
+  <!-- 底部完整命令 -->
+  <rect x="10" y="100" width="480" height="22" rx="4" fill="#f4f4f4" stroke="#dee2e6" stroke-width="1"/>
+  <text x="250" y="115" text-anchor="middle" font-family="monospace" font-size="10" fill="#2c3e50">zcat sample.fq.gz | grep "ATCG" | wc -l</text>
+</svg>
+<div class="svg-caption">图 9-1　管道流水线示意：解压 → 搜索 → 计数，数据在命令间无缝传递</div>
+</div>
+
+<h3>生信中的管道实战</h3>
+<div class="code-block"># 1. 统计 FASTQ 的 read 数（不解压）
+zcat sample.fastq.gz | wc -l        # 总行数
+echo $(( $(zcat sample.fastq.gz | wc -l) / 4 ))  # read 数
+
+# 2. 统计 GTF 中各特征类型数量
+cut -f3 genes.gtf | sort | uniq -c
+# 输出：
+#   50000 exon
+#   20000 CDS
+#   10000 transcript
+#    5000 gene
+
+# 3. 找出表达量最高的前 10 个基因
+sort -k7,7nr gene_counts.txt | head -10
+
+# 4. 从 VCF 中提取 chr1 的变异并计数
+grep "^chr1" variants.vcf | wc -l
+
+# 5. 从 BED 文件提取 chr1 的区域并排序
+grep -w "chr1" regions.bed | sort -k2,2n > chr1_sorted.bed
+
+# 6. 多步处理：提取 GTF 中 chr1 的 exon，排序，统计数量
+grep -w "chr1" genes.gtf | grep "exon" | cut -f4,5 | sort -k1,1n | wc -l</div>
+
+<h2>9.2 重定向 > 和 >></h2>
+<p><strong>重定向</strong>将命令输出写入文件而非屏幕。</p>
+<table>
+  <thead><tr><th>符号</th><th>含义</th><th>行为</th></tr></thead>
+  <tbody>
+    <tr><td><span class="code-inline">&gt;</span></td><td>输出重定向</td><td><strong>覆盖</strong>写入文件（文件不存在则创建）</td></tr>
+    <tr><td><span class="code-inline">&gt;&gt;</span></td><td>追加重定向</td><td><strong>追加</strong>到文件末尾（不覆盖原内容）</td></tr>
+    <tr><td><span class="code-inline">2&gt;</span></td><td>错误重定向</td><td>将<strong>标准错误</strong>输出到文件</td></tr>
+    <tr><td><span class="code-inline">&amp;&gt;</span></td><td>全部重定向</td><td>将标准输出<strong>和</strong>标准错误都输出到文件</td></tr>
+    <tr><td><span class="code-inline">&lt;</span></td><td>输入重定向</td><td>从文件读取输入（而非键盘）</td></tr>
+  </tbody>
+</table>
+<div class="code-block"># 基本用法
+echo "Hello" > output.txt           # 覆盖写入
+echo "World" >> output.txt          # 追加写入
+ls /nonexistent 2> error.log       # 只把错误信息写入文件
+ls /data/ &> all_output.log        # 正常输出和错误都写入
+
+# 标准输出和标准错误分别写入不同文件
+command > output.log 2> error.log
+
+# 丢弃输出（/dev/null 是"黑洞"）
+command > /dev/null 2>&1            # 什么都不显示
+
+# 生信示例
+grep "BRCA1" genes.gtf > brca1_annotations.txt  # 提取结果写入文件
+sort -k1,1 -k2,2n peaks.bed >> all_sorted.bed   # 追加排序结果
+STAR ... > star.log 2>&1                        # 比对日志全部写入文件
+samtools view -h aligned.bam chr1 2>/dev/null | samtools sort -o chr1.bam  # 忽略警告</div>
+
+<h2>9.3 管道 + 重定向组合</h2>
+<div class="code-block"># 管道用于中间处理，重定向用于最终保存
+
+# 提取 GTF 中 chr1 外显子 → 排序 → 保存为 BED
+grep -w "chr1" genes.gtf | grep "exon" | \
+  cut -f1,4,5 | sort -k2,2n > chr1_exons.bed
+
+# 统计每个染色体上的基因数 → 保存
+cut -f1 genes.gtf | sort | uniq -c | sort -rn > gene_count_per_chr.txt
+
+# FASTQ 质控：解压 → fastp 质控 → 压缩保存
+zcat sample.fastq.gz | fastp --stdin --stdout -o clean.fastq.gz</div>
+<div class="chapter-end">—— 第 9 章结束 ——</div>
+
+<!-- ============================================================
+     第 10 章
+     ============================================================ -->
+<h1 class="chapter">第 10 章　conda / mamba 实战</h1>
+<p><strong>conda</strong> 是生信工作者最重要的软件管理工具——没有之一。它能帮你解决"装软件地狱"的问题。</p>
+
+<h2>10.1 为什么需要 conda</h2>
+<table>
+  <thead><tr><th>问题</th><th>没有 conda 时</th><th>有 conda 后</th></tr></thead>
+  <tbody>
+    <tr><td>软件依赖冲突</td><td>手动编译、版本冲突、系统库不兼容</td><td>每个环境独立，互不影响</td></tr>
+    <tr><td>安装生信软件</td><td>下载源码 → ./configure → make → 报错 → Google → 重试</td><td><span class="code-inline">conda install -c bioconda samtools</span> 一行搞定</td></tr>
+    <tr><td>管理多版本</td><td>手动切换路径、设置环境变量</td><td>不同环境装不同版本，自由切换</td></tr>
+    <tr><td>团队协作</td><td>"我这能跑你那不能跑"的环境地狱</td><td>导出 environment.yml，他人一键复现</td></tr>
+  </tbody>
+</table>
+
+<h2>10.2 安装 Miniconda</h2>
+<div class="code-block"># 1. 下载 Miniconda 安装脚本
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+# 2. 运行安装
+bash Miniconda3-latest-Linux-x86_64.sh
+
+# 3. 按提示操作（一路回车 + yes），安装完成后重新打开终端
+
+# 4. 验证安装
+conda --version
+# 输出：conda 24.x.x</div>
+
+<h2>10.3 配置 bioconda 频道</h2>
+<p>conda 的软件来自不同的"频道（channel）"。生信软件主要集中在 <strong>bioconda</strong> 频道。配置时必须按以下顺序添加：</p>
+<div class="code-block"># 设置频道（顺序很重要！）
+conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
+
+# 设置默认使用 conda-forge
+conda config --set channel_priority strict
+
+# 验证配置
+conda config --show channels
+# 应输出：
+#   - bioconda
+#   - conda-forge
+#   - defaults</div>
+<div class="warning-box">
+  <div class="warning-label">频道顺序很重要</div>
+  必须是 <strong>bioconda > conda-forge > defaults</strong>。顺序错误会导致依赖冲突。<span class="code-inline">channel_priority strict</span> 确保从优先频道取包。
+</div>
+
+<h2>10.4 创建与管理环境</h2>
+<div class="code-block"># 创建新环境
+conda create -n rnaseq python=3.10
+
+# 激活环境
+conda activate rnaseq
+# 激活后，命令行提示符前会出现 (rnaseq)
+
+# 退出环境
+conda deactivate
+
+# 列出所有环境
+conda env list
+
+# 删除环境
+conda env remove -n rnaseq
+
+# 生信示例：创建 RNA-seq 分析环境
+conda create -n rnaseq python=3.10
+conda activate rnaseq
+conda install -c bioconda star samtools fastp
+conda install -c bioconda subread  # featureCounts</div>
+
+<h2>10.5 安装生信软件</h2>
+<div class="code-block"># 安装单个软件
+conda install -c bioconda samtools
+conda install -c bioconda bwa
+conda install -c bioconda star
+
+# 安装指定版本
+conda install -c bioconda samtools=1.18
+
+# 搜索可用软件
+conda search -c bioconda fastp
+
+# 查看已安装的软件
+conda list
+
+# 更新软件
+conda update samtools
+
+# 生信常用软件一键安装
+conda install -c bioconda fastp star samtools subread multiqc</div>
+
+<h2>10.6 环境导出与复现</h2>
+<div class="code-block"># 导出环境配置文件
+conda env export > rnaseq_env.yml
+
+# 在另一台机器上复现
+conda env create -f rnaseq_env.yml
+
+# 更轻量的导出（只包含手动指定的包）
+conda env export --from-history > rnaseq_env.yml</div>
+
+<h2>10.7 mamba：更快的 conda</h2>
+<p><strong>mamba</strong> 是 conda 的 C++ 重写版，解决依赖的速度比 conda 快 10–100 倍，强烈推荐。</p>
+<div class="code-block"># 安装 mamba
+conda install -c conda-forge mamba
+
+# 之后把所有 conda 命令替换为 mamba 即可
+mamba install -c bioconda star
+mamba create -n rnaseq python=3.10 star samtools fastp</div>
+<div class="tip-box">
+  <div class="tip-label">生信环境管理最佳实践</div>
+  <ul style="margin-bottom:0;">
+    <li>每个项目/流程创建独立环境，避免冲突</li>
+    <li>用 <span class="code-inline">mamba</span> 代替 <span class="code-inline">conda</span> 安装软件，速度快很多</li>
+    <li>导出 environment.yml 保存环境配置，方便复现</li>
+    <li>不要往 base 环境装东西，base 只用来管理 conda 本身</li>
+  </ul>
+</div>
+<div class="chapter-end">—— 第 10 章结束 ——</div>
+
+<!-- ============================================================
+     第 11 章
+     ============================================================ -->
+<h1 class="chapter">第 11 章　SSH 远程连接</h1>
+<p>生信分析几乎都在远程服务器上进行，<strong>SSH（Secure Shell）</strong>是你连接服务器的标准方式。</p>
+
+<h2>11.1 基本连接</h2>
+<div class="code-block"># 基本格式
+ssh 用户名@服务器地址
+
+# 生信示例
+ssh alice@10.0.1.100                  # 连接内网服务器
+ssh alice@bioinfo.server.edu.cn       # 连接域名服务器
+ssh -p 22222 alice@server.com         # -p：指定端口（默认 22）
+
+# 首次连接会提示确认指纹，输入 yes 即可</div>
+
+<h2>11.2 免密登录（SSH 密钥）</h2>
+<div class="code-block"># 1. 在本地生成密钥对（一路回车即可）
+ssh-keygen -t ed25519 -C "alice@laptop"
+
+# 2. 将公钥复制到服务器
+ssh-copy-id alice@server.com
+
+# 3. 之后直接 ssh 即可，无需输入密码
+ssh alice@server.com</div>
+
+<h2>11.3 scp — 远程文件复制</h2>
+<div class="code-block"># 从本地复制到服务器
+scp local_file.txt alice@server:/data/fastq/
+
+# 从服务器复制到本地
+scp alice@server:/data/results/counts.txt ./
+
+# 复制整个目录（-r）
+scp -r results/ alice@server:/data/projects/
+
+# 指定端口
+scp -P 22222 file.txt alice@server:/data/</div>
+
+<h2>11.4 rsync — 增量同步（更高效）</h2>
+<div class="code-block"># 基本同步
+rsync -avz local_dir/ alice@server:/data/remote_dir/
+
+# 参数说明：
+# -a  归档模式（保留权限、时间等）
+# -v  显示详细信息
+# -z  压缩传输
+# --progress  显示进度
+# -P  支持断点续传
+
+# 生信示例：同步大量 FASTQ 文件
+rsync -avP /data/fastq/ alice@server:/data/fastq/
+
+# rsync 的优势：只传输变化的文件，速度远超 scp</div>
+
+<h2>11.5 ~/.ssh/config — SSH 配置文件</h2>
+<p>在本地 <span class="code-inline">~/.ssh/config</span> 文件中配置服务器别名，省去每次输入长地址的麻烦：</p>
+<div class="code-block"># 编辑 ~/.ssh/config（没有就创建）
+Host bioinfo
+    HostName     10.0.1.100
+    User         alice
+    Port         22
+    IdentityFile ~/.ssh/id_ed25519
+    ServerAliveInterval 60
+
+Host gpu-cluster
+    HostName     gpu.server.edu.cn
+    User         alice
+    Port         22222
+
+# 配置后直接用别名连接
+ssh bioinfo          # = ssh -p 22 alice@10.0.1.100
+ssh gpu-cluster      # = ssh -p 22222 alice@gpu.server.edu.cn
+
+# scp 也可以用别名
+scp file.txt bioinfo:/data/
+rsync -avP results/ bioinfo:/data/results/</div>
+<div class="tip-box">
+  <div class="tip-label">生信工作流推荐配置</div>
+  <ol style="margin-bottom:0;">
+    <li>配置 SSH 密钥免密登录</li>
+    <li>写好 <span class="code-inline">~/.ssh/config</span>，给服务器起短名</li>
+    <li>设置 <span class="code-inline">ServerAliveInterval 60</span> 防止连接超时断开</li>
+    <li>大文件传输用 <span class="code-inline">rsync -avP</span> 而非 scp</li>
+    <li>长时间任务配合 <span class="code-inline">screen</span> / <span class="code-inline">tmux</span> 使用</li>
+  </ol>
+</div>
+<div class="chapter-end">—— 第 11 章结束 ——</div>
+
+<!-- ============================================================
+     第 12 章
+     ============================================================ -->
+<h1 class="chapter">第 12 章　实用小技巧</h1>
+
+<h2>12.1 通配符 *</h2>
+<p>通配符是命令行中最重要的"快捷键"之一，让你批量操作文件而无需逐个输入文件名。</p>
+<div class="code-block"># * 匹配任意数量的任意字符
+ls *.fastq              # 所有 .fastq 文件
+ls *.fastq.gz           # 所有 .fastq.gz 文件
+ls sample_*             # 所有以 sample_ 开头的文件
+
+# ? 匹配单个字符
+ls sample_?.fastq      # sample_1.fastq, sample_2.fastq（不匹配 sample_10）
+
+# [] 匹配括号内的任意一个字符
+ls sample_[1-3].fastq  # sample_1.fastq, sample_2.fastq, sample_3.fastq
+
+# {} 展开
+cp file.txt{,.bak}     # = cp file.txt file.txt.bak
+mkdir -p dir/{a,b,c}   # 创建 dir/a dir/b dir/c
+
+# 生信示例
+for f in *.fastq.gz; do
+    echo "Processing $f"
+    fastp -i "$f" -o "clean_${f}"
+done</div>
+
+<h2>12.2 任务控制：Ctrl+C / Ctrl+Z / jobs / fg / bg</h2>
+<table>
+  <thead><tr><th>快捷键/命令</th><th>功能</th><th>生信场景</th></tr></thead>
+  <tbody>
+    <tr><td><span class="code-inline">Ctrl+C</span></td><td><strong>终止</strong>当前前台命令</td><td>命令跑错了想立即停掉</td></tr>
+    <tr><td><span class="code-inline">Ctrl+Z</span></td><td><strong>暂停</strong>当前命令，放入后台</td><td>正在跑的程序想先做别的事</td></tr>
+    <tr><td><span class="code-inline">jobs</span></td><td>列出当前所有后台/暂停的任务</td><td>查看有哪些暂停的任务</td></tr>
+    <tr><td><span class="code-inline">fg %1</span></td><td>将任务 1 调回<strong>前台</strong></td><td>恢复查看暂停的程序输出</td></tr>
+    <tr><td><span class="code-inline">bg %1</span></td><td>让任务 1 在<strong>后台</strong>继续运行</td><td>暂停的程序放到后台继续跑</td></tr>
+  </tbody>
+</table>
+<div class="code-block"># 实战演示
+
+# 场景：正在跑一个比对，但想先看看别的文件
+STAR --runThreadN 8 ...
+# 按 Ctrl+Z 暂停
+# 输出：[1]+  Stopped   STAR --runThreadN 8 ...
+
+jobs
+# 输出：[1]+  Stopped   STAR --runThreadN 8 ...
+
+bg %1                    # 让 STAR 在后台继续跑
+# 输出：[1]+ STAR --runThreadN 8 ... &amp;
+
+# 现在可以继续在终端做其他事
+ls /data/results/
+
+# 想看 STAR 的输出？调回前台
+fg %1
+
+# 想终止？调回前台后按 Ctrl+C</div>
+
+<h2>12.3 其他高频小技巧</h2>
+<div class="code-block"># Tab 键自动补全
+# 输入 cd /da 然后按 Tab → 自动补全为 cd /data/
+# 输入文件名前几个字母按 Tab → 自动补全文件名
+
+# 上下箭头：浏览命令历史
+# 也可以用 history 命令查看
+history | tail -20       # 看最近 20 条命令
+
+# Ctrl+R：反向搜索历史命令
+# 按 Ctrl+R 然后输入关键词，快速找到之前用过的命令
+
+# !!：重复上一条命令
+sudo !!                 # 用 sudo 重新运行上一条命令
+
+# !$：上一条命令的最后一个参数
+vim /data/genes.gtf     # 编辑文件
+less !$                 # = less /data/genes.gtf
+
+# 命令别名
+alias ll='ls -lh'       # 之后用 ll 就等于 ls -lh
+alias la='ls -lah'
+
+# 查看磁盘空间
+df -h                   # 查看各分区使用情况
+du -sh /data/*          # 查看 /data 下各目录大小
+du -sh * | sort -rh | head -10  # 找出最大的 10 个目录/文件</div>
+<div class="chapter-end">—— 第 12 章结束 ——</div>
+
+<!-- ============================================================
+     附录 B
+     ============================================================ -->
+<h1 class="chapter">附录 B　命令速查卡 · 实战练习任务</h1>
+
+<h2>B.1 Linux 命令速查卡（可打印）</h2>
+<div class="cheatsheet">
+  <div class="cheatsheet-title">生信 Linux 命令速查卡</div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">文件与目录操作</h3>
+  <div class="cmd-card"><span class="cmd">ls -lh [目录]</span><span class="desc">列出文件（含大小、权限、日期）</span></div>
+  <div class="cmd-card"><span class="cmd">cd [路径]</span><span class="desc">切换目录；cd ~ 回主目录；cd - 回上次目录</span></div>
+  <div class="cmd-card"><span class="cmd">pwd</span><span class="desc">显示当前绝对路径</span></div>
+  <div class="cmd-card"><span class="cmd">mkdir -p [目录]</span><span class="desc">创建目录（-p 递归创建）</span></div>
+  <div class="cmd-card"><span class="cmd">cp -r [源] [目标]</span><span class="desc">复制文件/目录（-r 递归）</span></div>
+  <div class="cmd-card"><span class="cmd">mv [源] [目标]</span><span class="desc">移动/重命名</span></div>
+  <div class="cmd-card"><span class="cmd">rm -rf [文件/目录]</span><span class="desc">强制删除（不可恢复！谨慎使用）</span></div>
+  <div class="cmd-card"><span class="cmd">chmod +x [文件]</span><span class="desc">添加执行权限</span></div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">文件查看与搜索</h3>
+  <div class="cmd-card"><span class="cmd">head -n [N] [文件]</span><span class="desc">查看前 N 行</span></div>
+  <div class="cmd-card"><span class="cmd">tail -f [文件]</span><span class="desc">实时查看文件末尾（看日志）</span></div>
+  <div class="cmd-card"><span class="cmd">less -S [文件]</span><span class="desc">分页查看（-S 不换行）；q 退出</span></div>
+  <div class="cmd-card"><span class="cmd">grep "pattern" [文件]</span><span class="desc">搜索文本；-c 计数；-v 反向；-w 全词</span></div>
+  <div class="cmd-card"><span class="cmd">wc -l [文件]</span><span class="desc">统计行数</span></div>
+  <div class="cmd-card"><span class="cmd">zcat [文件.gz]</span><span class="desc">查看 gzip 压缩文件内容</span></div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">文本处理</h3>
+  <div class="cmd-card"><span class="cmd">sort -k[N],[N]n [文件]</span><span class="desc">按第 N 列数值排序</span></div>
+  <div class="cmd-card"><span class="cmd">uniq -c</span><span class="desc">去重并计数（需先 sort）</span></div>
+  <div class="cmd-card"><span class="cmd">cut -f[N] [文件]</span><span class="desc">提取第 N 列（Tab 分隔）</span></div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">下载与压缩</h3>
+  <div class="cmd-card"><span class="cmd">wget -c [URL]</span><span class="desc">下载文件（-c 断点续传）</span></div>
+  <div class="cmd-card"><span class="cmd">curl -L -o [文件] [URL]</span><span class="desc">下载文件（-L 跟随重定向）</span></div>
+  <div class="cmd-card"><span class="cmd">tar -zxvf [文件.tar.gz]</span><span class="desc">解压 .tar.gz</span></div>
+  <div class="cmd-card"><span class="cmd">tar -zcvf [输出.tar.gz] [目录]</span><span class="desc">压缩为 .tar.gz</span></div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">进程与会话</h3>
+  <div class="cmd-card"><span class="cmd">top / htop</span><span class="desc">查看系统资源与进程</span></div>
+  <div class="cmd-card"><span class="cmd">screen -S [名称]</span><span class="desc">创建会话；Ctrl+A D 脱离；-r 恢复</span></div>
+  <div class="cmd-card"><span class="cmd">nohup [命令] &gt;log 2&gt;&amp;1 &amp;</span><span class="desc">后台运行，断开连接不中断</span></div>
+  <div class="cmd-card"><span class="cmd">jobs / fg / bg</span><span class="desc">查看/前台/后台任务</span></div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">conda / mamba</h3>
+  <div class="cmd-card"><span class="cmd">conda create -n [名] python=3.10</span><span class="desc">创建环境</span></div>
+  <div class="cmd-card"><span class="cmd">conda activate [名]</span><span class="desc">激活环境</span></div>
+  <div class="cmd-card"><span class="cmd">conda install -c bioconda [包]</span><span class="desc">安装生信软件</span></div>
+  <div class="cmd-card"><span class="cmd">conda env export &gt; env.yml</span><span class="desc">导出环境配置</span></div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">SSH 与传输</h3>
+  <div class="cmd-card"><span class="cmd">ssh [用户]@[地址]</span><span class="desc">远程连接服务器</span></div>
+  <div class="cmd-card"><span class="cmd">scp -r [源] [目标]</span><span class="desc">远程复制文件/目录</span></div>
+  <div class="cmd-card"><span class="cmd">rsync -avP [源] [目标]</span><span class="desc">增量同步（支持断点续传）</span></div>
+
+  <h3 style="color: var(--primary); margin-top: 15px;">管道与重定向</h3>
+  <div class="cmd-card"><span class="cmd">命令A | 命令B</span><span class="desc">管道：A 的输出作为 B 的输入</span></div>
+  <div class="cmd-card"><span class="cmd">&gt; [文件]</span><span class="desc">覆盖写入文件</span></div>
+  <div class="cmd-card"><span class="cmd">&gt;&gt; [文件]</span><span class="desc">追加写入文件</span></div>
+  <div class="cmd-card"><span class="cmd">2&gt;&amp;1</span><span class="desc">标准错误合并到标准输出</span></div>
+</div>
+
+<h2>B.2 五个实战练习任务</h2>
+
+<div class="exercise-box">
+  <div class="exercise-num">练习 1</div>
+  <h3>FASTQ 文件探索</h3>
+  <p><strong>任务</strong>：假设你有一个 FASTQ 文件 <span class="code-inline">sample.fastq.gz</span>（压缩状态），请完成以下操作：</p>
+  <ol>
+    <li>不解压，查看前 8 行（即前 2 条 read）</li>
+    <li>统计该文件有多少条 read（提示：行数 ÷ 4）</li>
+    <li>查看第一条 read 的 ID 和质量值首字母</li>
+  </ol>
+  <p><strong>参考答案</strong>：</p>
+  <div class="code-block"># 1. 查看前 8 行
+zcat sample.fastq.gz | head -8
+
+# 2. 统计 read 数
+echo $(( $(zcat sample.fastq.gz | wc -l) / 4 ))
+
+# 3. 第一条 read 的 ID（第 1 行）和质量值首字母（第 4 行第 1 个字符）
+zcat sample.fastq.gz | head -1           # read ID
+zcat sample.fastq.gz | sed -n '4p' | cut -c1  # 质量值首字母</div>
+</div>
+
+<div class="exercise-box">
+  <div class="exercise-num">练习 2</div>
+  <h3>GTF 注释文件分析</h3>
+  <p><strong>任务</strong>：给定一个 GTF 文件 <span class="code-inline">genes.gtf</span>，请完成：</p>
+  <ol>
+    <li>统计该文件中有多少种特征类型（第 3 列），各有多少个</li>
+    <li>提取 chr1 上所有 exon 的坐标信息（第 1、4、5 列），保存为 BED 格式</li>
+    <li>找出 BRCA1 基因的所有转录本 ID</li>
+  </ol>
+  <p><strong>参考答案</strong>：</p>
+  <div class="code-block"># 1. 统计特征类型
+cut -f3 genes.gtf | sort | uniq -c
+
+# 2. 提取 chr1 exon → BED 格式（注意坐标转换：GTF 1-based → BED 0-based）
+grep -w "chr1" genes.gtf | grep -w "exon" | \
+  awk -F'\t' '{print $1"\t"$4-1"\t"$5}' > chr1_exons.bed
+
+# 3. 找 BRCA1 的转录本 ID
+grep "BRCA1" genes.gtf | grep "transcript" | \
+  grep -o 'transcript_id "[^"]*"' | sort -u</div>
+</div>
+
+<div class="exercise-box">
+  <div class="exercise-num">练习 3</div>
+  <h3>conda 环境搭建</h3>
+  <p><strong>任务</strong>：创建一个 RNA-seq 分析环境并安装核心工具：</p>
+  <ol>
+    <li>创建名为 <span class="code-inline">rnaseq</span> 的 conda 环境，Python 版本 3.10</li>
+    <li>安装以下软件：fastp（质控）、STAR（比对）、samtools（BAM 处理）、subread（定量）</li>
+    <li>验证安装：运行 <span class="code-inline">STAR --version</span> 和 <span class="code-inline">samtools --version</span></li>
+    <li>导出环境配置为 <span class="code-inline">rnaseq.yml</span></li>
+  </ol>
+  <p><strong>参考答案</strong>：</p>
+  <div class="code-block"># 1. 创建环境
+conda create -n rnaseq python=3.10 -y
+
+# 2. 激活并安装软件
+conda activate rnaseq
+mamba install -c bioconda fastp star samtools subread -y
+
+# 3. 验证安装
+STAR --version
+samtools --version
+
+# 4. 导出环境
+conda env export > rnaseq.yml</div>
+</div>
+
+<div class="exercise-box">
+  <div class="exercise-num">练习 4</div>
+  <h3>差异表达结果筛选</h3>
+  <p><strong>任务</strong>：给定一个差异表达结果表 <span class="code-inline">DE_results.tsv</span>（Tab 分隔，含表头），格式为：</p>
+  <div class="code-block">gene_id    baseMean    log2FoldChange    pvalue    padj</div>
+  <p>请完成以下筛选：</p>
+  <ol>
+    <li>筛选 padj < 0.05 且 |log2FC| ≥ 1 的差异基因，保存为 <span class="code-inline">DEG.tsv</span></li>
+    <li>分别统计上调（log2FC > 0）和下调（log2FC < 0）的基因数</li>
+    <li>找出变化幅度最大的前 10 个基因（按 |log2FC| 排序）</li>
+  </ol>
+  <p><strong>参考答案</strong>：</p>
+  <div class="code-block"># 1. 筛选差异基因
+awk -F'\t' 'NR&gt;1 &amp;&amp; $5 &lt; 0.05 &amp;&amp; ($3 &gt;= 1 || $3 &lt;= -1)' DE_results.tsv > DEG.tsv
+
+# 2. 统计上调/下调基因数
+echo "上调基因数：$(awk -F'\t' '$3 &gt; 0' DEG.tsv | wc -l)"
+echo "下调基因数：$(awk -F'\t' '$3 &lt; 0' DEG.tsv | wc -l)"
+
+# 3. 变化幅度最大的前 10 个基因
+awk -F'\t' '{print $1"\t"$3"\t"($3&gt;=0?$3:-$3)}' DEG.tsv | \
+  sort -k3,3nr | head -10 | cut -f1,2</div>
+</div>
+
+<div class="exercise-box">
+  <div class="exercise-num">练习 5</div>
+  <h3>批量处理与后台运行</h3>
+  <p><strong>任务</strong>：你有 10 个 FASTQ 文件（<span class="code-inline">sample_1.fq.gz</span> 到 <span class="code-inline">sample_10.fq.gz</span>），需要对每个文件运行 fastp 质控。</p>
+  <ol>
+    <li>写一个 shell 脚本批量处理所有文件</li>
+    <li>用 <span class="code-inline">nohup</span> 在后台运行该脚本</li>
+    <li>实时查看运行日志</li>
+  </ol>
+  <p><strong>参考答案</strong>：</p>
+  <div class="code-block"># 1. 创建脚本 run_fastp.sh
+cat > run_fastp.sh << 'EOF'
+#!/bin/bash
+for i in $(seq 1 10); do
+    echo "=== Processing sample_$i ==="
+    fastp -i sample_${i}.fq.gz \
+          -o clean_sample_${i}.fq.gz \
+          --html sample_${i}.html \
+          --json sample_${i}.json
+    echo "=== Done sample_$i ==="
+done
+echo "All samples processed!"
+EOF
+
+# 2. 赋予执行权限并后台运行
+chmod +x run_fastp.sh
+nohup ./run_fastp.sh > fastp.log 2>&1 &
+
+# 3. 实时查看日志
+tail -f fastp.log
+
+# 检查进程是否还在运行
+jobs -l
+# 或
+ps aux | grep run_fastp</div>
+</div>
+
+<div style="text-align: center; margin-top: 50px; padding: 30px; color: var(--text-light); font-size: 13px; border-top: 2px solid var(--primary);">
+  <p style="font-size: 16px; color: var(--primary); font-weight: 600; margin-bottom: 10px;">生物信息学入门教程</p>
+  <p>从分子生物学到 Linux 实战 · 面向零基础学习者</p>
+  <p style="margin-top: 15px;">—— 全书完 ——</p>
+</div>
+
+</body>
+</html>
