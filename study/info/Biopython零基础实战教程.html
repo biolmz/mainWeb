@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biopython 零基础实战教程</title>
+<meta name="description" content="面向零基础读者的生物信息学入门教程 · 示例基于 Biopython 1.86 验证">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+<style>
+:root{
+  --bg:#f4f7f9; --panel:#ffffff; --text:#1f2937; --muted:#6b7280;
+  --line:#e5e7eb; --accent:#0f766e; --accent2:#115e59; --accent-soft:#ccfbf1;
+  --amber:#d97706; --red:#dc2626; --blue:#2563eb;
+  --code-bg:#0d1117; --code-text:#e6edf3; --radius:14px;
+  --sidebar-w:288px; --max-w:820px;
+  --shadow:0 1px 3px rgba(16,24,40,.08),0 8px 24px -12px rgba(16,24,40,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;overflow-x:hidden}
+
+/* 进度条 */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#0f766e,#14b8a6,#f59e0b);z-index:100;transition:width .1s}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#042f2e 0%,#0f766e 55%,#0d9488 100%);color:#fff;padding:56px 24px 44px}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 85% -10%,rgba(45,212,191,.28),transparent 60%),radial-gradient(500px 260px at 8% 110%,rgba(245,158,11,.18),transparent 60%)}
+.hero-inner{position:relative;max-width:calc(var(--sidebar-w) + var(--max-w) + 48px);margin:0 auto;display:flex;align-items:center;gap:36px;justify-content:space-between;width:100%}
+.hero-text{flex:1;min-width:0;max-width:100%}
+.hero .meta{overflow-wrap:anywhere;word-break:break-word;line-height:1.7}
+.hero h1{overflow-wrap:break-word}
+.hero .sub{overflow-wrap:break-word}
+.hero .badge{max-width:100%;overflow-wrap:break-word}
+.hero .badge{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(4px);
+  padding:4px 14px;border-radius:999px;font-size:13px;letter-spacing:.12em;color:#fef3c7;margin-bottom:16px}
+.hero h1{font-size:clamp(28px,4.6vw,44px);font-weight:800;line-height:1.2;letter-spacing:.01em}
+.hero .sub{font-size:clamp(15px,2vw,19px);margin-top:12px;color:#d1fae5;font-weight:400}
+.hero .meta{margin-top:18px;font-size:13px;color:#a7f3d0;opacity:.9}
+.hero-helix{flex-shrink:0;width:150px;height:150px}
+
+/* 布局 */
+.layout{display:flex;gap:32px;max-width:calc(var(--sidebar-w) + var(--max-w) + 48px);margin:0 auto;padding:28px 20px 80px;align-items:flex-start;overflow-x:hidden}
+.sidebar{position:sticky;top:20px;width:var(--sidebar-w);flex-shrink:0;max-height:calc(100vh - 40px);overflow-y:auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px}
+.sidebar h3{font-size:13px;letter-spacing:.18em;color:var(--muted);margin-bottom:12px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.sidebar h3 svg{flex-shrink:0}
+.sidebar .toc{font-size:14px}
+.sidebar .toc ul{list-style:none;padding-left:0}
+.sidebar .toc ul ul{padding-left:16px;margin:4px 0}
+.sidebar .toc a{display:block;color:var(--text);text-decoration:none;padding:5px 10px;border-radius:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar .toc a:hover{background:var(--accent-soft)}
+.sidebar .toc a.active{background:var(--accent-soft);border-left-color:var(--accent);color:var(--accent2);font-weight:600}
+.sidebar .toc ul ul a{font-size:13px;color:var(--muted)}
+
+main.content{flex:1;min-width:0;max-width:var(--max-w)}
+.article{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:40px clamp(20px,4vw,48px)}
+
+/* 正文排版 */
+.article h1{font-size:28px;line-height:1.35;margin:8px 0 22px;padding-bottom:14px;border-bottom:3px solid var(--accent);color:var(--accent2);scroll-margin-top:24px}
+.article h1:not(:first-child){margin-top:44px}
+.article h2{font-size:21px;margin:36px 0 14px;color:#134e4a;scroll-margin-top:24px;padding-left:12px;border-left:4px solid var(--accent);line-height:1.4}
+.article h3{font-size:17px;margin:26px 0 10px;color:var(--accent2)}
+.article p{margin:12px 0;overflow-wrap:break-word}
+.article ul,.article ol{margin:12px 0;padding-left:26px}
+.article li{margin:5px 0;overflow-wrap:break-word}
+.article li code,.article p code{overflow-wrap:break-word}
+.article a{color:var(--blue);text-decoration:none;border-bottom:1px solid rgba(37,99,235,.35)}
+.article a:hover{border-bottom-color:var(--blue)}
+.article strong{color:#111827}
+.article hr{border:none;border-top:1px dashed var(--line);margin:30px 0}
+.article img{max-width:100%;border-radius:10px}
+
+/* 代码块 */
+.codeblock{position:relative;background:var(--code-bg);border-radius:10px;margin:16px 0;box-shadow:var(--shadow)}
+.codeblock::before{content:attr(data-lang);position:absolute;top:10px;right:56px;font-size:11px;letter-spacing:.08em;color:#7d8590;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.codeblock pre{overflow-x:auto;padding:16px 18px;font-size:13.5px;line-height:1.65}
+.codeblock code{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;color:var(--code-text);background:transparent;white-space:pre}
+.copy-btn{position:absolute;top:8px;right:10px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;opacity:.85;transition:.15s}
+.copy-btn:hover{background:#30363d;color:#fff;opacity:1}
+.copy-btn.copied{background:#238636;border-color:#2ea043;color:#fff}
+/* 深色代码 token 配色 */
+.codeblock .k,.codeblock .kc,.codeblock .kd,.codeblock .kn,.codeblock .kp,.codeblock .kr,.codeblock .kt,.codeblock .ow{color:#ff7b72}
+.codeblock .s,.codeblock .sa,.codeblock .sb,.codeblock .sc,.codeblock .dl,.codeblock .sd,.codeblock .s2,.codeblock .se,.codeblock .sh,.codeblock .si,.codeblock .sx,.codeblock .sr,.codeblock .s1,.codeblock .ss{color:#a5d6ff}
+.codeblock .m,.codeblock .mb,.codeblock .mf,.codeblock .mh,.codeblock .mi,.codeblock .il,.codeblock .mo,.codeblock .mx{color:#79c0ff}
+.codeblock .c,.codeblock .ch,.codeblock .cm,.codeblock .cp,.codeblock .cpf,.codeblock .c1,.codeblock .cs{color:#8b949e;font-style:italic}
+.codeblock .nf,.codeblock .fm{color:#d2a8ff}
+.codeblock .nc,.codeblock .nn{color:#ffa657}
+.codeblock .nb,.codeblock .bp{color:#79c0ff}
+.codeblock .nd{color:#d2a8ff;font-style:italic}
+.codeblock .na,.codeblock .nv,.codeblock .vc,.codeblock .vg,.codeblock .vi,.codeblock .vm,.codeblock .vl{color:#e6edf3}
+.codeblock .ni,.codeblock .ne{color:#ffa657}
+.codeblock .gd{color:#ffa198}.codeblock .gi{color:#7ee787}
+.codeblock .go{color:#8b949e}.codeblock .gr{color:#f85149}
+.codeblock .ge{font-style:italic}.codeblock .gs{font-weight:700}
+.codeblock .w{color:#e6edf3}
+.codeblock .err{color:#f85149}
+
+/* 表格 */
+.article table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px;display:block;overflow-x:auto}
+.article thead th{background:linear-gradient(180deg,#0f766e,#115e59);color:#fff;text-align:left;padding:10px 14px;font-weight:600;white-space:nowrap}
+.article tbody td{border:1px solid var(--line);padding:9px 14px;vertical-align:top}
+.article tbody tr:nth-child(even){background:#f8fafc}
+.article tbody tr:hover{background:#f0fdfa}
+.article td code,.article p code,.article li code{background:#ecfdf5;color:#065f46;border:1px solid #d1fae5;border-radius:5px;padding:1px 6px;font-size:.86em;font-family:ui-monospace,Consolas,monospace;white-space:nowrap}
+
+/* 引用框 */
+.article blockquote{margin:16px 0;padding:12px 18px;background:#f0fdfa;border-left:4px solid #14b8a6;border-radius:0 10px 10px 0;color:#134e4a}
+.article blockquote p{margin:4px 0}
+.article blockquote strong{color:#0f766e}
+.article blockquote code{background:#ccfbf1;color:#115e59}
+
+/* 移动端工具条 */
+.topbar{display:none}
+#backTop{position:fixed;right:22px;bottom:26px;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--accent);color:#fff;font-size:20px;box-shadow:0 8px 20px rgba(15,118,110,.35);z-index:90;transition:transform .2s,opacity .3s;opacity:0;pointer-events:none}
+#backTop.show{opacity:1;pointer-events:auto}
+#backTop:hover{transform:translateY(-3px)}
+
+/* 响应式 */
+@media (max-width:1080px){
+  .layout{flex-direction:column;padding-top:16px;padding-left:16px;padding-right:16px}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:300px;max-height:100vh;z-index:120;transform:translateX(-105%);transition:transform .28s ease;border-radius:0;border:none;box-shadow:8px 0 30px rgba(0,0,0,.18)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar h3{margin-top:8px}
+  .topbar{display:flex;position:sticky;top:0;z-index:110;background:rgba(15,118,110,.96);backdrop-filter:blur(8px);color:#fff;align-items:center;gap:12px;padding:10px 16px}
+  .topbar button{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .topbar button svg{flex-shrink:0}
+  .topbar .t-title{font-weight:700;font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #mask{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:115;opacity:0;pointer-events:none;transition:opacity .25s}
+  #mask.show{opacity:1;pointer-events:auto}
+  .hero{padding:40px 20px 36px}
+  .hero-helix{display:none}
+}
+@media (max-width:640px){
+  body{font-size:15.5px}
+  .layout{padding-left:14px;padding-right:14px}
+  .article{padding:24px 14px;border-radius:10px}
+  .article h1{font-size:23px}
+  .article h2{font-size:18.5px}
+  .codeblock pre{font-size:12.5px;padding:14px 12px}
+  .hero h1{font-size:26px}
+  .hero{padding:32px 16px 28px}
+}
+@media print{
+  .sidebar,.topbar,#progress,#backTop{display:none!important}
+  body{background:#fff}
+  .article{border:none;box-shadow:none;padding:0}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+    <div class="topbar">
+      <button id="menuBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        目录
+      </button>
+      <div class="t-title">Biopython 零基础实战教程</div>
+    </div>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="badge">BIOINFORMATICS · PYTHON</span>
+      <h1>Biopython 零基础实战教程</h1>
+      <p class="sub">从零开始学会用 Python 处理生物序列</p>
+      <p class="meta">面向零基础读者的生物信息学入门教程<br>示例基于 Biopython 1.86 验证</p>
+    </div>
+    
+<svg class="hero-helix" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="#99f6e4" stroke-width="3" stroke-linecap="round">
+    <path d="M30 18 C 60 30, 90 6, 120 18 C 90 30, 60 54, 30 42 C 60 54, 90 30, 120 42 C 90 54, 60 78, 30 66 C 60 78, 90 54, 120 66 C 90 78, 60 102, 30 90 C 60 102, 90 78, 120 90 C 90 102, 60 126, 30 114 C 60 126, 90 102, 120 114 C 90 126, 60 138, 30 132" opacity=".9"/>
+  </g>
+  <g fill="#fbbf24">
+    <circle cx="75" cy="18" r="3.4"/>
+    <circle cx="75" cy="48" r="3.4"/>
+    <circle cx="75" cy="78" r="3.4"/>
+    <circle cx="75" cy="108" r="3.4"/>
+    <circle cx="75" cy="134" r="3.4"/>
+  </g>
+  <g fill="#5eead4">
+    <circle cx="38" cy="30" r="3"/>
+    <circle cx="112" cy="30" r="3"/>
+    <circle cx="38" cy="60" r="3"/>
+    <circle cx="112" cy="60" r="3"/>
+    <circle cx="38" cy="90" r="3"/>
+    <circle cx="112" cy="90" r="3"/>
+    <circle cx="38" cy="118" r="3"/>
+    <circle cx="112" cy="118" r="3"/>
+  </g>
+</svg>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg><span>目录导航</span></h3>
+    <div class="toc">
+<ul>
+<li><a href="#_1">前言</a><ul>
+<li><a href="#_2">本书约定</a></li>
+<li><a href="#_3">环境要求</a></li>
+</ul>
+</li>
+<li><a href="#1-biopython">第 1 章 认识 Biopython</a><ul>
+<li><a href="#11-biopython">1.1 什么是 Biopython</a></li>
+<li><a href="#12-biopython">1.2 为什么要学 Biopython</a></li>
+<li><a href="#13-biopython">1.3 Biopython 模块地图</a></li>
+<li><a href="#14">1.4 本书学习路线</a></li>
+</ul>
+</li>
+<li><a href="#2">第 2 章 环境搭建与安装</a><ul>
+<li><a href="#21-python">2.1 安装 Python</a></li>
+<li><a href="#22-biopython">2.2 安装 Biopython</a></li>
+<li><a href="#23">2.3 验证安装</a></li>
+<li><a href="#24">2.4 推荐开发环境</a></li>
+<li><a href="#25">2.5 安装其他常用配套库</a></li>
+</ul>
+</li>
+<li><a href="#3-seq">第 3 章 序列对象 Seq —— 一切从这里开始</a><ul>
+<li><a href="#31-seq">3.1 创建 Seq 对象</a></li>
+<li><a href="#32">3.2 基本操作：长度、索引、切片</a></li>
+<li><a href="#33">3.3 序列运算：拼接与重复</a></li>
+<li><a href="#34-dna">3.4 互补与反向互补（DNA 双链的核心操作）</a></li>
+<li><a href="#35">3.5 转录与翻译（中心法则）</a></li>
+<li><a href="#36-seq">3.6 Seq 的"身份"：比较与哈希</a></li>
+<li><a href="#37">3.7 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#4-seqrecord-seqio">第 4 章 SeqRecord 与 SeqIO —— 读写生物序列文件</a><ul>
+<li><a href="#41-fasta">4.1 先认识 FASTA 格式</a></li>
+<li><a href="#42-seqrecord">4.2 SeqRecord：带注释的序列</a></li>
+<li><a href="#43-seqioparse">4.3 用 SeqIO.parse() 读取多条记录</a></li>
+<li><a href="#44-seqioread">4.4 用 SeqIO.read() 读取单条记录</a></li>
+<li><a href="#45-seqiowrite">4.5 用 SeqIO.write() 写出文件</a></li>
+<li><a href="#46-fasta-genbank">4.6 格式转换：FASTA ↔ GenBank</a></li>
+<li><a href="#47">4.7 批量处理：过滤与筛选</a></li>
+<li><a href="#48">4.8 大文件：用迭代器节省内存</a></li>
+<li><a href="#49">4.9 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#5-biosequtils">第 5 章 序列分析工具箱 Bio.SeqUtils</a><ul>
+<li><a href="#51-gc">5.1 GC 含量：序列的最基本统计量</a></li>
+<li><a href="#52">5.2 序列的分子量</a></li>
+<li><a href="#53-protparam">5.3 蛋白质理化性质分析 ProtParam</a></li>
+<li><a href="#54">5.4 在序列中查找子序列</a></li>
+<li><a href="#55-gc">5.5 综合示例：批量计算 GC 含量并统计</a></li>
+<li><a href="#56">5.6 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#6">第 6 章 序列比对</a><ul>
+<li><a href="#61">6.1 一个直观的例子</a></li>
+<li><a href="#62-pairwisealigner">6.2 PairwiseAligner：双序列比对</a></li>
+<li><a href="#63">6.3 局部比对与参数调节</a></li>
+<li><a href="#64-multipleseqalignment">6.4 多序列比对对象 MultipleSeqAlignment</a></li>
+<li><a href="#65-alignio">6.5 AlignIO：读写比对文件</a></li>
+<li><a href="#66">6.6 实战场景：从比对中找保守位点</a></li>
+<li><a href="#67">6.7 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#7-blast">第 7 章 在线数据库与 BLAST</a><ul>
+<li><a href="#71-ncbi">7.1 设置邮箱与获取 NCBI 密钥</a></li>
+<li><a href="#72-entrezesearch">7.2 搜索数据库：Entrez.esearch</a></li>
+<li><a href="#73-entrezefetch">7.3 下载序列：Entrez.efetch</a></li>
+<li><a href="#74-blast">7.4 BLAST 比对：找相似序列</a></li>
+<li><a href="#75-pubmed">7.5 PubMed 文献检索</a></li>
+<li><a href="#76">7.6 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#8-biopdb">第 8 章 蛋白质三维结构 Bio.PDB</a><ul>
+<li><a href="#81-pdb">8.1 PDB 文件长什么样</a></li>
+<li><a href="#82-pdbparser">8.2 用 PDBParser 读取结构</a></li>
+<li><a href="#83">8.3 常用操作</a></li>
+<li><a href="#84">8.4 蛋白结构可视化</a></li>
+<li><a href="#85">8.5 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#9-biophylo">第 9 章 系统发育分析 Bio.Phylo</a><ul>
+<li><a href="#91-newick">9.1 树文件格式：Newick</a></li>
+<li><a href="#92">9.2 读取与遍历树</a></li>
+<li><a href="#93">9.3 从多序列比对构建进化树</a></li>
+<li><a href="#94">9.4 美化绘制进化树</a></li>
+<li><a href="#95">9.5 树的常用操作</a></li>
+<li><a href="#96">9.6 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#10">第 10 章 其他实用模块</a><ul>
+<li><a href="#101-biorestriction">10.1 限制性内切酶分析 Bio.Restriction</a></li>
+<li><a href="#102-biomotifs">10.2 序列模体 Bio.motifs</a></li>
+<li><a href="#103">10.3 密码子使用偏好</a></li>
+<li><a href="#104">10.4 其他值得一提的模块</a></li>
+</ul>
+</li>
+<li><a href="#11">第 11 章 综合实战：三个完整的项目</a><ul>
+<li><a href="#111">11.1 项目一：基因序列分析报告生成器</a></li>
+<li><a href="#112">11.2 项目二：序列清洗与格式整理工具</a></li>
+<li><a href="#113-orf">11.3 项目三：ORF 查找器</a></li>
+<li><a href="#114">11.4 项目四：批量蛋白理化性质分析</a></li>
+</ul>
+</li>
+<li><a href="#12">第 12 章 调试技巧与常见错误</a><ul>
+<li><a href="#121">12.1 高频错误速查表</a></li>
+<li><a href="#122-seq">12.2 字符串与 Seq 的转换陷阱</a></li>
+<li><a href="#123">12.3 中文与编码问题</a></li>
+<li><a href="#124">12.4 网络请求失败处理</a></li>
+<li><a href="#125">12.5 调试三件套</a></li>
+</ul>
+</li>
+<li><a href="#13">第 13 章 结语与进阶路线</a><ul>
+<li><a href="#131">13.1 官方资源</a></li>
+<li><a href="#132">13.2 下一步学习路线</a></li>
+<li><a href="#133">13.3 学习建议（来自实践）</a></li>
+</ul>
+</li>
+<li><a href="#a">附录 A：常用代码速查表</a><ul>
+<li><a href="#a1">A.1 序列操作</a></li>
+<li><a href="#a2">A.2 文件读写</a></li>
+<li><a href="#a3">A.3 分析工具</a></li>
+<li><a href="#a4-blast">A.4 数据库与 BLAST</a></li>
+<li><a href="#a5">A.5 进化树</a></li>
+<li><a href="#a6">A.6 蛋白质结构</a></li>
+</ul>
+</li>
+<li><a href="#b">附录 B：练习参考答案</a><ul>
+<li><a href="#3">第 3 章</a></li>
+<li><a href="#4">第 4 章</a></li>
+<li><a href="#5">第 5 章</a></li>
+<li><a href="#6_1">第 6 章</a></li>
+<li><a href="#7">第 7 章</a></li>
+<li><a href="#9">第 9 章</a></li>
+<li><a href="#11_1">第 11 章</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+  </nav>
+  <div id="mask"></div>
+  <main class="content">
+    <article class="article">
+      <h1 id="_1">前言</h1>
+<p><strong>《Biopython 零基础实战教程》</strong> 是一本面向完全零基础读者的生物信息学入门书。你不需要任何生物学编程背景，只需要会打开命令行、会运行 Python 脚本，就可以跟着本书一步步学会用 Biopython 处理 DNA、RNA 和蛋白质序列。</p>
+<p>本书的每一个代码示例都经过 Biopython 1.86 环境实际运行验证，你可以放心复制运行。全书采用"先概念、后代码、再练习"的编排方式，每章末尾都配有思考题，附录 B 提供了参考答案。</p>
+<blockquote>
+<p><strong>如何使用本书</strong>
+建议你按照章节顺序阅读，并<strong>亲自动手敲一遍代码</strong>——编程是"手上功夫"，只看不练等于没学。遇到不理解的概念，先跳过，读到后面往往就豁然开朗了。</p>
+</blockquote>
+<h2 id="_2">本书约定</h2>
+<table>
+<thead>
+<tr>
+<th>标记</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>代码块</code></td>
+<td>Python 代码、命令或示例输出</td>
+</tr>
+<tr>
+<td><strong>加粗</strong></td>
+<td>重点概念或需要记住的术语</td>
+</tr>
+<tr>
+<td>&gt; 引用框</td>
+<td>提示、注意事项或背景知识</td>
+</tr>
+<tr>
+<td>⚠️</td>
+<td>容易踩坑的地方，请特别留意</td>
+</tr>
+<tr>
+<td>💡</td>
+<td>实用小技巧</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">环境要求</h2>
+<ul>
+<li>Python 3.9 及以上版本（推荐 3.11+）</li>
+<li>Biopython 1.80 及以上版本（本书示例基于 1.86 验证）</li>
+<li>网络连接（第 7 章访问 NCBI 数据库时需要）</li>
+</ul>
+<hr />
+<h1 id="1-biopython">第 1 章 认识 Biopython</h1>
+<h2 id="11-biopython">1.1 什么是 Biopython</h2>
+<p><strong>Biopython</strong> 是一套开源的 Python 库，专门用于生物学计算。它由全球开发者社区维护，是生物信息学领域最流行的 Python 工具包之一，2000 年首次发布，如今已迭代到 1.8x 版本。</p>
+<p>它解决了生物学研究中的一个核心痛点：<strong>生物数据格式繁多</strong>。DNA 序列有 FASTA、GenBank、EMBL 格式，蛋白结构有 PDB 格式，比对结果有 Clustal、Stockholm 格式，进化树有 Newick 格式……如果没有统一工具，每换一种格式就要重写一遍解析代码。Biopython 把这些格式的读写统一封装成简单的 Python 接口，让你专注于<strong>生物学问题本身</strong>，而不是文件解析。</p>
+<blockquote>
+<p><strong>一句话理解</strong>：Biopython 之于生物学家，就像 <code>requests</code> 之于爬虫工程师、<code>pandas</code> 之于数据分析师——把脏活累活都包了，你只管用。</p>
+</blockquote>
+<h2 id="12-biopython">1.2 为什么要学 Biopython</h2>
+<ul>
+<li><strong>零门槛上手</strong>：只需要基础 Python 语法（变量、列表、循环、函数）即可开始；</li>
+<li><strong>生态完善</strong>：序列分析、数据库检索、比对、进化树、蛋白结构全覆盖；</li>
+<li><strong>社区庞大</strong>：Stack Overflow 上有海量问答，官方文档详尽，遇到问题容易搜到答案；</li>
+<li><strong>与科研流程无缝衔接</strong>：测序公司交付的 FASTQ、NCBI 下载的 GenBank、AlphaFold 输出的 PDB，都能直接读取；</li>
+<li><strong>可扩展</strong>：和 NumPy、pandas、matplotlib 完美配合，能做统计分析和可视化。</li>
+</ul>
+<h2 id="13-biopython">1.3 Biopython 模块地图</h2>
+<p>Biopython 不是一个大而全的"黑盒"，而是由若干子模块组成的工具箱。下面这张表是本书的"地图"，也是你日后查阅文档的索引：</p>
+<table>
+<thead>
+<tr>
+<th>子模块</th>
+<th>功能</th>
+<th>对应章节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Bio.Seq</code></td>
+<td>序列对象，DNA/RNA/蛋白的存储与操作</td>
+<td>第 3 章</td>
+</tr>
+<tr>
+<td><code>Bio.SeqRecord</code></td>
+<td>带注释（ID、描述、特征）的序列记录</td>
+<td>第 4 章</td>
+</tr>
+<tr>
+<td><code>Bio.SeqIO</code></td>
+<td>序列文件的读写与格式转换</td>
+<td>第 4 章</td>
+</tr>
+<tr>
+<td><code>Bio.SeqUtils</code></td>
+<td>GC 含量、分子量等序列分析工具</td>
+<td>第 5 章</td>
+</tr>
+<tr>
+<td><code>Bio.Align</code></td>
+<td>双序列比对（PairwiseAligner）</td>
+<td>第 6 章</td>
+</tr>
+<tr>
+<td><code>Bio.AlignIO</code></td>
+<td>多序列比对文件的读写</td>
+<td>第 6 章</td>
+</tr>
+<tr>
+<td><code>Bio.Entrez</code></td>
+<td>访问 NCBI 数据库（搜索、下载）</td>
+<td>第 7 章</td>
+</tr>
+<tr>
+<td><code>Bio.Blast</code></td>
+<td>运行与解析 BLAST 比对</td>
+<td>第 7 章</td>
+</tr>
+<tr>
+<td><code>Bio.PDB</code></td>
+<td>蛋白质三维结构解析</td>
+<td>第 8 章</td>
+</tr>
+<tr>
+<td><code>Bio.Phylo</code></td>
+<td>系统发育树分析与可视化</td>
+<td>第 9 章</td>
+</tr>
+<tr>
+<td><code>Bio.Restriction</code></td>
+<td>限制性内切酶分析</td>
+<td>第 10 章</td>
+</tr>
+<tr>
+<td><code>Bio.motifs</code></td>
+<td>序列模体（motif）分析</td>
+<td>第 10 章</td>
+</tr>
+<tr>
+<td><code>Bio.SeqUtils.ProtParam</code></td>
+<td>蛋白质理化性质计算</td>
+<td>第 5 章</td>
+</tr>
+</tbody>
+</table>
+<h2 id="14">1.4 本书学习路线</h2>
+<pre><code>第 1~2 章  打基础：认识 Biopython，装好环境
+    ↓
+第 3 章    学核心：Seq 序列对象
+    ↓
+第 4 章    学读写：SeqRecord + SeqIO（最常用的组合）
+    ↓
+第 5 章    学分析：GC 含量、蛋白性质
+    ↓
+第 6~9 章  进阶：比对、数据库、结构、进化树
+    ↓
+第 10~11 章 实战：模块串烧 + 完整项目
+    ↓
+第 12 章   排错：常见错误与调试
+</code></pre>
+<blockquote>
+<p>💡 <strong>学习建议</strong>：第 3~5 章是"地基"，务必吃透；第 6~9 章按需学习，用到哪章读哪章；第 11 章的实战项目是对全书最好的检验。</p>
+</blockquote>
+<hr />
+<h1 id="2">第 2 章 环境搭建与安装</h1>
+<h2 id="21-python">2.1 安装 Python</h2>
+<p>如果你还没有 Python，请到 <a href="https://www.python.org/downloads/">python.org</a> 下载 3.11 或 3.12 版本安装。</p>
+<ul>
+<li><strong>Windows</strong>：安装时务必勾选 <strong>"Add Python to PATH"</strong>；</li>
+<li><strong>macOS</strong>：推荐用 Homebrew 安装：<code>brew install python</code>；</li>
+<li><strong>Linux</strong>：多数发行版自带 Python，用系统包管理器安装即可。</li>
+</ul>
+<p>安装完成后，在终端（命令提示符）里验证：</p>
+<div class="codeblock" data-lang="终端"><button class="copy-btn" title="复制代码">复制</button><pre><code>python<span class="w"> </span>--version
+</code></pre></div>
+<blockquote>
+<p>💡 如果你不习惯命令行，可以直接安装 <strong>Anaconda</strong>（自带 Python 和大量科学计算包），用 Anaconda Prompt 操作。</p>
+</blockquote>
+<h2 id="22-biopython">2.2 安装 Biopython</h2>
+<p><strong>方法一：pip（推荐）</strong></p>
+<div class="codeblock" data-lang="终端"><button class="copy-btn" title="复制代码">复制</button><pre><code>pip<span class="w"> </span>install<span class="w"> </span>biopython
+</code></pre></div>
+<p>如果系统提示权限问题，加 <code>--user</code> 参数，或使用虚拟环境：</p>
+<div class="codeblock" data-lang="终端"><button class="copy-btn" title="复制代码">复制</button><pre><code>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>bioenv<span class="w">        </span><span class="c1"># 创建虚拟环境</span>
+<span class="nb">source</span><span class="w"> </span>bioenv/bin/activate<span class="w">   </span><span class="c1"># Windows 用 bioenv\Scripts\activate</span>
+pip<span class="w"> </span>install<span class="w"> </span>biopython
+</code></pre></div>
+<p><strong>方法二：conda</strong></p>
+<div class="codeblock" data-lang="终端"><button class="copy-btn" title="复制代码">复制</button><pre><code>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>biopython
+</code></pre></div>
+<h2 id="23">2.3 验证安装</h2>
+<p>打开 Python 交互式环境（终端输入 <code>python</code>），输入：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">import</span><span class="w"> </span><span class="nn">Bio</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Bio</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</code></pre></div>
+<p>如果输出类似 <code>1.86</code> 的版本号，说明安装成功。</p>
+<blockquote>
+<p>⚠️ 安装失败怎么办？最常见的原因是网络问题。国内用户可以换用清华镜像源：
+<code>pip install biopython -i https://pypi.tuna.tsinghua.edu.cn/simple</code></p>
+</blockquote>
+<h2 id="24">2.4 推荐开发环境</h2>
+<ul>
+<li><strong>Jupyter Notebook / Jupyter Lab</strong>：适合边写边看结果，生物信息学入门首选。安装：<code>pip install jupyter</code>，启动：<code>jupyter notebook</code>；</li>
+<li><strong>VS Code</strong>：安装 Python 扩展后即可获得代码补全和调试功能，适合写正式脚本；</li>
+<li><strong>交互式测试</strong>：任何时候都可以在 Python 终端里快速验证一行代码的效果。</li>
+</ul>
+<blockquote>
+<p>💡 本书所有示例都可在 Jupyter 中逐行运行，也能存成 <code>.py</code> 脚本用 <code>python 文件名.py</code> 执行。</p>
+</blockquote>
+<h2 id="25">2.5 安装其他常用配套库</h2>
+<p>Biopython 经常与以下库搭配使用，建议一并安装：</p>
+<div class="codeblock" data-lang="终端"><button class="copy-btn" title="复制代码">复制</button><pre><code>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>matplotlib<span class="w"> </span>scipy
+</code></pre></div>
+<ul>
+<li><code>numpy</code>：数值计算，Biopython 的矩阵、距离计算会用到；</li>
+<li><code>matplotlib</code>：绘图，绘制进化树、比对图、GC 分布图；</li>
+<li><code>scipy</code>：科学计算，部分统计功能依赖它。</li>
+</ul>
+<blockquote>
+<p>✅ <strong>环境检查清单</strong>
+1. <code>python --version</code> 能输出版本号；
+2. <code>import Bio</code> 不报错；
+3. <code>Bio.__version__</code> 大于等于 1.80；
+4. <code>import numpy, matplotlib</code> 正常。
+全部通过就可以开始第 3 章了！</p>
+</blockquote>
+<hr />
+<h1 id="3-seq">第 3 章 序列对象 Seq —— 一切从这里开始</h1>
+<p>生物信息学处理的核心数据是<strong>序列</strong>：DNA 由 A、T、G、C 四种碱基组成，RNA 把 T 换成了 U，蛋白质由 20 种氨基酸组成。Biopython 用 <code>Seq</code> 对象来代表一条序列——它是整个库的基石，几乎一切功能都围绕它展开。</p>
+<h2 id="31-seq">3.1 创建 Seq 对象</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="c1"># 创建一条 DNA 序列</span>
+<span class="n">dna</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGCATGC&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dna</span><span class="p">)</span>          <span class="c1"># ATGCATGC</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dna</span><span class="p">))</span>    <span class="c1"># &lt;class &#39;Bio.Seq.Seq&#39;&gt;</span>
+
+<span class="c1"># 创建 RNA 和蛋白质序列</span>
+<span class="n">rna</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;AUGCAUGC&quot;</span><span class="p">)</span>
+<span class="n">protein</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;MAIVMGR&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Seq 对象本质上是一段<strong>带字母表（alphabet）标记</strong>的字符串，但它比普通字符串多了大量生物学方法。</p>
+<blockquote>
+<p>⚠️ <strong>大小写敏感</strong>：Biopython 默认不区分碱基大小写，但为了可读性，惯例上 DNA/RNA 用大写。注意 <code>Bio.Seq.Seq</code> 与 <code>Bio.SeqRecord.SeqRecord</code> 是两个不同的类，前者是"裸序列"，后者是"带注释的序列"（第 4 章详解）。</p>
+</blockquote>
+<h2 id="32">3.2 基本操作：长度、索引、切片</h2>
+<p>Seq 支持所有字符串操作：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGCATGC&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">))</span>          <span class="c1"># 8 —— 序列长度</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>            <span class="c1"># A —— 第一个碱基（索引从 0 开始）</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>           <span class="c1"># C —— 最后一个碱基</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>          <span class="c1"># GCA —— 切片，取第 3~5 个碱基</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="p">[::</span><span class="mi">2</span><span class="p">])</span>          <span class="c1"># ATAT —— 隔一个取一个</span>
+</code></pre></div>
+<h2 id="33">3.3 序列运算：拼接与重复</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">seq1</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">)</span>
+<span class="n">seq2</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;TGCA&quot;</span><span class="p">)</span>
+
+<span class="c1"># 拼接两条序列</span>
+<span class="n">combined</span> <span class="o">=</span> <span class="n">seq1</span> <span class="o">+</span> <span class="n">seq2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>          <span class="c1"># ATGCTGCA</span>
+
+<span class="c1"># 重复序列</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq1</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>          <span class="c1"># ATGCATGC</span>
+
+<span class="c1"># 判断子序列是否在序列中</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ATG&quot;</span> <span class="ow">in</span> <span class="n">seq1</span><span class="p">)</span>     <span class="c1"># True</span>
+
+<span class="c1"># 统计碱基出现次数</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq1</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">))</span>   <span class="c1"># 1</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <code>count</code> 和 <code>len</code> 都支持，注意顺序：<code>seq.count("A")</code> 而不是 <code>"A".count(seq)</code>。</p>
+</blockquote>
+<h2 id="34-dna">3.4 互补与反向互补（DNA 双链的核心操作）</h2>
+<p>DNA 双链中 A 配 T、G 配 C。互补（complement）和反向互补（reverse complement）是分子生物学最常用的操作——比如设计引物、判断基因所在链时都要用到。</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGCATGC&quot;</span><span class="p">)</span>
+
+<span class="c1"># 互补链</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">complement</span><span class="p">())</span>          <span class="c1"># TACGTACG</span>
+
+<span class="c1"># 反向互补（常用！）</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">reverse_complement</span><span class="p">())</span>  <span class="c1"># GCATGCAT</span>
+
+<span class="c1"># 对 RNA 同样适用（A 配 U）</span>
+<span class="n">rna</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;AUGCAUGC&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rna</span><span class="o">.</span><span class="n">complement</span><span class="p">())</span>          <span class="c1"># UACGUACG</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ <strong>千万别把二者搞混</strong>：<code>complement()</code> 只是把每个碱基换成配对碱基；<code>reverse_complement()</code> 是先把序列<strong>倒过来</strong>再互补——这是双链 DNA 另一条链的真实方向，实验和数据分析中用得最多。</p>
+</blockquote>
+<h2 id="35">3.5 转录与翻译（中心法则）</h2>
+<p>分子生物学的中心法则：DNA → RNA（转录）→ 蛋白质（翻译）。Seq 对象内置了这两个操作：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">dna</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span><span class="p">)</span>
+
+<span class="c1"># 转录：DNA -&gt; mRNA（T 变成 U）</span>
+<span class="n">mrna</span> <span class="o">=</span> <span class="n">dna</span><span class="o">.</span><span class="n">transcribe</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mrna</span><span class="p">)</span>   <span class="c1"># AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAG</span>
+
+<span class="c1"># 翻译：mRNA -&gt; 蛋白质（每 3 个碱基一个密码子）</span>
+<span class="n">protein</span> <span class="o">=</span> <span class="n">mrna</span><span class="o">.</span><span class="n">translate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">protein</span><span class="p">)</span>   <span class="c1"># MAIVMGR*KGAR*</span>
+
+<span class="c1"># 也可以直接从 DNA 翻译（等价）</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dna</span><span class="o">.</span><span class="n">translate</span><span class="p">())</span>   <span class="c1"># MAIVMGR*KGAR*</span>
+</code></pre></div>
+<p>输出中的 <code>*</code> 是<strong>终止密码子</strong>（Stop codon）。如果不希望显示，可以加参数：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="c1"># 翻译遇到第一个终止密码子即停止</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dna</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">to_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>    <span class="c1"># MAIVMGR</span>
+
+<span class="c1"># 如果序列不是 3 的倍数，默认会丢弃末尾不完整的密码子</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dna</span><span class="o">.</span><span class="n">translate</span><span class="p">())</span>                <span class="c1"># MAIVMGR*KGAR*</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>翻译的方向</strong>：<code>translate()</code> 默认从第 0 位开始（读框 1）。要读其他读框，先切片再翻译，例如 <code>dna[1:].translate()</code> 就是读框 2。第 11 章的 ORF 查找器会用到这个技巧。</p>
+</blockquote>
+<h2 id="36-seq">3.6 Seq 的"身份"：比较与哈希</h2>
+<p>Seq 支持相等比较，也支持作为字典的键：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">seq_a</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">)</span>
+<span class="n">seq_b</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">)</span>
+<span class="n">seq_c</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGG&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">seq_a</span> <span class="o">==</span> <span class="n">seq_b</span><span class="p">)</span>   <span class="c1"># True —— 序列内容相同</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq_a</span> <span class="o">==</span> <span class="n">seq_c</span><span class="p">)</span>   <span class="c1"># False</span>
+
+<span class="c1"># 字典键（用于去重、统计）</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">counter</span><span class="p">[</span><span class="n">seq_a</span><span class="p">]</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">seq_a</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>          <span class="c1"># {Seq(&#39;ATGC&#39;): 1}</span>
+</code></pre></div>
+<h2 id="37">3.7 小结与练习</h2>
+<p><strong>本章核心速记：</strong></p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>方法/语法</th>
+<th>示例结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>创建</td>
+<td><code>Seq("ATGC")</code></td>
+<td><code>Seq('ATGC')</code></td>
+</tr>
+<tr>
+<td>长度</td>
+<td><code>len(seq)</code></td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td>拼接</td>
+<td><code>seq1 + seq2</code></td>
+<td><code>ATGC...</code></td>
+</tr>
+<tr>
+<td>互补</td>
+<td><code>seq.complement()</code></td>
+<td><code>TACG</code></td>
+</tr>
+<tr>
+<td>反向互补</td>
+<td><code>seq.reverse_complement()</code></td>
+<td><code>GCAT</code></td>
+</tr>
+<tr>
+<td>转录</td>
+<td><code>seq.transcribe()</code></td>
+<td><code>AUGC</code></td>
+</tr>
+<tr>
+<td>翻译</td>
+<td><code>seq.translate()</code></td>
+<td><code>M...</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>练习：</strong></p>
+<ol>
+<li>创建序列 <code>"AATTCCGG"</code>，输出它的互补序列和反向互补序列。</li>
+<li>有一条 DNA：<code>"ATGGTGGCATGA"</code>，先转录再翻译，输出蛋白质序列（提示：用 <code>to_stop=True</code>）。</li>
+<li>写一行代码，统计 <code>"ACGTACGTACGT"</code> 中每个碱基各出现几次（提示：结合 <code>count</code> 和循环，或用 <code>collections.Counter</code>）。</li>
+</ol>
+<blockquote>
+<p>💡 答案见附录 B。卡住了先自己思考，实在不行再看答案。</p>
+</blockquote>
+<h1 id="4-seqrecord-seqio">第 4 章 SeqRecord 与 SeqIO —— 读写生物序列文件</h1>
+<p>第 3 章的 <code>Seq</code> 对象是"裸序列"，但现实中的序列数据总是带着一大堆注释：基因 ID、物种名、功能描述、编码区位置……Biopython 用 <strong><code>SeqRecord</code></strong> 承载这些信息，用 <strong><code>SeqIO</code></strong> 负责文件的读写。这三个类加起来，是 Biopython 日常使用率最高的组合。</p>
+<h2 id="41-fasta">4.1 先认识 FASTA 格式</h2>
+<p>FASTA 是生物信息学最通用的序列文本格式，<strong>每条记录由两行组成</strong>：</p>
+<pre><code>&gt;基因ID 描述信息（可有可无）
+ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG
+</code></pre>
+<ul>
+<li>以 <code>&gt;</code> 开头的行为<strong>标题行</strong>，<code>&gt;</code> 后紧跟的是序列 ID，后面的空格及之后的内容是描述；</li>
+<li>之后可以有一行或多行序列（通常每行 60~80 个字符，纯文本，无空格）；</li>
+<li>一个 FASTA 文件可以包含任意多条记录。</li>
+</ul>
+<h2 id="42-seqrecord">4.2 SeqRecord：带注释的序列</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqRecord</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqRecord</span>
+
+<span class="n">record</span> <span class="o">=</span> <span class="n">SeqRecord</span><span class="p">(</span>
+    <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span><span class="p">),</span>  <span class="c1"># 序列本体</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gene_001&quot;</span><span class="p">,</span>           <span class="c1"># 唯一标识（对应 FASTA 中 &gt; 后面的第一个词）</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo_gene&quot;</span><span class="p">,</span>        <span class="c1"># 名称</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;a demo gene from tutorial&quot;</span><span class="p">,</span>  <span class="c1"># 描述</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>             <span class="c1"># gene_001</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>    <span class="c1"># a demo gene from tutorial</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>            <span class="c1"># ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="p">))</span>           <span class="c1"># 42 —— 注意 len() 作用于整个记录时返回序列长度</span>
+</code></pre></div>
+<p><code>SeqRecord</code> 的常用属性：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.seq</code></td>
+<td>序列（Seq 对象）</td>
+<td><code>record.seq</code></td>
+</tr>
+<tr>
+<td><code>.id</code></td>
+<td>唯一标识</td>
+<td><code>"gene_001"</code></td>
+</tr>
+<tr>
+<td><code>.name</code></td>
+<td>名称</td>
+<td><code>"demo_gene"</code></td>
+</tr>
+<tr>
+<td><code>.description</code></td>
+<td>描述</td>
+<td><code>"a demo gene"</code></td>
+</tr>
+<tr>
+<td><code>.features</code></td>
+<td>特征列表（基因、CDS 等注释）</td>
+<td>第 4.6 节</td>
+</tr>
+<tr>
+<td><code>.annotations</code></td>
+<td>其他元数据（字典）</td>
+<td>物种、数据库来源等</td>
+</tr>
+</tbody>
+</table>
+<h2 id="43-seqioparse">4.3 用 SeqIO.parse() 读取多条记录</h2>
+<p><code>SeqIO.parse(文件, 格式)</code> 返回一个<strong>迭代器</strong>，逐个产出记录。它是读取序列文件最核心的函数：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="c1"># 方法一：直接传文件路径</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;genes.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+
+<span class="c1"># 方法二：用 with 语句打开文件（推荐，自动关闭文件）</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;genes.fasta&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+
+<span class="c1"># 方法三：一次性读入列表（适合小文件）</span>
+<span class="n">records</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;genes.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">))</span>   <span class="c1"># 文件中有几条记录</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ <strong>parse 返回的是迭代器</strong>：它按需读取文件，内存占用小，但<strong>只能遍历一次</strong>。如果遍历完还要再用，请先用 <code>list()</code> 转成列表，或者重新 parse。</p>
+</blockquote>
+<h2 id="44-seqioread">4.4 用 SeqIO.read() 读取单条记录</h2>
+<p>当文件<strong>恰好只有一条</strong>记录时，用 <code>read()</code> 更简洁。如果文件里有多条，<code>read()</code> 会直接报错——这其实是好事，能帮你发现数据问题：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="n">record</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;single_gene.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ <code>SeqIO.read</code> 遇到多条记录会抛出 <code>ValueError</code>；<code>SeqIO.parse</code> 遇到格式错误会抛出解析异常。读文件时做好异常处理是好习惯（第 12 章详述）。</p>
+</blockquote>
+<h2 id="45-seqiowrite">4.5 用 SeqIO.write() 写出文件</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqRecord</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqRecord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="n">records</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;g1&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;gene one&quot;</span><span class="p">),</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATTAG&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;g2&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;gene two&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="c1"># 写入 FASTA 文件（格式由文件名后缀和 format 参数共同决定）</span>
+<span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="s2">&quot;output.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>输出到文件后内容如下：</p>
+<pre><code>&gt;g1 gene one
+ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG
+&gt;g2 gene two
+ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATTAG
+</code></pre>
+<blockquote>
+<p>💡 <code>SeqIO.write</code> 接收<strong>列表或迭代器</strong>作为第一个参数。注意：<code>parse</code> 返回的迭代器在用完后不能再传给 <code>write</code>——所以要重新 parse 一次。</p>
+</blockquote>
+<h2 id="46-fasta-genbank">4.6 格式转换：FASTA ↔ GenBank</h2>
+<p><code>SeqIO</code> 最爽的功能之一：<strong>同一段代码，换个格式名，就能做格式转换</strong>。GenBank 是 NCBI 最常用的注释格式，包含基因位置、编码区、CDS 等丰富信息：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="c1"># 把 FASTA 转成 GenBank（GenBank 需要有 features 才有意义，这里演示流程）</span>
+<span class="n">records</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;genes.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">))</span>
+<span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="s2">&quot;genes.gb&quot;</span><span class="p">,</span> <span class="s2">&quot;genbank&quot;</span><span class="p">)</span>
+
+<span class="c1"># 反向：GenBank 转 FASTA</span>
+<span class="n">records</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;genes.gb&quot;</span><span class="p">,</span> <span class="s2">&quot;genbank&quot;</span><span class="p">))</span>
+<span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="s2">&quot;back_to_fasta.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>读取一份真实的 GenBank 文件（比如从 NCBI 下载的），可以看到 <code>.features</code> 里的注释信息：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">record</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;NC_000913.gb&quot;</span><span class="p">,</span> <span class="s2">&quot;genbank&quot;</span><span class="p">)</span>   <span class="c1"># 大肠杆菌基因组示例</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>                 <span class="c1"># NC_000913.3</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="s2">&quot;organism&quot;</span><span class="p">])</span>  <span class="c1"># 物种名</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">features</span><span class="p">))</span>      <span class="c1"># 特征数量（基因、CDS、tRNA 等）</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>        <span class="c1"># 第一条特征</span>
+</code></pre></div>
+<blockquote>
+<p>💡 从 NCBI 下载 GenBank 文件：打开 <a href="https://www.ncbi.nlm.nih.gov/">www.ncbi.nlm.nih.gov</a>，搜索基因或基因组 → 选择 "GenBank" 格式 → 下载保存即可。第 7 章会教你用代码直接下载。</p>
+</blockquote>
+<h2 id="47">4.7 批量处理：过滤与筛选</h2>
+<p>实际工作中最常见的场景：读入一大批序列，过滤筛选，再写出。比如"只保留长度超过 100 的序列"：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_sequences</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;读取 FASTA，过滤长度不足的序列，写出新文件&quot;&quot;&quot;</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_length</span><span class="p">:</span>
+            <span class="n">kept</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;原始记录: 已过滤，保留 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span><span class="si">}</span><span class="s2"> 条&quot;</span><span class="p">)</span>
+
+<span class="n">filter_sequences</span><span class="p">(</span><span class="s2">&quot;all_genes.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;long_genes.fasta&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="48">4.8 大文件：用迭代器节省内存</h2>
+<p><code>SeqIO.parse</code> 返回迭代器意味着你<strong>不必把整个文件读进内存</strong>——处理 GB 级的测序数据时，这是生死攸关的能力。下面这段代码逐条处理几十万条序列也不会内存爆炸：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="n">total_gc</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">total_len</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;huge_file.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+    <span class="n">seq</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">seq</span>
+    <span class="n">total_gc</span> <span class="o">+=</span> <span class="n">seq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">seq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">total_len</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;共 </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> 条序列，总长度 </span><span class="si">{</span><span class="n">total_len</span><span class="si">}</span><span class="s2">，平均 GC 含量 </span><span class="si">{</span><span class="n">total_gc</span><span class="o">/</span><span class="n">total_len</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>什么时候用 list()，什么时候用迭代器？</strong> 文件小（几千条以内）、需要反复访问 → 用 <code>list()</code> 方便；文件大、只需顺序处理 → 用迭代器省内存。这是面试和实际工作中都常被问到的问题。</p>
+</blockquote>
+<h2 id="49">4.9 小结与练习</h2>
+<p><strong>本章核心 API 速记：</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>返回</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SeqIO.parse(文件, 格式)</code></td>
+<td>读取多条记录</td>
+<td>迭代器</td>
+</tr>
+<tr>
+<td><code>SeqIO.read(文件, 格式)</code></td>
+<td>读取单条记录</td>
+<td>SeqRecord</td>
+</tr>
+<tr>
+<td><code>SeqIO.write(记录列表, 文件, 格式)</code></td>
+<td>写出记录</td>
+<td>写入条数</td>
+</tr>
+<tr>
+<td><code>SeqRecord(seq, id=..., description=...)</code></td>
+<td>构造带注释序列</td>
+<td>SeqRecord</td>
+</tr>
+</tbody>
+</table>
+<p><strong>练习：</strong></p>
+<ol>
+<li>用 <code>SeqIO.parse</code> 读取任意 FASTA 文件，打印每条记录的 <code>id</code> 和长度。</li>
+<li>编写代码：读取 <code>all.fasta</code>，把所有<strong>含终止密码子早停（翻译后以 * 结尾）的序列</strong>剔除……提示：先翻译，检查蛋白质序列中是否含 <code>*</code>（排除末尾的终止符）。</li>
+<li>把练习 1 中的文件转换成 GenBank 格式，再转换回来，验证序列内容是否一致（提示：比对转换前后的序列列表是否相等）。</li>
+</ol>
+<h1 id="5-biosequtils">第 5 章 序列分析工具箱 Bio.SeqUtils</h1>
+<p>掌握了序列的读写之后，我们开始真正"分析"序列。<code>Bio.SeqUtils</code> 提供了一大批实用的序列分析函数，本节介绍最常用的几个。</p>
+<h2 id="51-gc">5.1 GC 含量：序列的最基本统计量</h2>
+<p>GC 含量（G 和 C 碱基占全部碱基的比例）是衡量 DNA 稳定性和物种特性的基本指标——GC 含量高的序列更耐热，不同物种的基因组 GC 含量差异很大（人 ~41%，大肠杆菌 ~50%）。</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">gc_fraction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGCGCGCAT&quot;</span><span class="p">)</span>
+<span class="n">gc</span> <span class="o">=</span> <span class="n">gc_fraction</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gc</span><span class="p">)</span>                <span class="c1"># 0.6</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GC 含量: </span><span class="si">{</span><span class="n">gc</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>   <span class="c1"># GC 含量: 60.0%</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ <strong>API 变迁提醒</strong>：早期版本用 <code>Bio.SeqUtils.GC()</code>（大写函数），新版本推荐 <code>gc_fraction()</code>。旧函数仍可用但已过时，新代码请用 <code>gc_fraction</code>。</p>
+<p>💡 <code>gc_fraction</code> 默认会忽略非 ACGT 字符（如 N），也可以指定只统计 ACGT：
+<code>gc_fraction("ATNG", ignore_ambiguous=False)</code></p>
+</blockquote>
+<h2 id="52">5.2 序列的分子量</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">molecular_weight</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">molecular_weight</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">)))</span>   <span class="c1"># 双链 DNA 的分子量（默认）</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">molecular_weight</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">),</span> <span class="n">double_stranded</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>  <span class="c1"># 单链</span>
+</code></pre></div>
+<h2 id="53-protparam">5.3 蛋白质理化性质分析 ProtParam</h2>
+<p>对蛋白质序列，<code>Bio.SeqUtils.ProtParam.ProteinAnalysis</code> 能一次性算出一大堆指标：氨基酸组成、分子量、等电点、疏水性、脂肪族氨基酸指数等。这是做蛋白质功能预测、设计实验时的高频工具：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils.ProtParam</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProteinAnalysis</span>
+
+<span class="n">protein</span> <span class="o">=</span> <span class="s2">&quot;MAIVMGRKGAR&quot;</span>   <span class="c1"># 一段蛋白质序列</span>
+
+<span class="n">pa</span> <span class="o">=</span> <span class="n">ProteinAnalysis</span><span class="p">(</span><span class="n">protein</span><span class="p">)</span>
+
+<span class="c1"># 1. 氨基酸组成（每种氨基酸的数量）</span>
+<span class="n">aa_counts</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">count_amino_acids</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">aa_counts</span><span class="p">)</span>          <span class="c1"># {&#39;A&#39;: 2, &#39;R&#39;: 2, &#39;G&#39;: 2, ...}</span>
+
+<span class="c1"># 2. 氨基酸百分含量</span>
+<span class="n">aa_percent</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">get_amino_acids_percent</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A 占 </span><span class="si">{</span><span class="n">aa_percent</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 3. 分子量（道尔顿）</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;分子量: </span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">molecular_weight</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> Da&quot;</span><span class="p">)</span>
+
+<span class="c1"># 4. 等电点 pI（蛋白质带净电荷为零时的 pH）</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;等电点: </span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">isoelectric_point</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 5. 脂肪族氨基酸指数（衡量蛋白热稳定性）</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;脂肪族指数: </span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">aromaticity</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 6. 总疏水性（GRAVY，负值偏亲水）</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GRAVY: </span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">gravy</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>GRAVY 怎么读</strong>：GRAVY &gt; 0 表示蛋白偏疏水（常与跨膜、膜蛋白相关），GRAVY &lt; 0 偏亲水（常为可溶性蛋白）。它是蛋白质组学入门最常用的指标之一。</p>
+</blockquote>
+<h2 id="54">5.4 在序列中查找子序列</h2>
+<p><code>Bio.SeqUtils.nt_search</code> 返回所有匹配位置（第 0 项是匹配模式本身）：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">nt_search</span>
+
+<span class="n">positions</span> <span class="o">=</span> <span class="n">nt_search</span><span class="p">(</span><span class="s2">&quot;ATGCATGCAT&quot;</span><span class="p">,</span> <span class="s2">&quot;AT&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>   <span class="c1"># [&#39;AT&#39;, 0, 4, 8]  —— 在位置 0、4、8 处出现</span>
+</code></pre></div>
+<h2 id="55-gc">5.5 综合示例：批量计算 GC 含量并统计</h2>
+<p>把第 4 章与本章结合，写一个真正有用的小工具——统计 FASTA 文件里每条序列的 GC 含量分布：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">gc_fraction</span>
+
+<span class="n">gc_values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;genes.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+    <span class="n">gc</span> <span class="o">=</span> <span class="n">gc_fraction</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+    <span class="n">gc_values</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">gc</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="si">:</span><span class="s2">12s</span><span class="si">}</span><span class="s2">  GC = </span><span class="si">{</span><span class="n">gc</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 找出 GC 含量最高的序列</span>
+<span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">gc_values</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GC 最高的是 </span><span class="si">{</span><span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">，含量 </span><span class="si">{</span><span class="n">best</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="56">5.6 小结与练习</h2>
+<p><strong>本章核心函数：</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>功能</th>
+<th>所在模块</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gc_fraction(seq)</code></td>
+<td>GC 含量</td>
+<td><code>Bio.SeqUtils</code></td>
+</tr>
+<tr>
+<td><code>molecular_weight(seq)</code></td>
+<td>分子量</td>
+<td><code>Bio.SeqUtils</code></td>
+</tr>
+<tr>
+<td><code>ProteinAnalysis(seq)</code></td>
+<td>蛋白多项性质</td>
+<td><code>Bio.SeqUtils.ProtParam</code></td>
+</tr>
+<tr>
+<td><code>nt_search(seq, motif)</code></td>
+<td>子序列定位</td>
+<td><code>Bio.SeqUtils</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>练习：</strong></p>
+<ol>
+<li>计算 <code>"ACGTACGTACGT"</code> 的 GC 含量（应为 50%）。</li>
+<li>用 <code>ProteinAnalysis</code> 计算蛋白质 <code>"MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHF"</code>（人血红蛋白 α 亚基的一段）的分子量与等电点。</li>
+<li>写一个函数 <code>gc_of_file(path)</code>：读取 FASTA 文件，返回每条记录 ID 到 GC 含量的字典。</li>
+</ol>
+<hr />
+<h1 id="6">第 6 章 序列比对</h1>
+<p>序列比对的本质是回答一个问题：<strong>两条序列有多像？</strong> 通过将序列排成行、在必要位置插入间隙（gap，用 <code>-</code> 表示），让相同或相似的字符对齐，再打分。这是进化分析、功能注释、序列检索的底层技术。</p>
+<h2 id="61">6.1 一个直观的例子</h2>
+<pre><code>序列 A:  ACG-T
+序列 B:  ACGGT
+         |||-|
+</code></pre>
+<p>A 和 B 在 5 个位置上有 4 处匹配，第 4 位插入了一个间隙。这样的排列就是一次"比对"。Biopython 的 <code>PairwiseAligner</code> 负责自动寻找最优比对。</p>
+<h2 id="62-pairwisealigner">6.2 PairwiseAligner：双序列比对</h2>
+<p><code>Bio.Align.PairwiseAligner</code> 是现代 Biopython（1.80+）推荐的比对工具，API 清晰、性能好：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Align</span><span class="w"> </span><span class="kn">import</span> <span class="n">PairwiseAligner</span>
+
+<span class="n">aligner</span> <span class="o">=</span> <span class="n">PairwiseAligner</span><span class="p">()</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>        <span class="c1"># 全局比对：从头到尾比对整条序列</span>
+
+<span class="n">seq1</span> <span class="o">=</span> <span class="s2">&quot;ACGT&quot;</span>
+<span class="n">seq2</span> <span class="o">=</span> <span class="s2">&quot;ACGGT&quot;</span>
+
+<span class="n">alignments</span> <span class="o">=</span> <span class="n">aligner</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">)</span>
+<span class="n">best</span> <span class="o">=</span> <span class="n">alignments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">best</span><span class="o">.</span><span class="n">score</span><span class="p">)</span>      <span class="c1"># 3.0 —— 比对得分</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">best</span><span class="p">)</span>            <span class="c1"># 打印比对结果</span>
+</code></pre></div>
+<p>输出：</p>
+<pre><code>target            0 ACG-T 4
+                  0 |||-| 5
+query             0 ACGGT 5
+</code></pre>
+<p><code>target</code> 是第一条序列，<code>query</code> 是第二条；中间的 <code>|</code> 表示匹配，<code>.</code> 表示相似但不相同（蛋白质比对时常见），<code>-</code> 是间隙。</p>
+<h2 id="63">6.3 局部比对与参数调节</h2>
+<p><strong>全局比对 vs 局部比对</strong>：全局比对强制两条序列从头到尾对齐，适合相似度高的序列；局部比对（mode="local"）只找最相似的片段，适合找保守结构域、处理长短差异大的序列：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">aligner</span> <span class="o">=</span> <span class="n">PairwiseAligner</span><span class="p">()</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span>          <span class="c1"># 局部比对</span>
+
+<span class="n">seq1</span> <span class="o">=</span> <span class="s2">&quot;GGGGACGTACGTGGGG&quot;</span>
+<span class="n">seq2</span> <span class="o">=</span> <span class="s2">&quot;AAAACGTACGTAAAA&quot;</span>
+<span class="k">for</span> <span class="n">aln</span> <span class="ow">in</span> <span class="n">aligner</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">aln</span><span class="o">.</span><span class="n">score</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">aln</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>调节打分参数</strong>：比对质量取决于打分规则——匹配得分、错配罚分、间隙开启/延伸罚分。默认参数适合大多数情况，但你可以按需调整：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">aligner</span> <span class="o">=</span> <span class="n">PairwiseAligner</span><span class="p">()</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">match_score</span> <span class="o">=</span> <span class="mi">2</span>         <span class="c1"># 匹配 +2</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">mismatch_score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>     <span class="c1"># 错配 -1</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">open_gap_score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>     <span class="c1"># 开启一个间隙罚 2 分</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">extend_gap_score</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="c1"># 间隙每延伸一个碱基罚 0.5 分</span>
+
+<span class="c1"># 蛋白质比对可以指定打分矩阵（如 BLOSUM62）</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Align</span><span class="w"> </span><span class="kn">import</span> <span class="n">substitution_matrices</span>
+<span class="n">blosum62</span> <span class="o">=</span> <span class="n">substitution_matrices</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;BLOSUM62&quot;</span><span class="p">)</span>
+<span class="n">aligner</span><span class="o">.</span><span class="n">substitution_matrix</span> <span class="o">=</span> <span class="n">blosum62</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>什么情况调参？</strong> 序列相似度高、长度接近 → 用默认参数即可；要追求灵敏度（找远缘同源）→ 降低 gap 罚分；要追求严谨（防假阳性）→ 提高匹配分数或降低 gap 罚分。</p>
+</blockquote>
+<h2 id="64-multipleseqalignment">6.4 多序列比对对象 MultipleSeqAlignment</h2>
+<p>三条及以上序列的比对叫多序列比对（MSA）。Biopython 用 <code>MultipleSeqAlignment</code> 表示 MSA 结果。注意：<strong>Biopython 本身不提供 MSA 算法</strong>，它负责读取/写出 MSA 文件（由 MUSCLE、ClustalW、MAFFT 等外部软件生成）：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Align</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipleSeqAlignment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqRecord</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqRecord</span>
+
+<span class="c1"># 手工构造一个多序列比对（注意：所有序列长度必须相等）</span>
+<span class="n">aln</span> <span class="o">=</span> <span class="n">MultipleSeqAlignment</span><span class="p">([</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ACGTACGT&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;seqA&quot;</span><span class="p">),</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ACGTACGA&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;seqB&quot;</span><span class="p">),</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ACGTTCGT&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;seqC&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">aln</span><span class="p">)</span>
+<span class="c1"># 输出：</span>
+<span class="c1"># seqA  ACGTACGT</span>
+<span class="c1"># seqB  ACGTACGA</span>
+<span class="c1"># seqC  ACGTTCGT</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">aln</span><span class="o">.</span><span class="n">get_alignment_length</span><span class="p">())</span>   <span class="c1"># 8 —— 比对后的长度</span>
+</code></pre></div>
+<h2 id="65-alignio">6.5 AlignIO：读写比对文件</h2>
+<p>MSA 结果通常保存为 Clustal、Stockholm 等格式。<code>Bio.AlignIO</code> 与 <code>SeqIO</code> 用法几乎一模一样：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlignIO</span>
+
+<span class="c1"># 读取比对文件</span>
+<span class="n">aln</span> <span class="o">=</span> <span class="n">AlignIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;alignment.aln&quot;</span><span class="p">,</span> <span class="s2">&quot;clustal&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">aln</span><span class="o">.</span><span class="n">get_alignment_length</span><span class="p">())</span>
+
+<span class="c1"># 写入 Stockholm 格式</span>
+<span class="n">AlignIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">aln</span><span class="p">,</span> <span class="s2">&quot;alignment.sth&quot;</span><span class="p">,</span> <span class="s2">&quot;stockholm&quot;</span><span class="p">)</span>
+
+<span class="c1"># 遍历比对中的每条序列</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">aln</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">[:</span><span class="mi">20</span><span class="p">])</span>
+</code></pre></div>
+<blockquote>
+<p>💡 常见 MSA 工具：<strong>MUSCLE</strong>（快）、<strong>MAFFT</strong>（准）、<strong>Clustal Omega</strong>（经典）。它们都是命令行软件，输出 Clustal/FASTA 格式后，用 AlignIO 读进 Biopython 继续分析。</p>
+</blockquote>
+<h2 id="66">6.6 实战场景：从比对中找保守位点</h2>
+<p>读入一个比对文件，统计每个位置的一致性（所有序列在该位置碱基相同即为保守位点）：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlignIO</span>
+
+<span class="n">aln</span> <span class="o">=</span> <span class="n">AlignIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;alignment.aln&quot;</span><span class="p">,</span> <span class="s2">&quot;clustal&quot;</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">aln</span><span class="p">)</span>                 <span class="c1"># 序列条数</span>
+<span class="n">length</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">get_alignment_length</span><span class="p">()</span>
+
+<span class="n">conserved</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+    <span class="n">column</span> <span class="o">=</span> <span class="n">aln</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>       <span class="c1"># 取第 i 列的字符</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">column</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>   <span class="c1"># 该列只有一个字符（全一致）</span>
+        <span class="n">conserved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 位置从 1 开始计数</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;共 </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> 列，其中保守位点 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">conserved</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个：</span><span class="si">{</span><span class="n">conserved</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ 注意 <code>aln[:, i]</code> 的切片语法：第一个维度是"序列"，第二个是"列"。取一列返回的是字符串，如 <code>"ACGT"</code>。多序列比对对象像一个二维表格，这是它和普通序列最大的区别。</p>
+</blockquote>
+<h2 id="67">6.7 小结与练习</h2>
+<p><strong>本章核心 API：</strong></p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>双序列比对</td>
+<td><code>PairwiseAligner().align(s1, s2)</code></td>
+</tr>
+<tr>
+<td>全局/局部</td>
+<td><code>aligner.mode = "global"/"local"</code></td>
+</tr>
+<tr>
+<td>打分矩阵</td>
+<td><code>substitution_matrices.load("BLOSUM62")</code></td>
+</tr>
+<tr>
+<td>多序列比对对象</td>
+<td><code>MultipleSeqAlignment([...])</code></td>
+</tr>
+<tr>
+<td>读写比对文件</td>
+<td><code>AlignIO.read/write</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>练习：</strong></p>
+<ol>
+<li>全局比对 <code>"ACGT"</code> 与 <code>"ACGGT"</code>，把得分和比对结果打印出来，对照 6.2 的输出。</li>
+<li>把 <code>aligner.mode</code> 改成 <code>"local"</code>，重新比对 <code>"GGGGACGTACGTGGGG"</code> 与 <code>"AAAACGTACGTAAAA"</code>，观察局部比对找到的片段。</li>
+<li>读入你生成的任意多序列比对，统计非空位列中保守位点的比例。</li>
+</ol>
+<h1 id="7-blast">第 7 章 在线数据库与 BLAST</h1>
+<p>前面几章我们处理的都是本地文件。但生物信息学的大部分"原材料"来自公共数据库——NCB（基因/蛋白）、UniProt（蛋白功能）、PDB（结构）等。Biopython 提供了访问这些数据库的接口，其中最重要的是 NCBI 的 <strong>Entrez</strong> 系统和 <strong>BLAST</strong> 比对服务。</p>
+<blockquote>
+<p>⚠️ <strong>本章需要联网</strong>。NCBI 对程序化访问有明确规范：<strong>每秒最多 3 次请求、必须携带联系邮箱</strong>（<code>Entrez.email</code>）。请遵守规范，做一个文明的爬虫。</p>
+</blockquote>
+<h2 id="71-ncbi">7.1 设置邮箱与获取 NCBI 密钥</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entrez</span>
+
+<span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="s2">&quot;your_email@example.com&quot;</span>   <span class="c1"># 必须设置，NCBI 靠它联系违规用户</span>
+<span class="c1"># Entrez.api_key = &quot;你的NCBI密钥&quot;        # 可选，注册后获得，可提高请求限额</span>
+</code></pre></div>
+<h2 id="72-entrezesearch">7.2 搜索数据库：Entrez.esearch</h2>
+<p>在 NCBI 上"检索"就像用搜索引擎，检索结果返回的是命中记录的 ID 列表：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entrez</span>
+
+<span class="n">handle</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">esearch</span><span class="p">(</span>
+    <span class="n">db</span><span class="o">=</span><span class="s2">&quot;nucleotide&quot;</span><span class="p">,</span>          <span class="c1"># 数据库：nucleotide/protein/pubmed 等</span>
+    <span class="n">term</span><span class="o">=</span><span class="s2">&quot;BRCA1 AND Homo sapiens[Organism]&quot;</span><span class="p">,</span>  <span class="c1"># 检索词（支持布尔逻辑与字段限定）</span>
+    <span class="n">retmax</span><span class="o">=</span><span class="mi">10</span>                 <span class="c1"># 最多返回多少条 ID</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+<span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;Count&quot;</span><span class="p">])</span>        <span class="c1"># 命中总数</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;IdList&quot;</span><span class="p">])</span>       <span class="c1"># 命中的记录 ID 列表</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>检索词语法</strong>（与 NCBI 网页搜索一致）：支持 <code>AND</code>、<code>OR</code>、<code>NOT</code>；字段限定用 <code>[字段]</code>，例如 <code>Homo sapiens[Organism]</code>、<code>complete[Title]</code>。在 NCBI 网页上试好检索词，再搬到代码里，是最稳的工作流。</p>
+</blockquote>
+<h2 id="73-entrezefetch">7.3 下载序列：Entrez.efetch</h2>
+<p>拿到 ID 后，用 <code>efetch</code> 下载完整记录，配合 <code>SeqIO</code> 直接解析：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entrez</span><span class="p">,</span> <span class="n">SeqIO</span>
+
+<span class="c1"># 下载一条序列（比如上面的第一个 ID）</span>
+<span class="n">handle</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">efetch</span><span class="p">(</span>
+    <span class="n">db</span><span class="o">=</span><span class="s2">&quot;nucleotide&quot;</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;IdList&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>   <span class="c1"># 换成你搜索到的 ID</span>
+    <span class="n">rettype</span><span class="o">=</span><span class="s2">&quot;fasta&quot;</span><span class="p">,</span>          <span class="c1"># 返回格式：fasta / genbank</span>
+    <span class="n">retmode</span><span class="o">=</span><span class="s2">&quot;text&quot;</span>
+<span class="p">)</span>
+<span class="n">record</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+<span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">[:</span><span class="mi">60</span><span class="p">])</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ <strong>为什么要 close()？</strong> <code>Entrez.read</code> 和 <code>SeqIO</code> 解析后，句柄（handle）还占着网络连接。随手 <code>close()</code> 是好习惯，也能避免连接泄漏。</p>
+</blockquote>
+<h2 id="74-blast">7.4 BLAST 比对：找相似序列</h2>
+<p>BLAST（Basic Local Alignment Search Tool）是生物信息学最著名的"搜索引擎"——给定一条序列，它在整个数据库里找相似的序列。Biopython 提供两种方式：<strong>远程 BLAST</strong>（调 NCBI 服务器，无需本地安装，但排队较慢）和<strong>本地 BLAST</strong>（需安装 <code>blast+</code> 命令行工具，快但需自己建库）。</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Blast</span><span class="w"> </span><span class="kn">import</span> <span class="n">NCBIWWW</span><span class="p">,</span> <span class="n">NCBIXML</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="c1"># 读取一条序列（示例用本地 FASTA 文件）</span>
+<span class="n">record</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;query.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+
+<span class="c1"># 远程 BLAST（NCBI 服务器），可能需要几分钟</span>
+<span class="n">result_handle</span> <span class="o">=</span> <span class="n">NCBIWWW</span><span class="o">.</span><span class="n">qblast</span><span class="p">(</span>
+    <span class="s2">&quot;blastn&quot;</span><span class="p">,</span>           <span class="c1"># 程序类型：blastn 核酸比对 / blastp 蛋白比对</span>
+    <span class="s2">&quot;nt&quot;</span><span class="p">,</span>               <span class="c1"># 数据库：nt 核酸库 / nr 蛋白库</span>
+    <span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">,</span>         <span class="c1"># 查询序列</span>
+    <span class="n">hitlist_size</span><span class="o">=</span><span class="mi">5</span>      <span class="c1"># 返回前 5 条结果</span>
+<span class="p">)</span>
+
+<span class="c1"># 解析 BLAST 结果</span>
+<span class="n">blast_records</span> <span class="o">=</span> <span class="n">NCBIXML</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">result_handle</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">blast_record</span> <span class="ow">in</span> <span class="n">blast_records</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">alignment</span> <span class="ow">in</span> <span class="n">blast_record</span><span class="o">.</span><span class="n">alignments</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">hsp</span> <span class="ow">in</span> <span class="n">alignment</span><span class="o">.</span><span class="n">hsps</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;命中:&quot;</span><span class="p">,</span> <span class="n">alignment</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   相似度: </span><span class="si">{</span><span class="n">hsp</span><span class="o">.</span><span class="n">identities</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">hsp</span><span class="o">.</span><span class="n">align_length</span><span class="si">}</span><span class="s2">, &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;E 值: </span><span class="si">{</span><span class="n">hsp</span><span class="o">.</span><span class="n">expect</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>E 值（E-value）怎么读</strong>：E 值代表"这条命中纯属随机巧合的概率"。E 值越小越好——<code>1e-50</code> 意味着几乎不可能随机出现，是强同源证据；<code>0.1</code> 以上基本不可信。</p>
+<p>⚠️ 远程 BLAST 通常需要排队 30 秒到几分钟，这是正常现象。生产环境建议使用本地 BLAST：先 <code>pip install blast</code> 或用 conda 安装 NCBI BLAST+，再用 <code>Bio.Blast.Applications.NcbiblastnCommandline</code> 调用。</p>
+</blockquote>
+<h2 id="75-pubmed">7.5 PubMed 文献检索</h2>
+<p>Entrez 不止能查序列，还能查文献：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entrez</span>
+
+<span class="n">handle</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">esearch</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s2">&quot;pubmed&quot;</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="s2">&quot;biopython[Title]&quot;</span><span class="p">,</span> <span class="n">retmax</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+<span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;IdList&quot;</span><span class="p">])</span>   <span class="c1"># PubMed 文献 ID 列表</span>
+</code></pre></div>
+<h2 id="76">7.6 小结与练习</h2>
+<p><strong>本章核心 API：</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Entrez.esearch(db, term)</code></td>
+<td>搜索数据库，返回 ID 列表</td>
+</tr>
+<tr>
+<td><code>Entrez.efetch(db, id)</code></td>
+<td>下载完整记录</td>
+</tr>
+<tr>
+<td><code>Entrez.read(handle)</code></td>
+<td>解析 XML 结果</td>
+</tr>
+<tr>
+<td><code>NCBIWWW.qblast(prog, db, seq)</code></td>
+<td>远程 BLAST 比对</td>
+</tr>
+<tr>
+<td><code>NCBIXML.parse(handle)</code></td>
+<td>解析 BLAST 结果</td>
+</tr>
+</tbody>
+</table>
+<p><strong>练习：</strong></p>
+<ol>
+<li>在 nucleotide 数据库搜索 <code>"insulin AND Homo sapiens[Organism]"</code>，取第一条 ID 下载 FASTA 并打印前 50 个碱基。</li>
+<li>把 7.4 的查询序列换成你自己的序列，运行远程 BLAST，输出前 3 条命中的标题与 E 值。</li>
+<li>用 <code>Entrez.esearch</code> 在 pubmed 搜索 <code>"BRCA1"</code>，统计命中数量（<code>Count</code>）。</li>
+</ol>
+<hr />
+<h1 id="8-biopdb">第 8 章 蛋白质三维结构 Bio.PDB</h1>
+<p>蛋白质的<strong>三维结构</strong>决定其功能。PDB（Protein Data Bank）数据库存储了实验解析的蛋白结构。<code>Bio.PDB</code> 模块能读取、分析 PDB 文件，是结构生物学的入门利器。</p>
+<blockquote>
+<p>提示：本章涉及结构生物学概念（残基、原子坐标、二级结构）。如果只是想处理序列，可以先跳过本章，用到时再回来看。</p>
+</blockquote>
+<h2 id="81-pdb">8.1 PDB 文件长什么样</h2>
+<p>PDB 文件是文本文件，核心内容是<strong>每个原子的坐标</strong>。一行典型记录：</p>
+<pre><code>ATOM      1  N   ALA A   1      11.104   6.134  -6.504  1.00 19.91           N
+</code></pre>
+<p>这行表示：1 号原子（N 原子），属于 A 链的 1 号残基 ALA（丙氨酸），三维坐标 (11.104, 6.134, -6.504)。</p>
+<h2 id="82-pdbparser">8.2 用 PDBParser 读取结构</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDBParser</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>          <span class="c1"># QUIET=True 不打印警告</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="s2">&quot;protein.pdb&quot;</span><span class="p">)</span>
+
+<span class="c1"># 结构层级：Structure -&gt; Model -&gt; Chain -&gt; Residue -&gt; Atom</span>
+<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">model</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Chain:&quot;</span><span class="p">,</span> <span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;共&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chain</span><span class="p">),</span> <span class="s2">&quot;个残基&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    Residue:&quot;</span><span class="p">,</span> <span class="n">residue</span><span class="o">.</span><span class="n">resname</span><span class="p">,</span> <span class="n">residue</span><span class="o">.</span><span class="n">id</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">residue</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;      Atom:&quot;</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>结构层级记忆口诀</strong>：S → M → C → R → A（结构 → 模型 → 链 → 残基 → 原子），层层嵌套，像俄罗斯套娃。</p>
+</blockquote>
+<h2 id="83">8.3 常用操作</h2>
+<p><strong>遍历所有原子并统计</strong>：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDBParser</span>
+
+<span class="n">structure</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;protein.pdb&quot;</span><span class="p">)</span>
+
+<span class="c1"># 统计原子类型</span>
+<span class="n">atom_counts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">():</span>
+    <span class="n">atom_counts</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">atom_counts</span><span class="p">)</span>   <span class="c1"># 如 {&#39;N&#39;: 100, &#39;C&#39;: 200, &#39;O&#39;: 150, &#39;S&#39;: 5}</span>
+
+<span class="c1"># 获取所有残基名称列表</span>
+<span class="n">residues</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">resname</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_residues</span><span class="p">()]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">residues</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+</code></pre></div>
+<p><strong>计算两个原子间的距离</strong>：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDBParser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">structure</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;protein.pdb&quot;</span><span class="p">)</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">atoms</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">atoms</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a1</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">a2</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;原子 </span><span class="si">{</span><span class="n">a1</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 与 </span><span class="si">{</span><span class="n">a2</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> 的距离: </span><span class="si">{</span><span class="n">distance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> Å&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="84">8.4 蛋白结构可视化</h2>
+<p><code>Bio.PDB</code> 本身不带渲染功能，但可以输出数据给可视化工具。最流行的选择是 <strong>PyMOL</strong>（独立软件）或 <strong>NGLView</strong>（Jupyter 插件）。在 Jupyter 里配合 matplotlib 也可以简单展示：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="c1"># 提取 Cα 原子坐标并绘制主链走向</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDBParser</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">structure</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;protein.pdb&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">model</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">residue</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;CA&quot;</span> <span class="ow">in</span> <span class="n">residue</span><span class="p">:</span>
+            <span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residue</span><span class="p">[</span><span class="s2">&quot;CA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residue</span><span class="p">[</span><span class="s2">&quot;CA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">residue</span><span class="p">[</span><span class="s2">&quot;CA&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;X 坐标 (Å)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Y 坐标 (Å)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;蛋白质主链 Cα 原子走向&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ PDB 文件可能需要<strong>同源建模或结构预测</strong>的软件配合。2021 年 AlphaFold2 问世后，<code>Bio.PDB</code> 配合 AlphaFold 预测结构做分析，已成为结构生信的主流工作流。</p>
+</blockquote>
+<h2 id="85">8.5 小结与练习</h2>
+<p><strong>本章核心 API：</strong></p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取 PDB</td>
+<td><code>PDBParser(QUIET=True).get_structure(id, 文件)</code></td>
+</tr>
+<tr>
+<td>遍历层级</td>
+<td><code>structure → model → chain → residue → atom</code></td>
+</tr>
+<tr>
+<td>原子坐标</td>
+<td><code>atom.coord</code>（numpy 数组）</td>
+</tr>
+<tr>
+<td>残基名称</td>
+<td><code>residue.resname</code></td>
+</tr>
+<tr>
+<td>距离计算</td>
+<td><code>np.linalg.norm(a1.coord - a2.coord)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>练习：</strong></p>
+<ol>
+<li>下载任意 PDB 文件（如 <code>https://files.rcsb.org/download/1CRN.pdb</code>），统计其中的原子总数和氨基酸残基总数。</li>
+<li>找出结构中距离最近的一对原子。</li>
+<li>用 matplotlib 画一条链的主链 Cα 轨迹。</li>
+</ol>
+<hr />
+<h1 id="9-biophylo">第 9 章 系统发育分析 Bio.Phylo</h1>
+<p>系统发育树（进化树）展示生物或基因之间的<strong>进化关系</strong>——像一张"家族谱系图"。<code>Bio.Phylo</code> 负责树的读取、操作和绘制。</p>
+<h2 id="91-newick">9.1 树文件格式：Newick</h2>
+<p>Newick 是树的标准文本格式，用括号嵌套表示分支。例如：</p>
+<pre><code>(A:0.1,B:0.2,(C:0.3,D:0.4):0.5);
+</code></pre>
+<p><code>:</code> 后是分支长度（进化距离），逗号分隔并列分支，括号嵌套表示共同祖先。</p>
+<h2 id="92">9.2 读取与遍历树</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Phylo</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="n">Phylo</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;tree.nwk&quot;</span><span class="p">,</span> <span class="s2">&quot;newick&quot;</span><span class="p">)</span>
+
+<span class="c1"># 打印树的结构（文本形式）</span>
+<span class="n">Phylo</span><span class="o">.</span><span class="n">draw_ascii</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+
+<span class="c1"># 遍历所有分支点（Clade）</span>
+<span class="k">for</span> <span class="n">clade</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">find_clades</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">clade</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">clade</span><span class="o">.</span><span class="n">branch_length</span><span class="p">)</span>
+
+<span class="c1"># 获取所有叶子（终端节点，即实际物种/序列）</span>
+<span class="n">leaves</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_terminals</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">leaf</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="n">leaves</span><span class="p">])</span>
+</code></pre></div>
+<h2 id="93">9.3 从多序列比对构建进化树</h2>
+<p>这是最常见的实战流程：<strong>比对 → 计算距离 → 建树</strong>。用第 6 章的 MSA 对象直接开工：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Phylo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Align</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipleSeqAlignment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqRecord</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqRecord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Phylo.TreeConstruction</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistanceCalculator</span><span class="p">,</span> <span class="n">DistanceTreeConstructor</span>
+
+<span class="c1"># 1. 构造多序列比对（实际工作中从文件读入）</span>
+<span class="n">aln</span> <span class="o">=</span> <span class="n">MultipleSeqAlignment</span><span class="p">([</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ACGTACGT&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;species_A&quot;</span><span class="p">),</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ACGTACGA&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;species_B&quot;</span><span class="p">),</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ACGTTCGT&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;species_C&quot;</span><span class="p">),</span>
+    <span class="n">SeqRecord</span><span class="p">(</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ACGTTTGT&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;species_D&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="c1"># 2. 计算两两距离矩阵（&quot;identity&quot; 模型：按一致位点比例）</span>
+<span class="n">calculator</span> <span class="o">=</span> <span class="n">DistanceCalculator</span><span class="p">(</span><span class="s2">&quot;identity&quot;</span><span class="p">)</span>
+<span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">aln</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span>
+
+<span class="c1"># 3. 用邻接法（Neighbor-Joining）构建进化树</span>
+<span class="n">constructor</span> <span class="o">=</span> <span class="n">DistanceTreeConstructor</span><span class="p">()</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">constructor</span><span class="o">.</span><span class="n">nj</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span>
+
+<span class="c1"># 4. 查看结果</span>
+<span class="n">Phylo</span><span class="o">.</span><span class="n">draw_ascii</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+</code></pre></div>
+<p>输出示例：</p>
+<pre><code>         _______________________________________________ species_A
+        |
+|_______|_______________________________________________ species_B
+        |
+        |_______________________________________________ species_C
+        |
+        |_______________________________________________ species_D
+</code></pre>
+<blockquote>
+<p>💡 其他建树方法：<code>constructor.upgma(distance_matrix)</code> 是 UPGMA 法（假设分子钟）；更常用的最大似然法（如 RAxML、IQ-TREE）需要外部软件，Biopython 负责读入其结果。邻接法 NJ 是"又快又稳"的入门选择。</p>
+</blockquote>
+<h2 id="94">9.4 美化绘制进化树</h2>
+<p>用 matplotlib 画出可保存的高质量进化树：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Phylo</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="n">Phylo</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;tree.nwk&quot;</span><span class="p">,</span> <span class="s2">&quot;newick&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">Phylo</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">branch_labels</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">branch_length</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;tree.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="95">9.5 树的常用操作</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Phylo</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="n">Phylo</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;tree.nwk&quot;</span><span class="p">,</span> <span class="s2">&quot;newick&quot;</span><span class="p">)</span>
+
+<span class="c1"># 树的深度（从根到最远叶子的分支长度和）</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">depth</span><span class="p">())</span>
+
+<span class="c1"># 两叶子之间的路径距离</span>
+<span class="n">leaf1</span><span class="p">,</span> <span class="n">leaf2</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">get_terminals</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">leaf1</span><span class="p">,</span> <span class="n">leaf2</span><span class="p">))</span>
+
+<span class="c1"># 剪枝：移除某个分支</span>
+<span class="n">tree</span><span class="o">.</span><span class="n">prune</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">find_any</span><span class="p">(</span><span class="s2">&quot;some_taxon&quot;</span><span class="p">))</span>
+</code></pre></div>
+<h2 id="96">9.6 小结与练习</h2>
+<p><strong>本章核心 API：</strong></p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>代码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取树</td>
+<td><code>Phylo.read(文件, "newick")</code></td>
+</tr>
+<tr>
+<td>文本绘制</td>
+<td><code>Phylo.draw_ascii(tree)</code></td>
+</tr>
+<tr>
+<td>图形绘制</td>
+<td><code>Phylo.draw(tree, axes=ax)</code></td>
+</tr>
+<tr>
+<td>距离矩阵</td>
+<td><code>DistanceCalculator("identity").get_distance(aln)</code></td>
+</tr>
+<tr>
+<td>NJ 建树</td>
+<td><code>DistanceTreeConstructor().nj(dm)</code></td>
+</tr>
+<tr>
+<td>遍历分支</td>
+<td><code>tree.find_clades()</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>练习：</strong></p>
+<ol>
+<li>用 9.3 的数据构建 NJ 树，解释为什么 species_A 和 species_B 关系最近（提示：对比它们的序列）。</li>
+<li>把自己构造的树保存为 Newick 文件（<code>Phylo.write(tree, "my.tree", "newick")</code>），再用 <code>Phylo.read</code> 读回来验证。</li>
+<li>查阅 <code>Phylo.draw</code> 文档，尝试把分支长度显示在树枝上。</li>
+</ol>
+<h1 id="10">第 10 章 其他实用模块</h1>
+<p>Biopython 是一个巨大的工具箱，除了前面几章的主角，还有一批"小而美"的模块值得了解。知道它们的存在，比会背它们的 API 更重要——需要时知道"有这个功能"就能省下半天功夫。</p>
+<h2 id="101-biorestriction">10.1 限制性内切酶分析 Bio.Restriction</h2>
+<p>限制性内切酶是分子克隆的核心工具，能识别特定 DNA 序列并切割。<code>Bio.Restriction</code> 内置了数千种酶的识别位点信息：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Restriction</span><span class="w"> </span><span class="kn">import</span> <span class="n">EcoRI</span><span class="p">,</span> <span class="n">BamHI</span><span class="p">,</span> <span class="n">RestrictionBatch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="c1"># 查看酶的识别位点</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">EcoRI</span><span class="o">.</span><span class="n">site</span><span class="p">)</span>              <span class="c1"># GAATTC</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">EcoRI</span><span class="o">.</span><span class="n">elucidate</span><span class="p">())</span>       <span class="c1"># G^AATT_C —— ^ 表示切点</span>
+
+<span class="c1"># 在序列中查找酶切位点</span>
+<span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;GAATTCGGATCCGAATTC&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">EcoRI</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">seq</span><span class="p">))</span>       <span class="c1"># [0, 10] —— 位置 0 和 10 处有 EcoRI 位点</span>
+
+<span class="c1"># 同时分析多种酶（分子克隆选酶神器）</span>
+<span class="n">enzymes</span> <span class="o">=</span> <span class="n">RestrictionBatch</span><span class="p">([</span><span class="n">EcoRI</span><span class="p">,</span> <span class="n">BamHI</span><span class="p">])</span>
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">enzymes</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">enz</span><span class="p">,</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">analysis</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">enz</span><span class="p">,</span> <span class="s2">&quot;切割位点:&quot;</span><span class="p">,</span> <span class="n">sites</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>💡 做分子克隆设计时，可以用它检查目标序列中有没有"不该出现"的酶切位点，避免克隆方案失败。</p>
+</blockquote>
+<h2 id="102-biomotifs">10.2 序列模体 Bio.motifs</h2>
+<p>模体（motif）是序列中反复出现的保守短片段，常与功能相关（如转录因子结合位点）。<code>Bio.motifs</code> 支持读取 JASPAR、MEME 等格式，也可以从序列集合构造位置权重矩阵：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">motifs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="c1"># 从一组实例序列构造模体</span>
+<span class="n">instances</span> <span class="o">=</span> <span class="p">[</span><span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;TATAA&quot;</span><span class="p">),</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;TATAA&quot;</span><span class="p">),</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;TATTA&quot;</span><span class="p">)]</span>
+<span class="n">motif</span> <span class="o">=</span> <span class="n">motifs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">motif</span><span class="o">.</span><span class="n">consensus</span><span class="p">)</span>      <span class="c1"># 一致性序列: TATAA</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">motif</span><span class="o">.</span><span class="n">counts</span><span class="p">)</span>         <span class="c1"># 每个位置各碱基的出现次数</span>
+<span class="c1"># 输出: A: [0 0 3 3 0] ...</span>
+</code></pre></div>
+<h2 id="103">10.3 密码子使用偏好</h2>
+<p>不同物种对同义密码子的使用有偏好（codon usage bias）。Biopython 提供了密码子使用表模块，可统计序列中的密码子频率：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">CodonUsage</span>
+
+<span class="c1"># 统计一条 CDS 序列的密码子使用</span>
+<span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span><span class="p">)</span>
+<span class="n">codon_usage</span> <span class="o">=</span> <span class="n">CodonUsage</span><span class="o">.</span><span class="n">CodonAdaptationIndex</span><span class="p">()</span>
+<span class="n">codon_usage</span><span class="o">.</span><span class="n">set_cai_index</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">codon_usage</span><span class="o">.</span><span class="n">cai</span><span class="p">)</span>   <span class="c1"># 密码子适应指数（CAI），衡量表达水平</span>
+
+<span class="c1"># 也可以直接数密码子</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="n">codons</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">codons</span><span class="p">))</span>
+</code></pre></div>
+<blockquote>
+<p>💡 密码子优化（codon optimization）是蛋白表达实验的常见需求：把基因序列改成宿主偏好密码子，可显著提高表达量。<code>CodonUsage</code> 是入门级工具，生产环境常配合专门的优化软件。</p>
+</blockquote>
+<h2 id="104">10.4 其他值得一提的模块</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Bio.Graphics</code></td>
+<td>基因组图形绘制（如 GC 含量曲线图）</td>
+</tr>
+<tr>
+<td><code>Bio.KEGG</code></td>
+<td>访问 KEGG 通路数据库</td>
+</tr>
+<tr>
+<td><code>Bio.PopGen</code></td>
+<td>群体遗传学分析</td>
+</tr>
+<tr>
+<td><code>Bio.PDB.MMCIFParser</code></td>
+<td>读取 mmCIF 格式结构文件（PDB 的新标准格式）</td>
+</tr>
+<tr>
+<td><code>Bio.SeqFeature</code></td>
+<td>序列特征（基因、CDS 等）的数据结构</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>探索技巧</strong>：在 Python 里输入 <code>import Bio</code> 后用 <code>dir(Bio)</code> 查看所有子模块；或者访问 <a href="https://docs.biopython.org/">docs.biopython.org</a>，右上角搜索关键词——官方文档的搜索功能远比想象中好用。</p>
+</blockquote>
+<hr />
+<h1 id="11">第 11 章 综合实战：三个完整的项目</h1>
+<p>前面十章是"零件"，这一章把它们组装成"机器"。三个项目由浅入深，建议独立完成前先自己动手写，再对照参考实现。</p>
+<h2 id="111">11.1 项目一：基因序列分析报告生成器</h2>
+<p><strong>需求</strong>：给定一个 FASTA 文件，对每条序列输出 ID、长度、GC 含量、翻译后的蛋白长度，并把报告写入 CSV 文件。</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">gc_fraction</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_genes</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">,</span> <span class="n">report_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;分析 FASTA 中每条序列，生成 CSV 报告&quot;&quot;&quot;</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">seq</span>
+        <span class="n">protein_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">to_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;非整密码子&quot;</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span>
+            <span class="s2">&quot;gc_content&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">gc_fraction</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;protein_len&quot;</span><span class="p">:</span> <span class="n">protein_len</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">report_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="s2">&quot;gc_content&quot;</span><span class="p">,</span> <span class="s2">&quot;protein_len&quot;</span><span class="p">])</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;分析完成，共 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="si">}</span><span class="s2"> 条序列，报告已保存到 </span><span class="si">{</span><span class="n">report_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">analyze_genes</span><span class="p">(</span><span class="s2">&quot;genes.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;report.csv&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>设计要点</strong>：函数化（可复用）、CSV 用 <code>utf-8</code> 编码（避免 Excel 打开中文乱码）、异常序列（长度非 3 的倍数）有明确标注。</p>
+</blockquote>
+<h2 id="112">11.2 项目二：序列清洗与格式整理工具</h2>
+<p><strong>需求</strong>：NCBI 下载的序列常混有不确定碱基（N）、小写字母、或非标准字符。写一个工具做清洗：统一大写、过滤含 N 过多的序列、按长度排序后输出。</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">clean_fasta</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">max_n_ratio</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;清洗序列：统一大写、过滤 N 比例过高和过短的序列&quot;&quot;&quot;</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>          <span class="c1"># 统一大写</span>
+
+        <span class="c1"># 过滤 N 比例过高的序列</span>
+        <span class="n">n_count</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_count</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_n_ratio</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># 过滤长度不足的序列</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">record</span><span class="o">.</span><span class="n">seq</span> <span class="o">=</span> <span class="n">seq</span>                       <span class="c1"># 写回清洗后的序列</span>
+        <span class="n">cleaned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+    <span class="c1"># 按长度从长到短排序</span>
+    <span class="n">cleaned</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">seq</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cleaned</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;输入 </span><span class="si">{</span><span class="n">input_file</span><span class="si">}</span><span class="s2"> -&gt; 输出 </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">，保留 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cleaned</span><span class="p">)</span><span class="si">}</span><span class="s2"> 条&quot;</span><span class="p">)</span>
+
+<span class="n">clean_fasta</span><span class="p">(</span><span class="s2">&quot;raw.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;clean.fasta&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ 注意 <code>record.seq = seq</code> 这里 <code>seq</code> 必须是 <code>Seq</code> 对象或字符串。清洗数据后保留原注释（id、description）是很重要的习惯——数据溯源是生物信息学的职业素养。</p>
+</blockquote>
+<h2 id="113-orf">11.3 项目三：ORF 查找器</h2>
+<p><strong>需求</strong>：在一条 DNA 序列的 6 个读框（3 个正向 + 3 个反向）中查找所有开放阅读框（ORF，即从起始密码子 ATG 到终止密码子之间的编码区），输出位置和翻译产物。</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_orfs</span><span class="p">(</span><span class="n">dna</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;在 DNA 序列的 6 个读框中查找 ORF&quot;&quot;&quot;</span>
+    <span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="n">dna</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">strand</span><span class="p">,</span> <span class="n">template</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="n">seq</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">seq</span><span class="o">.</span><span class="n">reverse_complement</span><span class="p">())]:</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="c1"># 逐帧翻译，用 * 分隔 ORF</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">template</span><span class="p">)</span> <span class="o">-</span> <span class="n">frame</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">translated</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">template</span><span class="p">[</span><span class="n">frame</span><span class="p">:</span><span class="n">frame</span> <span class="o">+</span> <span class="n">length</span><span class="p">]</span><span class="o">.</span><span class="n">translate</span><span class="p">())</span>
+
+            <span class="c1"># 按终止密码子切分</span>
+            <span class="n">pos_in_frame</span> <span class="o">=</span> <span class="n">frame</span>
+            <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">translated</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_length</span> <span class="o">//</span> <span class="mi">3</span><span class="p">:</span>   <span class="c1"># 蛋白长度 &gt;= 10 aa</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">pos_in_frame</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="n">pos_in_frame</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;strand&quot;</span><span class="p">:</span> <span class="n">strand</span><span class="p">,</span>
+                        <span class="s2">&quot;frame&quot;</span><span class="p">:</span> <span class="n">frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>          <span class="c1"># 转成 1-based 坐标</span>
+                        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span>
+                        <span class="s2">&quot;protein&quot;</span><span class="p">:</span> <span class="n">segment</span><span class="p">,</span>
+                    <span class="p">})</span>
+                <span class="n">pos_in_frame</span> <span class="o">+=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+<span class="n">dna</span> <span class="o">=</span> <span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAGCCATGGCCATTGTA&quot;</span>
+<span class="k">for</span> <span class="n">orf</span> <span class="ow">in</span> <span class="n">find_orfs</span><span class="p">(</span><span class="n">dna</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;链 </span><span class="si">{</span><span class="n">orf</span><span class="p">[</span><span class="s1">&#39;strand&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2"> 读框 </span><span class="si">{</span><span class="n">orf</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">  &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;位置 </span><span class="si">{</span><span class="n">orf</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">orf</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">  &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;蛋白: </span><span class="si">{</span><span class="n">orf</span><span class="p">[</span><span class="s1">&#39;protein&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>💡 这是"读懂基因"的基础工具——基因注释软件（如 Prodigal）的核心逻辑就是这个思路的工程化扩展。做生物信息学，动手实现一个 ORF 查找器能极大加深对"读框"概念的理解。</p>
+</blockquote>
+<h2 id="114">11.4 项目四：批量蛋白理化性质分析</h2>
+<p><strong>需求</strong>：读取蛋白质 FASTA 文件，为每条蛋白计算分子量、等电点、GRAVY 值，输出汇总表格，并标记"可能跨膜"（GRAVY &gt; 0.4）的蛋白。</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils.ProtParam</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProteinAnalysis</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_proteins</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;protein_report.tsv&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;批量计算蛋白理化性质&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ID</span><span class="se">\t</span><span class="s2">长度</span><span class="se">\t</span><span class="s2">分子量</span><span class="se">\t</span><span class="s2">等电点</span><span class="se">\t</span><span class="s2">GRAVY</span><span class="se">\t</span><span class="s2">可能跨膜</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+            <span class="n">pa</span> <span class="o">=</span> <span class="n">ProteinAnalysis</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+            <span class="n">gravy</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">gravy</span><span class="p">()</span>
+            <span class="n">transmembrane</span> <span class="o">=</span> <span class="s2">&quot;是&quot;</span> <span class="k">if</span> <span class="n">gravy</span> <span class="o">&gt;</span> <span class="mf">0.4</span> <span class="k">else</span> <span class="s2">&quot;否&quot;</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">molecular_weight</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">isoelectric_point</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gravy</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">transmembrane</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;完成，报告见 </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">analyze_proteins</span><span class="p">(</span><span class="s2">&quot;proteins.fasta&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h1 id="12">第 12 章 调试技巧与常见错误</h1>
+<p>写代码不报错是不可能的，学会读报错、快速定位问题，是生物信息学工程师的核心能力。本章汇总 Biopython 最常见的"坑"。</p>
+<h2 id="121">12.1 高频错误速查表</h2>
+<table>
+<thead>
+<tr>
+<th>报错信息</th>
+<th>原因</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ValueError: more than one record found</code></td>
+<td>用 <code>SeqIO.read</code> 读了含多条记录的文件</td>
+<td>改用 <code>SeqIO.parse</code></td>
+</tr>
+<tr>
+<td><code>AttributeError: 'str' object has no attribute 'seq'</code></td>
+<td>把字符串当成了 SeqRecord</td>
+<td>确认对象类型；用 <code>record.seq</code> 前先 print(type(record))</td>
+</tr>
+<tr>
+<td><code>ValueError: Data in row...</code></td>
+<td>FASTA/GenBank 文件格式损坏</td>
+<td>检查文件编码、换行符；用 <code>SeqIO.parse</code> 逐个调试</td>
+</tr>
+<tr>
+<td><code>TypeError: sequence expected</code></td>
+<td>把 Seq 对象当字符串拼接</td>
+<td>用 <code>str(seq)</code> 转换</td>
+</tr>
+<tr>
+<td><code>Bio.Entrez.Parser.ValidationError</code></td>
+<td>Entrez 参数名拼写错误</td>
+<td>对照文档核对参数名</td>
+</tr>
+<tr>
+<td><code>urllib.error.HTTPError: 429</code></td>
+<td>请求太快被 NCBI 限流</td>
+<td>放慢请求；设置 <code>Entrez.email</code>；加 <code>time.sleep(1)</code></td>
+</tr>
+<tr>
+<td><code>ValueError: Sequences must all be the same length</code></td>
+<td>MSA 中序列长度不一致</td>
+<td>检查比对文件；用 <code>aligner</code> 重新比对后再建 MSA</td>
+</tr>
+<tr>
+<td><code>FileNotFoundError</code></td>
+<td>文件路径错误或当前目录不对</td>
+<td>用绝对路径；打印 <code>os.getcwd()</code> 检查当前目录</td>
+</tr>
+</tbody>
+</table>
+<h2 id="122-seq">12.2 字符串与 Seq 的转换陷阱</h2>
+<p><code>Seq</code> 和 <code>str</code> 在很多时候可以互操作，但<strong>不是所有时候</strong>。最常见的坑：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">)</span>
+
+<span class="c1"># ✅ 可以：Seq 可以和字符串比较、拼接（部分操作）</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span> <span class="o">==</span> <span class="s2">&quot;ATGC&quot;</span><span class="p">)</span>          <span class="c1"># True</span>
+
+<span class="c1"># ⚠️ 注意：字典键不通用</span>
+<span class="n">d1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ATGC&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="s2">&quot;未找到&quot;</span><span class="p">))</span>  <span class="c1"># 未找到！str 键和 Seq 键不相等</span>
+
+<span class="c1"># ✅ 推荐做法：需要字符串操作时显式转换</span>
+<span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>               <span class="c1"># &#39;ATGC&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>           <span class="c1"># ATGC</span>
+
+<span class="c1"># ✅ 需要 Seq 操作时从字符串构造</span>
+<span class="n">new_seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ <strong>黄金法则</strong>：存数据用 <code>Seq</code>，传给第三方库（如 pandas、matplotlib 的字符串处理）前先 <code>str()</code> 转换；用 dict 做键时统一用 <code>str(seq)</code>。</p>
+</blockquote>
+<h2 id="123">12.3 中文与编码问题</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="c1"># 读取含中文注释的文件时，显式指定编码</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;genes.fasta&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">))</span>
+
+<span class="c1"># 写入中文 CSV 时用 utf-8-sig（Excel 打开不乱码）</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;report.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;描述&quot;</span><span class="p">])</span>
+</code></pre></div>
+<blockquote>
+<p>💡 Windows 下中文文件默认可能是 GBK 编码，报 <code>UnicodeDecodeError</code> 时试试 <code>encoding="gbk"</code>。</p>
+</blockquote>
+<h2 id="124">12.4 网络请求失败处理</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entrez</span>
+
+<span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="s2">&quot;you@example.com&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">safe_efetch</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">retries</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;带重试的下载，应对网络抖动&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">retries</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">efetch</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span> <span class="n">rettype</span><span class="o">=</span><span class="s2">&quot;fasta&quot;</span><span class="p">,</span> <span class="n">retmode</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;第 </span><span class="si">{</span><span class="n">attempt</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> 次尝试失败: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="n">retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">attempt</span><span class="p">)</span>   <span class="c1"># 指数退避：等 1s, 2s, 4s...</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;多次重试仍然失败&quot;</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">safe_efetch</span><span class="p">(</span><span class="s2">&quot;nucleotide&quot;</span><span class="p">,</span> <span class="s2">&quot;NM_000059&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">200</span><span class="p">])</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>指数退避（exponential backoff）</strong>：每次失败后等待时间翻倍，是网络编程的标准技巧。不仅对 NCBI，对任何网络 API 都适用。</p>
+</blockquote>
+<h2 id="125">12.5 调试三件套</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="c1"># 1. 打印类型 —— 一半的 Bug 是类型不匹配</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+
+<span class="c1"># 2. 打印长度与内容片段 —— 确认数据真的读了进来</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> <span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">[:</span><span class="mi">30</span><span class="p">])</span>
+
+<span class="c1"># 3. 小样本试跑 —— 先用 2 条记录验证逻辑，再处理全部数据</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;big.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">))[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+</code></pre></div>
+<blockquote>
+<p>💡 建议用 <strong>Jupyter Notebook</strong> 调试：单元格可以反复执行，配合 <code>print</code> 和 <code>type</code> 检查，能极大加速排错过程。</p>
+</blockquote>
+<hr />
+<h1 id="13">第 13 章 结语与进阶路线</h1>
+<p>恭喜你读完了这本书！到这一步，你已经掌握了 Biopython 的核心：序列对象、文件读写、序列分析、比对、数据库检索、结构分析、进化树，以及最重要的——<strong>用这些工具解决实际问题的能力</strong>。</p>
+<h2 id="131">13.1 官方资源</h2>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>地址</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Biopython 官方文档</td>
+<td><a href="https://docs.biopython.org/">docs.biopython.org</a></td>
+<td>权威参考，遇到问题先查这里</td>
+</tr>
+<tr>
+<td>Biopython 教程（官方）</td>
+<td><a href="https://biopython.org/wiki/Tutorial">biopython.org/wiki/Tutorial</a></td>
+<td>系统学习的第一手资料</td>
+</tr>
+<tr>
+<td>Biopython Cookbook</td>
+<td>官方教程中的实例章节</td>
+<td>实战代码宝库</td>
+</tr>
+<tr>
+<td>Stack Overflow</td>
+<td><a href="https://stackoverflow.com/questions/tagged/biopython">stackoverflow.com/questions/tagged/biopython</a></td>
+<td>提问与检索</td>
+</tr>
+</tbody>
+</table>
+<h2 id="132">13.2 下一步学习路线</h2>
+<pre><code>路线 A：测序数据分析
+  FASTQ 格式（Biopython 内置）→ 质控 → 比对（bowtie2/STAR）→ 差异表达（DESeq2）
+
+路线 B：基因组学
+  Bio.Graphics 绘制基因组图 → 基因注释 → 比较基因组学
+
+路线 C：结构生物学
+  Bio.PDB + AlphaFold → 分子动力学（GROMACS）→ 药物设计
+
+路线 D：数据科学方向
+  Biopython + pandas 批量分析 → matplotlib/Plotly 可视化 → 机器学习（scikit-learn）
+</code></pre>
+<h2 id="133">13.3 学习建议（来自实践）</h2>
+<ol>
+<li><strong>动手永远比看有效</strong>：每章练习一定要自己敲一遍；</li>
+<li><strong>用真实数据练习</strong>：去 NCBI 下载真实基因/蛋白序列，比示例数据有意思得多；</li>
+<li><strong>学会查文档</strong>：<code>help(Bio.SeqIO.parse)</code> 能直接看到函数签名和示例；</li>
+<li><strong>读源码</strong>：<code>import Bio; print(Bio.__file__)</code> 找到源码位置，直接读源码是最快的进阶方式；</li>
+<li><strong>保持联系</strong>：生物信息学社区（生物谷论坛、BioStars、生信技能树公众号）有很多中文资料，遇到问题大胆提问。</li>
+</ol>
+<blockquote>
+<p><strong>最后送大家一句话</strong>：生物信息学的本质不是"会调用某个库"，而是"理解生物学问题，并懂得用什么工具去回答"。工具会迭代，但思路是通用的。祝你在生物信息学的路上越走越远！</p>
+</blockquote>
+<hr />
+<h1 id="a">附录 A：常用代码速查表</h1>
+<h2 id="a1">A.1 序列操作</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+
+<span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGCATGC&quot;</span><span class="p">)</span>
+<span class="n">seq</span><span class="o">.</span><span class="n">complement</span><span class="p">()</span>              <span class="c1"># 互补</span>
+<span class="n">seq</span><span class="o">.</span><span class="n">reverse_complement</span><span class="p">()</span>      <span class="c1"># 反向互补</span>
+<span class="n">seq</span><span class="o">.</span><span class="n">transcribe</span><span class="p">()</span>              <span class="c1"># 转录</span>
+<span class="n">seq</span><span class="o">.</span><span class="n">translate</span><span class="p">()</span>               <span class="c1"># 翻译</span>
+<span class="n">seq</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">to_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># 翻译至终止密码子</span>
+<span class="n">seq</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>                      <span class="c1"># 切片</span>
+<span class="n">seq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">)</span>                <span class="c1"># 碱基计数</span>
+</code></pre></div>
+<h2 id="a2">A.2 文件读写</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+
+<span class="c1"># 读取</span>
+<span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;file.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span> <span class="o">...</span>
+<span class="n">rec</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;single.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+
+<span class="c1"># 写出 / 格式转换</span>
+<span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="s2">&quot;out.gb&quot;</span><span class="p">,</span> <span class="s2">&quot;genbank&quot;</span><span class="p">)</span>
+
+<span class="c1"># 比对文件</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlignIO</span>
+<span class="n">aln</span> <span class="o">=</span> <span class="n">AlignIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;aln.clustal&quot;</span><span class="p">,</span> <span class="s2">&quot;clustal&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="a3">A.3 分析工具</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">gc_fraction</span><span class="p">,</span> <span class="n">molecular_weight</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils.ProtParam</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProteinAnalysis</span>
+
+<span class="n">gc_fraction</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>                          <span class="c1"># GC 含量</span>
+<span class="n">ProteinAnalysis</span><span class="p">(</span><span class="n">protein</span><span class="p">)</span><span class="o">.</span><span class="n">molecular_weight</span><span class="p">()</span>   <span class="c1"># 蛋白分子量</span>
+<span class="n">ProteinAnalysis</span><span class="p">(</span><span class="n">protein</span><span class="p">)</span><span class="o">.</span><span class="n">isoelectric_point</span><span class="p">()</span>  <span class="c1"># 等电点</span>
+</code></pre></div>
+<h2 id="a4-blast">A.4 数据库与 BLAST</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entrez</span>
+<span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="s2">&quot;you@example.com&quot;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">Entrez</span><span class="o">.</span><span class="n">esearch</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s2">&quot;nucleotide&quot;</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="s2">&quot;BRCA1&quot;</span><span class="p">,</span> <span class="n">retmax</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">result</span><span class="p">[</span><span class="s2">&quot;IdList&quot;</span><span class="p">]</span>                          <span class="c1"># ID 列表</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Blast</span><span class="w"> </span><span class="kn">import</span> <span class="n">NCBIWWW</span><span class="p">,</span> <span class="n">NCBIXML</span>
+<span class="n">handle</span> <span class="o">=</span> <span class="n">NCBIWWW</span><span class="o">.</span><span class="n">qblast</span><span class="p">(</span><span class="s2">&quot;blastn&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span>
+<span class="n">records</span> <span class="o">=</span> <span class="n">NCBIXML</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="a5">A.5 进化树</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Phylo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Phylo.TreeConstruction</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistanceCalculator</span><span class="p">,</span> <span class="n">DistanceTreeConstructor</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="n">Phylo</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;tree.nwk&quot;</span><span class="p">,</span> <span class="s2">&quot;newick&quot;</span><span class="p">)</span>
+<span class="n">Phylo</span><span class="o">.</span><span class="n">draw_ascii</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="n">dm</span> <span class="o">=</span> <span class="n">DistanceCalculator</span><span class="p">(</span><span class="s2">&quot;identity&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">aln</span><span class="p">)</span>
+<span class="n">new_tree</span> <span class="o">=</span> <span class="n">DistanceTreeConstructor</span><span class="p">()</span><span class="o">.</span><span class="n">nj</span><span class="p">(</span><span class="n">dm</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="a6">A.6 蛋白质结构</h2>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDBParser</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;protein.pdb&quot;</span><span class="p">)</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>             <span class="c1"># 所有原子</span>
+<span class="n">residues</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_residues</span><span class="p">()</span>       <span class="c1"># 所有残基</span>
+</code></pre></div>
+<hr />
+<h1 id="b">附录 B：练习参考答案</h1>
+<h2 id="3">第 3 章</h2>
+<p><strong>练习 1</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+<span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;AATTCCGG&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">complement</span><span class="p">())</span>          <span class="c1"># TTAAGGCC</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">reverse_complement</span><span class="p">())</span>  <span class="c1"># CCGGAATT</span>
+</code></pre></div>
+<p><strong>练习 2</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Seq</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq</span>
+<span class="n">dna</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s2">&quot;ATGGTGGCATGA&quot;</span><span class="p">)</span>
+<span class="n">protein</span> <span class="o">=</span> <span class="n">dna</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">to_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">protein</span><span class="p">)</span>                   <span class="c1"># MVA</span>
+</code></pre></div>
+<p><strong>练习 3</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="n">seq</span> <span class="o">=</span> <span class="s2">&quot;ACGTACGTACGT&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">seq</span><span class="p">))</span>              <span class="c1"># Counter({&#39;A&#39;: 3, &#39;C&#39;: 3, &#39;G&#39;: 3, &#39;T&#39;: 3})</span>
+</code></pre></div>
+<h2 id="4">第 4 章</h2>
+<p><strong>练习 1</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;your_file.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+</code></pre></div>
+<p><strong>练习 2</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="n">kept</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;all.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">):</span>
+    <span class="n">protein</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">translate</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">protein</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>     <span class="c1"># 内部无终止密码子（允许末尾终止符）</span>
+        <span class="n">kept</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="s2">&quot;no_internal_stop.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>练习 3</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="n">seqs1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;data.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)]</span>
+<span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;data.fasta&quot;</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">),</span> <span class="s2">&quot;data.gb&quot;</span><span class="p">,</span> <span class="s2">&quot;genbank&quot;</span><span class="p">)</span>
+<span class="n">seqs2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;data.gb&quot;</span><span class="p">,</span> <span class="s2">&quot;genbank&quot;</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">seqs1</span> <span class="o">==</span> <span class="n">seqs2</span><span class="p">)</span>   <span class="c1"># True</span>
+</code></pre></div>
+<h2 id="5">第 5 章</h2>
+<p><strong>练习 1</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">gc_fraction</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gc_fraction</span><span class="p">(</span><span class="s2">&quot;ACGTACGTACGT&quot;</span><span class="p">))</span>   <span class="c1"># 0.5</span>
+</code></pre></div>
+<p><strong>练习 2</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils.ProtParam</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProteinAnalysis</span>
+<span class="n">pa</span> <span class="o">=</span> <span class="n">ProteinAnalysis</span><span class="p">(</span><span class="s2">&quot;MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHF&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;分子量: </span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">molecular_weight</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>   <span class="c1"># 约 15126.5</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;等电点: </span><span class="si">{</span><span class="n">pa</span><span class="o">.</span><span class="n">isoelectric_point</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 约 8.70</span>
+</code></pre></div>
+<p><strong>练习 3</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio.SeqUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">gc_fraction</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gc_of_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">r</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">gc_fraction</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)}</span>
+</code></pre></div>
+<h2 id="6_1">第 6 章</h2>
+<p><strong>练习 3</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlignIO</span>
+
+<span class="n">aln</span> <span class="o">=</span> <span class="n">AlignIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;alignment.aln&quot;</span><span class="p">,</span> <span class="s2">&quot;clustal&quot;</span><span class="p">)</span>
+<span class="n">n</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">aln</span><span class="p">),</span> <span class="n">aln</span><span class="o">.</span><span class="n">get_alignment_length</span><span class="p">()</span>
+<span class="n">conserved</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">aln</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;保守位点比例: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">conserved</span><span class="p">)</span><span class="o">/</span><span class="n">L</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="7">第 7 章</h2>
+<p><strong>练习 1</strong></p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entrez</span><span class="p">,</span> <span class="n">SeqIO</span>
+<span class="n">Entrez</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="s2">&quot;you@example.com&quot;</span>
+
+<span class="n">handle</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">esearch</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s2">&quot;nucleotide&quot;</span><span class="p">,</span> <span class="n">term</span><span class="o">=</span><span class="s2">&quot;insulin AND Homo sapiens[Organism]&quot;</span><span class="p">,</span> <span class="n">retmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ids</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">handle</span><span class="p">)[</span><span class="s2">&quot;IdList&quot;</span><span class="p">]</span>
+<span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">handle</span> <span class="o">=</span> <span class="n">Entrez</span><span class="o">.</span><span class="n">efetch</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s2">&quot;nucleotide&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rettype</span><span class="o">=</span><span class="s2">&quot;fasta&quot;</span><span class="p">,</span> <span class="n">retmode</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+<span class="n">record</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+<span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">seq</span><span class="p">[:</span><span class="mi">50</span><span class="p">])</span>
+</code></pre></div>
+<h2 id="9">第 9 章</h2>
+<p><strong>练习 1 参考</strong>：species_A 与 species_B 只在最后一个碱基不同（T vs A），与其余序列相比差异最小，因此距离最近、在树上聚为一支。</p>
+<h2 id="11_1">第 11 章</h2>
+<p>三个项目已在正文给出完整参考实现，请先独立完成再对照。项目三 ORF 查找器的输出示例：</p>
+<pre><code>链 +1 读框 1  位置 1-21  蛋白: MAIVMGR
+链 +1 读框 1  位置 25-42 蛋白: MAIV
+...
+</code></pre>
+    </article>
+  </main>
+</div>
+<button id="backTop" title="回到顶部">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<script>
+(()=>{
+  // 目录滚动高亮
+  const links=[...document.querySelectorAll('.sidebar .toc a')];
+  const map=new Map();
+  links.forEach(a=>{const id=decodeURIComponent(a.getAttribute('href').slice(1));const el=document.getElementById(id);if(el)map.set(el,a);});
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=map.get(e.target);if(a)a.classList.add('active');}});},{rootMargin:'-15% 0px -75% 0px'});
+  map.forEach((_,el)=>obs.observe(el));
+
+  // 复制代码
+  document.querySelectorAll('.copy-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const code=btn.parentElement.querySelector('code');
+      const text=code.innerText.replace(/\n$/,'');
+      const done=()=>{btn.textContent='已复制';btn.classList.add('copied');setTimeout(()=>{btn.textContent='复制';btn.classList.remove('copied');},1600);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>{fallback(text);done();});}
+      else{fallback(text);done();}
+    });
+  });
+  function fallback(text){
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);
+  }
+
+  // 进度条 + 返回顶部
+  const bar=document.getElementById('progress'),bt=document.getElementById('backTop');
+  window.addEventListener('scroll',()=>{
+    const h=document.documentElement;
+    const p=h.scrollTop/(h.scrollHeight-h.clientHeight);
+    bar.style.width=(p*100)+'%';
+    bt.classList.toggle('show',h.scrollTop>500);
+  },{passive:true});
+  bt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+  // 移动端抽屉
+  const sb=document.getElementById('sidebar'),mask=document.getElementById('mask');
+  document.getElementById('menuBtn').addEventListener('click',()=>{sb.classList.add('open');mask.classList.add('show');});
+  mask.addEventListener('click',close); 
+  function close(){sb.classList.remove('open');mask.classList.remove('show');}
+  sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));
+})();
+</script>
+</body>
+</html>

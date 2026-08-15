@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>生信基础知识教程</title>
+<meta name="description" content="面向零基础读者的生物信息学概念入门 · 与《Biopython 零基础实战教程》配套">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+<style>
+:root{
+  --bg:#f4f7f9; --panel:#ffffff; --text:#1f2937; --muted:#6b7280;
+  --line:#e5e7eb; --accent:#0f766e; --accent2:#115e59; --accent-soft:#ccfbf1;
+  --amber:#d97706; --red:#dc2626; --blue:#2563eb;
+  --code-bg:#0d1117; --code-text:#e6edf3; --radius:14px;
+  --sidebar-w:288px; --max-w:820px;
+  --shadow:0 1px 3px rgba(16,24,40,.08),0 8px 24px -12px rgba(16,24,40,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;overflow-x:hidden}
+
+/* 进度条 */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#0f766e,#14b8a6,#f59e0b);z-index:100;transition:width .1s}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#042f2e 0%,#0f766e 55%,#0d9488 100%);color:#fff;padding:56px 24px 44px}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 85% -10%,rgba(45,212,191,.28),transparent 60%),radial-gradient(500px 260px at 8% 110%,rgba(245,158,11,.18),transparent 60%)}
+.hero-inner{position:relative;max-width:calc(var(--sidebar-w) + var(--max-w) + 48px);margin:0 auto;display:flex;align-items:center;gap:36px;justify-content:space-between;width:100%}
+.hero-text{flex:1;min-width:0;max-width:100%}
+.hero .meta{overflow-wrap:anywhere;word-break:break-word;line-height:1.7}
+.hero h1{overflow-wrap:break-word}
+.hero .sub{overflow-wrap:break-word}
+.hero .badge{max-width:100%;overflow-wrap:break-word}
+.hero .badge{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(4px);
+  padding:4px 14px;border-radius:999px;font-size:13px;letter-spacing:.12em;color:#fef3c7;margin-bottom:16px}
+.hero h1{font-size:clamp(28px,4.6vw,44px);font-weight:800;line-height:1.2;letter-spacing:.01em}
+.hero .sub{font-size:clamp(15px,2vw,19px);margin-top:12px;color:#d1fae5;font-weight:400}
+.hero .meta{margin-top:18px;font-size:13px;color:#a7f3d0;opacity:.9}
+.hero-helix{flex-shrink:0;width:150px;height:150px}
+
+/* 布局 */
+.layout{display:flex;gap:32px;max-width:calc(var(--sidebar-w) + var(--max-w) + 48px);margin:0 auto;padding:28px 20px 80px;align-items:flex-start;overflow-x:hidden}
+.sidebar{position:sticky;top:20px;width:var(--sidebar-w);flex-shrink:0;max-height:calc(100vh - 40px);overflow-y:auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px}
+.sidebar h3{font-size:13px;letter-spacing:.18em;color:var(--muted);margin-bottom:12px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.sidebar h3 svg{flex-shrink:0}
+.sidebar .toc{font-size:14px}
+.sidebar .toc ul{list-style:none;padding-left:0}
+.sidebar .toc ul ul{padding-left:16px;margin:4px 0}
+.sidebar .toc a{display:block;color:var(--text);text-decoration:none;padding:5px 10px;border-radius:8px;border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.sidebar .toc a:hover{background:var(--accent-soft)}
+.sidebar .toc a.active{background:var(--accent-soft);border-left-color:var(--accent);color:var(--accent2);font-weight:600}
+.sidebar .toc ul ul a{font-size:13px;color:var(--muted)}
+
+main.content{flex:1;min-width:0;max-width:var(--max-w)}
+.article{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:40px clamp(20px,4vw,48px)}
+
+/* 正文排版 */
+.article h1{font-size:28px;line-height:1.35;margin:8px 0 22px;padding-bottom:14px;border-bottom:3px solid var(--accent);color:var(--accent2);scroll-margin-top:24px}
+.article h1:not(:first-child){margin-top:44px}
+.article h2{font-size:21px;margin:36px 0 14px;color:#134e4a;scroll-margin-top:24px;padding-left:12px;border-left:4px solid var(--accent);line-height:1.4}
+.article h3{font-size:17px;margin:26px 0 10px;color:var(--accent2)}
+.article p{margin:12px 0;overflow-wrap:break-word}
+.article ul,.article ol{margin:12px 0;padding-left:26px}
+.article li{margin:5px 0;overflow-wrap:break-word}
+.article li code,.article p code{overflow-wrap:break-word}
+.article a{color:var(--blue);text-decoration:none;border-bottom:1px solid rgba(37,99,235,.35)}
+.article a:hover{border-bottom-color:var(--blue)}
+.article strong{color:#111827}
+.article hr{border:none;border-top:1px dashed var(--line);margin:30px 0}
+.article img{max-width:100%;border-radius:10px}
+
+/* 代码块 */
+.codeblock{position:relative;background:var(--code-bg);border-radius:10px;margin:16px 0;box-shadow:var(--shadow)}
+.codeblock::before{content:attr(data-lang);position:absolute;top:10px;right:56px;font-size:11px;letter-spacing:.08em;color:#7d8590;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.codeblock pre{overflow-x:auto;padding:16px 18px;font-size:13.5px;line-height:1.65}
+.codeblock code{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;color:var(--code-text);background:transparent;white-space:pre}
+.copy-btn{position:absolute;top:8px;right:10px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;opacity:.85;transition:.15s}
+.copy-btn:hover{background:#30363d;color:#fff;opacity:1}
+.copy-btn.copied{background:#238636;border-color:#2ea043;color:#fff}
+/* 深色代码 token 配色 */
+.codeblock .k,.codeblock .kc,.codeblock .kd,.codeblock .kn,.codeblock .kp,.codeblock .kr,.codeblock .kt,.codeblock .ow{color:#ff7b72}
+.codeblock .s,.codeblock .sa,.codeblock .sb,.codeblock .sc,.codeblock .dl,.codeblock .sd,.codeblock .s2,.codeblock .se,.codeblock .sh,.codeblock .si,.codeblock .sx,.codeblock .sr,.codeblock .s1,.codeblock .ss{color:#a5d6ff}
+.codeblock .m,.codeblock .mb,.codeblock .mf,.codeblock .mh,.codeblock .mi,.codeblock .il,.codeblock .mo,.codeblock .mx{color:#79c0ff}
+.codeblock .c,.codeblock .ch,.codeblock .cm,.codeblock .cp,.codeblock .cpf,.codeblock .c1,.codeblock .cs{color:#8b949e;font-style:italic}
+.codeblock .nf,.codeblock .fm{color:#d2a8ff}
+.codeblock .nc,.codeblock .nn{color:#ffa657}
+.codeblock .nb,.codeblock .bp{color:#79c0ff}
+.codeblock .nd{color:#d2a8ff;font-style:italic}
+.codeblock .na,.codeblock .nv,.codeblock .vc,.codeblock .vg,.codeblock .vi,.codeblock .vm,.codeblock .vl{color:#e6edf3}
+.codeblock .ni,.codeblock .ne{color:#ffa657}
+.codeblock .gd{color:#ffa198}.codeblock .gi{color:#7ee787}
+.codeblock .go{color:#8b949e}.codeblock .gr{color:#f85149}
+.codeblock .ge{font-style:italic}.codeblock .gs{font-weight:700}
+.codeblock .w{color:#e6edf3}
+.codeblock .err{color:#f85149}
+
+/* 表格 */
+.article table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px;display:block;overflow-x:auto}
+.article thead th{background:linear-gradient(180deg,#0f766e,#115e59);color:#fff;text-align:left;padding:10px 14px;font-weight:600;white-space:nowrap}
+.article tbody td{border:1px solid var(--line);padding:9px 14px;vertical-align:top}
+.article tbody tr:nth-child(even){background:#f8fafc}
+.article tbody tr:hover{background:#f0fdfa}
+.article td code,.article p code,.article li code{background:#ecfdf5;color:#065f46;border:1px solid #d1fae5;border-radius:5px;padding:1px 6px;font-size:.86em;font-family:ui-monospace,Consolas,monospace;white-space:nowrap}
+
+/* 引用框 */
+.article blockquote{margin:16px 0;padding:12px 18px;background:#f0fdfa;border-left:4px solid #14b8a6;border-radius:0 10px 10px 0;color:#134e4a}
+.article blockquote p{margin:4px 0}
+.article blockquote strong{color:#0f766e}
+.article blockquote code{background:#ccfbf1;color:#115e59}
+
+/* 移动端工具条 */
+.topbar{display:none}
+#backTop{position:fixed;right:22px;bottom:26px;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--accent);color:#fff;font-size:20px;box-shadow:0 8px 20px rgba(15,118,110,.35);z-index:90;transition:transform .2s,opacity .3s;opacity:0;pointer-events:none}
+#backTop.show{opacity:1;pointer-events:auto}
+#backTop:hover{transform:translateY(-3px)}
+
+/* 响应式 */
+@media (max-width:1080px){
+  .layout{flex-direction:column;width:100%;max-width:100%;padding-top:16px;padding-left:16px;padding-right:16px;overflow-x:hidden}
+  main.content{width:100%;min-width:0;max-width:100%}
+  .article{max-width:100%}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:300px;max-height:100vh;z-index:120;transform:translateX(-105%);transition:transform .28s ease;border-radius:0;border:none;box-shadow:8px 0 30px rgba(0,0,0,.18)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar h3{margin-top:8px}
+  .topbar{display:flex;position:sticky;top:0;z-index:110;background:rgba(15,118,110,.96);backdrop-filter:blur(8px);color:#fff;align-items:center;gap:12px;padding:10px 16px}
+  .topbar button{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 12px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .topbar button svg{flex-shrink:0}
+  .topbar .t-title{font-weight:700;font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #mask{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:115;opacity:0;pointer-events:none;transition:opacity .25s}
+  #mask.show{opacity:1;pointer-events:auto}
+  .hero{padding:40px 20px 36px}
+  .hero-helix{display:none}
+}
+@media (max-width:640px){
+  body{font-size:15.5px}
+  .layout{padding-left:14px;padding-right:14px}
+  .article{padding:24px 14px;border-radius:10px}
+  .article h1{font-size:23px}
+  .article h2{font-size:18.5px}
+  .codeblock pre{font-size:12.5px;padding:14px 12px}
+  .hero h1{font-size:26px}
+  .hero{padding:32px 16px 28px}
+}
+@media (max-width:480px){
+  body{font-size:15px}
+  .layout{padding-left:10px;padding-right:10px}
+  .article{padding:18px 12px;border-radius:8px}
+  .article h1{font-size:21px}
+  .article h2{font-size:17px}
+  .article h3{font-size:15.5px}
+  .codeblock{margin:12px 0}
+  .codeblock::before{right:auto;left:10px;top:7px}
+  .codeblock pre{font-size:12px;padding:30px 10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;overflow-x:hidden}
+  .copy-btn{top:6px;right:8px}
+  .article table{font-size:12px}
+  .article thead th,.article tbody td{padding:7px 9px}
+  .hero{padding:26px 14px 22px}
+  .hero h1{font-size:21px}
+  .hero .sub{font-size:13.5px}
+  .hero .badge{font-size:12px;letter-spacing:.08em}
+}
+@media print{
+  .sidebar,.topbar,#progress,#backTop{display:none!important}
+  body{background:#fff}
+  .article{border:none;box-shadow:none;padding:0}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+    <div class="topbar">
+      <button id="menuBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        目录
+      </button>
+      <div class="t-title">生信基础知识教程</div>
+    </div>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="badge">BIOINFORMATICS · FOUNDATION</span>
+      <h1>生信基础知识教程</h1>
+      <p class="sub">零基础入门生物信息学 · 为 Biopython 学习铺路</p>
+      <p class="meta">面向零基础读者的生物信息学概念入门<br>为 Biopython 学习打好知识基础</p>
+    </div>
+    
+<svg class="hero-helix" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="#99f6e4" stroke-width="3" stroke-linecap="round">
+    <path d="M30 18 C 60 30, 90 6, 120 18 C 90 30, 60 54, 30 42 C 60 54, 90 30, 120 42 C 90 54, 60 78, 30 66 C 60 78, 90 54, 120 66 C 90 78, 60 102, 30 90 C 60 102, 90 78, 120 90 C 90 102, 60 126, 30 114 C 60 126, 90 102, 120 114 C 90 126, 60 138, 30 132" opacity=".9"/>
+  </g>
+  <g fill="#fbbf24">
+    <circle cx="75" cy="18" r="3.4"/>
+    <circle cx="75" cy="48" r="3.4"/>
+    <circle cx="75" cy="78" r="3.4"/>
+    <circle cx="75" cy="108" r="3.4"/>
+    <circle cx="75" cy="134" r="3.4"/>
+  </g>
+  <g fill="#5eead4">
+    <circle cx="38" cy="30" r="3"/>
+    <circle cx="112" cy="30" r="3"/>
+    <circle cx="38" cy="60" r="3"/>
+    <circle cx="112" cy="60" r="3"/>
+    <circle cx="38" cy="90" r="3"/>
+    <circle cx="112" cy="90" r="3"/>
+    <circle cx="38" cy="118" r="3"/>
+    <circle cx="112" cy="118" r="3"/>
+  </g>
+</svg>
+  </div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg><span>目录导航</span></h3>
+    <div class="toc">
+<ul>
+<li><a href="#_1">前言</a><ul>
+<li><a href="#_2">这门课讲什么</a></li>
+<li><a href="#_3">适合谁</a></li>
+<li><a href="#_4">怎么学效果最好</a></li>
+</ul>
+</li>
+<li><a href="#1">第 1 章 生命的基本单元：从细胞到分子</a><ul>
+<li><a href="#11">1.1 细胞：生命的基本单位</a></li>
+<li><a href="#12-dna">1.2 DNA：遗传物质</a></li>
+<li><a href="#13">1.3 基因与基因组</a></li>
+<li><a href="#14-rna">1.4 RNA：三种主要角色</a></li>
+<li><a href="#15">1.5 蛋白质：分子机器</a></li>
+<li><a href="#16">1.6 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#2-dna-rna">第 2 章 中心法则：DNA → RNA → 蛋白质</a><ul>
+<li><a href="#21">2.1 中心法则总览</a></li>
+<li><a href="#22-dna">2.2 DNA 复制</a></li>
+<li><a href="#23-dna-mrna">2.3 转录：DNA → mRNA</a></li>
+<li><a href="#24-mrna">2.4 翻译：mRNA → 蛋白质</a></li>
+<li><a href="#25">2.5 遗传密码表（简版）</a></li>
+<li><a href="#26">2.6 突变与序列变异</a></li>
+<li><a href="#27">2.7 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#3">第 3 章 序列数据：计算机眼中的生物学</a><ul>
+<li><a href="#31">3.1 为什么序列可以用字符串表示</a></li>
+<li><a href="#32-iupac">3.2 核酸字母表（IUPAC 代码）</a></li>
+<li><a href="#33">3.3 蛋白质字母表</a></li>
+<li><a href="#34-5-3">3.4 方向约定：序列按 5' → 3' 存储</a></li>
+<li><a href="#35-python">3.5 用 Python 感受一下（必读示例）</a></li>
+<li><a href="#36">3.6 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#4">第 4 章 生物序列文件格式：你与数据打交道的起点</a><ul>
+<li><a href="#41">4.1 为什么必须先懂格式</a></li>
+<li><a href="#42-fasta">4.2 FASTA：最基础的序列格式</a></li>
+<li><a href="#43-fastq">4.3 FASTQ：带质量的测序数据格式</a></li>
+<li><a href="#44-genbank">4.4 GenBank：带注释的序列格式</a></li>
+<li><a href="#45-embl">4.5 EMBL：欧洲风格的注释格式</a></li>
+<li><a href="#46-clustal-stockholm">4.6 比对格式：Clustal / Stockholm</a></li>
+<li><a href="#47">4.7 格式转换：思路比工具更重要</a></li>
+<li><a href="#48">4.8 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#5">第 5 章 从序列到知识：统计与特征</a><ul>
+<li><a href="#51-gc">5.1 GC 含量：序列最基本的统计量</a></li>
+<li><a href="#52">5.2 序列长度与组成</a></li>
+<li><a href="#53">5.3 子序列与模体</a></li>
+<li><a href="#54-orf">5.4 密码子、读框与 ORF</a></li>
+<li><a href="#55">5.5 蛋白质理化性质</a></li>
+<li><a href="#56">5.6 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#6">第 6 章 序列比对：寻找相似与同源</a><ul>
+<li><a href="#61">6.1 为什么要比对</a></li>
+<li><a href="#62">6.2 相似性 ≠ 同源性（关键概念）</a></li>
+<li><a href="#63-vs">6.3 双序列比对：全局 vs 局部</a></li>
+<li><a href="#64">6.4 打分矩阵：氨基酸之间怎么算分</a></li>
+<li><a href="#65-msa">6.5 多序列比对（MSA）</a></li>
+<li><a href="#66">6.6 怎么读懂一次比对结果</a></li>
+<li><a href="#67">6.7 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#7">第 7 章 生物数据库：数据从哪里来</a><ul>
+<li><a href="#71">7.1 三大国际数据中心</a></li>
+<li><a href="#72-genbank-refseq">7.2 核酸数据库：GenBank 与 RefSeq</a></li>
+<li><a href="#73-uniprot">7.3 蛋白质数据库：UniProt</a></li>
+<li><a href="#74-pdb">7.4 结构数据库：PDB</a></li>
+<li><a href="#75-ensembl">7.5 基因组数据库：Ensembl</a></li>
+<li><a href="#76">7.6 标识符：数据世界的"身份证"</a></li>
+<li><a href="#77">7.7 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#8-blast">第 8 章 BLAST 与相似性搜索</a><ul>
+<li><a href="#81-blast">8.1 BLAST 是什么</a></li>
+<li><a href="#82">8.2 工作原理（直觉版）</a></li>
+<li><a href="#83">8.3 结果解读：四个关键数值</a></li>
+<li><a href="#84-blast">8.4 BLAST 的常用变体</a></li>
+<li><a href="#85-biopython">8.5 在 Biopython 中怎么用（预览）</a></li>
+<li><a href="#86">8.6 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#9">第 9 章 分子进化与系统发育树</a><ul>
+<li><a href="#91">9.1 进化与序列的关系</a></li>
+<li><a href="#92">9.2 一棵树由什么组成</a></li>
+<li><a href="#93-newick">9.3 读树：Newick 格式</a></li>
+<li><a href="#94">9.4 建树方法（概念层面）</a></li>
+<li><a href="#95">9.5 小结与练习</a></li>
+</ul>
+</li>
+<li><a href="#10-biopython">第 10 章 为 Biopython 铺路：从概念到工具的映射</a><ul>
+<li><a href="#101">10.1 你的知识地图</a></li>
+<li><a href="#102">10.2 一个典型分析流程</a></li>
+<li><a href="#103">10.3 常见误区清单</a></li>
+<li><a href="#104-biopython">10.4 下一步：开始学 Biopython</a></li>
+<li><a href="#105">10.5 小结</a></li>
+</ul>
+</li>
+<li><a href="#a">附录 A：完整遗传密码表</a></li>
+<li><a href="#b">附录 B：术语速查表</a></li>
+<li><a href="#c">附录 C：推荐学习资源</a></li>
+</ul>
+</div>
+
+  </nav>
+  <div id="mask"></div>
+  <main class="content">
+    <article class="article">
+      <h1 id="_1">前言</h1>
+<h2 id="_2">这门课讲什么</h2>
+<p>如果你想学会用 Python（以及 Biopython）分析生物数据，却对"DNA、基因、FASTA、BLAST"这些词感到陌生，那么这门课就是为你准备的。</p>
+<p><strong>本教程是一份零基础的生物信息学入门铺垫教材</strong>，它不要求你学过任何生物学知识，也不要求你写过一行代码。读完它，你将获得：</p>
+<ul>
+<li>理解生物序列（DNA、RNA、蛋白质）到底"是什么"的能力；</li>
+<li>看懂常见生物数据文件格式（FASTA、FASTQ、GenBank 等）的能力；</li>
+<li>理解序列比对、数据库、BLAST、进化树等核心概念的能力；</li>
+<li>一张"概念 → Biopython 工具"的对照地图，为接下来学习 Biopython 铺平道路。</li>
+</ul>
+<blockquote>
+<p><strong>提示</strong> 本教程是《Biopython 零基础实战教程》的配套前置课程。建议按顺序学习：先读本教程掌握概念，再进入 Biopython 教程动手写代码。</p>
+</blockquote>
+<h2 id="_3">适合谁</h2>
+<ul>
+<li><strong>完全零基础</strong>：没上过生物课、没写过代码，也没关系，我们从"细胞是什么"讲起；</li>
+<li><strong>会一点 Python 但不懂生物</strong>：你可以直接跳到第 3 章以后，重点看序列与格式；</li>
+<li><strong>学生物但不会编程</strong>：前三章你可以快速浏览，重点看第 4 章以后的"计算机视角"。</li>
+</ul>
+<h2 id="_4">怎么学效果最好</h2>
+<ol>
+<li><strong>先概念，后工具</strong>：不要一上来就背命令，先理解每个概念回答的是什么问题；</li>
+<li><strong>边读边查</strong>：遇到看不懂的英文缩写，翻到附录 B 的术语速查表；</li>
+<li><strong>动手写</strong>：第 3、5 章有少量 Python 演示，建议复制到自己的环境里运行一遍；</li>
+<li><strong>做练习</strong>：每章末尾有小练习，答案思路附在章末提示中，先自己想再做。</li>
+</ol>
+<blockquote>
+<p><strong>提示</strong> 本教程中的数字（如人类基因组大小、氨基酸种类）采用主流教材的常用数值，具体细节可到第 7 章介绍的数据库中查阅原始数据。</p>
+</blockquote>
+<hr />
+<h1 id="1">第 1 章 生命的基本单元：从细胞到分子</h1>
+<h2 id="11">1.1 细胞：生命的基本单位</h2>
+<p>地球上所有生命都由<strong>细胞</strong>组成。细胞大致分为两类：</p>
+<ul>
+<li><strong>原核细胞</strong>：没有细胞核，遗传物质直接散在细胞质中，如细菌、古菌；</li>
+<li><strong>真核细胞</strong>：有细胞核，遗传物质被核膜包裹，如动物、植物、真菌。</li>
+</ul>
+<p>对生物信息学来说，细胞不是重点，<strong>细胞里携带信息的分子</strong>才是。每个细胞里都有三类与我们密切相关的分子：</p>
+<table>
+<thead>
+<tr>
+<th>分子</th>
+<th>中文名</th>
+<th>一句话角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DNA</td>
+<td>脱氧核糖核酸</td>
+<td>遗传信息的"长期存储库"</td>
+</tr>
+<tr>
+<td>RNA</td>
+<td>核糖核酸</td>
+<td>信息的"传递与执行者"</td>
+</tr>
+<tr>
+<td>蛋白质</td>
+<td>蛋白质</td>
+<td>生命活动的"执行者"</td>
+</tr>
+</tbody>
+</table>
+<p>生物信息学处理的"数据"，绝大多数就是从这三类分子中获得的<strong>序列信息</strong>——也就是用字母写下来的分子一级结构。</p>
+<h2 id="12-dna">1.2 DNA：遗传物质</h2>
+<h3 id="_5">双螺旋结构</h3>
+<p>DNA（deoxyribonucleic acid，脱氧核糖核酸）是一种<strong>双链螺旋</strong>结构，1953 年由 Watson 与 Crick 提出。两条链反向平行缠绕，通过碱基配对连接。</p>
+<h3 id="_6">四种碱基</h3>
+<p>DNA 由四种<strong>碱基</strong>组成，通常用四个字母表示：</p>
+<ul>
+<li><strong>A</strong>：腺嘌呤（Adenine）</li>
+<li><strong>T</strong>：胸腺嘧啶（Thymine）</li>
+<li><strong>G</strong>：鸟嘌呤（Guanine）</li>
+<li><strong>C</strong>：胞嘧啶（Cytosine）</li>
+</ul>
+<h3 id="_7">碱基互补配对（关键规则）</h3>
+<p>两条链之间遵循严格的配对规则：</p>
+<ul>
+<li><strong>A 与 T 配对</strong>（两个氢键）</li>
+<li><strong>G 与 C 配对</strong>（三个氢键）</li>
+</ul>
+<p>因此，如果一条链的序列是 <code>ATGC</code>，另一条与之互补的链就是 <code>TACG</code>。</p>
+<blockquote>
+<p><strong>注意</strong> 这一规则是整个分子生物学的基石，也是程序里 <code>complement()</code>（互补）和 <code>reverse_complement()</code>（反向互补）函数的来源。学 Biopython 时你会反复用到它。</p>
+</blockquote>
+<h3 id="5-3">方向性：5' 到 3'</h3>
+<p>DNA 链是有方向的，一端叫 <strong>5' 端</strong>，另一端叫 <strong>3' 端</strong>。序列通常按 <strong>5' → 3'</strong> 方向书写和存储。</p>
+<p>这带来一个重要的推论：DNA 双链反向平行，一条链的 5' 端对应另一条的 3' 端。计算反向互补序列（先互补、再反过来）就源于此。</p>
+<h2 id="13">1.3 基因与基因组</h2>
+<h3 id="_8">基因</h3>
+<p><strong>基因</strong>是 DNA 上的一段具有功能意义的序列，通常编码蛋白质（或 RNA）。可以粗略地把基因理解为"一条指令"。</p>
+<h3 id="_9">基因组</h3>
+<p>一个生物体的<strong>全部遗传信息</strong>（所有 DNA）叫<strong>基因组</strong>。几个参考数字：</p>
+<table>
+<thead>
+<tr>
+<th>生物</th>
+<th>基因组大小（约）</th>
+<th>蛋白编码基因数（约）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>人类</td>
+<td>31 亿碱基对（3.1 Gb）</td>
+<td>2 万个</td>
+</tr>
+<tr>
+<td>小鼠</td>
+<td>27 亿碱基对</td>
+<td>2.2 万个</td>
+</tr>
+<tr>
+<td>大肠杆菌</td>
+<td>460 万碱基对</td>
+<td>4400 个</td>
+</tr>
+<tr>
+<td>果蝇</td>
+<td>1.4 亿碱基对</td>
+<td>1.4 万个</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> 基因组很大，但其中真正编码蛋白质的区域（外显子）只占人类基因组的约 1.5%。理解"序列很多、信息稀疏"这一点，对后续学习比对、注释很重要。</p>
+</blockquote>
+<h2 id="14-rna">1.4 RNA：三种主要角色</h2>
+<p>RNA（核糖核酸）与 DNA 很像，但有两点不同：</p>
+<ul>
+<li>糖不同（核糖 vs 脱氧核糖）；</li>
+<li>碱基 <strong>T 被 U（尿嘧啶）替代</strong>，即 RNA 用 A、U、G、C 四个字母。</li>
+</ul>
+<p>RNA 在细胞中有多种角色，主要记住三种：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>全称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mRNA</td>
+<td>信使 RNA</td>
+<td>把 DNA 上的信息带到核糖体</td>
+</tr>
+<tr>
+<td>tRNA</td>
+<td>转运 RNA</td>
+<td>搬运氨基酸，识别密码子</td>
+</tr>
+<tr>
+<td>rRNA</td>
+<td>核糖体 RNA</td>
+<td>组成核糖体，催化翻译</td>
+</tr>
+</tbody>
+</table>
+<p>生物信息学中最常处理的是 <strong>mRNA / 转录本序列</strong>——它是"DNA 与蛋白质之间的中间形态"。</p>
+<h2 id="15">1.5 蛋白质：分子机器</h2>
+<h3 id="20">20 种氨基酸</h3>
+<p>蛋白质由 <strong>20 种标准氨基酸</strong>组成的长链。每种氨基酸用单字母或三字母缩写表示。例如：</p>
+<table>
+<thead>
+<tr>
+<th>单字母</th>
+<th>三字母</th>
+<th>中文名</th>
+<th>单字母</th>
+<th>三字母</th>
+<th>中文名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Ala</td>
+<td>丙氨酸</td>
+<td>M</td>
+<td>Met</td>
+<td>甲硫氨酸</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Arg</td>
+<td>精氨酸</td>
+<td>F</td>
+<td>Phe</td>
+<td>苯丙氨酸</td>
+</tr>
+<tr>
+<td>N</td>
+<td>Asn</td>
+<td>天冬酰胺</td>
+<td>P</td>
+<td>Pro</td>
+<td>脯氨酸</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Asp</td>
+<td>天冬氨酸</td>
+<td>S</td>
+<td>Ser</td>
+<td>丝氨酸</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Cys</td>
+<td>半胱氨酸</td>
+<td>T</td>
+<td>Thr</td>
+<td>苏氨酸</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Glu</td>
+<td>谷氨酸</td>
+<td>W</td>
+<td>Trp</td>
+<td>色氨酸</td>
+</tr>
+<tr>
+<td>Q</td>
+<td>Gln</td>
+<td>谷氨酰胺</td>
+<td>Y</td>
+<td>Tyr</td>
+<td>酪氨酸</td>
+</tr>
+<tr>
+<td>G</td>
+<td>Gly</td>
+<td>甘氨酸</td>
+<td>V</td>
+<td>Val</td>
+<td>缬氨酸</td>
+</tr>
+<tr>
+<td>H</td>
+<td>His</td>
+<td>组氨酸</td>
+<td>K</td>
+<td>Lys</td>
+<td>赖氨酸</td>
+</tr>
+<tr>
+<td>I</td>
+<td>Ile</td>
+<td>异亮氨酸</td>
+<td>L</td>
+<td>Leu</td>
+<td>亮氨酸</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> 你不必现在背下 20 种氨基酸，但至少要认识 <code>A R N D C Q E G H I L K M F P S T W Y V</code> 这 20 个字母，因为<strong>蛋白序列文件里就是这些字母</strong>。</p>
+</blockquote>
+<h3 id="_10">蛋白质的结构层次</h3>
+<ul>
+<li><strong>一级结构</strong>：氨基酸的排列顺序（就是"序列"，生物信息学主要处理这一层）；</li>
+<li><strong>二级结构</strong>：局部的 α 螺旋、β 折叠等规则构象；</li>
+<li><strong>三级结构</strong>：整条链的空间折叠（PDB 数据库存储的就是这一层）；</li>
+<li><strong>四级结构</strong>：多条链组装成复合物。</li>
+</ul>
+<h3 id="_11">序列 → 结构 → 功能</h3>
+<p>蛋白质的功能由它的三维结构决定，而结构由氨基酸序列决定（大致如此）。因此<strong>序列信息是理解生命的最基本输入</strong>——这也是为什么生物信息学从"序列"开始。</p>
+<h2 id="16">1.6 小结与练习</h2>
+<h3 id="_12">小结</h3>
+<ul>
+<li>细胞分原核与真核；DNA、RNA、蛋白质是三大关键分子；</li>
+<li>DNA 用 A/T/G/C 四个字母，遵守 A-T、G-C 配对，有 5'→3' 方向；</li>
+<li>基因是一段有功能的 DNA，基因组是全部遗传信息；</li>
+<li>RNA 把 T 换成 U，mRNA 是中间信使；</li>
+<li>蛋白质由 20 种氨基酸组成，一级结构就是序列。</li>
+</ul>
+<h3 id="_13">练习</h3>
+<ol>
+<li>写出 <code>ATGC</code> 的互补序列和反向互补序列（提示：先互补，再倒序）。</li>
+<li>一段双链 DNA 中 A 占 30%，那么 G 大约占多少？（提示：A=T，G=C）</li>
+<li>RNA 与 DNA 的字母表差在哪里？</li>
+</ol>
+<hr />
+<h1 id="2-dna-rna">第 2 章 中心法则：DNA → RNA → 蛋白质</h1>
+<h2 id="21">2.1 中心法则总览</h2>
+<p><strong>中心法则</strong>（Central Dogma）描述遗传信息的流动方向：</p>
+<pre><code>DNA --(转录)--&gt; RNA --(翻译)--&gt; 蛋白质
+</code></pre>
+<ul>
+<li><strong>复制</strong>（Replication）：DNA → DNA；</li>
+<li><strong>转录</strong>（Transcription）：DNA → mRNA；</li>
+<li><strong>翻译</strong>（Translation）：mRNA → 蛋白质。</li>
+</ul>
+<p>这条法则解释了"信息如何从存储形式变成执行形式"，也是序列分析中"转录、翻译"这两个操作（Biopython 中 <code>Seq.transcribe()</code> 和 <code>Seq.translate()</code>）的生物学依据。</p>
+<h2 id="22-dna">2.2 DNA 复制</h2>
+<p>DNA 复制时，双链解开，各自作为模板合成互补新链，最终一个 DNA 分子变成两个完全相同的分子。</p>
+<p>对生物信息学来说，复制带来的启示是：<strong>序列的"反向互补"是真实存在的生物学操作</strong>，而不是程序员的怪癖。</p>
+<h2 id="23-dna-mrna">2.3 转录：DNA → mRNA</h2>
+<p>转录是"读模板、写 mRNA"的过程：</p>
+<ul>
+<li>以 DNA 的一条链为<strong>模板链</strong>（template strand），合成 mRNA；</li>
+<li>mRNA 与模板链互补，因此与另一条链（<strong>编码链</strong>）序列一致（只是 T 换成了 U）；</li>
+<li>一个基因转录出的 mRNA 长度通常与基因的编码区相当。</li>
+</ul>
+<p>举例：假设编码链（5'→3'）是</p>
+<pre><code>ATGGCCATTGTA
+</code></pre>
+<p>对应 mRNA（5'→3'）为</p>
+<pre><code>AUGGCCAUUGUA
+</code></pre>
+<blockquote>
+<p><strong>提示</strong> 这就是 Biopython 中 <code>Seq.transcribe()</code> 做的事情：把 DNA 序列里的 <code>T</code> 替换成 <code>U</code>。听起来简单，但它是中心法则在代码里的体现。</p>
+</blockquote>
+<h2 id="24-mrna">2.4 翻译：mRNA → 蛋白质</h2>
+<p>翻译是"读 mRNA、拼蛋白质"的过程：</p>
+<ol>
+<li>核糖体从 mRNA 的 5' 端开始，<strong>每 3 个碱基一组</strong>（称为一个<strong>密码子</strong>）；</li>
+<li>每个密码子对应一种氨基酸（或终止信号）；</li>
+<li>从起始密码子 <strong>AUG</strong> 开始，到终止密码子 <strong>UAA / UAG / UGA</strong> 结束。</li>
+</ol>
+<p>把上一节的 mRNA 翻译一遍：</p>
+<pre><code>AUG GCC AUU GUA
+ ↓    ↓   ↓   ↓
+Met  Ala  Ile  Val
+</code></pre>
+<p>蛋白质序列写作：<code>MAIV</code>（用单字母缩写）。</p>
+<h3 id="reading-frame">读框（Reading Frame）</h3>
+<p>因为密码子每次读 3 个碱基，从不同位置开始读，会得到完全不同的结果：</p>
+<ul>
+<li>读框 1：从第 1 个碱基开始；</li>
+<li>读框 2：从第 2 个碱基开始；</li>
+<li>读框 3：从第 3 个碱基开始。</li>
+</ul>
+<p>一条 DNA 有 3 个正向读框、3 个反向读框，共 6 个读框。<strong>寻找编码区域（ORF）</strong>就是在这 6 个读框中找"从起始密码子到终止密码子、能编码较长蛋白"的片段——这是基因预测的基础。</p>
+<h2 id="25">2.5 遗传密码表（简版）</h2>
+<p>遗传密码表共有 64 个密码子：61 个编码氨基酸，3 个是终止密码子。下面是常用的几个：</p>
+<table>
+<thead>
+<tr>
+<th>密码子</th>
+<th>氨基酸</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AUG</td>
+<td>M（甲硫氨酸）</td>
+<td>起始密码子</td>
+</tr>
+<tr>
+<td>UAA / UAG / UGA</td>
+<td>（终止）</td>
+<td>终止密码子</td>
+</tr>
+<tr>
+<td>UUU / UUC</td>
+<td>F（苯丙氨酸）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>GGU / GGC / GGA / GGG</td>
+<td>G（甘氨酸）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>UCU / UCC / UCA / UCG</td>
+<td>S（丝氨酸）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>GCU / GCC / GCA / GCG</td>
+<td>A（丙氨酸）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> 完整 64 密码子表见附录 A。学 Biopython 时 <code>Seq.translate()</code> 内部就是这张表，你也可以自定义表格。</p>
+</blockquote>
+<h3 id="_14">密码子的简并性</h3>
+<p>61 个密码子只编码 20 种氨基酸，说明<strong>多种密码子可以对应同一种氨基酸</strong>，这称为密码子的<strong>简并性</strong>（degeneracy）。例如亮氨酸 L 有 6 个密码子。简并性让突变常常"沉默"——碱基变了，氨基酸却没变。</p>
+<h2 id="26">2.6 突变与序列变异</h2>
+<p><strong>突变</strong>指 DNA 序列发生变化，常见类型：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>点突变（替换）</td>
+<td>一个碱基被另一个替换</td>
+<td><code>A</code> → <code>G</code></td>
+</tr>
+<tr>
+<td>插入（Insertion）</td>
+<td>插入一段碱基</td>
+<td>中间多了 <code>CG</code></td>
+</tr>
+<tr>
+<td>缺失（Deletion）</td>
+<td>删掉一段碱基</td>
+<td>少了 <code>A</code></td>
+</tr>
+<tr>
+<td>倒位（Inversion）</td>
+<td>一段序列方向颠倒</td>
+<td><code>ATGC</code> → <code>CGTA</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_15">突变对蛋白质的影响</h3>
+<ul>
+<li><strong>同义突变</strong>：碱基变了，氨基酸不变（利用简并性）；</li>
+<li><strong>错义突变</strong>：氨基酸改变（可能影响功能）；</li>
+<li><strong>无义突变</strong>：提前变成终止密码子，蛋白截短（通常有害）；</li>
+<li><strong>移码突变</strong>：插入/缺失使读框错位（通常影响巨大）。</li>
+</ul>
+<p><strong>变异</strong>（Variation）是群体层面的说法：不同个体的序列差异，例如 SNP（单核苷酸多态性）。序列比对正是发现这些差异的利器。</p>
+<h2 id="27">2.7 小结与练习</h2>
+<h3 id="_16">小结</h3>
+<ul>
+<li>中心法则：DNA 复制 → 转录成 RNA → 翻译成蛋白质；</li>
+<li>转录只是 T→U；翻译每 3 个碱基一个密码子；</li>
+<li>AUG 起始，UAA/UAG/UGA 终止；一条序列有 6 个读框；</li>
+<li>密码子有简并性，突变分同义/错义/无义/移码。</li>
+</ul>
+<h3 id="_17">练习</h3>
+<ol>
+<li>把 DNA <code>ATGGCCATTGTA</code> 先转录再翻译，写出氨基酸序列（用单字母）。</li>
+<li>为什么插入一个碱基常常"破坏"整个蛋白？</li>
+<li>如果一段 mRNA 以 <code>UGA</code> 开头，它会编码蛋白吗？</li>
+</ol>
+<h1 id="3">第 3 章 序列数据：计算机眼中的生物学</h1>
+<h2 id="31">3.1 为什么序列可以用字符串表示</h2>
+<p>在上一章我们看到：DNA 是 A/T/G/C 的线性排列，蛋白质是 20 种氨基酸的线性排列。这带来一个关键洞察——</p>
+<blockquote>
+<p><strong>生物序列本质上就是字符串。</strong> 对计算机而言，一条 DNA 就是一个只含 <code>A</code>、<code>T</code>、<code>G</code>、<code>C</code> 的字符串；一条蛋白质就是一个含 20 种字母的字符串。</p>
+</blockquote>
+<p>这正是生物信息学能与编程结合的根基：<strong>字符串处理能力 = 序列分析能力</strong>。你学过的 Python 字符串方法（索引、切片、拼接、查找），几乎都能直接用在序列上。</p>
+<h2 id="32-iupac">3.2 核酸字母表（IUPAC 代码）</h2>
+<p>核酸序列不一定永远只有 A/T/G/C。测序结果中经常出现模糊碱基，IUPAC 规定了扩充字母表：</p>
+<table>
+<thead>
+<tr>
+<th>字母</th>
+<th>含义</th>
+<th>代表哪些碱基</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>腺嘌呤</td>
+<td>A</td>
+</tr>
+<tr>
+<td>T</td>
+<td>胸腺嘧啶</td>
+<td>T</td>
+</tr>
+<tr>
+<td>G</td>
+<td>鸟嘌呤</td>
+<td>G</td>
+</tr>
+<tr>
+<td>C</td>
+<td>胞嘧啶</td>
+<td>C</td>
+</tr>
+<tr>
+<td>U</td>
+<td>尿嘧啶（RNA）</td>
+<td>U</td>
+</tr>
+<tr>
+<td>R</td>
+<td>嘌呤</td>
+<td>A 或 G</td>
+</tr>
+<tr>
+<td>Y</td>
+<td>嘧啶</td>
+<td>C 或 T</td>
+</tr>
+<tr>
+<td>N</td>
+<td>任意碱基</td>
+<td>A/T/G/C 之一</td>
+</tr>
+<tr>
+<td>S</td>
+<td>强键（三氢键）</td>
+<td>G 或 C</td>
+</tr>
+<tr>
+<td>W</td>
+<td>弱键（两氢键）</td>
+<td>A 或 T</td>
+</tr>
+<tr>
+<td>K</td>
+<td>酮基</td>
+<td>G 或 T</td>
+</tr>
+<tr>
+<td>M</td>
+<td>氨基</td>
+<td>A 或 C</td>
+</tr>
+<tr>
+<td>B</td>
+<td>非 A</td>
+<td>C/G/T</td>
+</tr>
+<tr>
+<td>D</td>
+<td>非 C</td>
+<td>A/G/T</td>
+</tr>
+<tr>
+<td>H</td>
+<td>非 G</td>
+<td>A/C/T</td>
+</tr>
+<tr>
+<td>V</td>
+<td>非 T</td>
+<td>A/C/G</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> 处理测序数据时最常见的是 <strong>N</strong>（该位置无法确定）。很多分析脚本的第一步就是统计序列里有多少个 N。</p>
+</blockquote>
+<h2 id="33">3.3 蛋白质字母表</h2>
+<p>蛋白质序列使用 <strong>20 个标准氨基酸字母</strong>，外加两个特殊符号：</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B</td>
+<td>Asx：天冬氨酸或天冬酰胺（不确定时用）</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>Glx：谷氨酸或谷氨酰胺（不确定时用）</td>
+</tr>
+<tr>
+<td>X</td>
+<td>任意氨基酸</td>
+</tr>
+<tr>
+<td>*</td>
+<td>终止符号（翻译结果中表示终止密码子）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> 在 Biopython 里，<code>Seq.translate()</code> 的结果中常出现 <code>*</code>，表示蛋白序列的终止位置。ORF 查找本质上就是"用 <code>*</code> 切分翻译结果"。</p>
+</blockquote>
+<h2 id="34-5-3">3.4 方向约定：序列按 5' → 3' 存储</h2>
+<p><strong>几乎所有公共数据库的核酸序列都按 5' → 3' 方向存储。</strong> 这意味着：</p>
+<ul>
+<li>FASTA 文件里的 <code>ATGC</code> 表示 5'-ATGC-3'；</li>
+<li>想得到与之互补的 DNA 链，需要"先互补再反转"（即反向互补）。</li>
+</ul>
+<p>这也是为什么 Biopython 会同时提供 <code>complement()</code> 和 <code>reverse_complement()</code> 两个方法——后者才是真正代表"另一条链"的操作。</p>
+<h2 id="35-python">3.5 用 Python 感受一下（必读示例）</h2>
+<p>下面的代码<strong>不依赖 Biopython</strong>，只用 Python 字符串就能完成序列的基本操作。请在你的环境里运行一遍：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="c1"># 序列就是字符串</span>
+<span class="n">dna</span> <span class="o">=</span> <span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;长度:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dna</span><span class="p">))</span>                      <span class="c1"># 序列长度</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;前 10 个碱基:&quot;</span><span class="p">,</span> <span class="n">dna</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>              <span class="c1"># 切片</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A 的数量:&quot;</span><span class="p">,</span> <span class="n">dna</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">))</span>            <span class="c1"># 计数</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GC 数量:&quot;</span><span class="p">,</span> <span class="n">dna</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">dna</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">))</span>
+
+<span class="c1"># 互补：A&lt;-&gt;T, G&lt;-&gt;C</span>
+<span class="n">complement_map</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">,</span> <span class="s2">&quot;TACG&quot;</span><span class="p">)</span>
+<span class="n">complement</span> <span class="o">=</span> <span class="n">dna</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">complement_map</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;互补序列:&quot;</span><span class="p">,</span> <span class="n">complement</span><span class="p">)</span>
+
+<span class="c1"># 反向互补（模拟另一条链）</span>
+<span class="n">reverse_complement</span> <span class="o">=</span> <span class="n">complement</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;反向互补:&quot;</span><span class="p">,</span> <span class="n">reverse_complement</span><span class="p">)</span>
+
+<span class="c1"># 转录（DNA -&gt; mRNA, 把 T 换成 U）</span>
+<span class="n">mrna</span> <span class="o">=</span> <span class="n">dna</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;U&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mRNA:&quot;</span><span class="p">,</span> <span class="n">mrna</span><span class="p">)</span>
+</code></pre></div>
+<div class="codeblock" data-lang="输出"><button class="copy-btn" title="复制代码">复制</button><pre><code>长度: 39
+前 10 个碱基: ATGGCCATTG
+A 的数量: 9
+GC 数量: 22
+互补序列: TACCGGTAACATTACCCGGCGACTTTCCCACGGGCTATC
+反向互补: CTATCGGGCACCCTTTCAGCGGCCCATTACAATGGCCAT
+mRNA: AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAG
+</code></pre></div>
+<blockquote>
+<p><strong>提示</strong> 这段代码里"先互补、再反转"的顺序，正是 Biopython <code>Seq.reverse_complement()</code> 内部做的事。理解它，你就理解了序列操作最核心的一步。</p>
+</blockquote>
+<h3 id="_18">练习建议</h3>
+<p>把上面的代码改成函数形式：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="k">def</span><span class="w"> </span><span class="nf">reverse_complement</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">seq</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s2">&quot;ATGC&quot;</span><span class="p">,</span> <span class="s2">&quot;TACG&quot;</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="36">3.6 小结与练习</h2>
+<h3 id="_19">小结</h3>
+<ul>
+<li>序列 = 字符串，字符串操作 = 序列操作；</li>
+<li>核酸字母表含模糊碱基（N 最常见）；</li>
+<li>蛋白字母表含 X、* 等符号；</li>
+<li>公共数据按 5'→3' 存储；反向互补 = 先互补再反转。</li>
+</ul>
+<h3 id="_20">练习</h3>
+<ol>
+<li>手写函数 <code>gc_content(seq)</code>，返回 GC 占序列的百分比。</li>
+<li><code>"ATNNCG"</code> 中 N 的占比是多少？这种序列能否直接翻译？</li>
+<li>为什么数据库中几乎不用"3'→5' 方向"存储序列？</li>
+</ol>
+<hr />
+<h1 id="4">第 4 章 生物序列文件格式：你与数据打交道的起点</h1>
+<h2 id="41">4.1 为什么必须先懂格式</h2>
+<p>生物数据以<strong>文件</strong>形式存放，而文件有固定格式。<strong>不懂格式，就没法正确读取数据；格式理解错了，分析结果就是错的。</strong></p>
+<p>对后续学习特别重要的一点是：Biopython 的 <code>SeqIO</code> 模块就是"格式转换器"——它负责把各种格式的文件读成统一的对象。你越了解格式，用起 <code>SeqIO</code> 越顺手。</p>
+<blockquote>
+<p><strong>核心思想</strong> 所有序列格式都在回答四个问题：<strong>这条序列叫什么？序列是什么？有没有额外信息（注释/质量）？多序列如何组织？</strong></p>
+</blockquote>
+<h2 id="42-fasta">4.2 FASTA：最基础的序列格式</h2>
+<p>FASTA 是<strong>最简单、最通用</strong>的序列格式，几乎任何工具都支持。</p>
+<pre><code>&gt;seq1 人类胰岛素基因部分序列
+ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG
+ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG
+</code></pre>
+<p>规则：</p>
+<ul>
+<li>以 <code>&gt;</code> 开头的行是<strong>标题行</strong>：<code>&gt;</code> 后紧跟序列标识符（id），空格后的内容通常叫描述（description）；</li>
+<li>标题行之后是<strong>序列行</strong>，可以连续多行；</li>
+<li>核酸或蛋白均可存放。</li>
+</ul>
+<p>在 Biopython 中，FASTA 的标题行对应 <code>SeqRecord.id</code> 和 <code>SeqRecord.description</code>，序列行对应 <code>SeqRecord.seq</code>。</p>
+<blockquote>
+<p><strong>注意</strong> FASTA 没有质量信息、没有注释块，因此信息量最小。它是"存序列"而不是"描述序列"的格式。</p>
+</blockquote>
+<h2 id="43-fastq">4.3 FASTQ：带质量的测序数据格式</h2>
+<p>高通量测序仪输出的<strong>原始数据</strong>几乎都是 FASTQ。每条记录固定 4 行：</p>
+<pre><code>@SRR001666.1 071112_SLXA-EAS1_s_7:5:1:817:345 length=36
+GGGGATGTCGTTGTGCTGCTATTGCTGGCCGGTCGCAG
++
+IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+</code></pre>
+<p>四行含义：</p>
+<table>
+<thead>
+<tr>
+<th>行</th>
+<th>前缀</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>@</code></td>
+<td>序列标识符 + 注释</td>
+</tr>
+<tr>
+<td>2</td>
+<td>—</td>
+<td>碱基序列</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>+</code></td>
+<td>通常只有 <code>+</code>（可重复标识符）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>—</td>
+<td>质量值字符串（与序列等长）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phred">质量值（Phred 得分）</h3>
+<p>第 4 行的每个字符都代表该位置碱基的质量：</p>
+<ul>
+<li>ASCII 码转换为 Phred 得分：<code>Q = ASCII码 - 33</code>（常见 Sanger 编码）；</li>
+<li>Q 与错误概率的关系：<code>Q = -10 × log10(P错误)</code>；</li>
+<li>Q=30 表示错误概率千分之一，是常用的质量阈值。</li>
+</ul>
+<blockquote>
+<p><strong>提示</strong> 质量值是"二选一"的典型例子：<code>Q20</code>（错误率 1%）和 <code>Q30</code>（错误率 0.1%）是测序质控（如 FastQC）里最常见的两个指标。Biopython 的 <code>SeqIO</code> 可以把 FASTQ 读成带 <code>letter_annotations["phred_quality"]</code> 的 <code>SeqRecord</code>。</p>
+</blockquote>
+<h2 id="44-genbank">4.4 GenBank：带注释的序列格式</h2>
+<p>GenBank 格式（GenBank/GenPept 格式）是<strong>信息最丰富</strong>的核酸序列格式之一。文件从 LOCUS 行开始，包含大量注释：</p>
+<div class="codeblock" data-lang="输出"><button class="copy-btn" title="复制代码">复制</button><pre><code>LOCUS       NM_000207       5112 bp    mRNA    linear   PRI 05-NOV-2021
+DEFINITION  Homo sapiens insulin (INS), mRNA.
+ACCESSION   NM_000207
+VERSION     NM_000207.3
+KEYWORDS    .
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+FEATURES             Location/Qualifiers
+     gene            1..5112
+                     /gene=&quot;INS&quot;
+     CDS             join(1..201,561..1019)
+                     /codon_start=1
+                     /product=&quot;insulin preproprotein&quot;
+                     /protein_id=&quot;NP_000198.1&quot;
+ORIGIN
+        1 atggccctgt ggatgcgcct cctgcccctg ctggcgctgc tggccctctg
+       61 gggacctgac ccagccgcag cctttgtgaa ccaacacctg tgcggctcac
+//
+</code></pre></div>
+<p>关键字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LOCUS</td>
+<td>名称、长度、类型（mRNA/DNA…）、拓扑</td>
+</tr>
+<tr>
+<td>DEFINITION</td>
+<td>一句话描述</td>
+</tr>
+<tr>
+<td>ACCESSION / VERSION</td>
+<td>稳定的标识符（如 NM_000207.3）</td>
+</tr>
+<tr>
+<td>FEATURES</td>
+<td>注释区：gene、CDS、mRNA 等特征及其位置</td>
+</tr>
+<tr>
+<td>ORIGIN</td>
+<td>序列正文（按 60 个碱基一行分行显示）</td>
+</tr>
+<tr>
+<td><code>//</code></td>
+<td>记录结束符</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> GenBank 里的位置表示法 <code>join(1..201,561..1019)</code> 表示"CDS 由两段拼接而成"——这在真核生物中很常见（内含子被剪接掉）。Biopython 的 <code>SeqFeature</code> 就负责解析这类复杂位置。</p>
+</blockquote>
+<h2 id="45-embl">4.5 EMBL：欧洲风格的注释格式</h2>
+<p>EMBL 格式（欧洲生物信息学研究所 EBI 采用）与 GenBank 类似，但字段风格不同，例如用 <code>ID</code>、<code>FT</code>（feature）等两字母行前缀，序列行以 <code>SQ</code> 开始、以 <code>//</code> 结束：</p>
+<div class="codeblock" data-lang="输出"><button class="copy-btn" title="复制代码">复制</button><pre><code>ID   INS_HUMAN     standard; RNA; PRI; 5112 BP.
+AC   X70507;
+DE   Homo sapiens mRNA for insulin.
+FT   CDS             join(1..201,561..1019)
+FT                   /gene=&quot;INS&quot;
+SQ   Sequence 5112 BP;
+     atggccctgt ggatgcgcct cctgcccctg ctggcgctgc tggccctctg
+//
+</code></pre></div>
+<p>Biopython 的 <code>SeqIO.parse(handle, "embl")</code> 可以直接读取，读取后的对象与 GenBank 完全相同。</p>
+<h2 id="46-clustal-stockholm">4.6 比对格式：Clustal / Stockholm</h2>
+<p>多序列比对结果也有专门格式。最常见的是 <strong>Clustal 格式</strong>：</p>
+<div class="codeblock" data-lang="输出"><button class="copy-btn" title="复制代码">复制</button><pre><code>CLUSTAL W multiple sequence alignment
+
+seqA  ACGTACGTACGTACGT
+seqB  ACGTACGTACGTACGA
+seqC  ACGTTCGTACGTACGT
+      ** **  ** ******
+</code></pre></div>
+<ul>
+<li>第一行是格式标识；</li>
+<li>每行：序列名 + 一段序列；</li>
+<li>最后一行 <code>*</code> 表示该列保守（完全一致），<code>:</code> 表示相似，<code>.</code> 表示一般相似。</li>
+</ul>
+<blockquote>
+<p><strong>提示</strong> 在 Biopython 里，多序列比对文件用 <code>AlignIO</code> 读写（<code>AlignIO.read/parse</code>），与 <code>SeqIO</code> 处理单序列是姊妹关系。<strong>格式决定用哪个模块</strong>：序列 → SeqIO；比对 → AlignIO。</p>
+</blockquote>
+<h2 id="47">4.7 格式转换：思路比工具更重要</h2>
+<p>几乎所有分析的第一步都是"把数据读成统一格式"。常见的转换场景：</p>
+<table>
+<thead>
+<tr>
+<th>从</th>
+<th>到</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FASTQ</td>
+<td>FASTA</td>
+<td>去掉质量值，只保留序列</td>
+</tr>
+<tr>
+<td>GenBank</td>
+<td>FASTA</td>
+<td>只提取序列用于比对</td>
+</tr>
+<tr>
+<td>FASTA</td>
+<td>GenBank</td>
+<td>为序列添加注释</td>
+</tr>
+<tr>
+<td>Clustal</td>
+<td>Stockholm</td>
+<td>换一个比对查看器</td>
+</tr>
+</tbody>
+</table>
+<p>在 Biopython 中，这类转换通常只需要两行代码（<code>SeqIO.parse</code> + <code>SeqIO.write</code>），但前提是你<strong>认识这些格式</strong>。这正是本章的目的。</p>
+<h2 id="48">4.8 小结与练习</h2>
+<h3 id="_21">小结</h3>
+<ul>
+<li>四种必知格式：FASTA（纯序列）、FASTQ（序列+质量）、GenBank/EMBL（序列+注释）、Clustal（比对）；</li>
+<li>格式决定读取方式：<code>SeqIO</code> 管序列，<code>AlignIO</code> 管比对；</li>
+<li>FASTQ 的质量值是 Phred 得分（ASCII 减 33）；</li>
+<li>GenBank 的 FEATURES 提供基因、CDS 等注释，<code>//</code> 是记录结束符。</li>
+</ul>
+<h3 id="_22">练习</h3>
+<ol>
+<li>指出下面是什么格式，并说出它的四行结构：<code>@x</code> / <code>ACGT</code> / <code>+</code> / <code>IIII</code>。</li>
+<li>FASTA 标题行 <code>&gt;g1 human gene</code> 中，<code>id</code> 和 <code>description</code> 分别是什么？</li>
+<li>GenBank 中 <code>join(1..201,561..1019)</code> 表达什么生物学含义？</li>
+</ol>
+<h1 id="5">第 5 章 从序列到知识：统计与特征</h1>
+<h2 id="51-gc">5.1 GC 含量：序列最基本的统计量</h2>
+<p><strong>GC 含量</strong> = (G + C 的数量) ÷ 序列总长度。它是序列分析中最基础、最常用的指标之一。</p>
+<h3 id="gc">为什么关注 GC？</h3>
+<ul>
+<li><strong>稳定性</strong>：G-C 之间有三个氢键，A-T 只有两个。GC 含量高的区域 DNA 更耐热；</li>
+<li><strong>物种特征</strong>：不同物种基因组 GC 含量差异明显（人类约 41%，大肠杆菌约 51%，疟原虫约 19%）；</li>
+<li><strong>实验意义</strong>：PCR 引物设计、测序覆盖度都与 GC 相关；</li>
+<li><strong>编码区信号</strong>：蛋白编码区通常 GC 含量高于非编码区（可作为基因预测的线索之一）。</li>
+</ul>
+<h3 id="python">用 Python 计算（手动版）</h3>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">seq</span> <span class="o">=</span> <span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span>
+<span class="n">gc</span> <span class="o">=</span> <span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">seq</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GC 含量: </span><span class="si">{</span><span class="n">gc</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="codeblock" data-lang="输出"><button class="copy-btn" title="复制代码">复制</button><pre><code>GC 含量: 56.4%
+</code></pre></div>
+<blockquote>
+<p><strong>提示</strong> 在 Biopython 中，<code>Bio.SeqUtils.gc_fraction()</code> 返回 0~1 之间的小数；旧版 <code>gc()</code> 返回百分数。学 Biopython 时注意区分版本差异。</p>
+</blockquote>
+<h2 id="52">5.2 序列长度与组成</h2>
+<p>统计一个数据集的基本情况，是任何分析的第一步：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>序列长度</td>
+<td>碱基/氨基酸个数</td>
+<td>判断数据类型（如读长 150 bp）</td>
+</tr>
+<tr>
+<td>碱基频率</td>
+<td>A/T/G/C 各自占比</td>
+<td>初步质控</td>
+</tr>
+<tr>
+<td>N 数量</td>
+<td>无法确定的位点</td>
+<td>序列质量</td>
+</tr>
+<tr>
+<td>序列条数</td>
+<td>文件里有多少条序列</td>
+<td>数据集规模</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> 一条测序读长通常 50~250 bp，而一条完整基因可达数千 bp。<strong>长度差异常常提示数据类型</strong>（原始测序 reads vs 组装好的 contigs vs 完整基因）。</p>
+</blockquote>
+<h2 id="53">5.3 子序列与模体</h2>
+<p><strong>模体</strong>（Motif）是序列中反复出现、具有生物学意义的小片段，例如：</p>
+<ul>
+<li>启动子区域的 <code>TATA</code> 盒（TATAAT）；</li>
+<li>蛋白质里的<strong>结构域</strong>基序，如锌指 <code>C2H2</code>；</li>
+<li>酶切位点，如限制酶 EcoRI 识别 <code>GAATTC</code>。</li>
+</ul>
+<p>在序列中查找模体，本质就是<strong>字符串查找</strong>：</p>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="n">seq</span> <span class="o">=</span> <span class="s2">&quot;AATTCGAATTCGGGGAATTCC&quot;</span>
+<span class="n">motif</span> <span class="o">=</span> <span class="s2">&quot;GAATTC&quot;</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">motif</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">break</span>
+    <span class="n">pos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 生物学中常用 1 起始坐标</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;模体出现位置:&quot;</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+</code></pre></div>
+<div class="codeblock" data-lang="输出"><button class="copy-btn" title="复制代码">复制</button><pre><code>模体出现位置: [6, 15]
+</code></pre></div>
+<blockquote>
+<p><strong>提示</strong> 这个"找模体"的逻辑，对应 Biopython 的 <code>Bio.motifs</code> 模块和 <code>SeqUtils.nt_search()</code>。理解字符串查找，就理解了模体分析的一半。</p>
+</blockquote>
+<h2 id="54-orf">5.4 密码子、读框与 ORF</h2>
+<p>在第 2 章我们知道：每 3 个碱基一个密码子，从不同起点开始产生不同的读框。<strong>ORF（Open Reading Frame，开放阅读框）</strong>指一条从起始密码子开始、到终止密码子结束、没有中途终止的连续编码片段。</p>
+<h3 id="orf">为什么要找 ORF？</h3>
+<ul>
+<li>预测新基因（在基因组中找候选编码区）；</li>
+<li>验证注释（已有基因应该对应一个长 ORF）；</li>
+<li>分析宏基因组/转录组数据。</li>
+</ul>
+<h3 id="orf-python">ORF 查找的直觉（Python 演示）</h3>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="k">def</span><span class="w"> </span><span class="nf">translate6</span><span class="p">(</span><span class="n">dna</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;把 DNA 的 6 个读框都翻译出来&quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="s2">&quot;ATCG&quot;</span><span class="p">,</span> <span class="s2">&quot;TAGC&quot;</span><span class="p">)</span>
+    <span class="n">strands</span> <span class="o">=</span> <span class="p">[</span><span class="n">dna</span><span class="p">,</span> <span class="n">dna</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">table</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>  <span class="c1"># 正向 + 反向互补</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">strand</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">strands</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">codons</span> <span class="o">=</span> <span class="p">[</span><span class="n">strand</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">strand</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s2">&quot;链</span><span class="si">{</span><span class="s1">&#39;+&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="si">}</span><span class="s2"> 读框</span><span class="si">{</span><span class="n">frame</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">codons</span>
+
+<span class="n">dna</span> <span class="o">=</span> <span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">codons</span> <span class="ow">in</span> <span class="n">translate6</span><span class="p">(</span><span class="n">dna</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;→&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">codons</span><span class="p">[:</span><span class="mi">6</span><span class="p">]),</span> <span class="s2">&quot;...&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="codeblock" data-lang="输出"><button class="copy-btn" title="复制代码">复制</button><pre><code>链+ 读框1 → ATG GCC ATT GTA ATG GGC CGC ...
+链+ 读框2 → TGG CCA TTG TAA TGG GCC GCT ...
+链+ 读框3 → GGC CAT TGT AAT GGG CCG CTG ...
+链- 读框1 → CTA TCG GGC ACC CTT TCA GCC GCC ...
+链- 读框2 → TAT CGG GCA CCC TTT CAG CCG CCC ...
+链- 读框3 → ATC GGG CAC CCT TTC AGC CGC CCA ...
+</code></pre></div>
+<p>注意到读框 2 中出现了 <code>TAA</code>——这是终止密码子，说明这个读框不编码。<strong>找 ORF 就是找"从 AUG 到终止密码子、中间无终止"的片段</strong>，Biopython 的 <code>Seq.translate()</code> 会让这个过程变得非常简单。</p>
+<h2 id="55">5.5 蛋白质理化性质</h2>
+<p>分析蛋白序列时，常用理化性质包括：</p>
+<table>
+<thead>
+<tr>
+<th>性质</th>
+<th>含义</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分子量</td>
+<td>氨基酸分子量之和（近似）</td>
+<td>鉴定蛋白、质谱对照</td>
+</tr>
+<tr>
+<td>等电点 pI</td>
+<td>蛋白净电荷为零时的 pH</td>
+<td>纯化、电泳条件设计</td>
+</tr>
+<tr>
+<td>疏水性（GRAVY）</td>
+<td>平均亲水/疏水指数</td>
+<td>预测跨膜区域</td>
+</tr>
+<tr>
+<td>氨基酸组成</td>
+<td>各氨基酸比例</td>
+<td>功能线索</td>
+</tr>
+<tr>
+<td>不稳定指数</td>
+<td>蛋白在体内的稳定性预测</td>
+<td>实验参考</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> Biopython 的 <code>Bio.SeqUtils.ProtParam.ProteinAnalysis</code> 可以一行算出所有这些指标。但在用工具之前，理解"分子量是氨基酸质量之和"这个直觉更重要。</p>
+</blockquote>
+<h2 id="56">5.6 小结与练习</h2>
+<h3 id="_23">小结</h3>
+<ul>
+<li>GC 含量是最基础的序列统计量，有实验和进化意义；</li>
+<li>模体查找 = 字符串查找；</li>
+<li>ORF 是从起始到终止、无中途终止的编码片段，有 6 个读框；</li>
+<li>蛋白性质（分子量、pI、疏水性）是序列分析的重要产出。</li>
+</ul>
+<h3 id="_24">练习</h3>
+<ol>
+<li>计算 <code>GGCC</code> 的 GC 含量。</li>
+<li>一段 DNA 在第 2 读框出现 <code>TGA</code>，说明什么？</li>
+<li>为什么 GRAVY 值高的蛋白更可能跨越细胞膜？</li>
+</ol>
+<hr />
+<h1 id="6">第 6 章 序列比对：寻找相似与同源</h1>
+<h2 id="61">6.1 为什么要比对</h2>
+<p><strong>比对（Alignment）就是把两条或多条序列"排排站"，让相似的位点对齐</strong>，从而：</p>
+<ul>
+<li>找出序列之间的相似区域；</li>
+<li>推断它们是否来自共同祖先（同源）；</li>
+<li>发现保守的功能位点；</li>
+<li>为新序列的功能注释提供依据。</li>
+</ul>
+<p>看一个直观的例子：</p>
+<pre><code>序列 A:  A C G T A C G T
+序列 B:  A C G T A C G A
+              (不匹配)
+</code></pre>
+<p>这两条序列高度相似，只有最后一个位置不同。比对让这个差异一目了然。</p>
+<h2 id="62">6.2 相似性 ≠ 同源性（关键概念）</h2>
+<p>这是初学者最容易混淆的一对概念：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+<th>性质</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>相似性</strong>（Similarity）</td>
+<td>序列在数值上有多像（可量化）</td>
+<td>可测量、可比较</td>
+</tr>
+<tr>
+<td><strong>同源性</strong>（Homology）</td>
+<td>是否来自共同祖先</td>
+<td>二元的：同源或不同源，没有程度之分</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> 说"两条序列 80% 同源"是<strong>错误的</strong>——同源没有百分比。应该说"80% 相似"，然后推断"可能同源"。许多文献误用这两个词，请务必区分。</p>
+</blockquote>
+<h3 id="_25">同源关系细分</h3>
+<ul>
+<li><strong>直系同源（Ortholog）</strong>：不同物种中由共同祖先基因分化而来，功能通常相似；</li>
+<li><strong>旁系同源（Paralog）</strong>：同一物种内由基因复制产生，功能可能分化。</li>
+</ul>
+<h2 id="63-vs">6.3 双序列比对：全局 vs 局部</h2>
+<p><strong>全局比对（Global）</strong>：从开头对齐到结尾，适合长度相近的序列。</p>
+<pre><code>ACGTACGT
+AC--ACGA   （引入 gap 补偿长度差异）
+</code></pre>
+<p><strong>局部比对（Local）</strong>：只找最相似的局部片段，适合"在一个长序列里找一小段相似区"。</p>
+<p>在 Biopython 中对应 <code>PairwiseAligner</code> 的 <code>mode</code> 参数：<code>"global"</code> 和 <code>"local"</code>。</p>
+<h3 id="gap">Gap（缺口）</h3>
+<p>比对中常出现 <code>-</code>（gap），表示"这条序列在这个位置缺失了碱基"。gap 的产生原因包括插入/缺失突变（indel）。<strong>gap 通常需要惩罚</strong>——比对算法在"允许错配"和"开 gap"之间权衡，这就是打分。</p>
+<h2 id="64">6.4 打分矩阵：氨基酸之间怎么算分</h2>
+<p>DNA 比对常用简单规则：匹配 +1、错配 0（或 -1）。但<strong>蛋白质比对更复杂</strong>：不同氨基酸替换成另一个氨基酸的"代价"不同（化学性质相近的替换更常见）。</p>
+<p><strong>替换矩阵</strong>（Substitution Matrix）给出任意两个氨基酸的得分。两个经典系列：</p>
+<table>
+<thead>
+<tr>
+<th>矩阵</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BLOSUM62</strong></td>
+<td>基于蛋白质家族的保守区块</td>
+<td>一般用途（默认选择）</td>
+</tr>
+<tr>
+<td><strong>BLOSUM50 / 80</strong></td>
+<td>保守程度不同</td>
+<td>亲缘远 / 近</td>
+</tr>
+<tr>
+<td><strong>PAM250</strong></td>
+<td>基于进化模型</td>
+<td>早期经典，远缘序列</td>
+</tr>
+</tbody>
+</table>
+<p>BLOSUM62 的部分值（分数越高越易替换）：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>S</th>
+<th>T</th>
+<th>K</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>4</td>
+<td>1</td>
+<td>0</td>
+<td>-1</td>
+</tr>
+<tr>
+<td><strong>S</strong></td>
+<td>1</td>
+<td>4</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>T</strong></td>
+<td>0</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>K</strong></td>
+<td>-1</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> 观察对角线：同氨基酸得分最高；带相似侧链的（如 S/T）得分高于不相似的。理解"得分高 = 更容易替换"就够用了，矩阵的具体数值由工具处理。</p>
+</blockquote>
+<h2 id="65-msa">6.5 多序列比对（MSA）</h2>
+<p>把<strong>多条</strong>序列同时对齐叫多序列比对，例如 ClustalW 输出：</p>
+<pre><code>seqA  ACGTACGTACGT
+seqB  ACGTACGTACGA
+seqC  ACGTTCGTACGT
+      ** **  *****
+</code></pre>
+<p><strong><code>*</code> 表示保守列（所有序列一致），<code>:</code> 表示相似列。</strong> 保守列往往对应功能重要的位点。</p>
+<p>多序列比对的意义：</p>
+<ul>
+<li>找出进化上保守的区域（功能位点）；</li>
+<li>作为构建进化树的输入；</li>
+<li>训练蛋白质结构/功能预测模型。</li>
+</ul>
+<h2 id="66">6.6 怎么读懂一次比对结果</h2>
+<p>当你拿到 BLAST 或比对工具的输出时，重点看四个指标：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identity（一致性）</td>
+<td>完全匹配的位点比例</td>
+</tr>
+<tr>
+<td>Similarity（相似性）</td>
+<td>匹配+保守替换的比例</td>
+</tr>
+<tr>
+<td>Coverage（覆盖度）</td>
+<td>比对上区域的长度占序列总长的比例</td>
+</tr>
+<tr>
+<td>Score（得分）</td>
+<td>综合打分（含 gap 惩罚）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>高覆盖 + 高一致 ≈ 强烈同源信号</strong>；反之，短片段的高一致可能是偶然。</p>
+<h2 id="67">6.7 小结与练习</h2>
+<h3 id="_26">小结</h3>
+<ul>
+<li>比对是把序列对齐、找相似区域的工具；</li>
+<li>相似性是数值，同源性是性质，二者不可混用；</li>
+<li>全局 vs 局部、gap 惩罚、替换矩阵是比对的核心要素；</li>
+<li>多序列比对用 <code>*</code>/<code>:</code> 标记保守列；</li>
+<li>读结果看 identity、coverage、score。</li>
+</ul>
+<h3 id="_27">练习</h3>
+<ol>
+<li>判断题：两序列 90% 同源。（对/错，为什么？）</li>
+<li>全局比对和局部比对各自适合什么场景？</li>
+<li>BLOSUM62 对角线上为什么分数最高？</li>
+</ol>
+<h1 id="7">第 7 章 生物数据库：数据从哪里来</h1>
+<h2 id="71">7.1 三大国际数据中心</h2>
+<p>全世界的生物序列数据主要存放在三大机构，它们之间每天同步数据：</p>
+<table>
+<thead>
+<tr>
+<th>机构</th>
+<th>全称</th>
+<th>侧重</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NCBI</strong>（美国）</td>
+<td>美国国家生物技术信息中心</td>
+<td>GenBank、PubMed 等</td>
+</tr>
+<tr>
+<td><strong>EBI</strong>（欧洲）</td>
+<td>欧洲生物信息学研究所</td>
+<td>EMBL、UniProt 等</td>
+</tr>
+<tr>
+<td><strong>DDBJ</strong>（日本）</td>
+<td>日本 DNA 数据库</td>
+<td>亚洲提交的序列</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> 三大中心的数据互为镜像，检索任意一个即可。NCBI 在生物信息学教学中最常用，Biopython 的 <code>Entrez</code> 模块就是对接 NCBI 的。</p>
+</blockquote>
+<h2 id="72-genbank-refseq">7.2 核酸数据库：GenBank 与 RefSeq</h2>
+<h3 id="genbank">GenBank</h3>
+<ul>
+<li>收录<strong>研究者直接提交</strong>的原始序列（可能含冗余）；</li>
+<li>记录用 accession（如 <code>AB000001</code>）标识；</li>
+<li>适合：查找特定提交的序列。</li>
+</ul>
+<h3 id="refseq">RefSeq</h3>
+<ul>
+<li>NCBI 的<strong>人工整理/自动精选</strong>参考序列库；</li>
+<li>标识符带前缀，如 <code>NM_</code>（mRNA）、<code>NP_</code>（蛋白）、<code>NC_</code>（染色体）、<code>NG_</code>（基因区）；</li>
+<li>冗余低、注释质量高，<strong>日常分析首选</strong>。</li>
+</ul>
+<p>示例：人胰岛素基因 mRNA 的 RefSeq 编号是 <strong>NM_000207.3</strong>。</p>
+<blockquote>
+<p><strong>注意</strong> <code>NM_</code> 是 mRNA，<code>NP_</code> 是对应蛋白。看到标识符前缀，就能猜出分子类型——这是很实用的技能。</p>
+</blockquote>
+<h2 id="73-uniprot">7.3 蛋白质数据库：UniProt</h2>
+<p><strong>UniProt</strong> 是蛋白质序列与功能注释的权威数据库，分为三层：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UniProtKB/Swiss-Prot</td>
+<td>人工注释、高质量（首选）</td>
+</tr>
+<tr>
+<td>UniProtKB/TrEMBL</td>
+<td>自动注释、规模大、冗余多</td>
+</tr>
+<tr>
+<td>UniProt Reference Proteomes</td>
+<td>精选物种的参考蛋白组</td>
+</tr>
+</tbody>
+</table>
+<p>蛋白条目有稳定的 <strong>UniProt AC</strong>（如 <code>P01308</code> 是人胰岛素）和 <strong>Entry Name</strong>（如 <code>INS_HUMAN</code>）。</p>
+<h2 id="74-pdb">7.4 结构数据库：PDB</h2>
+<p><strong>PDB</strong>（Protein Data Bank）存放生物大分子的<strong>三维结构</strong>（X 射线、冷冻电镜、核磁等测定的坐标）。</p>
+<ul>
+<li>每个结构有 4 位字符的 PDB ID（如 <code>2M21</code>）；</li>
+<li>文件格式有 PDB 和更现代的 mmCIF；</li>
+<li>蛋白结构分析的输入常来自这里。</li>
+</ul>
+<blockquote>
+<p><strong>提示</strong> Biopython 的 <code>Bio.PDB</code> 模块就是解析 PDB 结构的工具。第 1 章提到蛋白质结构层次，PDB 存的就是三级/四级结构坐标。</p>
+</blockquote>
+<h2 id="75-ensembl">7.5 基因组数据库：Ensembl</h2>
+<p><strong>Ensembl</strong>（欧洲）与 <strong>UCSC Genome Browser</strong>（美国）是两大基因组浏览平台，提供：</p>
+<ul>
+<li>物种参考基因组序列；</li>
+<li>基因注释（转录本、外显子结构）；</li>
+<li>变异、调控、比较基因组学数据。</li>
+</ul>
+<h2 id="76">7.6 标识符：数据世界的"身份证"</h2>
+<p>理解标识符（Identifier）是检索数据的基本功：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>例子</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GenBank accession</td>
+<td><code>AB000001.2</code></td>
+<td>版本号在点号后</td>
+</tr>
+<tr>
+<td>RefSeq</td>
+<td><code>NM_000207.3</code></td>
+<td>前缀表示分子类型</td>
+</tr>
+<tr>
+<td>UniProt AC</td>
+<td><code>P01308</code></td>
+<td>蛋白稳定编号</td>
+</tr>
+<tr>
+<td>PDB ID</td>
+<td><code>2M21</code></td>
+<td>结构编号</td>
+</tr>
+<tr>
+<td>Gene ID / Entrez ID</td>
+<td><code>3639</code></td>
+<td>NCBI 基因编号</td>
+</tr>
+<tr>
+<td>Ensembl ID</td>
+<td><code>ENSG00000000003</code></td>
+<td>基因组注释编号</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> 检索时要注意区分"序列标识符"和"基因标识符"——同一个基因在不同数据库里有不同的编号。跨库转换（mapping）是生信日常操作，Biopython 教程第 7 章会教你怎么用 <code>Entrez</code> 自动完成。</p>
+</blockquote>
+<h2 id="77">7.7 小结与练习</h2>
+<h3 id="_28">小结</h3>
+<ul>
+<li>三大中心：NCBI / EBI / DDBJ，数据同步；</li>
+<li>GenBank 存原始提交，RefSeq 是精选参考库；</li>
+<li>UniProt 管蛋白（Swiss-Prot 质量高），PDB 管结构，Ensembl 管基因组；</li>
+<li>标识符前缀有规律，学会"看号识类型"。</li>
+</ul>
+<h3 id="_29">练习</h3>
+<ol>
+<li><code>NP_000198.1</code> 最可能是什么？（蛋白 / mRNA / 结构）</li>
+<li>想查一个蛋白的 3D 结构，应该去哪个数据库？</li>
+<li>为什么 RefSeq 通常比 GenBank 更适合做参考序列？</li>
+</ol>
+<hr />
+<h1 id="8-blast">第 8 章 BLAST 与相似性搜索</h1>
+<h2 id="81-blast">8.1 BLAST 是什么</h2>
+<p><strong>BLAST</strong>（Basic Local Alignment Search Tool）是 NCBI 提供的<strong>序列相似性搜索工具</strong>：把一条新序列拿去和数据库里亿万条序列比对，找出最相似的记录。</p>
+<p>它的常见用途：</p>
+<ul>
+<li>判断"我这条序列是什么"（物种/基因归属）；</li>
+<li>找同源序列（功能注释）；</li>
+<li>发现序列变异。</li>
+</ul>
+<h2 id="82">8.2 工作原理（直觉版）</h2>
+<p>BLAST 的核心思想是<strong>"种子-扩展"（seed-and-extend）</strong>：</p>
+<ol>
+<li>把查询序列切成短片段（"种子"）；</li>
+<li>在数据库中快速查找含有相同/相似种子的序列（利用索引加速）；</li>
+<li>从种子向两侧扩展比对，直到得分不再上升；</li>
+<li>对每条命中计算统计显著性（E-value）。</li>
+</ol>
+<blockquote>
+<p><strong>提示</strong> 这个"先找小片段、再扩展"的思路，是 BLAST 比全库两两比对快几个数量级的原因。你不必记住算法细节，但理解"种子-扩展"能帮你读懂结果。</p>
+</blockquote>
+<h2 id="83">8.3 结果解读：四个关键数值</h2>
+<p>BLAST 结果页有几个必看指标：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Score</strong>（得分）</td>
+<td>比对打分（位分值）</td>
+<td>越高越好</td>
+</tr>
+<tr>
+<td><strong>E-value</strong></td>
+<td>期望值：<strong>随机</strong>出现同样好结果的概率</td>
+<td>越小越显著（如 1e-50）</td>
+</tr>
+<tr>
+<td><strong>Identity</strong></td>
+<td>一致性百分比</td>
+<td>序列有多像</td>
+</tr>
+<tr>
+<td><strong>Query Cover</strong></td>
+<td>查询序列被覆盖的比例</td>
+<td>覆盖率</td>
+</tr>
+</tbody>
+</table>
+<p><strong>E-value 是最重要的筛选指标</strong>：</p>
+<ul>
+<li>E &lt; 1e-5：通常认为显著同源；</li>
+<li>E 在 0.001~0.05：弱信号，需要谨慎；</li>
+<li>E &gt; 0.1：很可能是随机相似。</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong> E-value 与数据库大小有关——数据库越大，同样的比对得分对应的 E 值越大（更不显著）。所以"我 BLAST 出的 E 值小"要在同一数据库背景下比较。</p>
+</blockquote>
+<h2 id="84-blast">8.4 BLAST 的常用变体</h2>
+<table>
+<thead>
+<tr>
+<th>程序</th>
+<th>查询</th>
+<th>数据库</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>blastn</strong></td>
+<td>核酸</td>
+<td>核酸</td>
+<td>DNA 对 DNA</td>
+</tr>
+<tr>
+<td><strong>blastp</strong></td>
+<td>蛋白</td>
+<td>蛋白</td>
+<td>蛋白对蛋白</td>
+</tr>
+<tr>
+<td><strong>blastx</strong></td>
+<td>核酸（翻译）</td>
+<td>蛋白</td>
+<td>用核苷酸查蛋白（如新序列注释）</td>
+</tr>
+<tr>
+<td><strong>tblastn</strong></td>
+<td>蛋白</td>
+<td>核酸（翻译）</td>
+<td>蛋白查基因组</td>
+</tr>
+<tr>
+<td><strong>megablast</strong></td>
+<td>核酸</td>
+<td>核酸</td>
+<td>高一致、大数据集</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> 记忆技巧：<strong>"n" 结尾查核酸库，"p" 结尾查蛋白库</strong>；带 <code>x</code> 表示"查询序列先翻译"。初学者最常用的组合是 <code>blastn</code> 和 <code>blastp</code>。</p>
+</blockquote>
+<h2 id="85-biopython">8.5 在 Biopython 中怎么用（预览）</h2>
+<p>Biopython 主要通过两个途径使用 BLAST：</p>
+<ul>
+<li><code>Bio.Blast.NCBIWWW</code>：在线调用 NCBI 的 BLAST 服务；</li>
+<li><code>Bio.Blast.NCBIXML</code>：解析本地 <code>blast+</code> 命令行工具输出的 XML。</li>
+</ul>
+<div class="codeblock" data-lang="Python"><button class="copy-btn" title="复制代码">复制</button><pre><code><span class="kn">from</span><span class="w"> </span><span class="nn">Bio.Blast</span><span class="w"> </span><span class="kn">import</span> <span class="n">NCBIWWW</span>
+
+<span class="c1"># 在线 BLAST（概念示例，运行时需联网）</span>
+<span class="n">result_handle</span> <span class="o">=</span> <span class="n">NCBIWWW</span><span class="o">.</span><span class="n">qblast</span><span class="p">(</span><span class="s2">&quot;blastn&quot;</span><span class="p">,</span> <span class="s2">&quot;nt&quot;</span><span class="p">,</span> <span class="s2">&quot;ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG&quot;</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p><strong>注意</strong> 这里只是"预览"，完整的参数与结果解析会在 Biopython 教程第 7 章展开。现在你只需知道：<strong>BLAST 结果有标准格式，可以用程序解析</strong>。</p>
+</blockquote>
+<h2 id="86">8.6 小结与练习</h2>
+<h3 id="_30">小结</h3>
+<ul>
+<li>BLAST = 序列相似性搜索，核心思想是种子-扩展；</li>
+<li>E-value 越小越显著；Identity 看相似程度；Cover 看覆盖范围；</li>
+<li>blastn/blastp/blastx 等变体对应不同"查询×数据库"组合；</li>
+<li>Biopython 可以调用在线 BLAST 并解析结果。</li>
+</ul>
+<h3 id="_31">练习</h3>
+<ol>
+<li>E-value 和 Identity 各回答什么问题？</li>
+<li>有一条未知 DNA 序列想判断它是否编码蛋白，该用 blastx 还是 blastn？</li>
+<li>为什么 E-value 受数据库大小影响？</li>
+</ol>
+<hr />
+<h1 id="9">第 9 章 分子进化与系统发育树</h1>
+<h2 id="91">9.1 进化与序列的关系</h2>
+<p>同一祖先基因在不同物种中不断积累突变，导致序列产生差异。<strong>序列差异越大，通常意味着分化越久</strong>。因此，序列可以当作"进化的化石记录"来推断物种/基因之间的亲缘关系。</p>
+<h2 id="92">9.2 一棵树由什么组成</h2>
+<p>系统发育树（Phylogenetic tree）用树状图表示演化关系，基本术语：</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>叶（Leaf/Tip）</strong></td>
+<td>现存的物种或序列</td>
+</tr>
+<tr>
+<td><strong>内部节点（Node）</strong></td>
+<td>共同祖先（推断的）</td>
+</tr>
+<tr>
+<td><strong>分支（Branch）</strong></td>
+<td>进化关系连线，长度可表示差异量</td>
+</tr>
+<tr>
+<td><strong>根（Root）</strong></td>
+<td>所有序列的共同祖先</td>
+</tr>
+<tr>
+<td><strong>外群（Outgroup）</strong></td>
+<td>已知亲缘较远、用于"定根"的物种</td>
+</tr>
+<tr>
+<td><strong>分支支持度</strong></td>
+<td>如 bootstrap 值，表示该分支的可靠程度</td>
+</tr>
+</tbody>
+</table>
+<h2 id="93-newick">9.3 读树：Newick 格式</h2>
+<p>树最常见的文本表示是 <strong>Newick 格式</strong>（括号表示法），Biopython 的 <code>Phylo</code> 模块解析的就是它：</p>
+<pre><code>(A:0.1,B:0.2,(C:0.3,D:0.1):0.2);
+</code></pre>
+<p>解读：</p>
+<ul>
+<li><code>A:0.1</code>：A 的分支长度为 0.1；</li>
+<li><code>(C:0.3,D:0.1):0.2</code>：C 和 D 先聚成一簇，该簇到根的分支长 0.2；</li>
+<li>整体表示：A、B 先分离，C、D 关系更近。</li>
+</ul>
+<p>再举一例：</p>
+<pre><code>(人类, (黑猩猩, 大猩猩));
+</code></pre>
+<p>这棵树表示：黑猩猩和大猩猩的亲缘关系比它们与人类更近（共同祖先更晚）。</p>
+<blockquote>
+<p><strong>提示</strong> 练习读 Newick 的好方法是"找最内层括号"：<strong>最内层括号里的两枝关系最近</strong>。掌握这个直觉，任何树都能读。</p>
+</blockquote>
+<h2 id="94">9.4 建树方法（概念层面）</h2>
+<p>从多序列比对到一棵树，主流方法有：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>思路</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>邻接法（NJ）</strong></td>
+<td>基于距离矩阵，逐步合并最近的两枝</td>
+<td>快，适合初步探索</td>
+</tr>
+<tr>
+<td><strong>最大简约法（MP）</strong></td>
+<td>找"突变次数最少"的树</td>
+<td>概念直观，慢</td>
+</tr>
+<tr>
+<td><strong>最大似然法（ML）</strong></td>
+<td>在进化模型下找"最可能"的树</td>
+<td>统计严谨，计算量大</td>
+</tr>
+<tr>
+<td><strong>贝叶斯法（Bayesian）</strong></td>
+<td>类似 ML，估计后验概率</td>
+<td>适合复杂模型</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> 建树是个完整的研究领域。初学阶段只需记住：<strong>先做多序列比对（第 6 章），再算距离/模型，最后建树</strong>。Biopython 的 <code>Bio.Phylo</code> 可以读取、绘制、操作现成的树，而 <code>Bio.Phylo.TreeConstruction</code> 可以做基础的 NJ 建树。</p>
+</blockquote>
+<h2 id="95">9.5 小结与练习</h2>
+<h3 id="_32">小结</h3>
+<ul>
+<li>序列差异反映进化关系；</li>
+<li>树的要素：叶、节点、分支、根、外群；</li>
+<li>Newick 括号格式是树的通用文本表示，最内层括号关系最近；</li>
+<li>建树方法：NJ（快）、MP、ML、Bayesian（严谨但慢）。</li>
+</ul>
+<h3 id="_33">练习</h3>
+<ol>
+<li>在 <code>(A,(B,C));</code> 中，B 和 C 谁与 A 关系更近？</li>
+<li>Newick 里分支长度 <code>:0.5</code> 可能代表什么？</li>
+<li>为什么外群对定根很重要？</li>
+</ol>
+<h1 id="10-biopython">第 10 章 为 Biopython 铺路：从概念到工具的映射</h1>
+<h2 id="101">10.1 你的知识地图</h2>
+<p>到这一章，你已经建立了完整的知识框架。把它串起来看：</p>
+<pre><code>分子生物学概念                生物信息学概念                Biopython 工具
+──────────────              ──────────────               ─────────────
+DNA / RNA / 蛋白质     →    序列（字符串）          →    Bio.Seq.Seq
+碱基配对、方向         →    互补 / 反向互补         →    .complement() .reverse_complement()
+转录 / 翻译 / 密码子   →    序列转换、蛋白翻译      →    .transcribe() .translate()
+基因 / 注释           →    带注释的记录            →    Bio.SeqRecord.SeqRecord
+FASTA / FASTQ /
+GenBank / EMBL       →    序列文件读写            →    Bio.SeqIO
+Clustal / 比对       →    多序列比对文件          →    Bio.AlignIO
+GC 含量 / 模体       →    序列统计                →    Bio.SeqUtils
+比对 / 相似性         →    双序列比对              →    Bio.Align.PairwiseAligner
+数据库 / 检索         →    NCBI 在线检索           →    Bio.Entrez
+BLAST               →    相似性搜索              →    Bio.Blast
+进化树               →    树的结构化表示          →    Bio.Phylo
+蛋白质理化性质        →    蛋白分析                →    Bio.SeqUtils.ProtParam
+蛋白质结构           →    结构文件解析            →    Bio.PDB
+限制酶 / 模体        →    特殊序列工具            →    Bio.Restriction / Bio.motifs
+</code></pre>
+<blockquote>
+<p><strong>核心观点</strong> 你在本教程学到的每一个概念，在 Biopython 里都有一个对应的模块或对象。<strong>概念越清晰，代码越容易写</strong>。</p>
+</blockquote>
+<h2 id="102">10.2 一个典型分析流程</h2>
+<p>把概念连起来，看看一个真实的入门分析流程长什么样：</p>
+<pre><code>1. 拿到数据（FASTA / FASTQ 文件）        ← 第 4 章
+2. 读取序列（SeqIO）                     ← Biopython
+3. 质控与清洗（去 N、去短序列）           ← 第 3、5 章
+4. 计算统计量（GC、长度分布）             ← 第 5 章
+5. 找 ORF / 翻译                         ← 第 2、5 章
+6. 注释（BLAST / 数据库）                ← 第 7、8 章
+7. 多序列比对 + 建树                     ← 第 6、9 章
+8. 可视化与报告
+</code></pre>
+<blockquote>
+<p><strong>提示</strong> 这也正是 Biopython 教程第 11 章"综合实战"的骨架。你在本教程建立的"流程思维"，会在那里变成完整的可运行项目。</p>
+</blockquote>
+<h2 id="103">10.3 常见误区清单</h2>
+<table>
+<thead>
+<tr>
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>把"相似性"说成"同源性"</td>
+<td>相似是数值，同源是性质</td>
+</tr>
+<tr>
+<td>以为 FASTA 含质量信息</td>
+<td>质量在 FASTQ 里</td>
+</tr>
+<tr>
+<td>忘记序列有方向</td>
+<td>公共数据按 5'→3' 存储</td>
+</tr>
+<tr>
+<td>用 <code>complement()</code> 当反向互补</td>
+<td>另一条链要 <code>reverse_complement()</code></td>
+</tr>
+<tr>
+<td>忽视 E-value 只看 Identity</td>
+<td>两者都要看</td>
+</tr>
+<tr>
+<td>不知道 <code>NM_</code>/<code>NP_</code> 前缀含义</td>
+<td>前缀揭示分子类型</td>
+</tr>
+<tr>
+<td>把 GenBank 的 <code>//</code> 当成注释</td>
+<td>它是记录结束符</td>
+</tr>
+</tbody>
+</table>
+<h2 id="104-biopython">10.4 下一步：开始学 Biopython</h2>
+<p>当你把本教程的练习做完、能用自己的话解释"中心法则""FASTA""比对""E-value"，就可以正式开始《Biopython 零基础实战教程》了。那里会教你：</p>
+<ul>
+<li>安装 Biopython 并开始第一个脚本；</li>
+<li>用 <code>Seq</code> / <code>SeqRecord</code> / <code>SeqIO</code> 处理真实数据；</li>
+<li>用 <code>PairwiseAligner</code> 做比对、用 <code>Entrez</code> 检索数据库；</li>
+<li>用 <code>Phylo</code> 画进化树、用 <code>PDB</code> 分析结构；</li>
+<li>完成 4 个综合实战项目。</li>
+</ul>
+<p><strong>两本教程合在一起，就是一条从零到实战的完整路径。</strong></p>
+<h2 id="105">10.5 小结</h2>
+<ul>
+<li>建立"概念 → 工具"的映射表，是最高效的学习方式；</li>
+<li>典型流程：读数据 → 质控 → 统计 → 注释 → 比对 → 建树；</li>
+<li>避免常见误区，能让你少走很多弯路；</li>
+<li>本教程的终点，就是 Biopython 教程的起点。</li>
+</ul>
+<hr />
+<h1 id="a">附录 A：完整遗传密码表</h1>
+<p>mRNA 密码子表（U 表示 RNA 中的尿嘧啶；<code>*</code> 为终止密码子）：</p>
+<table>
+<thead>
+<tr>
+<th>密码子</th>
+<th>氨基酸</th>
+<th>密码子</th>
+<th>氨基酸</th>
+<th>密码子</th>
+<th>氨基酸</th>
+<th>密码子</th>
+<th>氨基酸</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UUU</td>
+<td>F 苯丙氨酸</td>
+<td>UCU</td>
+<td>S 丝氨酸</td>
+<td>UAU</td>
+<td>Y 酪氨酸</td>
+<td>UGU</td>
+<td>C 半胱氨酸</td>
+</tr>
+<tr>
+<td>UUC</td>
+<td>F 苯丙氨酸</td>
+<td>UCC</td>
+<td>S 丝氨酸</td>
+<td>UAC</td>
+<td>Y 酪氨酸</td>
+<td>UGC</td>
+<td>C 半胱氨酸</td>
+</tr>
+<tr>
+<td>UUA</td>
+<td>L 亮氨酸</td>
+<td>UCA</td>
+<td>S 丝氨酸</td>
+<td>UAA</td>
+<td>* 终止</td>
+<td>UGA</td>
+<td>* 终止</td>
+</tr>
+<tr>
+<td>UUG</td>
+<td>L 亮氨酸</td>
+<td>UCG</td>
+<td>S 丝氨酸</td>
+<td>UAG</td>
+<td>* 终止</td>
+<td>UGG</td>
+<td>W 色氨酸</td>
+</tr>
+<tr>
+<td>CUU</td>
+<td>L 亮氨酸</td>
+<td>CCU</td>
+<td>P 脯氨酸</td>
+<td>CAU</td>
+<td>H 组氨酸</td>
+<td>CGU</td>
+<td>R 精氨酸</td>
+</tr>
+<tr>
+<td>CUC</td>
+<td>L 亮氨酸</td>
+<td>CCC</td>
+<td>P 脯氨酸</td>
+<td>CAC</td>
+<td>H 组氨酸</td>
+<td>CGC</td>
+<td>R 精氨酸</td>
+</tr>
+<tr>
+<td>CUA</td>
+<td>L 亮氨酸</td>
+<td>CCA</td>
+<td>P 脯氨酸</td>
+<td>CAA</td>
+<td>Q 谷氨酰胺</td>
+<td>CGA</td>
+<td>R 精氨酸</td>
+</tr>
+<tr>
+<td>CUG</td>
+<td>L 亮氨酸</td>
+<td>CCG</td>
+<td>P 脯氨酸</td>
+<td>CAG</td>
+<td>Q 谷氨酰胺</td>
+<td>CGG</td>
+<td>R 精氨酸</td>
+</tr>
+<tr>
+<td>AUU</td>
+<td>I 异亮氨酸</td>
+<td>ACU</td>
+<td>T 苏氨酸</td>
+<td>AAU</td>
+<td>N 天冬酰胺</td>
+<td>AGU</td>
+<td>S 丝氨酸</td>
+</tr>
+<tr>
+<td>AUC</td>
+<td>I 异亮氨酸</td>
+<td>ACC</td>
+<td>T 苏氨酸</td>
+<td>AAC</td>
+<td>N 天冬酰胺</td>
+<td>AGC</td>
+<td>S 丝氨酸</td>
+</tr>
+<tr>
+<td>AUA</td>
+<td>I 异亮氨酸</td>
+<td>ACA</td>
+<td>T 苏氨酸</td>
+<td>AAA</td>
+<td>K 赖氨酸</td>
+<td>AGA</td>
+<td>R 精氨酸</td>
+</tr>
+<tr>
+<td>AUG</td>
+<td>M 甲硫氨酸*</td>
+<td>ACG</td>
+<td>T 苏氨酸</td>
+<td>AAG</td>
+<td>K 赖氨酸</td>
+<td>AGG</td>
+<td>R 精氨酸</td>
+</tr>
+<tr>
+<td>GUU</td>
+<td>V 缬氨酸</td>
+<td>GCU</td>
+<td>A 丙氨酸</td>
+<td>GAU</td>
+<td>D 天冬氨酸</td>
+<td>GGU</td>
+<td>G 甘氨酸</td>
+</tr>
+<tr>
+<td>GUC</td>
+<td>V 缬氨酸</td>
+<td>GCC</td>
+<td>A 丙氨酸</td>
+<td>GAC</td>
+<td>D 天冬氨酸</td>
+<td>GGC</td>
+<td>G 甘氨酸</td>
+</tr>
+<tr>
+<td>GUA</td>
+<td>V 缬氨酸</td>
+<td>GCA</td>
+<td>A 丙氨酸</td>
+<td>GAA</td>
+<td>E 谷氨酸</td>
+<td>GGA</td>
+<td>G 甘氨酸</td>
+</tr>
+<tr>
+<td>GUG</td>
+<td>V 缬氨酸</td>
+<td>GCG</td>
+<td>A 丙氨酸</td>
+<td>GAG</td>
+<td>E 谷氨酸</td>
+<td>GGG</td>
+<td>G 甘氨酸</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong> 表中 AUG 同时是甲硫氨酸和起始密码子；终止密码子 UAA、UAG、UGA 不编码氨基酸。翻译时遇到终止密码子即结束。</p>
+</blockquote>
+<hr />
+<h1 id="b">附录 B：术语速查表</h1>
+<table>
+<thead>
+<tr>
+<th>英文术语</th>
+<th>中文</th>
+<th>一句话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nucleotide</td>
+<td>核苷酸</td>
+<td>DNA/RNA 的基本单元（碱基+糖+磷酸）</td>
+</tr>
+<tr>
+<td>Base pair (bp)</td>
+<td>碱基对</td>
+<td>双链上配对的两个碱基，也作长度单位</td>
+</tr>
+<tr>
+<td>Gene</td>
+<td>基因</td>
+<td>有功能意义的 DNA 片段</td>
+</tr>
+<tr>
+<td>Genome</td>
+<td>基因组</td>
+<td>一个生物体的全部遗传物质</td>
+</tr>
+<tr>
+<td>Central Dogma</td>
+<td>中心法则</td>
+<td>DNA→RNA→蛋白质的信息流动</td>
+</tr>
+<tr>
+<td>Transcription</td>
+<td>转录</td>
+<td>DNA 合成 mRNA（T 变 U）</td>
+</tr>
+<tr>
+<td>Translation</td>
+<td>翻译</td>
+<td>mRNA 按密码子合成蛋白质</td>
+</tr>
+<tr>
+<td>Codon</td>
+<td>密码子</td>
+<td>mRNA 上 3 个碱基一组</td>
+</tr>
+<tr>
+<td>Reading Frame</td>
+<td>读框</td>
+<td>从不同位置开始读密码子</td>
+</tr>
+<tr>
+<td>ORF</td>
+<td>开放阅读框</td>
+<td>从起始到终止的编码片段</td>
+</tr>
+<tr>
+<td>Mutation</td>
+<td>突变</td>
+<td>序列发生改变</td>
+</tr>
+<tr>
+<td>SNP</td>
+<td>单核苷酸多态性</td>
+<td>单个碱基的个体差异</td>
+</tr>
+<tr>
+<td>FASTA</td>
+<td>FASTA 格式</td>
+<td>最简单的序列文件格式</td>
+</tr>
+<tr>
+<td>FASTQ</td>
+<td>FASTQ 格式</td>
+<td>含质量值的测序格式</td>
+</tr>
+<tr>
+<td>Phred score</td>
+<td>Phred 质量值</td>
+<td>碱基可靠性的数值表示</td>
+</tr>
+<tr>
+<td>Accession</td>
+<td>序列编号</td>
+<td>数据库中的稳定标识符</td>
+</tr>
+<tr>
+<td>Alignment</td>
+<td>比对</td>
+<td>对齐序列找相似位点</td>
+</tr>
+<tr>
+<td>Similarity</td>
+<td>相似性</td>
+<td>数值上有多像</td>
+</tr>
+<tr>
+<td>Homology</td>
+<td>同源性</td>
+<td>是否来自共同祖先</td>
+</tr>
+<tr>
+<td>Ortholog</td>
+<td>直系同源</td>
+<td>跨物种的同源基因</td>
+</tr>
+<tr>
+<td>Paralog</td>
+<td>旁系同源</td>
+<td>同物种内复制产生的同源</td>
+</tr>
+<tr>
+<td>Gap</td>
+<td>缺口</td>
+<td>比对中的插入/缺失位置</td>
+</tr>
+<tr>
+<td>Substitution matrix</td>
+<td>替换矩阵</td>
+<td>氨基酸替换打分表（如 BLOSUM62）</td>
+</tr>
+<tr>
+<td>MSA</td>
+<td>多序列比对</td>
+<td>多条序列同时比对</td>
+</tr>
+<tr>
+<td>BLAST</td>
+<td>BLAST</td>
+<td>序列相似性搜索工具</td>
+</tr>
+<tr>
+<td>E-value</td>
+<td>期望值</td>
+<td>随机出现该结果的可能性</td>
+</tr>
+<tr>
+<td>Phylogenetic tree</td>
+<td>系统发育树</td>
+<td>表示演化关系的树状图</td>
+</tr>
+<tr>
+<td>Newick</td>
+<td>Newick 格式</td>
+<td>树的括号文本表示</td>
+</tr>
+<tr>
+<td>Bootstrap</td>
+<td>自举支持度</td>
+<td>分支可靠性的统计值</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="c">附录 C：推荐学习资源</h1>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NCBI</td>
+<td>数据库/工具</td>
+<td>BLAST、GenBank、PubMed：https://www.ncbi.nlm.nih.gov</td>
+</tr>
+<tr>
+<td>UniProt</td>
+<td>数据库</td>
+<td>蛋白质序列与注释：https://www.uniprot.org</td>
+</tr>
+<tr>
+<td>RCSB PDB</td>
+<td>数据库</td>
+<td>蛋白质三维结构：https://www.rcsb.org</td>
+</tr>
+<tr>
+<td>Ensembl</td>
+<td>数据库</td>
+<td>基因组与注释：https://www.ensembl.org</td>
+</tr>
+<tr>
+<td>Biopython 官方文档</td>
+<td>文档</td>
+<td>https://biopython.org</td>
+</tr>
+<tr>
+<td>Biopython 教程（本书配套）</td>
+<td>教程</td>
+<td>从零到实战的 Python 生物信息学</td>
+</tr>
+<tr>
+<td>Rosalind</td>
+<td>练习平台</td>
+<td>编程+生信小练习：https://rosalind.info</td>
+</tr>
+<tr>
+<td>NCBI 教程/学习页</td>
+<td>教程</td>
+<td>数据库与 BLAST 的官方教学</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>提示</strong> 学习生信最重要的是"动手+查文档"。先会用数据库检索，再会用工具，最后读懂原理——本教程已经把原理部分准备好了。</p>
+</blockquote>
+    </article>
+  </main>
+</div>
+<button id="backTop" title="回到顶部">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<script>
+(()=>{
+  // 目录滚动高亮
+  const links=[...document.querySelectorAll('.sidebar .toc a')];
+  const map=new Map();
+  links.forEach(a=>{const id=decodeURIComponent(a.getAttribute('href').slice(1));const el=document.getElementById(id);if(el)map.set(el,a);});
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=map.get(e.target);if(a)a.classList.add('active');}});},{rootMargin:'-15% 0px -75% 0px'});
+  map.forEach((_,el)=>obs.observe(el));
+
+  // 复制代码
+  document.querySelectorAll('.copy-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const code=btn.parentElement.querySelector('code');
+      const text=code.innerText.replace(/\n$/,'');
+      const done=()=>{btn.textContent='已复制';btn.classList.add('copied');setTimeout(()=>{btn.textContent='复制';btn.classList.remove('copied');},1600);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>{fallback(text);done();});}
+      else{fallback(text);done();}
+    });
+  });
+  function fallback(text){
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);
+  }
+
+  // 进度条 + 返回顶部
+  const bar=document.getElementById('progress'),bt=document.getElementById('backTop');
+  window.addEventListener('scroll',()=>{
+    const h=document.documentElement;
+    const p=h.scrollTop/(h.scrollHeight-h.clientHeight);
+    bar.style.width=(p*100)+'%';
+    bt.classList.toggle('show',h.scrollTop>500);
+  },{passive:true});
+  bt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+  // 移动端抽屉
+  const sb=document.getElementById('sidebar'),mask=document.getElementById('mask');
+  document.getElementById('menuBtn').addEventListener('click',()=>{sb.classList.add('open');mask.classList.add('show');});
+  mask.addEventListener('click',close); 
+  function close(){sb.classList.remove('open');mask.classList.remove('show');}
+  sb.querySelectorAll('a').forEach(a=>a.addEventListener('click',close));
+})();
+</script>
+</body>
+</html>
