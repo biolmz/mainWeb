@@ -20,6 +20,8 @@ const noteData = [
 
     // ---- 生物信息 (info) ----
     { title: 'R_ggplot2教程', url: 'https://bio2025.site/study/info/ggplot2_tutorial', tag: 'ggplot2教程', category: 'info' },   // ← 示例占位，可删除
+  { title: 'Biopython零基础实战教程', url: 'https://bio2025.site/study/info/Biopython零基础实战教程.html', tag: 'Biopython零基础实战教程', category: 'info' },
+{ title: '生信基础知识教程', url: 'https://bio2025.site/study/info/生信基础知识教程.hyml', tag: '配套biopython', category: 'info' },
 
     // ---- 英语 (en) ----
     { title: '26.12四级作文预测范文', url: 'https://bio2025.site/study/26.12四级作文', tag: '四级作文', category: 'en' },
