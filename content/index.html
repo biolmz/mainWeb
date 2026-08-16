@@ -15,7 +15,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http: https:; font-src 'self'; connect-src 'self' http: https:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -286,8 +286,8 @@ const safeUrl = u => {
     const raw = String(u).trim();
     // 第一层：正则黑名单拦截常见伪协议
     if (BLOCKED.test(raw)) return '#blocked';
-    // 第二层：URL API 解析 + 协议白名单
-    const p = new URL(raw);
+    // 第二层：URL API 解析 + 协议白名单（以当前页面为基准，允许站内相对链接）
+    const p = new URL(raw, document.baseURI || window.location.href);
     if (!['http:','https:','mailto:','tel:'].includes(p.protocol)) return '#blocked';
     // 第三层：hostname 基础合法性（防控制字符注入）
     if (!/^[a-z0-9.\-_]+$/i.test(p.hostname)) return '#blocked';
