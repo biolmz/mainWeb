@@ -19,9 +19,9 @@
 const noteData = [
 
     // ---- 生物信息 (info) ----
+    { title: 'git教程', url: 'https://bio2025.site/study/info/生信入门基础知识教程.html', tag: 'git教程', category: 'info' },
     { title: 'R_ggplot2教程', url: 'https://bio2025.site/study/info/ggplot2_tutorial', tag: 'ggplot2教程', category: 'info' },   // ← 示例占位，可删除
-  { title: 'Biopython零基础实战教程', url: 'https://bio2025.site/study/info/Biopython零基础实战教程.html', tag: 'Biopython零基础实战教程', category: 'info' },
-
+    { title: 'Biopython教程', url: 'https://bio2025.site/study/info/Biopython零基础实战教程.html', tag: 'Biopython零基础实战教程', category: 'info' },
     { title: '生信基础知识教程', url: 'https://bio2025.site/study/info/生信基础知识教程.html', tag: '配套biopython', category: 'info' },
     { title: '生信入门教程', url: 'https://bio2025.site/study/info/生信入门教程.html', tag: '生信基础', category: 'info' },
 
