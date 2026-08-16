@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教程目录</title>
+    <style>
+        /* ---------- 极简框架样式 (仅用于基础布局，无多余装饰) ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+            color: #1e1e1e;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 简单框架：一个带边框的容器 */
+        .catalog {
+            max-width: 820px;
+            width: 100%;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 28px 30px;
+            background: #fafbfc;
+        }
+
+        /* 标题 */
+        .catalog h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e4e8;
+            color: #111;
+        }
+
+        /* 列表容器 */
+        .catalog ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* 每个条目：极简分隔线 */
+        .catalog li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eaeef2;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 6px 12px;
+        }
+
+        .catalog li:last-child {
+            border-bottom: none;
+        }
+
+        /* a 标签：标准链接样式，无多余特效 */
+        .catalog a {
+            color: #0969da;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .catalog a:hover {
+            text-decoration: underline;
+        }
+
+        
+        /* 移动端小调整 */
+        @media (max-width: 600px) {
+            .catalog {
+                padding: 18px 16px;
+            }
+            .catalog li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .catalog .url-path {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="catalog">
+        <h1>📘 英语笔记 · 目录</h1>
+        <ul>
+            <li><a href="https://bio2025.site/study/en/cet-1.html" target="_blank">四级作文</a></li>
+            <li><a href="https://bio2025.site/study/en/26.12四级作文.html" target="_blank">26.12四级作文预测</a></li>
+        </ul>
+    </div>
+<hr>
+  <a href="https://bio2025.site/study/info" target="_blank"><strong>生信笔记<strong></a>
+  <a href="https://bio2025.site/study/math" target="_blank"><strong>数学笔记<strong></a>
+  <a href="https://bio2025.site/study/bio" target="_blank"><strong>生物笔记<strong></a>
+  <a href="https://bio2025.site/study" target="_blank"><strong>笔记总目录<strong></a>
+  <a href="https://bio2025.site/content="_blank"><strong>总导航目录<strong></a>
+</body>
+</html>
