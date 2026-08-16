@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>生物信息学 Git 基础教程</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } 
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.at { color: #204a87; } 
+code span.bn { color: #0000cf; } 
+code span.cf { color: #204a87; font-weight: bold; } 
+code span.ch { color: #4e9a06; } 
+code span.cn { color: #8f5902; } 
+code span.co { color: #8f5902; font-style: italic; } 
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.dt { color: #204a87; } 
+code span.dv { color: #0000cf; } 
+code span.er { color: #a40000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #0000cf; } 
+code span.fu { color: #204a87; font-weight: bold; } 
+code span.im { } 
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.kw { color: #204a87; font-weight: bold; } 
+code span.op { color: #ce5c00; font-weight: bold; } 
+code span.ot { color: #8f5902; } 
+code span.pp { color: #8f5902; font-style: italic; } 
+code span.sc { color: #ce5c00; font-weight: bold; } 
+code span.ss { color: #4e9a06; } 
+code span.st { color: #4e9a06; } 
+code span.va { color: #000000; } 
+code span.vs { color: #4e9a06; } 
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+
+:root {
+--bg: #faf9f6;
+--bg-alt: #f0eee8;
+--fg: #29261f;
+--fg-soft: #5d584e;
+--accent: #8a5a2b;
+--link: #1f6f8b;
+--border: #dcd8cd;
+--code-bg: #f5f5f2;
+--code-fg: #2b2a27;
+--code-border: #dcd8cd;
+--quote-bg: #fbf6ec;
+--quote-border: #c9a25e;
+--warn-bg: #fcf1ee;
+--warn-border: #cf6a4e;
+--toc-bg: #ffffff;
+--shadow: rgba(60, 50, 30, .10);
+--topbar-bg: rgba(250, 249, 246, .92);
+}
+html[data-theme="dark"] {
+--bg: #15171c;
+--bg-alt: #1c1f26;
+--fg: #d8dbe1;
+--fg-soft: #9aa1ad;
+--accent: #d3a35e;
+--link: #8cc3dd;
+--border: #2d323c;
+--code-bg: #f6f6f3;
+--code-fg: #2b2a27;
+--code-border: #3a3f4a;
+--quote-bg: #1f2027;
+--quote-border: #c9a25e;
+--warn-bg: #291e1c;
+--warn-border: #e07a5f;
+--toc-bg: #1a1d23;
+--shadow: rgba(0, 0, 0, .45);
+--topbar-bg: rgba(21, 23, 28, .92);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+margin: 0;
+
+font-family: Georgia, "Times New Roman", "Noto Serif CJK SC",
+"Source Han Serif SC", "Songti SC", "STSong", SimSun, serif;
+background: var(--bg);
+color: var(--fg);
+font-size: 17px;
+line-height: 1.8;
+-webkit-text-size-adjust: 100%;
+transition: background .3s ease, color .3s ease;
+}
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { max-width: 100%; height: auto; }
+
+#content-wrap {
+max-width: 46em;
+margin: 0 auto;
+padding: 0 22px 90px;
+}
+#content-wrap p { text-align: justify; margin: .85em 0; }
+#content-wrap h1 {
+font-size: 1.95em;
+text-align: center;
+margin: 2.4em 0 1.5em;
+padding-bottom: .45em;
+border-bottom: 2px solid var(--border);
+line-height: 1.35;
+}
+#content-wrap h2 {
+font-size: 1.38em;
+margin: 1.9em 0 .75em;
+padding: .1em 0 .1em .55em;
+border-left: 4px solid var(--accent);
+line-height: 1.4;
+}
+#content-wrap h3 {
+font-size: 1.14em;
+margin: 1.5em 0 .55em;
+}
+#content-wrap h4 {
+font-size: 1em;
+margin: 1.2em 0 .45em;
+}
+
+#content-wrap h1, #content-wrap h2, #content-wrap h3, #content-wrap h4 {
+font-family: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC",
+STSong, SimSun, Georgia, "Times New Roman", serif;
+font-weight: 700;
+}
+.secnum { color: var(--accent); font-weight: 700; margin-right: .35em; }
+#content-wrap h2 .secnum { margin-right: .45em; }
+
+#content-wrap ul, #content-wrap ol { margin: .7em 0; padding-left: 1.6em; }
+#content-wrap li { margin: .28em 0; }
+#content-wrap li > ul, #content-wrap li > ol { margin: .2em 0; }
+
+code {
+
+font-family: "Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo,
+"Noto Sans Mono CJK SC", "Sarasa Mono SC", "Microsoft YaHei", monospace;
+}
+p code, li code, td code {
+background: rgba(0, 0, 0, .055);
+padding: .13em .38em;
+border-radius: 4px;
+font-size: .88em;
+}
+html[data-theme="dark"] p code,
+html[data-theme="dark"] li code,
+html[data-theme="dark"] td code {
+background: rgba(255, 255, 255, .13);
+color: #e6e9ee;
+}
+
+div.sourceCode, pre {
+position: relative;
+background: var(--code-bg);
+color: var(--code-fg);
+border: 1px solid var(--code-border);
+border-radius: 8px;
+padding: 14px 16px;
+margin: 1.1em 0;
+overflow-x: auto;
+line-height: 1.55;
+font-size: .87em;
+font-family: "Cascadia Code", "JetBrains Mono", Consolas, "SF Mono", Menlo,
+"Noto Sans Mono CJK SC", "Sarasa Mono SC", "Microsoft YaHei", monospace;
+}
+div.sourceCode code, pre code {
+background: transparent;
+padding: 0;
+font-size: 1em;
+}
+
+html[data-theme="dark"] div.sourceCode,
+html[data-theme="dark"] pre {
+background: #f6f6f3;
+color: #2b2a27;
+border-color: #3a3f4a;
+}
+
+.copy-btn {
+position: absolute;
+top: 8px;
+right: 8px;
+z-index: 5;
+font-size: 12px;
+line-height: 1;
+padding: 5px 10px;
+border: 1px solid var(--code-border);
+border-radius: 6px;
+background: var(--toc-bg);
+color: var(--fg-soft);
+cursor: pointer;
+opacity: 0;
+transition: opacity .2s ease, color .2s;
+}
+div.sourceCode:hover .copy-btn, pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+@media (hover: none) {
+.copy-btn { opacity: 1; }
+}
+
+.table-wrap { overflow-x: auto; margin: 1.2em 0; -webkit-overflow-scrolling: touch; }
+table {
+border-collapse: collapse;
+width: 100%;
+font-size: .9em;
+min-width: 420px;
+}
+th, td {
+border: 1px solid var(--border);
+padding: .5em .7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--bg-alt); font-weight: 600; white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--bg-alt); }
+
+blockquote {
+margin: 1.2em 0;
+padding: .7em 1.1em;
+border-left: 4px solid var(--quote-border);
+background: var(--quote-bg);
+border-radius: 0 8px 8px 0;
+}
+blockquote.warn {
+border-left-color: var(--warn-border);
+background: var(--warn-bg);
+}
+blockquote p { margin: .3em 0; }
+
+.book-cover {
+min-height: 80vh;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding: 56px 24px;
+}
+.cover-series { font-size: .95em; letter-spacing: .35em; color: var(--fg-soft); margin: 0; }
+.cover-rule {
+width: 130px;
+height: 1.5px;
+background: var(--accent);
+margin: 30px auto;
+}
+.cover-title {
+font-size: clamp(2rem, 6vw, 3.3rem);
+font-weight: 800;
+color: var(--fg);
+margin: 0;
+letter-spacing: .06em;
+line-height: 1.3;
+}
+.cover-subtitle {
+font-size: clamp(1.05rem, 3vw, 1.5rem);
+color: var(--accent);
+margin: 26px 0 0;
+letter-spacing: .08em;
+}
+.cover-tagline { font-size: 1.02em; color: var(--fg); margin: 34px 0 0; }
+.cover-desc { font-size: .92em; color: var(--fg-soft); margin: 10px 0 0; }
+.cover-version { font-size: .95em; color: var(--fg-soft); margin-top: 40px; }
+
+#topbar {
+display: none;
+position: sticky;
+top: 0;
+z-index: 50;
+align-items: center;
+justify-content: space-between;
+padding: 8px 12px;
+background: var(--topbar-bg);
+-webkit-backdrop-filter: blur(10px);
+backdrop-filter: blur(10px);
+border-bottom: 1px solid var(--border);
+}
+#topbar .topbar-title {
+font-size: .92em;
+font-weight: 600;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+margin: 0 10px;
+}
+.icon-btn {
+width: 38px;
+height: 38px;
+border: 1px solid var(--border);
+border-radius: 10px;
+background: var(--toc-bg);
+color: var(--fg);
+font-size: 17px;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+line-height: 1;
+flex: 0 0 auto;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+#toc-panel {
+background: var(--toc-bg);
+padding: 26px 18px 46px;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+.toc-head {
+font-size: 1.02em;
+font-weight: 700;
+color: var(--accent);
+letter-spacing: .3em;
+margin-bottom: 14px;
+padding-bottom: 12px;
+border-bottom: 1px solid var(--border);
+}
+.toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-h1 { margin: 3px 0; }
+.toc-h1 > a {
+display: block;
+font-weight: 600;
+color: var(--fg);
+padding: 5px 9px;
+border-radius: 7px;
+font-size: .93em;
+line-height: 1.4;
+}
+.toc-h2 { margin: 0; }
+.toc-h2 > a {
+display: block;
+color: var(--fg-soft);
+padding: 3px 9px 3px 22px;
+font-size: .85em;
+border-radius: 7px;
+line-height: 1.4;
+}
+.toc-list a:hover { background: var(--bg-alt); text-decoration: none; }
+.toc-list a.active { background: var(--bg-alt); color: var(--accent); }
+
+#toc-scrim {
+position: fixed;
+inset: 0;
+background: rgba(20, 18, 14, .45);
+z-index: 55;
+opacity: 0;
+visibility: hidden;
+transition: opacity .28s ease, visibility .28s;
+}
+
+#back-top {
+position: fixed;
+right: 20px;
+bottom: 22px;
+z-index: 40;
+width: 46px;
+height: 46px;
+border-radius: 50%;
+border: 1px solid var(--border);
+background: var(--toc-bg);
+color: var(--fg);
+font-size: 19px;
+cursor: pointer;
+box-shadow: 0 5px 18px var(--shadow);
+opacity: 0;
+visibility: hidden;
+transition: opacity .25s ease, visibility .25s;
+}
+#back-top.show { opacity: 1; visibility: visible; }
+#back-top:hover { color: var(--accent); border-color: var(--accent); }
+
+@media (min-width: 1080px) {
+#toc-panel {
+position: fixed;
+left: 0;
+top: 0;
+bottom: 0;
+width: 300px;
+border-right: 1px solid var(--border);
+z-index: 30;
+}
+#content-wrap { margin-left: 300px; }
+#topbar { display: none; }
+#toc-scrim { display: none; }
+#theme-btn { position: fixed; top: 16px; right: 16px; z-index: 45; }
+}
+
+@media (max-width: 1079.98px) {
+#toc-panel {
+position: fixed;
+left: 0;
+top: 0;
+bottom: 0;
+width: min(330px, 86vw);
+z-index: 60;
+transform: translateX(-106%);
+transition: transform .3s ease;
+box-shadow: 6px 0 26px var(--shadow);
+}
+body.toc-open #toc-panel { transform: translateX(0); }
+body.toc-open #toc-scrim { opacity: 1; visibility: visible; }
+body.toc-open { overflow: hidden; }
+#topbar { display: flex; }
+}
+
+@media (max-width: 640px) {
+body { font-size: 16px; }
+#content-wrap { padding: 0 16px 70px; }
+#content-wrap h1 { font-size: 1.7em; }
+div.sourceCode, pre { font-size: .82em; padding: 12px 12px; }
+}
+
+@media print {
+#topbar, #toc-panel, #toc-scrim, #back-top, #theme-btn, .copy-btn {
+display: none !important;
+}
+body { font-size: 11pt; background: #fff; color: #000; }
+#content-wrap { margin: 0; max-width: none; padding: 0; }
+a { color: inherit; }
+div.sourceCode, pre {
+white-space: pre-wrap;
+overflow: visible;
+border: 1px solid #999;
+}
+.book-cover { min-height: 50vh; }
+h1 { page-break-before: always; }
+table { font-size: 9pt; }
+blockquote { page-break-inside: avoid; }
+}
+</style>
+  <script>
+  /* 主题闪屏保护：在 CSS 生效前根据偏好设置 data-theme */
+  (function () {
+    try {
+      var t = localStorage.getItem('book-theme');
+      if (t === 'dark' || (t !== 'light' && window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) {}
+  })();
+  </script>
+</head>
+<body>
+<div class="book-cover">
+  <div class="cover-inner">
+    <p class="cover-series">生物信息学系列教程</p>
+    <div class="cover-rule"></div>
+    <p class="cover-title">生物信息学 Git 基础教程</p>
+    <p class="cover-subtitle">Git Essentials for Bioinformatics</p>
+    <p class="cover-tagline">版本控制 · 团队协作 · 可重复分析</p>
+    <p class="cover-desc">面向生信工作者的系统入门与实践指南</p>
+    <div class="cover-rule"></div>
+    <p class="cover-version">第 1 版 · 2025</p>
+  </div>
+</div>
+<header id="title-block-header">
+<h1 class="title">生物信息学 Git 基础教程</h1>
+</header>
+<h1 class="unnumbered" id="前言">前言</h1>
+<p>生物信息学是”脚本驱动”的学科：我们的分析成果最终体现为一套代码、一组配置、一份工作流和若干结果文件。然而，大多数生信工作者的代码管理仍停留在”文件夹
++
+日期命名”的阶段：<code>pipeline_v2_final.sh</code>、<code>analysis_20250101_改.py</code>、<code>论文终稿_真终稿.docx</code>。当分析迭代十几次、合作者反复修改脚本、服务器上的环境和本地的环境不一致时，这种管理方式会迅速失控，甚至让几个月的工作无法重现。</p>
+<p>Git 是目前事实标准的版本控制系统（Version Control System, VCS），也是
+GitHub、GitLab、Gitee
+等协作平台的基础。它解决的不是”写代码”的问题，而是”让代码的历史可追溯、可协作、可恢复”的问题——这正是可重复研究（reproducible
+research）的第一块基石。</p>
+<p>本书面向有基本命令行经验、正在从事或即将从事生物信息学分析工作的读者，系统讲解
+Git
+的核心概念、日常操作与生信场景的最佳实践。全书不假设读者有编程经验，只要求能在终端中执行命令。</p>
+<p><strong>如何使用本书</strong></p>
+<ul>
+<li>第 1–2 章建立”为什么”与”是什么”，建议通读；</li>
+<li>第 3–5 章是动手操作的主体，建议边读边在练习仓库中敲命令；</li>
+<li>第 6
+章是本领域的重点应用，结合工作流（Snakemake/Nextflow）、环境管理（conda）与数据管理讲解；</li>
+<li>第 7 章是踩坑与进阶，遇到问题时回来查阅；</li>
+<li>第 8 章与附录作为协作规范和速查工具。</li>
+</ul>
+<p><strong>版本说明</strong>：本书示例基于 Git 2.23 及以上版本（命令
+<code>git --version</code> 可查看）。书中使用 Git
+Bash（Windows）或标准终端（macOS/Linux）执行命令，<code>$</code>
+为提示符，<code>#</code> 开头为注释。</p>
+<h1 id="第-1-章-为什么生信需要版本控制">第 1 章
+为什么生信需要版本控制</h1>
+<h2 id="可重复性危机">1.1 可重复性危机</h2>
+<p>2016 年《Nature》的调查显示，超过 70%
+的受访科研人员无法重现他人的实验，超过一半无法重现自己的实验。在生信领域，问题尤为突出：分析流程环节多、依赖版本敏感、数据体积大。一项
+RNA-seq 分析可能涉及 20
+多个工具、几十个参数、若干版本的参考基因组，任何一个环节失忆，结果都难以复原。</p>
+<p>可重复性的敌人，正是”不可追溯的变化”：</p>
+<ul>
+<li>脚本被反复覆盖，“上一版还能跑通的代码”找不回来；</li>
+<li>合作者各自修改后互相覆盖文件，不知道谁改了什么；</li>
+<li>发表论文几个月后，审稿人或读者索要代码，已无法复原当时的版本；</li>
+<li>服务器清理、硬盘损坏、误删目录，数年积累付之东流。</li>
+</ul>
+<p>版本控制并不能自动消除这些问题，但它提供了一套机制，让<strong>每一个变化都被记录、可追溯、可回退</strong>，从而把”凭记忆管理”变成”凭记录管理”。</p>
+<h2 id="版本控制解决的三类问题">1.2 版本控制解决的三类问题</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>问题</th>
+<th>没有版本控制</th>
+<th>使用 Git 之后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>追溯</td>
+<td>“这个结果是谁、在什么时候、用什么参数跑出来的？”——靠聊天记录和文件名猜</td>
+<td><code>git log</code>
+查看每次提交的作者、时间与说明；<code>git blame</code>
+定位每一行的来源</td>
+</tr>
+<tr>
+<td>协作</td>
+<td>文件互相覆盖，合并靠手工比对</td>
+<td>分支并行开发，<code>merge</code> 自动三方合并，冲突逐处解决</td>
+</tr>
+<tr>
+<td>恢复</td>
+<td>误删/改坏后束手无策</td>
+<td><code>git restore</code>、<code>git reset</code>、<code>git reflog</code>
+可回到任意历史状态</td>
+</tr>
+</tbody>
+</table>
+<h2 id="git-能做什么不能做什么">1.3 Git 能做什么、不能做什么</h2>
+<p><strong>能</strong>：追踪文本类文件的全部历史——脚本（<code>.py</code>/<code>.R</code>/<code>.sh</code>）、配置文件（<code>.yaml</code>/<code>.json</code>）、文档（Markdown/LaTeX/<code>README</code>）、小型数据表（<code>.csv</code>/<code>.tsv</code>）、工作流定义（Snakefile/<code>nextflow.config</code>）。</p>
+<p><strong>不能（也不该）</strong>：</p>
+<ul>
+<li><strong>管理大型二进制数据</strong>。测序原始数据（<code>.fastq.gz</code>，动辄数十
+GB）、比对结果（<code>.bam</code>）、中间产物不应直接放入 Git 仓库——Git
+对二进制文件只能整份存储差异，仓库会迅速膨胀到无法使用。数据应放在独立的存储（服务器磁盘、云端对象存储、数据管理工具），详见第
+6 章。</li>
+<li><strong>替代数据备份</strong>。Git
+记录的是”版本历史”，不是”异地容灾”。仍需要定期将仓库推送到远程（GitHub/GitLab
+或自建服务器）。</li>
+<li><strong>替代科学记录</strong>。版本控制记录”做了什么”，而实验设计、参数选择的原因等”为什么”仍应写入实验记录与文档。</li>
+</ul>
+<p>一句话原则：<strong>代码入库，数据入库外，环境可复现。</strong></p>
+<h2 id="生信项目中需要版本化的对象">1.4
+生信项目中需要”版本化”的对象</h2>
+<p>一个典型的生信分析项目包含多类对象，它们的版本管理策略各不相同：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>对象</th>
+<th>示例</th>
+<th>是否入库</th>
+<th>策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分析代码</td>
+<td>脚本、工作流、函数库</td>
+<td>是</td>
+<td>Git 全文追踪</td>
+</tr>
+<tr>
+<td>配置文件</td>
+<td><code>config.yaml</code>、<code>environment.yml</code>、Dockerfile</td>
+<td>是</td>
+<td>Git 追踪，改动即记录</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>README、实验记录（Markdown）</td>
+<td>是</td>
+<td>Git 追踪</td>
+</tr>
+<tr>
+<td>小数据</td>
+<td>样本表（<code>samples.tsv</code>）、临床注释</td>
+<td>是（体积小、文本）</td>
+<td>Git 追踪</td>
+</tr>
+<tr>
+<td>参考数据</td>
+<td>参考基因组、注释库</td>
+<td>否（大、不可变）</td>
+<td>单独管理，记录版本号与下载命令</td>
+</tr>
+<tr>
+<td>中间结果</td>
+<td>比对、定量、质控输出</td>
+<td>否</td>
+<td>可再生成，不入库；必要时用 Git LFS</td>
+</tr>
+<tr>
+<td>最终结果</td>
+<td>图表、报告</td>
+<td>视情况</td>
+<td>论文图表可入库；中间表格只留可再生成的脚本</td>
+</tr>
+<tr>
+<td>计算环境</td>
+<td>conda 环境本身</td>
+<td>否</td>
+<td>用 <code>environment.yml</code> 描述，环境本身不入库</td>
+</tr>
+</tbody>
+</table>
+<p>理解”什么该入库”，是生信使用 Git 与普通程序员最大的不同。本书第 6
+章将详细展开。</p>
+<h1 id="第-2-章-git-核心概念">第 2 章 Git 核心概念</h1>
+<h2 id="三个区域工作区暂存区版本库">2.1
+三个区域：工作区、暂存区、版本库</h2>
+<p>Git 把一次”保存”拆成两步，对应两个区域：</p>
+<pre><code>        git add                 git commit
+工作区 ──────────▶ 暂存区（索引）──────────▶ 版本库
+working tree         index/staging            repository</code></pre>
+<ul>
+<li><strong>工作区（working
+tree）</strong>：你当前看到的、正在编辑的文件。</li>
+<li><strong>暂存区（index，又称 staging
+area）</strong>：<code>git add</code>
+把文件从工作区放入暂存区，表示”我确认要提交这些改动”。暂存区允许你把一次任务的多处修改拆成多个逻辑清晰的提交。</li>
+<li><strong>版本库（repository）</strong>：<code>git commit</code>
+把暂存区内容固化为一次提交，永久记录进历史。</li>
+</ul>
+<p>理解这个三步流程，就能解释 Git
+中最常见的困惑：“我明明保存了文件，为什么 <code>git status</code>
+还说有改动？”——因为 Git 只关心<strong>你明确告诉它</strong>的变化。</p>
+<h2 id="提交是快照不是差异">2.2 提交是快照，不是差异</h2>
+<p>Subversion 等早期版本控制记录的是”文件间的差异”。Git
+相反：每次提交保存的是<strong>整个项目在该时刻的完整快照</strong>（技术上通过内容寻址与压缩去重实现，磁盘开销远小于直觉）。这意味着：</p>
+<ul>
+<li>任意两次提交之间都可直接对比，无需从起点逐次”叠加”；</li>
+<li>历史中的任何一点都可以完整恢复；</li>
+<li>提交内容由哈希值（SHA-1，40 位十六进制）唯一标识，如
+<code>3a2f5c…</code>，无法篡改而不被发现。</li>
+</ul>
+<h2 id="分支可移动的指针">2.3 分支：可移动的指针</h2>
+<p>分支（branch）是 Git
+最强大的概念，也是最常被误解的概念。本质上，<strong>分支只是一个指向某次提交的、可移动的指针</strong>。</p>
+<pre><code>main ●───●───●
+              ▲
+             HEAD（当前所在分支）</code></pre>
+<p>创建新分支只是新建一个指针；切换分支（<code>git switch</code>）只是让
+<code>HEAD</code> 指向另一个指针。分支的成本几乎为零，因此 Git
+鼓励”一任务一分支”的轻量工作流。第 5 章将详细讨论分支的协作用法。</p>
+<h2 id="对象模型速览">2.4 对象模型速览</h2>
+<p>了解 Git 的底层对象模型，能消除大量”黑盒恐惧”。Git
+仓库本质上是一个内容寻址的对象库：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>blob</td>
+<td>一个文件的全部内容</td>
+<td>按内容哈希命名，内容相同则去重</td>
+</tr>
+<tr>
+<td>tree</td>
+<td>目录清单</td>
+<td>记录每个文件名与对应的 blob/tree 哈希</td>
+</tr>
+<tr>
+<td>commit</td>
+<td>快照的元信息</td>
+<td>指向一棵 tree、父提交、作者、时间、提交说明</td>
+</tr>
+</tbody>
+</table>
+<p>用 <code>git cat-file -p &lt;哈希&gt;</code>
+可以查看任意对象。例如：</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git log <span class="at">--oneline</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">abc1234</span> 更新质控阈值</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git cat-file <span class="at">-p</span> abc1234</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">tree</span> 8f2a3b...</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">parent</span> 9e1c0d...</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">author</span> Kael <span class="op">&lt;</span>kael@example.org<span class="op">&gt;</span> 1735689600 +0800</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">committer</span> Kael <span class="op">&lt;</span>kael@example.org<span class="op">&gt;</span> 1735689600 +0800</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">更新质控阈值</span></span></code></pre></div>
+<h2 id="引用与-reflog一切皆可恢复">2.5 引用与 reflog：一切皆可恢复</h2>
+<p><code>main</code>、<code>HEAD</code>、<code>v1.0</code>
+这些名字统称<strong>引用（reference）</strong>，它们是指向提交的符号名。Git
+还维护一份<strong>reflog</strong>（引用日志），记录 <code>HEAD</code>
+和分支指针每一次移动的历史——即使你误删分支、<code>reset</code>
+回退过头，只要 reflog 中还有记录，就能找回。这给 Git
+带来一个重要特性：<strong>常规操作几乎不会永久丢失数据</strong>（详见
+7.2 节）。</p>
+<h1 id="第-3-章-安装与初始化配置">第 3 章 安装与初始化配置</h1>
+<h2 id="安装-git">3.1 安装 Git</h2>
+<p><strong>Windows</strong>：推荐从 <a href="https://git-scm.com/download/win" class="uri">https://git-scm.com/download/win</a> 下载安装（自带 Git
+Bash、Git GUI 与 credential manager）。也可通过 conda 安装：</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> install <span class="at">-c</span> conda-forge git</span></code></pre></div>
+<p><strong>macOS</strong>：<code>brew install git</code>，或安装 Xcode
+Command Line Tools（自带 git）。</p>
+<p><strong>Linux（Ubuntu/Debian）</strong>：</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt install <span class="at">-y</span> git</span></code></pre></div>
+<p>安装后验证：</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git <span class="at">--version</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> version 2.47.1</span></code></pre></div>
+<blockquote>
+<p><strong>提示</strong>：Windows 用户建议使用 Git Bash（而非
+PowerShell/cmd）执行本书命令，路径与转义规则与 Linux/macOS
+一致，减少跨平台差异。</p>
+</blockquote>
+<h2 id="首次配置身份">3.2 首次配置：身份</h2>
+<p>Git 每次提交都要记录作者，因此必须先配置姓名与邮箱：</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">&quot;Kael Zhang&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.email <span class="st">&quot;kael@example.org&quot;</span></span></code></pre></div>
+<p><strong>生信实战要点</strong>：邮箱务必与你的 GitHub/GitLab
+账号绑定邮箱一致——否则提交无法关联到你的账号，贡献图与署名都会错乱。常用做法是用
+GitHub
+提供的隐私邮箱（<code>&lt;id&gt;+&lt;用户名&gt;@users.noreply.github.com</code>）。</p>
+<p>查看配置：</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> <span class="at">--list</span></span></code></pre></div>
+<h2 id="跨平台三件套换行符.gitattributes编码">3.3
+跨平台三件套：换行符、.gitattributes、编码</h2>
+<p>生信环境横跨 Windows 本机与 Linux 服务器，换行符差异是经典的”幽灵
+bug”源头：Windows 用 <code>CRLF</code>，Linux/macOS 用
+<code>LF</code>，混用会导致脚本报错、<code>diff</code>
+显示整文件被改、<code>.sh</code> 脚本在服务器上出现 <code>\r</code>
+错误。</p>
+<p><strong>第一件：设置全局换行符策略</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> core.autocrlf input      <span class="co"># Windows 提交时转为 LF</span></span></code></pre></div>
+<ul>
+<li>Windows 推荐 <code>input</code>（检出时保持 LF 或按文件属性处理）或
+<code>true</code>（检出时转 CRLF，提交时转 LF）；</li>
+<li>macOS/Linux 无需设置（默认 LF）。</li>
+</ul>
+<p><strong>第二件：用 <code>.gitattributes</code>
+显式声明规则</strong>。在仓库根目录创建
+<code>.gitattributes</code>，比全局配置更可靠，且随仓库分发给所有协作者：</p>
+<pre class="gitattributes"><code># 所有文本文件统一用 LF 入库
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.R text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+# 二进制文件（即使扩展名是文本也可能包含二进制，如 xlsx）
+*.xlsx binary
+*.bam binary
+*.fastq.gz binary</code></pre>
+<p><strong>第三件：统一 UTF-8 编码</strong>。所有脚本与文档保存为
+UTF-8（无 BOM）。Windows 记事本默认编码容易引入 BOM 或 GBK，建议用 VS
+Code、Vim 或 RStudio 编辑并显式选择 UTF-8。</p>
+<h2 id="配置-ssh-密钥免密连接-githubgitlab">3.4 配置 SSH 密钥：免密连接
+GitHub/GitLab</h2>
+<p>生信工作者常在服务器上操作仓库，SSH 比 HTTPS
+更适合（免去每次输密码，且支持代理）。生成密钥：</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh-keygen</span> <span class="at">-t</span> ed25519 <span class="at">-C</span> <span class="st">&quot;kael@example.org&quot;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 一路回车使用默认位置 ~/.ssh/id_ed25519</span></span></code></pre></div>
+<p>查看公钥并添加到 GitHub（Settings → SSH and GPG keys → New SSH
+key）：</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> ~/.ssh/id_ed25519.pub</span></code></pre></div>
+<p>测试连接：</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-T</span> git@github.com</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Hi Kael! You&#39;ve successfully authenticated...</span></span></code></pre></div>
+<p>之后克隆使用 SSH 地址：</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:kael/awesome-nf.git</span></code></pre></div>
+<blockquote>
+<p><strong>服务器场景</strong>：在计算服务器上配置 SSH 密钥后，即可直接
+<code>git push/pull</code>。注意不要把私钥（<code>id_ed25519</code>）泄露或入库。</p>
+</blockquote>
+<h2 id="配置层级">3.5 配置层级</h2>
+<p>Git 配置分四个层级，后者覆盖前者：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>命令</th>
+<th>作用范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>system</td>
+<td><code>git config --system</code></td>
+<td>整台机器所有用户</td>
+</tr>
+<tr>
+<td>global</td>
+<td><code>git config --global</code></td>
+<td>当前用户所有仓库</td>
+</tr>
+<tr>
+<td>local</td>
+<td><code>git config --local</code>（默认）</td>
+<td>当前仓库</td>
+</tr>
+<tr>
+<td>worktree</td>
+<td><code>git config --worktree</code></td>
+<td>当前工作树</td>
+</tr>
+</tbody>
+</table>
+<p>身份、编辑器等放
+global；仓库特有的设置（如某个仓库使用不同的用户名）放 local。</p>
+<h2 id="实用的全局配置">3.6 实用的全局配置</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> init.defaultBranch main        <span class="co"># 默认分支名 main</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> core.editor <span class="st">&quot;code --wait&quot;</span>      <span class="co"># 默认编辑器 VS Code</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> pull.rebase false              <span class="co"># pull 默认 merge（保守）</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> push.default simple            <span class="co"># 只推送当前分支</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> color.ui auto                  <span class="co"># 彩色输出</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> diff.tool vscode               <span class="co"># diff 工具</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> core.quotepath false           <span class="co"># 中文文件名正常显示</span></span></code></pre></div>
+<p>其中 <code>core.quotepath false</code>
+对中文路径/文件名尤为重要，否则 <code>git status</code>
+会显示转义字符。</p>
+<h1 id="第-4-章-日常基本操作">第 4 章 日常基本操作</h1>
+<p>本章用一个虚拟的生信小项目走完基本流程。先建立练习目录（以下命令在
+Git Bash 或终端中执行）：</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/projects/rnaseq-demo <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> ~/projects/rnaseq-demo</span></code></pre></div>
+<h2 id="初始化与克隆">4.1 初始化与克隆</h2>
+<p><strong>初始化</strong>：把当前目录变成 Git 仓库。</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialized empty Git repository in .../rnaseq-demo/.git/</span></span></code></pre></div>
+<p><strong>克隆</strong>：从远程复制仓库（含全部历史）到本地。克隆生信工具仓库示例：</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/snakemake/snakemake.git</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:kael/rnaseq-demo.git</span></code></pre></div>
+<h2 id="查看状态与差异">4.2 查看状态与差异</h2>
+<p>创建一个脚本：</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;#!/bin/bash</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="st"># RNA-seq 质控脚本 v1</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="st">echo &quot;运行 FastQC...&quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="st">fastqc data/sample1.fastq.gz -o results/qc/&#39;</span> <span class="op">&gt;</span> run_qc.sh</span></code></pre></div>
+<p>随时查看仓库状态：</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git status</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">On</span> branch main</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="ex">No</span> commits yet</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Untracked</span> files:</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">(</span><span class="ex">use</span> <span class="st">&quot;git add &lt;file&gt;...&quot;</span> to include in what will be committed<span class="kw">)</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        <span class="ex">run_qc.sh</span></span></code></pre></div>
+<p><code>untracked</code>（未跟踪）意味着 Git
+还不管理这个文件。<code>git diff</code>
+查看<strong>已跟踪文件</strong>工作区与暂存区的差异；<code>git diff --staged</code>
+查看暂存区与上次提交的差异。</p>
+<h2 id="暂存与提交">4.3 暂存与提交</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add run_qc.sh          <span class="co"># 加入暂存区</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status                 <span class="co"># 文件变为绿色 &quot;new file&quot;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;添加 RNA-seq 质控脚本 v1&quot;</span></span></code></pre></div>
+<p><strong>提交信息规范</strong>：单行提交信息应是一句祈使句，说明”做了什么”，而非”改了哪些文件”。生信项目推荐在提交信息中附上关键参数或链接（如数据库版本）：</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;更新 HISAT2 索引为 GRCh38 最新版（2024-10 发布）&quot;</span></span></code></pre></div>
+<p>常见格式为 <code>&lt;类型&gt;: &lt;简要说明&gt;</code>，如
+<code>fix: 修正质控阈值</code>, <code>feat: 新增差异分析模块</code>,
+<code>docs: 更新 README</code>（详见 8.2 节）。</p>
+<p><strong>只提交部分改动</strong>：一次分析常混着多个逻辑改动，用
+<code>git add -p</code>
+交互式选择要暂存的片段，保持每个提交单一职责：</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add <span class="at">-p</span> run_qc.sh</span></code></pre></div>
+<h2 id="查看历史">4.4 查看历史</h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span>                    <span class="co"># 简洁列表</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span> <span class="at">--graph</span> <span class="at">--all</span>      <span class="co"># 分支拓扑图</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">-3</span>                           <span class="co"># 最近 3 条</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--follow</span> <span class="at">-p</span> run_qc.sh        <span class="co"># 追踪某文件的完整演化</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> show <span class="op">&lt;</span>commit<span class="op">&gt;</span>                    <span class="co"># 查看某次提交详情</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> blame run_qc.sh                  <span class="co"># 每一行最后是谁改的（排查参数来源神器）</span></span></code></pre></div>
+<h2 id="撤销与回退">4.5 撤销与回退</h2>
+<p>Git 的撤销操作按影响范围从小到大排列：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>命令</th>
+<th>场景</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git restore &lt;file&gt;</code></td>
+<td>丢弃工作区未暂存的修改</td>
+<td>工作区文件回到暂存区/HEAD 状态</td>
+</tr>
+<tr>
+<td><code>git restore --staged &lt;file&gt;</code></td>
+<td>把文件移出暂存区（取消 add）</td>
+<td>暂存区回退，工作区保留</td>
+</tr>
+<tr>
+<td><code>git reset --soft HEAD~1</code></td>
+<td>撤销上次提交，但保留改动在暂存区</td>
+<td>只移动分支指针</td>
+</tr>
+<tr>
+<td><code>git reset --mixed HEAD~1</code></td>
+<td>撤销提交并取消暂存</td>
+<td>改动保留在工作区</td>
+</tr>
+<tr>
+<td><code>git reset --hard HEAD~1</code></td>
+<td>彻底回退并丢弃改动</td>
+<td><strong>危险</strong>，改动丢失</td>
+</tr>
+<tr>
+<td><code>git revert &lt;commit&gt;</code></td>
+<td>撤销某次已推送的提交</td>
+<td>生成一个”反向提交”，历史保留</td>
+</tr>
+<tr>
+<td><code>git stash push</code> / <code>git stash pop</code></td>
+<td>临时搁置未提交的改动</td>
+<td>保存到 stash，可随时取回</td>
+</tr>
+</tbody>
+</table>
+<p><strong>生信实战</strong>：<code>reset --hard</code>
+是误删数据的常见元凶。默认分支未推送前可用
+<code>reset</code>；<strong>已推送的提交请用
+<code>revert</code></strong>，避免与协作者的历史分叉。</p>
+<h2 id="gitignore生信仓库的第一道防线">4.6
+.gitignore：生信仓库的第一道防线</h2>
+<p><code>.gitignore</code> 声明哪些文件 Git
+永不追踪。生信项目的典型模板：</p>
+<pre class="gitignore"><code># 数据文件（大文件不入库）
+data/
+*.fastq
+*.fastq.gz
+*.fq.gz
+*.bam
+*.bam.bai
+*.sam
+*.vcf.gz
+*.bcf
+
+# 中间结果与缓存
+results/
+outputs/
+.snakemake/
+.nextflow/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# 环境与凭据
+envs/*/
+!envs/*.yml
+.env
+*.key
+*.pem
+
+# 系统文件
+.DS_Store
+Thumbs.db</code></pre>
+<p>规则要点：</p>
+<ul>
+<li>每行一个模式；<code>/</code>
+开头表示仅匹配仓库根；<code>目录/</code> 表示整目录；</li>
+<li><code>!</code> 表示排除（重新纳入），且不能越过其父目录的忽略；</li>
+<li>目录中已有 <code>.gitignore</code> 的，子目录规则独立生效；</li>
+<li>用 <code>git check-ignore -v results/x.txt</code>
+调试某文件为何被忽略。</li>
+</ul>
+<blockquote>
+<p><strong>提示</strong>：<code>git add .</code> 前务必
+<code>git status</code> 确认没有把 <code>data/</code>、<code>.bam</code>
+等大文件误入暂存区。</p>
+</blockquote>
+<h2 id="标签标记版本">4.7 标签：标记版本</h2>
+<p>标签（tag）为历史打上里程碑，常用于标记论文提交版本或软件发布：</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag <span class="at">-a</span> v1.0 <span class="at">-m</span> <span class="st">&quot;论文投稿配套代码版本&quot;</span>     <span class="co"># 附注标签（推荐）</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag v1.0-lite                              <span class="co"># 轻量标签</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin v1.0                           <span class="co"># 推送标签</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag <span class="at">-l</span> <span class="st">&quot;v*&quot;</span>                                <span class="co"># 列出标签</span></span></code></pre></div>
+<p>配合 GitHub Release / Zenodo 可以生成 DOI，详见 6.7 节。</p>
+<h1 id="第-5-章-分支与协作">第 5 章 分支与协作</h1>
+<h2 id="分支的基本操作">5.1 分支的基本操作</h2>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch                    <span class="co"># 列出分支</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch feature/fastqc     <span class="co"># 创建分支</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch feature/fastqc     <span class="co"># 切换分支（老版本：git checkout）</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feature/fastqc  <span class="co"># 创建并切换</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-d</span> feature/fastqc  <span class="co"># 删除已合并分支</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-D</span> feature/fastqc  <span class="co"># 强制删除（丢弃改动）</span></span></code></pre></div>
+<p><strong>生信最佳实践</strong>：每个分析任务开一个分支（如
+<code>feature/deg</code>、<code>fix/ref-genome</code>），任务完成、结果确认后再合并回
+<code>main</code>。这样 <code>main</code>
+始终处于”可发布”状态，实验性改动不会污染主线。</p>
+<h2 id="合并merge">5.2 合并：merge</h2>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge feature/fastqc</span></code></pre></div>
+<p><strong>fast-forward 与三方合并</strong>：若 <code>main</code>
+在分支创建后没有新提交，合并只是指针前移（fast-forward）；若两侧都有新提交，Git
+执行三方合并并生成一个合并提交：</p>
+<pre><code>     A---B---C  feature/fastqc
+    /
+main---D---E---M  （合并提交 M）</code></pre>
+<p>保留合并拓扑、便于团队理解时使用 <code>--no-ff</code>：</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge <span class="at">--no-ff</span> feature/fastqc <span class="at">-m</span> <span class="st">&quot;合并质控模块&quot;</span></span></code></pre></div>
+<h2 id="rebase-与-merge-的取舍">5.3 rebase 与 merge 的取舍</h2>
+<p><strong>rebase</strong>
+把分支上的提交”搬运”到另一条分支的顶端，得到线性历史：</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch feature/fastqc</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rebase main          <span class="co"># 把 feature 的提交变基到 main 之上</span></span></code></pre></div>
+<pre><code>          A&#39;---B&#39;---C&#39;  feature/fastqc（重写后的提交）
+         /
+main---D---E</code></pre>
+<ul>
+<li>什么时候用 <strong>merge</strong>：共享分支（如
+<code>main</code>）的常规合入、需要保留合并历史的场景。对新手最安全。</li>
+<li>什么时候用 <strong>rebase</strong>：整理本地未推送的提交、让 feature
+分支保持最新。<strong>绝不要对已推送的共享提交
+rebase</strong>，否则会重写历史，导致协作者仓库分叉（7.3 节详述）。</li>
+<li>折中方案：<code>git pull --rebase</code>
+拉取远端更新，把本地提交置于远端提交之上，避免产生多余的合并提交。</li>
+</ul>
+<p><strong>生信团队建议</strong>：小团队（1–5 人）使用 <code>main</code>
++ 短生命周期 feature 分支 + merge（必要时
+<code>--no-ff</code>）即可，简单清晰；不要过早引入复杂的 Git Flow。</p>
+<h2 id="冲突的解决">5.4 冲突的解决</h2>
+<p>当两侧修改了同一文件的同一区域时，合并/变基会产生冲突：</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git merge feature/deg</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Auto-merging</span> scripts/deg.R</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="ex">CONFLICT</span> <span class="er">(</span><span class="ex">content</span><span class="kw">)</span><span class="bu">:</span> Merge conflict in scripts/deg.R</span></code></pre></div>
+<p>打开文件，Git 用标记标出冲突：</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&lt;</span><span class="er">&lt;&lt;&lt;&lt;&lt;&lt;</span> HEAD</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>padj_cutoff <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="sc">==</span><span class="er">=====</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>padj_cutoff <span class="ot">&lt;-</span> <span class="fl">0.01</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span><span class="er">&gt;&gt;&gt;&gt;&gt;&gt;</span> feature<span class="sc">/</span>deg</span></code></pre></div>
+<p>解决步骤：</p>
+<ol type="1">
+<li>手动编辑文件，保留正确版本，删除
+<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>、<code>=======</code>、<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>
+三行标记；</li>
+<li><code>git add scripts/deg.R</code> 标记为已解决；</li>
+<li><code>git commit</code> 完成合并（rebase 冲突则
+<code>git rebase --continue</code>）。</li>
+</ol>
+<blockquote>
+<p><strong>注意</strong>：冲突解决需要你理解上下文，不能盲目”两边都留”。涉及参数阈值的冲突，务必回到实验设计确认，必要时咨询合作者。</p>
+</blockquote>
+<h2 id="远程仓库remotepushpullfetch">5.5
+远程仓库：remote、push、pull、fetch</h2>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin git@github.com:kael/rnaseq-demo.git   <span class="co"># 关联远程</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span>                                                <span class="co"># 查看远程</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main                                      <span class="co"># 首次推送并绑定</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push                                                     <span class="co"># 之后直接推送</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch                                                    <span class="co"># 只下载远程更新</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull                                                     <span class="co"># fetch + merge</span></span></code></pre></div>
+<p><strong>push 被拒绝怎么办</strong>：远程已有别人推送的提交时，Git
+会拒绝。正确流程：</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull <span class="at">--rebase</span>        <span class="co"># 先把远端提交并入本地</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 解决冲突（如有）</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<p><strong>pull 与 fetch 的区别</strong>：<code>fetch</code>
+只更新本地远程跟踪分支（<code>origin/main</code>），不动工作区；<code>pull</code>
+还会尝试合并，可能产生意外冲突。<strong>先 fetch
+再决定如何合并</strong>，是更可控的习惯。</p>
+<h2 id="pull-request-merge-request-流程">5.6 Pull Request / Merge
+Request 流程</h2>
+<p>在 GitHub（Pull Request）或 GitLab（Merge
+Request）上的标准协作流程：</p>
+<ol type="1">
+<li>在组织仓库点 <strong>Fork</strong> 或新建 feature 分支；</li>
+<li>本地 <code>git clone</code> /
+<code>git switch -c feature/xxx</code>；</li>
+<li>提交并推送：<code>git push -u origin feature/xxx</code>；</li>
+<li>在网页上发起 PR/MR，写清改动目的、分析结果截图、复现命令；</li>
+<li>协作者 review、留言、请求修改，你在 feature 分支继续提交（PR
+会自动更新）；</li>
+<li>审核通过后合并，删除 feature 分支。</li>
+</ol>
+<p><strong>生信项目 PR
+的加分项</strong>：附上关键结果对比（如质控前后指标表）、运行环境说明、预期运行时长，便于
+reviewer 评估。</p>
+<h2 id="团队工作流选型">5.7 团队工作流选型</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>工作流</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub Flow</td>
+<td>一个 <code>main</code> + 短 feature 分支 + PR</td>
+<td>小型生信团队、个人项目（推荐）</td>
+</tr>
+<tr>
+<td>Git Flow</td>
+<td><code>main</code>/<code>develop</code> +
+<code>feature</code>/<code>release</code>/<code>hotfix</code>
+多分支</td>
+<td>需要正式版本发布的软件项目</td>
+</tr>
+<tr>
+<td>GitLab Flow</td>
+<td>环境分支（<code>staging</code>/<code>production</code>）与功能分支</td>
+<td>有部署环节的流程型项目</td>
+</tr>
+</tbody>
+</table>
+<p>生信分析项目（而非软件产品）通常选择 GitHub
+Flow：分支少、合入门槛低、迭代快。</p>
+<h1 id="第-6-章-生信项目的-git-实战">第 6 章 生信项目的 Git 实战</h1>
+<h2 id="项目目录结构设计">6.1 项目目录结构设计</h2>
+<p>“代码与数据分离”是生信 Git 项目的第一原则。推荐结构：</p>
+<pre><code>rnaseq-project/
+├── README.md               # 项目说明：目标、方法、快速开始（入库）
+├── LICENSE                 # 许可证（入库）
+├── .gitignore              # 忽略数据/结果/缓存（入库）
+├── .gitattributes          # 换行符与二进制声明（入库）
+├── config/
+│   ├── config.yaml         # 分析参数（入库）
+│   └── samples.tsv         # 样本清单（入库，小文本）
+├── workflow/
+│   ├── Snakefile           # 工作流定义（入库）
+│   └── rules/              # 规则脚本（入库）
+│       ├── qc.smk
+│       └── quant.smk
+├── scripts/                # 独立脚本（入库）
+│   ├── run_qc.sh
+│   └── plot_dge.R
+├── envs/
+│   └── env.yaml            # conda 环境定义（入库）
+├── data/                   # 原始数据（不入库，见 .gitignore）
+│   └── raw/                # 只读，禁止修改
+├── results/                # 分析结果（不入库）
+└── docs/                   # 文档（入库）</code></pre>
+<h2 id="工作流脚本入库snakemake-nextflow">6.2 工作流脚本入库：Snakemake
+/ Nextflow</h2>
+<p>工作流文件是纯文本，是 Git 追踪的理想对象。Snakemake 项目示例：</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Snakefile（入库）</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>rule fastqc:</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">input</span>: <span class="st">&quot;data/sample1.fastq.gz&quot;</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    output: <span class="st">&quot;results/qc/sample1_fastqc.html&quot;</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    conda: <span class="st">&quot;envs/env.yaml&quot;</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    shell: <span class="st">&quot;fastqc </span><span class="sc">{input}</span><span class="st"> -o results/qc/&quot;</span></span></code></pre></div>
+<p>配套 <code>.gitignore</code> 需要忽略工作流运行时产物：</p>
+<pre class="gitignore"><code>.snakemake/
+.nextflow/
+work/
+.launch/</code></pre>
+<p><strong>关键实践</strong>：</p>
+<ul>
+<li>用 <code>git tag v1.0</code>
+标记”本次分析使用的完整工作流版本”，与论文方法部分对应；</li>
+<li>每次运行前 <code>git status</code> 确认工作流与参数文件已提交（可在
+Snakefile 中加 <code>version:</code> 字段）；</li>
+<li>参数变更（如参考基因组版本、阈值）应伴随独立的提交，便于事后定位”哪个参数对应哪个结果”；</li>
+<li>Nextflow
+项目同理：<code>nextflow.config</code>、<code>main.nf</code>、<code>modules/</code>
+入库，<code>.nextflow/</code> 与 <code>work/</code> 忽略。</li>
+</ul>
+<h2 id="环境与配置入库">6.3 环境与配置入库</h2>
+<p>可重复分析 = 代码 + 配置 + <strong>环境</strong>。环境本身（conda
+环境目录、Docker
+镜像）不入库，但<strong>环境定义文件</strong>必须入库：</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># envs/env.yaml（入库）</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> rnaseq</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">channels</span><span class="kw">:</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> conda-forge</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> bioconda</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> python=3.11</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> fastqc=0.12.1</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> hisat2=2.2.1</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> snakemake&gt;=7.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 在其他机器/服务器复现环境</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> envs/env.yaml</span></code></pre></div>
+<p>同理，<code>requirements.txt</code>、<code>Dockerfile</code>、<code>.Rprofile</code>
+都入库。<strong>生信环境应尽量固定版本号</strong>（<code>fastqc=0.12.1</code>
+而非 <code>fastqc</code>），这比代码本身更常导致不可复现。</p>
+<h2 id="结果何时入库">6.4 结果何时入库</h2>
+<ul>
+<li><strong>不入库</strong>：中间结果（比对、定量输出、临时表格）、超大文件、可再生成的任何东西——它们会撑爆仓库，且没有版本管理价值。</li>
+<li><strong>入库</strong>：论文图表、最终报告、需要与代码一起发布的精简表格（如差异基因列表
+<code>.tsv</code>，若体积在几十 MB 以内）。</li>
+<li><strong>折中</strong>：把”生成结果的命令”入库（工作流/脚本），结果本身留在服务器或对象存储；在
+<code>README</code> 中写清楚如何重新生成。</li>
+</ul>
+<p>判断标准一句话：<strong>如果重跑工作流能原样得到它，就不该入库。</strong></p>
+<h2 id="与-r-python-工具集成">6.5 与 R / Python 工具集成</h2>
+<ul>
+<li><strong>RStudio</strong>：Git 面板可视化暂存/提交/历史，适合 R
+用户；<code>.Rproj</code>
+入库，<code>.Rhistory</code>、<code>.RData</code>、<code>.Rproj.user/</code>
+忽略。</li>
+<li><strong>VS Code</strong>：内置 Git 侧边栏 + diff
+视图，支持冲突解决界面；配合 GitLens 插件查看 blame/历史。</li>
+<li><strong>Jupyter</strong>：<code>.ipynb</code> 是 JSON
+文本，可以入库，但输出（base64 图片、大数据）会造成 diff
+噪音。建议：<code>pip install nbstripout</code>，用 pre-commit
+钩子自动清空输出（7.5 节），或使用 <code>jupytext</code> 同时保存
+<code>.py</code> 纯文本版本。</li>
+<li><strong>服务器（无图形界面）</strong>：命令行操作 + <code>git</code>
+别名（7.4 节）提高效率。</li>
+</ul>
+<h2 id="git-lfs-与大规模数据">6.6 Git LFS 与大规模数据</h2>
+<p>当某些”半大”文件（几十 MB 到几
+GB）确实需要版本管理时（如论文配套的比对结果、VCF），使用 <strong>Git
+LFS</strong>（Large File Storage）：文件本体存在 LFS
+服务器，仓库只存指针。</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> lfs install</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> lfs track <span class="st">&quot;*.bam&quot;</span> <span class="st">&quot;*.vcf.gz&quot;</span> <span class="st">&quot;*.bigWig&quot;</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitattributes     <span class="co"># LFS 规则写入 .gitattributes，随仓库分发</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add results/ <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;添加比对结果（LFS）&quot;</span></span></code></pre></div>
+<p>注意事项：</p>
+<ul>
+<li>LFS 有存储与流量配额（GitHub 免费额度约 1 GB 存储 +
+每月流量），<strong>原始测序数据仍不应入库</strong>；</li>
+<li>拉取 LFS 仓库需安装
+<code>git-lfs</code>，否则只会得到指针文件；</li>
+<li>替代方案：数据放服务器目录或对象存储（AWS S3、阿里云
+OSS、Zenodo），仓库只记录校验值（<code>md5sum</code>）与下载命令——这通常是生信项目更合适的方案。</li>
+</ul>
+<h2 id="论文配套代码发布">6.7 论文配套代码发布</h2>
+<p>论文投稿与发表时，配套代码的发布流程：</p>
+<ol type="1">
+<li>在 GitHub 建立公开仓库，<code>main</code> 分支处于可复现状态；</li>
+<li>打标签：<code>git tag -a v1.0 -m &quot;论文配套版本&quot; &amp;&amp; git push origin v1.0</code>；</li>
+<li>关联 <strong>Zenodo</strong>（<a href="https://zenodo.org" class="uri">https://zenodo.org</a>）：Zenodo 会在每次 release
+时自动归档并分配 <strong>DOI</strong>，论文引用该 DOI
+即可满足”代码可访问”要求；</li>
+<li>仓库包含
+<code>README.md</code>（快速开始、环境、数据获取方式）、<code>LICENSE</code>、<code>environment.yml</code>；</li>
+<li>在论文方法部分写明：仓库地址、DOI、运行环境与关键参数。</li>
+</ol>
+<p><strong>示例 README 骨架</strong>：</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># 论文配套分析代码：XXX 项目</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>论文：<span class="dt">&lt;</span><span class="kw">DOI</span><span class="dt">&gt;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>数据：GEO GSE123456（预处理后数据见 data/README）</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>环境：conda env create -f envs/env.yaml</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>复现：snakemake -j 8 --use-conda</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>结果：results/（生成后约 2.1 GB）</span></code></pre></div>
+<h1 id="第-7-章-高级技巧与踩坑指南">第 7 章 高级技巧与踩坑指南</h1>
+<h2 id="生信常见坑">7.1 生信常见坑</h2>
+<p><strong>坑
+1：二进制文件入库后仓库失控</strong>。<code>.bam</code>、<code>.xlsx</code>、<code>.ipynb</code>
+输出等一旦入库，Git
+每次都整份保存新版本，仓库体积随提交数线性膨胀。补救：用
+<code>git lfs migrate import</code>（仅限未共享的历史），或使用
+<code>git filter-repo</code> 重写历史（7.3
+节）。<strong>预防远胜于补救</strong>。</p>
+<p><strong>坑
+2：行尾符导致”整文件被修改”</strong>。<code>git diff</code> 显示某个
+<code>.sh</code> 文件每行都被改——几乎可以确定是 <code>CRLF/LF</code>
+问题。修复：按 3.3 节配置 <code>.gitattributes</code> 后执行：</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add <span class="at">--renormalize</span> .</span></code></pre></div>
+<p><strong>坑 3：文件名大小写</strong>。macOS/Linux 区分大小写，Windows
+默认不区分。<code>Samples.tsv</code> 改名为 <code>samples.tsv</code> 在
+Windows 上可能不被 Git
+察觉。建议：核心文件统一小写下划线命名（<code>samples.tsv</code>、<code>config.yaml</code>），并设置
+<code>git config core.ignorecase false</code>。</p>
+<p><strong>坑
+4：符号链接（symlink）</strong>。<code>data -&gt; /mnt/rawdata</code>
+这类软链接，Git
+存储的是链接本身而非目标内容。若目标路径在别的机器上不存在，检出即断链。生信项目尽量避免软链接入库，或在
+README 中说明路径假设。</p>
+<p><strong>坑
+5：把密钥/凭据入库</strong>。<code>.env</code>、数据库密码、<code>id_rsa</code>
+一旦推送到公共仓库即视为泄露。用 <code>.gitignore</code>
+排除；已在历史中的，用 <code>git filter-repo</code>
+清除，并立即轮换密钥（注意 GitHub 会扫描并警告）。</p>
+<h2 id="reflog找回丢失的提交">7.2 reflog：找回”丢失”的提交</h2>
+<p>误 <code>reset --hard</code>、误删分支后不要慌：</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reflog</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="co"># abc1234 HEAD@{0}: reset: moving to HEAD~2</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 9e1c0d8 HEAD@{1}: commit: 更新质控阈值</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch rescue 9e1c0d8     <span class="co"># 用分支指针救回该提交</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch rescue             <span class="co"># 回到被误删的状态</span></span></code></pre></div>
+<p>reflog 默认保留 90
+天（<code>gc.reflogExpire</code>），在此期间几乎所有误操作都可恢复。<strong>重要提示</strong>：reflog
+是本地的，克隆出来的新仓库看不到原仓库的 reflog；误删后不要立即执行
+<code>git gc</code>。</p>
+<h2 id="历史重写谨慎行事">7.3 历史重写：谨慎行事</h2>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>命令</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>修改上次提交</td>
+<td><code>git commit --amend</code></td>
+<td>只改未推送的提交</td>
+</tr>
+<tr>
+<td>交互式变基</td>
+<td><code>git rebase -i HEAD~3</code></td>
+<td>合并/重排/改写多个提交</td>
+</tr>
+<tr>
+<td>批量改写</td>
+<td><code>git filter-repo</code></td>
+<td>全历史重写，<strong>只用于未共享的仓库</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>铁律</strong>：已推送到共享分支的历史不要重写。重写会导致协作者下次
+<code>pull</code> 时出现无法自动解决的冲突，需要
+<code>git pull --force</code>
+等危险操作。生信项目如需修改历史，请确认所有协作者都知情并同步。</p>
+<h2 id="效率技巧别名与补全">7.4 效率技巧：别名与补全</h2>
+<div class="sourceCode" id="cb46"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.st <span class="st">&quot;status -sb&quot;</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.lg <span class="st">&quot;log --oneline --graph --all --decorate&quot;</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.unstage <span class="st">&quot;restore --staged&quot;</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.last <span class="st">&quot;log -1 HEAD&quot;</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> alias.ds <span class="st">&quot;diff --stat&quot;</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> st          <span class="co"># 一行状态</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> lg          <span class="co"># 拓扑历史图</span></span></code></pre></div>
+<p>安装 Bash
+补全（Linux/macOS）：<code>source /usr/share/bash-completion/completions/git</code>；Windows
+Git Bash 默认已启用。</p>
+<h2 id="pre-commit自动化质量检查">7.5 pre-commit：自动化质量检查</h2>
+<p>pre-commit
+框架在每次提交前自动运行检查，是生信项目低成本提质的利器：</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .pre-commit-config.yaml（入库）</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">repos</span><span class="kw">:</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> https://github.com/pre-commit/pre-commit-hooks</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">rev</span><span class="kw">:</span><span class="at"> v5.0.0</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> trailing-whitespace</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> end-of-file-fixer</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> check-yaml</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> https://github.com/psf/black</span></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">rev</span><span class="kw">:</span><span class="at"> </span><span class="fl">24.10.0</span></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> black</span></span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">repo</span><span class="kw">:</span><span class="at"> https://github.com/kynan/nbstripout</span></span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">rev</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.8.1</span></span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hooks</span><span class="kw">:</span></span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> nbstripout</span></span></code></pre></div>
+<p>安装启用：</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install pre-commit</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pre-commit</span> install</span></code></pre></div>
+<p>之后每次 <code>git commit</code>
+自动执行检查，失败则阻止提交。Jupyter 用户强烈建议启用
+<code>nbstripout</code>，避免 <code>.ipynb</code> 输出入库。</p>
+<h2 id="子模块慎用">7.6 子模块：慎用</h2>
+<p><code>git submodule add &lt;url&gt; path/</code>
+可以把另一个仓库嵌套进当前仓库。生信场景（如引用某个工具仓库）看似合理，但子模块的更新/冲突管理复杂，容易让团队陷入”更新了子模块但别人不知道”的混乱。</p>
+<p><strong>替代方案</strong>：工具依赖用 conda/pip 管理版本（记录在
+<code>environment.yml</code>），分析流程依赖用 Snakemake 的
+<code>container:</code> 或 Nextflow 的 module
+体系，通常都比子模块更适合生信项目。只有需要精确定位”某个工具某次提交版本”时，才考虑子模块（或更简单的：记录
+commit hash 到 README/配置中）。</p>
+<h2 id="git-与-conda-环境的配合">7.7 Git 与 conda 环境的配合</h2>
+<p><strong>原则：环境不入库，环境定义入库。</strong> conda
+环境目录体积大、路径含机器信息（<code>/home/kael/anaconda3/envs/rnaseq</code>），入库毫无价值且会破坏可移植性。</p>
+<p>推荐组合拳：</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> envs/env.yaml            <span class="co"># 建环境</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env export <span class="at">-n</span> rnaseq <span class="op">&gt;</span> envs/env.lock.yaml   <span class="co"># 导出精确版本（可选入库）</span></span></code></pre></div>
+<p><code>env.lock.yaml</code>
+记录全部包的精确版本，作为”复现基准”；日常开发修改 <code>env.yaml</code>
+并提交。Snakemake 的 <code>--use-conda</code> 会自动按 rule 级
+<code>conda:</code> 声明创建独立环境，配合 Git
+追踪工作流，即为完整的可复现方案。</p>
+<h1 id="第-8-章-开源参与与协作规范">第 8 章 开源参与与协作规范</h1>
+<h2 id="在-github-上参与生信开源项目">8.1 在 GitHub
+上参与生信开源项目</h2>
+<p>生信生态（Bioconda、samtools、bedtools、Snakemake、Nextflow、Seurat
+等）高度依赖开源协作。参与流程：</p>
+<ol type="1">
+<li><strong>Fork</strong> 目标仓库到自己的账号；</li>
+<li>克隆并关联上游：</li>
+</ol>
+<div class="sourceCode" id="cb50"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:<span class="op">&lt;</span>你<span class="op">&gt;</span>/<span class="op">&lt;</span>仓库<span class="op">&gt;</span>.git</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="op">&lt;</span>仓库<span class="op">&gt;</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add upstream git@github.com:<span class="op">&lt;</span>官方<span class="op">&gt;</span>/<span class="op">&lt;</span>仓库<span class="op">&gt;</span>.git</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div>
+<ol start="3" type="1">
+<li>同步上游最新代码：</li>
+</ol>
+<div class="sourceCode" id="cb51"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch upstream</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> fix/xxx upstream/main   <span class="co"># 从上游最新状态开分支</span></span></code></pre></div>
+<ol start="4" type="1">
+<li>开发、提交、推送后发起 Pull Request；</li>
+<li>按 reviewer 意见修改：继续在 feature 分支提交推送，PR
+自动更新。</li>
+</ol>
+<p><strong>参与建议</strong>：先从文档修正、bug 报告、测试补全入手；PR
+前阅读该项目的 <code>CONTRIBUTING.md</code>，运行其规定的测试。</p>
+<h2 id="提交信息规范conventional-commits">8.2 提交信息规范：Conventional
+Commits</h2>
+<p>生信团队统一提交信息格式，可让历史日志变得可检索、可自动化：</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
+
+&lt;body（可选）&gt;</code></pre>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>含义</th>
+<th>生信示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat</code></td>
+<td>新功能</td>
+<td><code>feat: 新增 DESeq2 差异分析规则</code></td>
+</tr>
+<tr>
+<td><code>fix</code></td>
+<td>修复</td>
+<td><code>fix: 修正样本名去重 bug</code></td>
+</tr>
+<tr>
+<td><code>docs</code></td>
+<td>文档</td>
+<td><code>docs: 补充复现步骤</code></td>
+</tr>
+<tr>
+<td><code>refactor</code></td>
+<td>重构</td>
+<td><code>refactor: 拆分质控规则为独立模块</code></td>
+</tr>
+<tr>
+<td><code>chore</code></td>
+<td>杂务</td>
+<td><code>chore: 升级 snakemake 至 8.x</code></td>
+</tr>
+<tr>
+<td><code>perf</code></td>
+<td>性能</td>
+<td><code>perf: 并行化比对步骤</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="issuereview-与文档文化">8.3 issue、review 与文档文化</h2>
+<ul>
+<li><strong>issue
+是科学记录的一部分</strong>：写清复现命令、环境、期望与实际输出，附
+<code>git log</code> 与配置文件。</li>
+<li><strong>review
+对事不对人</strong>：审查关注”能否复现、是否合理”，建议引用具体行号（<code>git blame</code>
+定位）。</li>
+<li><strong>README
+是项目的门面</strong>：包含项目目的、快速开始、数据获取、环境安装、许可证。</li>
+</ul>
+<h2 id="许可证与署名">8.4 许可证与署名</h2>
+<p>发布代码前选择许可证：MIT/Apache-2.0（宽松）、BSD-3-Clause（学术常用）、GPL-3.0（copyleft，要求衍生作品开源）。生信常用工具多为
+MIT 或 GPL。论文配套代码建议 MIT/BSD
+以最大化复用。署名问题（作者顺序、贡献者列表）应写入 <code>README</code>
+或 <code>CONTRIBUTORS</code> 文件，Git
+的提交历史恰好提供了客观的贡献记录。</p>
+<h1 class="appendix" id="常用命令速查表">常用命令速查表</h1>
+<h2 id="a.1-配置">A.1 配置</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git config --global user.name &quot;名字&quot;</code></td>
+<td>配置用户名</td>
+</tr>
+<tr>
+<td><code>git config --global user.email &quot;邮箱&quot;</code></td>
+<td>配置邮箱</td>
+</tr>
+<tr>
+<td><code>git config --global --list</code></td>
+<td>查看全局配置</td>
+</tr>
+<tr>
+<td><code>git config core.quotepath false</code></td>
+<td>中文文件名正常显示</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a.2-仓库操作">A.2 仓库操作</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git init</code></td>
+<td>初始化仓库</td>
+</tr>
+<tr>
+<td><code>git clone &lt;url&gt;</code></td>
+<td>克隆远程仓库</td>
+</tr>
+<tr>
+<td><code>git status</code></td>
+<td>查看状态</td>
+</tr>
+<tr>
+<td><code>git remote -v</code></td>
+<td>查看远程</td>
+</tr>
+<tr>
+<td><code>git remote add origin &lt;url&gt;</code></td>
+<td>关联远程仓库</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a.3-提交">A.3 提交</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git add &lt;file&gt;</code></td>
+<td>暂存文件</td>
+</tr>
+<tr>
+<td><code>git add -p</code></td>
+<td>交互式暂存片段</td>
+</tr>
+<tr>
+<td><code>git commit -m &quot;说明&quot;</code></td>
+<td>提交</td>
+</tr>
+<tr>
+<td><code>git commit --amend</code></td>
+<td>修改上次提交</td>
+</tr>
+<tr>
+<td><code>git diff</code> / <code>git diff --staged</code></td>
+<td>查看工作区/暂存区差异</td>
+</tr>
+<tr>
+<td><code>git log --oneline --graph</code></td>
+<td>查看历史拓扑</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a.4-撤销与回退">A.4 撤销与回退</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git restore &lt;file&gt;</code></td>
+<td>丢弃工作区修改</td>
+</tr>
+<tr>
+<td><code>git restore --staged &lt;file&gt;</code></td>
+<td>取消暂存</td>
+</tr>
+<tr>
+<td><code>git reset --soft/mixed/hard HEAD~1</code></td>
+<td>按程度回退</td>
+</tr>
+<tr>
+<td><code>git revert &lt;commit&gt;</code></td>
+<td>反向提交（安全撤销已推送提交）</td>
+</tr>
+<tr>
+<td><code>git stash push</code> / <code>pop</code> /
+<code>list</code></td>
+<td>暂存/取回/查看搁置改动</td>
+</tr>
+<tr>
+<td><code>git reflog</code></td>
+<td>查看引用历史（救援）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a.5-分支与合并">A.5 分支与合并</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git branch</code></td>
+<td>列出分支</td>
+</tr>
+<tr>
+<td><code>git switch -c &lt;name&gt;</code></td>
+<td>创建并切换分支</td>
+</tr>
+<tr>
+<td><code>git switch -</code></td>
+<td>切回上一个分支</td>
+</tr>
+<tr>
+<td><code>git merge &lt;branch&gt;</code></td>
+<td>合并分支</td>
+</tr>
+<tr>
+<td><code>git rebase &lt;branch&gt;</code></td>
+<td>变基</td>
+</tr>
+<tr>
+<td><code>git merge --abort</code> /
+<code>git rebase --abort</code></td>
+<td>放弃合并/变基</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a.6-远程协作">A.6 远程协作</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git fetch</code></td>
+<td>下载远程更新（不合并）</td>
+</tr>
+<tr>
+<td><code>git pull --rebase</code></td>
+<td>拉取并变基（推荐）</td>
+</tr>
+<tr>
+<td><code>git push -u origin &lt;branch&gt;</code></td>
+<td>推送并绑定上游</td>
+</tr>
+<tr>
+<td><code>git push origin --delete &lt;branch&gt;</code></td>
+<td>删除远程分支</td>
+</tr>
+<tr>
+<td><code>git tag -a v1.0 -m &quot;说明&quot;</code></td>
+<td>打附注标签</td>
+</tr>
+</tbody>
+</table>
+<h1 class="appendix" id="生信-.gitignore-完整模板">生信 .gitignore
+完整模板</h1>
+<pre class="gitignore"><code># ========== 数据与原始文件（不入库） ==========
+data/
+raw/
+*.fastq
+*.fastq.gz
+*.fq.gz
+*.bam
+*.bam.bai
+*.sam
+*.cram
+*.vcf
+*.vcf.gz
+*.bcf
+*.bw
+*.bigWig
+*.bigBed
+
+# ========== 中间结果与运行产物 ==========
+results/
+outputs/
+work/
+.snakemake/
+.nextflow/
+*.log
+*.tmp
+*.temp
+
+# ========== Python ==========
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ========== R ==========
+.Rhistory
+.RData
+.Rproj.user/
+.Rcheck/
+
+# ========== 环境与凭据（定义文件保留） ==========
+envs/*/
+!envs/*.yaml
+!envs/*.yml
+.env
+*.key
+*.pem
+
+# ========== 编辑器与系统 ==========
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db</code></pre>
+<h1 class="appendix" id="最佳实践清单">最佳实践清单</h1>
+<p><strong>入门阶段</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>配置 <code>user.name</code> 与
+<code>user.email</code>（与 GitHub 账号一致）</label></li>
+<li><label><input type="checkbox"></input>设置 <code>core.autocrlf</code>
+并添加 <code>.gitattributes</code></label></li>
+<li><label><input type="checkbox"></input>新建仓库时先写
+<code>.gitignore</code> 再 <code>git add .</code></label></li>
+<li><label><input type="checkbox"></input>提交信息用祈使句、一事一提交</label></li>
+</ul>
+<p><strong>项目阶段</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>采用”代码入库、数据在外、环境入定义”的结构</label></li>
+<li><label><input type="checkbox"></input>工作流与配置文件入库，中间结果不入库</label></li>
+<li><label><input type="checkbox"></input>每次分析运行前
+<code>git status</code> 确认状态干净、参数已提交</label></li>
+<li><label><input type="checkbox"></input>用标签标记论文/发布版本</label></li>
+<li><label><input type="checkbox"></input>大文件用 Git LFS
+或对象存储，绝不直接入库</label></li>
+</ul>
+<p><strong>协作阶段</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>一任务一分支，完成后合并回
+<code>main</code></label></li>
+<li><label><input type="checkbox"></input>已推送的提交用 <code>revert</code>
+撤销，不用 <code>reset</code></label></li>
+<li><label><input type="checkbox"></input>拉取用
+<code>git pull --rebase</code></label></li>
+<li><label><input type="checkbox"></input>PR/MR
+附复现命令与结果截图</label></li>
+<li><label><input type="checkbox"></input>发布前确认
+README、LICENSE、环境文件齐全，关联 Zenodo DOI</label></li>
+</ul>
+<h1 class="unnumbered" id="参考文献">参考文献</h1>
+<ol type="1">
+<li>Chacon S, Straub B. <em>Pro Git</em> (2nd ed.). Apress, 2014.
+开源在线版：<a href="https://git-scm.com/book/zh/v2" class="uri">https://git-scm.com/book/zh/v2</a></li>
+<li>Git 官方文档. <a href="https://git-scm.com/doc" class="uri">https://git-scm.com/doc</a></li>
+<li>Bryan J. <em>Happy Git and GitHub for the userR</em>. <a href="https://happygitwithr.com" class="uri">https://happygitwithr.com</a></li>
+<li>Sandve GK, et al. Ten simple rules for reproducible computational
+research. <em>PLoS Comput Biol</em>, 2013, 9(10): e1003285.</li>
+<li>Köster J, Rahmann S. Snakemake—a scalable bioinformatics workflow
+engine. <em>Bioinformatics</em>, 2012, 28(19): 2520–2522.</li>
+<li>Di Tommaso P, et al. Nextflow enables reproducible computational
+workflows. <em>Nat Biotechnol</em>, 2017, 35: 316–319.</li>
+<li>Git Large File Storage 文档. <a href="https://git-lfs.com" class="uri">https://git-lfs.com</a></li>
+<li>Zenodo——研究输出归档服务. <a href="https://zenodo.org" class="uri">https://zenodo.org</a></li>
+<li>pre-commit 框架文档. <a href="https://pre-commit.com" class="uri">https://pre-commit.com</a></li>
+<li>Conventional Commits 规范. <a href="https://www.conventionalcommits.org/zh-hans" class="uri">https://www.conventionalcommits.org/zh-hans</a></li>
+</ol>
+<script>
+(function () {
+  'use strict';
+
+  function ready(fn) {
+    if (document.readyState !== 'loading') { fn(); }
+    else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+
+  ready(function () {
+    var body = document.body;
+
+    /* ---------- 0. 隐藏 pandoc 默认标题块 ---------- */
+    var ph = document.getElementById('title-block-header');
+    if (ph) ph.style.display = 'none';
+
+    /* ---------- 1. 包裹正文 ---------- */
+    var wrap = document.createElement('div');
+    wrap.id = 'content-wrap';
+    while (body.firstChild) wrap.appendChild(body.firstChild);
+    body.appendChild(wrap);
+
+    /* ---------- 2. 顶部工具条（移动端） ---------- */
+    var topbar = document.createElement('header');
+    topbar.id = 'topbar';
+    topbar.innerHTML =
+      '<button id="toc-open" class="icon-btn" aria-label="打开目录" title="目录">&#9776;</button>' +
+      '<span class="topbar-title">生物信息学 Git 基础教程</span>' +
+      '<button id="theme-btn" class="icon-btn" aria-label="切换主题" title="切换深色/浅色模式"></button>';
+    body.insertBefore(topbar, body.firstChild);
+
+    /* ---------- 3. 目录面板 + 遮罩 ---------- */
+    var scrim = document.createElement('div');
+    scrim.id = 'toc-scrim';
+    var aside = document.createElement('aside');
+    aside.id = 'toc-panel';
+    aside.setAttribute('aria-label', '目录');
+    aside.innerHTML = '<div class="toc-head">目 录</div><ol class="toc-list"></ol>';
+    body.insertBefore(scrim, body.firstChild);
+    body.insertBefore(aside, body.firstChild);
+
+    /* ---------- 4. 章节编号 + 目录生成 ---------- */
+    var CN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+    var heads = Array.prototype.slice.call(
+      wrap.querySelectorAll('h1, h2')
+    ).filter(function (el) { return !el.closest('.book-cover'); });
+
+    var tocList = aside.querySelector('.toc-list');
+    var items = [];          // {el, label, type}
+    var curH1 = null;
+    var chapter = 0, appendix = 0;
+    var subCount = {};       // h1 -> 子节计数
+
+    heads.forEach(function (h) {
+      var label = '';
+      var type = h.tagName === 'H1' ? 'h1' : 'h2';
+      if (type === 'h1') {
+        if (!h.classList.contains('unnumbered')) {
+          if (h.classList.contains('appendix')) {
+            appendix += 1;
+            label = '附录 ' + String.fromCharCode(64 + appendix);
+          } else {
+            chapter += 1;
+            label = '第 ' + CN[chapter - 1] + ' 章';
+          }
+          h.classList.add('numbered');
+        }
+        curH1 = h;
+        subCount[h] = 0;
+      } else {
+        var root = curH1;
+        var pre = '';
+        if (root && root.classList.contains('appendix')) {
+          var idx = (subCount[root] = subCount[root] + 1);
+          pre = String.fromCharCode(64 + appendix) + '.' + idx;
+        } else if (root && root.classList.contains('numbered')) {
+          pre = chapter + '.' + (subCount[root] = subCount[root] + 1);
+        }
+        label = pre;
+      }
+      items.push({ el: h, label: label, type: type });
+
+      /* 目录条目 */
+      var li = document.createElement('li');
+      li.className = 'toc-' + type;
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      var txt = h.textContent.trim();
+      a.textContent = label ? label + '  ' + txt : txt;
+      a.title = txt;
+      li.appendChild(a);
+      tocList.appendChild(li);
+      h._tocItem = li;
+    });
+
+    /* 把编号插入标题（置于文本前） */
+    items.forEach(function (it) {
+      if (!it.label) return;
+      var s = document.createElement('span');
+      s.className = 'secnum';
+      s.textContent = it.label;
+      it.el.insertBefore(s, it.el.firstChild);
+    });
+
+    /* ---------- 5. 主题切换 ---------- */
+    var themeBtn = document.getElementById('theme-btn');
+    function themeIcon(t) { return t === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19'; }
+    themeBtn.textContent = themeIcon(document.documentElement.dataset.theme);
+    themeBtn.addEventListener('click', function () {
+      var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      themeBtn.textContent = themeIcon(next);
+      try { localStorage.setItem('book-theme', next); } catch (e) {}
+    });
+
+    /* ---------- 6. 抽屉开关 ---------- */
+    document.getElementById('toc-open').addEventListener('click', function () {
+      body.classList.add('toc-open');
+    });
+    scrim.addEventListener('click', function () {
+      body.classList.remove('toc-open');
+    });
+    aside.addEventListener('click', function (e) {
+      if (e.target.closest('a')) body.classList.remove('toc-open');
+    });
+
+    /* ---------- 7. 滚动高亮当前章节 ---------- */
+    var allItems = items.filter(function (it) { return it.el.id; });
+    if ('IntersectionObserver' in window) {
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var li = en.target._tocItem;
+          if (!li) return;
+          var act = tocList.querySelector('a.active');
+          if (act) act.classList.remove('active');
+          li.querySelector('a').classList.add('active');
+        });
+      }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+      allItems.forEach(function (it) { spy.observe(it.el); });
+    }
+
+    /* ---------- 8. 代码复制按钮 ---------- */
+    function copyFallback(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    document.querySelectorAll('div.sourceCode, pre').forEach(function (box) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy-btn';
+      btn.textContent = '复制';
+      btn.addEventListener('click', function () {
+        var codeEl = box.querySelector('code');
+        var text = codeEl ? codeEl.innerText : box.innerText;
+        var done = function () {
+          btn.textContent = '已复制';
+          setTimeout(function () { btn.textContent = '复制'; }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () {
+            copyFallback(text); done();
+          });
+        } else { copyFallback(text); done(); }
+      });
+      box.appendChild(btn);
+    });
+
+    /* ---------- 9. 提示框分类 ---------- */
+    document.querySelectorAll('blockquote').forEach(function (bq) {
+      var strong = bq.querySelector('strong');
+      if (!strong) return;
+      var t = strong.textContent.trim();
+      if (t.indexOf('注意') >= 0 || t.indexOf('警告') >= 0) bq.classList.add('warn');
+      else if (t.indexOf('提示') >= 0 || t.indexOf('TIP') >= 0) bq.classList.add('tip');
+    });
+
+    /* ---------- 10. 表格横向滚动包裹 ---------- */
+    document.querySelectorAll('#content-wrap table').forEach(function (tb) {
+      var d = document.createElement('div');
+      d.className = 'table-wrap';
+      tb.parentNode.insertBefore(d, tb);
+      d.appendChild(tb);
+    });
+
+    /* ---------- 11. 返回顶部 ---------- */
+    var topBtn = document.createElement('button');
+    topBtn.id = 'back-top';
+    topBtn.setAttribute('aria-label', '返回顶部');
+    topBtn.textContent = '\u2191';
+    body.appendChild(topBtn);
+    topBtn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    window.addEventListener('scroll', function () {
+      topBtn.classList.toggle('show', window.scrollY > 600);
+    }, { passive: true });
+  });
+})();
+</script>
+</body>
+</html>
