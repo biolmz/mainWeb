@@ -27,14 +27,14 @@ const noteData = [
 
 
     // ---- 英语 (en) ----
-    { title: '26.12四级作文预测范文', url: 'https://bio2025.site/study/26.12四级作文', tag: '四级作文', category: 'en' },
-    { title: '四级作文', url: 'https://bio2025.site/study/cet4-1', tag: '四级作文', category: 'en' },
+    { title: '26.12四级作文预测范文', url: 'https://bio2025.site/study/en/26.12四级作文', tag: '四级作文', category: 'en' },
+    { title: '四级作文', url: 'https://bio2025.site/study/en/cet4-1', tag: '四级作文', category: 'en' },
 
     // ---- 生物学 (bio) ----
     { title: 'example', url: '#', tag: 'example', category: 'bio' },    // ← 示例占位，可删除
 
     // ---- 数学 (math) ----
-    { title: '8月数竞规划', url: 'https://bio2025.site/study/八月数竞', tag: '复习重点', category: 'math' },
+    { title: '8月数竞规划', url: 'https://bio2025.site/study/math/八月数竞', tag: '复习重点', category: 'math' },
 
 ];
 
