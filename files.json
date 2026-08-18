@@ -1,5 +1,32 @@
 [
   {
+    "name": "BP神经网络入门.pdf",
+    "size": "2.8 MB",
+    "date": "2026-08-18",
+    "cat": "doc",
+    "icon": "pdf",
+    "ext": "PDF",
+    "url": "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%85%A5%E9%97%A8.pdf"
+  },
+  {
+    "name": "《Python 数据分析与可视化：从 NumPy 到 matplotlib》.pdf",
+    "size": "4.6 MB",
+    "date": "2026-08-18",
+    "cat": "doc",
+    "icon": "pdf",
+    "ext": "PDF",
+    "url": "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/%E3%80%8APython%20%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96%EF%BC%9A%E4%BB%8E%20NumPy%20%E5%88%B0%20matplotlib%E3%80%8B.pdf"
+  },
+  {
+    "name": "细胞生物学学习手册.pdf",
+    "size": "1.8 MB",
+    "date": "2026-08-18",
+    "cat": "doc",
+    "icon": "pdf",
+    "ext": "PDF",
+    "url": "https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com/%E7%BB%86%E8%83%9E%E7%94%9F%E7%89%A9%E5%AD%A6%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.pdf"
+  },
+  {
     "name": "26.12四级作文预测.pdf",
     "size": "2.9 MB",
     "date": "2026-08-12",
