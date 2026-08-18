@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <!-- ===== 等保2.0四级：安全通信网络 ===== -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
     <meta http-equiv="Strict-Transport-Security" content="max-age=63072000; includeSubDomains; preload">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
@@ -131,18 +131,20 @@
         .filter-tabs button.active{background:var(--filter-active-bg);color:var(--text-primary)}
         .filter-tabs button:hover:not(.active){color:var(--text-primary)}
         .filter-tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-        .software-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;min-height:200px}
-        .software-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:24px;transition:all .3s ease;position:relative;overflow:hidden;display:flex;flex-direction:column;contain:layout style paint;content-visibility:auto;contain-intrinsic-size:0 200px}
+        .software-grid{display:flex;flex-direction:column;gap:10px;min-height:120px}
+        .software-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 16px;transition:all .3s ease;position:relative;overflow:hidden;display:flex;flex-direction:row;align-items:center;gap:16px;contain:layout style paint}
+        .software-card.is-hidden{display:none}
         .software-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-medium),transparent)}
         .software-card:hover{background:var(--bg-card-hover);border-color:var(--border-medium);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
-        .card-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
-        .app-icon{width:48px;height:48px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;background:linear-gradient(135deg,#1e293b,#334155);border:1px solid var(--border-medium)}
+        .software-card:hover .app-icon{transform:scale(1.08) rotate(-3deg);box-shadow:0 6px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -2px 6px rgba(0,0,0,.18)}
+        .card-header{display:flex;align-items:center;gap:14px;margin-bottom:0;flex:1;min-width:0}
+        .app-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;letter-spacing:.5px;flex-shrink:0;border:1px solid rgba(255,255,255,.14);box-shadow:0 4px 14px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.25),inset 0 -2px 6px rgba(0,0,0,.18);text-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .3s ease,box-shadow .3s ease}
         .app-info{flex:1;min-width:0}
-        .app-info h3{font-size:16px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary);transition:color .3s ease}
-        .app-meta{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-tertiary);flex-wrap:wrap;transition:color .3s ease}
+        .app-info h3{font-size:15px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary);transition:color .3s ease}
+        .app-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-tertiary);flex-wrap:wrap;transition:color .3s ease}
         .app-meta span{display:flex;align-items:center;gap:4px}
-        .download-row{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:16px}
-        .download-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none;position:relative;overflow:hidden;min-height:44px}
+        .download-row{display:flex;align-items:center;gap:10px;margin-top:0;padding-top:0;flex-shrink:0}
+        .download-btn{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none;position:relative;overflow:hidden;min-height:38px}
         .download-btn:hover{background:#2563eb;box-shadow:0 0 20px var(--accent-glow);transform:translateY(-1px)}
         .download-btn:active{transform:translateY(0)}
         .download-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -151,6 +153,12 @@
         .secondary-btn:hover{border-color:var(--text-secondary);color:var(--text-primary);background:rgba(128,128,128,.04)}
         .secondary-btn:focus-visible{outline:2px solid var(--text-secondary);outline-offset:2px}
         .secondary-btn svg{width:16px;height:16px}
+        .view-more-wrap{display:flex;justify-content:center;margin-top:20px}
+        .view-more-btn{display:none;align-items:center;gap:8px;padding:10px 30px;background:var(--bg-card);border:1px solid var(--border-medium);border-radius:100px;color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+        .view-more-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--bg-card-hover)}
+        .view-more-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+        .view-more-btn svg{width:16px;height:16px;transition:transform .25s ease}
+        .view-more-btn.expanded svg{transform:rotate(180deg)}
         .loading-state,.empty-state,.error-state{grid-column:1/-1;text-align:center;padding:60px 24px}
         .loading-state{color:var(--text-tertiary)}.empty-state{color:var(--text-tertiary)}.error-state{color:var(--danger)}
         .loading-state svg{width:32px;height:32px;margin-bottom:12px;animation:spin 1s linear infinite}
@@ -307,6 +315,12 @@
                 <div class="software-card" style="pointer-events:none"><div class="card-header"><div class="skeleton" style="width:48px;height:48px;border-radius:8px"></div><div class="app-info" style="flex:1"><div class="skeleton" style="width:65%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:45%;height:12px"></div></div></div><div class="skeleton" style="width:100%;height:40px;border-radius:8px;margin-top:8px"></div></div>
                 <div class="software-card" style="pointer-events:none"><div class="card-header"><div class="skeleton" style="width:48px;height:48px;border-radius:8px"></div><div class="app-info" style="flex:1"><div class="skeleton" style="width:50%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:40%;height:12px"></div></div></div><div class="skeleton" style="width:100%;height:40px;border-radius:8px;margin-top:8px"></div></div>
             </div>
+            <div class="view-more-wrap">
+                <button class="view-more-btn" id="viewMoreBtn" aria-expanded="false">
+                    <span>查看更多</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+            </div>
         </section>
         <!-- 网盘链接下载（在镜像站之前） -->
         <section class="pan-section">
@@ -336,7 +350,7 @@
                     <p>根据相关法律法规，本站不对欧盟用户提供服务</p>
                     <div class="placeholder-text"><p>联系邮箱：qflmz2007@163.com</p></div>
                 </div>
-                
+                <div class="footer-column">
                     <h4>关于我们</h4>
                     <ul><li><a href="/mirror/intro">镜像站介绍</a></li><li><a href="/mirror/yinsi.html">使用条款</a></li><li><a href="/mirror/yinsi.html">隐私政策</a></li><li><a href="/mirror/yinsi.html">联系我们</a></li></ul>
                 </div>
@@ -447,19 +461,19 @@
 
         // ==================== 数据层 ====================
         const SOFTWARE_DATA = [
-            {id:'vscode',name:'Visual Studio Code',version:'v1.313.0(官网下载)',size:'222 MB',category:'dev',status:'stable',icon:'VS',iconBg:'linear-gradient(135deg,#1e3a5f,#2d5a87)',iconColor:'#60a5fa',url:'https://code.visualstudio.com/thank-you?dv=win64user'},
-            {id:'python',name:'Python',version:'清华源链接',size:'--',category:'dev',status:'stable',icon:'Py',iconBg:'linear-gradient(135deg,#3d1f00,#7c3f00)',iconColor:'#f97316',url:'https://mirrors.tuna.tsinghua.edu.cn/python/'},
-            {id:'git',name:'Git',version:'v2.55.0.3',size:'62.3 MB',category:'dev',status:'stable',icon:'Git',iconBg:'linear-gradient(135deg,#1a1a2e,#2d2d44)',iconColor:'#a78bfa',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Git-2.55.0.3-64-bit.exe'},
-            {id:'nodejs',name:'Node.js',version:'清华源链接',size:'--',category:'dev',status:'stable',icon:'No',iconBg:'linear-gradient(135deg,#0f172a,#1e293b)',iconColor:'#38bdf8',url:'https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/'},
-            {id:'Ali',name:'Ubuntu',version:'阿里源链接',size:'--',category:'dev',status:'stable',icon:'Un',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://mirrors.aliyun.com/ubuntu-releases/'},
-            {id:'R',name:'CRAN',version:'西湖源链接',size:'--',category:'dev',status:'stable',icon:'R',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://mirrors.westlake.edu.cn/CRAN/'},
-            {id:'RStudio',name:'Rstudio',version:'2026.07.1-147',size:'377.47MB',category:'dev',status:'stable',icon:'RS',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://lmz00701.github.io/bin/R'},
-            {id:'7ZIP',name:'7ZIP',version:'南大镜像链接',size:'--',category:'dev',status:'stable',icon:'Z',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://mirror.nju.edu.cn/github-release/ip7z/7zip/'},
-            {id:'typora',name:'typora',version:'1.14.8（x64）',size:'108.43MB',category:'dev',status:'stable',icon:'T',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Typora1.4.8%E4%B8%AD%E6%96%87%E7%9B%B4%E8%A3%85%E7%89%88.exe'},
-            {id:'Design-Expert',name:'Design-Expert',version:'1.4.8（x64）',size:'103.46MB',category:'dev',status:'stable',icon:'D',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Design-Expert%2013.0.5.0%20x64.zip'},
-            {id:'SnapGene',name:'SnapGene',version:'602win',size:'54.51MB',category:'dev',status:'stable',icon:'S',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/SnapGene602_win.exe'},
-            {id:'CC-Switch-v3.19.2+ciao.10',name:'CC-Switch',version:'v3.19.2+ciao.10 msi',size:'12.66MB',category:'dev',status:'stable',icon:'C',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/CC-Switch-v3.19.2%2Bciao.10-Windows.msi'},
-            {id:'Claude',name:Claude',version:'-',size:'220MB',category:'dev',status:'stable',icon:'C',iconBg:'linear-gradient(135deg,#1a0f2e,#2d1f44)',iconColor:'#c084fc',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Claude%20Setup.exe'},
+            {id:'vscode',name:'Visual Studio Code',version:'v1.313.0(官网下载)',size:'222 MB',category:'dev',status:'stable',icon:'VS',iconBg:'linear-gradient(135deg,#007acc,#005a9e)',iconColor:'#ffffff',url:'https://code.visualstudio.com/thank-you?dv=win64user'},
+            {id:'python',name:'Python',version:'清华源链接',size:'--',category:'dev',status:'stable',icon:'Py',iconBg:'linear-gradient(135deg,#3776ab,#1f4a72)',iconColor:'#ffd43b',url:'https://mirrors.tuna.tsinghua.edu.cn/python/'},
+            {id:'git',name:'Git',version:'v2.55.0.3',size:'62.3 MB',category:'dev',status:'stable',icon:'Git',iconBg:'linear-gradient(135deg,#f05033,#c0392b)',iconColor:'#ffffff',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Git-2.55.0.3-64-bit.exe'},
+            {id:'nodejs',name:'Node.js',version:'清华源链接',size:'--',category:'dev',status:'stable',icon:'No',iconBg:'linear-gradient(135deg,#3c873a,#2e6b2c)',iconColor:'#ffffff',url:'https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/'},
+            {id:'Ali',name:'Ubuntu',version:'阿里源链接',size:'--',category:'dev',status:'stable',icon:'Un',iconBg:'linear-gradient(135deg,#e95420,#c13d1a)',iconColor:'#ffffff',url:'https://mirrors.aliyun.com/ubuntu-releases/'},
+            {id:'R',name:'CRAN',version:'西湖源链接',size:'--',category:'dev',status:'stable',icon:'R',iconBg:'linear-gradient(135deg,#276dc3,#1a4f8f)',iconColor:'#ffffff',url:'https://mirrors.westlake.edu.cn/CRAN/'},
+            {id:'RStudio',name:'Rstudio',version:'2026.07.1-147',size:'377.47MB',category:'dev',status:'stable',icon:'RS',iconBg:'linear-gradient(135deg,#75aadb,#4a7fb5)',iconColor:'#ffffff',url:'https://lmz00701.github.io/bin/R'},
+            {id:'7ZIP',name:'7ZIP',version:'南大镜像链接',size:'--',category:'dev',status:'stable',icon:'Z',iconBg:'linear-gradient(135deg,#2d3436,#14181a)',iconColor:'#dfe6e9',url:'https://mirror.nju.edu.cn/github-release/ip7z/7zip/'},
+            {id:'typora',name:'typora',version:'1.14.8（x64）',size:'108.43MB',category:'dev',status:'stable',icon:'T',iconBg:'linear-gradient(135deg,#37474f,#1c262b)',iconColor:'#ffffff',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Typora1.4.8%E4%B8%AD%E6%96%87%E7%9B%B4%E8%A3%85%E7%89%88.exe'},
+            {id:'Design-Expert',name:'Design-Expert',version:'1.4.8（x64）',size:'103.46MB',category:'dev',status:'stable',icon:'D',iconBg:'linear-gradient(135deg,#0f766e,#0d5c56)',iconColor:'#ffffff',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Design-Expert%2013.0.5.0%20x64.zip'},
+            {id:'SnapGene',name:'SnapGene',version:'602win',size:'54.51MB',category:'dev',status:'stable',icon:'S',iconBg:'linear-gradient(135deg,#7c3aed,#5b21b6)',iconColor:'#ffffff',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/SnapGene602_win.exe'},
+            {id:'CC-Switch-v3.19.2+ciao.10',name:'CC-Switch',version:'v3.19.2+ciao.10 msi',size:'12.66MB',category:'dev',status:'stable',icon:'C',iconBg:'linear-gradient(135deg,#0891b2,#0e7490)',iconColor:'#ffffff',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/CC-Switch-v3.19.2%2Bciao.10-Windows.msi'},
+            {id:'Claude',name:'Claude',version:'-',size:'220MB',category:'dev',status:'stable',icon:'C',iconBg:'linear-gradient(135deg,#d97757,#b85c3d)',iconColor:'#fff7ed',url:'https://app-1375687844.cos.ap-nanjing.myqcloud.com/Claude%20Setup.exe'},
         ];
 
         const MIRROR_DATA = [
@@ -604,14 +618,34 @@
         }
 
         // ==================== 列表渲染（带搜索/筛选） ====================
+        const SOFT_VISIBLE_DEFAULT = 6;
+        let softExpanded = false;
+
+        function updateViewMore(total) {
+            const btn = document.getElementById('viewMoreBtn');
+            if (!btn) return;
+            const cards = document.querySelectorAll('#softwareGrid .software-card');
+            cards.forEach((card, i) => {
+                card.classList.toggle('is-hidden', i >= SOFT_VISIBLE_DEFAULT && !softExpanded);
+            });
+            const hasMore = total > SOFT_VISIBLE_DEFAULT;
+            btn.style.display = hasMore ? 'inline-flex' : 'none';
+            btn.classList.toggle('expanded', softExpanded);
+            const label = btn.querySelector('span');
+            if (label) label.textContent = softExpanded ? '收起' : '查看更多';
+            btn.setAttribute('aria-expanded', String(softExpanded));
+        }
+
         function renderSoftwareList(apps, cat, q) {
             const grid = document.getElementById('softwareGrid');
             if (!grid) return;
             let list = apps.filter(validateApp);
             if (cat !== 'all') list = list.filter(a => a.category === cat);
             if (q) { const s = q.toLowerCase(); list = list.filter(a => a.name.toLowerCase().includes(s) || a.version.toLowerCase().includes(s)); }
+            softExpanded = false;
             grid.innerHTML = list.length ? list.map(renderCard).join('') :
                 '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><p>未找到匹配的软件</p></div>';
+            updateViewMore(list.length);
             AuditLog.add('INFO', '软件列表渲染: ' + list.length + ' 项');
         }
 
@@ -651,6 +685,13 @@
             document.addEventListener('click', e => {
                 const btn = e.target.closest('.download-btn');
                 if (btn) { const lbl = btn.getAttribute('aria-label') || ''; AuditLog.add('INFO','下载: '+lbl.replace('下载 ','')); Toast.show('success','开始下载，请检查文件完整性'); }
+            });
+            // 查看更多 / 收起
+            const moreBtn = document.getElementById('viewMoreBtn');
+            moreBtn?.addEventListener('click', () => {
+                softExpanded = !softExpanded;
+                const total = document.querySelectorAll('#softwareGrid .software-card').length;
+                updateViewMore(total);
             });
             // 网盘提取码标签点击 → 复制
             document.getElementById('panGrid')?.addEventListener('click', e => {
