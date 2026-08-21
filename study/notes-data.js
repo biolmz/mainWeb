@@ -20,7 +20,7 @@
 const noteData = [
 
     // ---- 生物信息 (info) ----
- { title: 'Python 数据分析与可视化', url: ' /study/info/Python 数据分析与可视化.html', tag: 'Python 数据分析与可视化', category: 'info' },
+    { title: 'Python 数据分析与可视化', url: ' /study/info/Python 数据分析与可视化.html', tag: 'Python 数据分析与可视化', category: 'info' },
     { title: 'git教程', url: '/study/info/生物信息学git基础教程.html', tag: 'git教程', category: 'info' },
     { title: 'R_ggplot2教程', url: '/study/info/ggplot2_tutorial', tag: 'ggplot2教程', category: 'info' },   // ← 示例占位，可删除
     { title: 'Biopython教程', url: '/study/info/Biopython零基础实战教程.html', tag: 'Biopython零基础实战教程', category: 'info' },
