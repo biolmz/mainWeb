@@ -1,766 +1,1537 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <meta name="referrer" content="no-referrer-when-downgrade">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta http-equiv="Permissions-Policy" content="camera=(),microphone=(),geolocation=(),interest-cohort=()">
-    
-    <title>LMZ</title>
-    
-    <script>
-  // 页面每次加载，都给CSS/JS链接打上当前时间戳
-  document.addEventListener('DOMContentLoaded', function() {
-    const links = document.querySelectorAll('link[rel="stylesheet"]');
-    const scripts = document.querySelectorAll('script[src]');
-    
-    const t = Date.now(); // 当前毫秒时间戳
-    links.forEach(link => {
-      if (!link.href.includes('?') ) {
-        link.href = link.href + '?t=' + t;
-      }
-    });
-    scripts.forEach(script => {
-      if (!script.src.includes('?') ) {
-        script.src = script.src + '?t=' + t;
-      }
-    });
-  });
-   </script>
-    <link rel="dns-prefetch" href="https://bio2025.site/download.html"/>
-    <link rel="dns-prefetch" href="https://lmz-1375687844.cos.ap-nanjing.myqcloud.com" />
-    <link rel="dns-prefetch" href="https://danaz-beijing-1375687844.cos.ap-beijing.myqcloud.com" />
-    <link rel="dns-prefetch" href="https://in-bio2025-d6gfpdwu36a210919.webapps.tcloudbase.com/" />
-    
-  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kael — Bio × Code × Philosophy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ============================================================
-               全局变量 & 重置
-               ============================================================ */
-        :root {
-            --bg: #ffffff;
-            --bg-card: #f8f9fc;
-            --bg-nav: rgba(255, 255, 255, 0.92);
-            --bg-hover: #f0f2f5;
-
-            --text: #1a1a2e;
-            --text-secondary: #4a4a5a;
-            --text-muted: #7a7a8a;
-
-            --border: #e4e7ed;
-            --border-hover: #b0b8c8;
-
-            --accent: #2c3e8f;
-            --accent-hover: #1a2a6a;
-            --accent-light: rgba(44, 62, 143, 0.08);
-            --accent-dark: #0f1a3a;
-
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
-
-            --radius: 14px;
-            --radius-sm: 10px;
-            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-        }
-
-        [data-theme="dark"] {
-            --bg: #0d1117;
-            --bg-card: #161b22;
-            --bg-nav: rgba(13, 17, 23, 0.92);
-            --bg-hover: #1c2333;
-
-            --text: #e6edf3;
-            --text-secondary: #8b949e;
-            --text-muted: #6e7681;
-
-            --border: #30363d;
-            --border-hover: #484f58;
-
-            --accent: #58a6ff;
-            --accent-hover: #79c0ff;
-            --accent-light: rgba(88, 166, 255, 0.12);
-            --accent-dark: #1f3a6a;
-
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        *,
-        *::before,
-        *::after {
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #06070d;
+            --bg-secondary: #0b0d18;
+            --bg-tertiary: #111426;
+            --text-primary: #e6e9f5;
+            --text-secondary: #8892b0;
+            --text-muted: #565f7d;
+            --accent-cyan: #00f0ff;
+            --accent-purple: #9d6bff;
+            --accent-green: #00ff9d;
+            --accent-pink: #ff4d8d;
+            --glass-bg: rgba(255, 255, 255, 0.025);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-hover: rgba(255, 255, 255, 0.06);
+            --font-sans: 'Space Grotesk', 'Noto Serif SC', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-serif: 'Noto Serif SC', serif;
+            --max-width: 1200px;
+        }
+
         html {
             scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
+            scroll-padding-top: 80px;
         }
 
         body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            transition: background var(--transition), color var(--transition);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-            line-height: 1.7;
-            min-height: 100vh;
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            cursor: none;
         }
 
-        a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: color var(--transition), border-color var(--transition);
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 3px;
         }
 
-        a:hover {
-            color: var(--accent-hover);
+        a { color: inherit; text-decoration: none; }
+
+        /* ============================================
+           CUSTOM CURSOR
+           ============================================ */
+        .cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease, opacity 0.3s;
+            box-shadow: 0 0 10px var(--accent-cyan);
         }
 
-        :focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-            border-radius: var(--radius-xs);
+        .cursor-ring {
+            position: fixed;
+            width: 36px;
+            height: 36px;
+            border: 1.5px solid rgba(0, 240, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
         }
 
-        /* ============================================================
-               导航栏
-               ============================================================ */
-        .navbar {
-            position: sticky;
+        .cursor-ring.hover {
+            width: 56px;
+            height: 56px;
+            border-color: var(--accent-purple);
+            background: rgba(157, 107, 255, 0.08);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            body { cursor: auto; }
+            .cursor-dot, .cursor-ring { display: none; }
+        }
+
+        /* ============================================
+           LOADING SCREEN
+           ============================================ */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-text {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loader-bar::after {
+            content: '';
+            position: absolute;
             top: 0;
+            left: 0;
+            height: 100%;
+            width: 30%;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            animation: loaderSlide 1.2s ease-in-out infinite;
+        }
+
+        @keyframes loaderSlide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+        }
+
+        .loader-code {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        /* ============================================
+           BACKGROUND CANVAS
+           ============================================ */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             z-index: 100;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            background: var(--bg-nav);
-            border-bottom: 1px solid var(--border);
-            padding: 0 24px;
-            height: 64px;
+            padding: 16px 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav.scrolled {
+            background: rgba(6, 7, 13, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 12px 0;
+        }
+
+        .nav-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 32px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: background var(--transition), border-color var(--transition);
         }
 
-        .navbar .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text);
-            letter-spacing: -0.3px;
-        }
-
-        .navbar .brand svg {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-
-        .navbar .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            list-style: none;
-        }
-
-        .navbar .nav-links a {
-            padding: 6px 16px;
-            border-radius: 999px;
-            font-size: 14px;
+        .nav-logo {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
             font-weight: 500;
-            color: var(--text-secondary);
-            transition: all var(--transition);
-        }
-
-        .navbar .nav-links a:hover,
-        .navbar .nav-links a.active {
-            color: var(--text);
-            background: var(--accent-light);
-        }
-
-        .theme-toggle {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-            margin-left: 8px;
-            flex-shrink: 0;
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--border-hover);
-            color: var(--text);
-            background: var(--bg-hover);
-        }
-
-        /* ============================================================
-               主容器
-               ============================================================ */
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 40px 24px 80px;
-        }
-
-        /* ============================================================
-               英雄区
-               ============================================================ */
-        .hero {
-            text-align: center;
-            padding: 40px 0 50px;
-        }
-
-        .hero .avatar {
-            font-size: 80px;
-            line-height: 1;
-            margin-bottom: 16px;
-        }
-
-        .hero h1 {
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-            color: var(--text);
-        }
-
-        .hero .subtitle {
-            font-size: 18px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            font-weight: 450;
-        }
-
-        .hero .bio {
-            max-width: 560px;
-            margin: 0 auto 24px;
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.8;
-        }
-
-        .hero .social-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .hero .social-row a {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 20px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all var(--transition);
-        }
-
-        .hero .social-row a:hover {
-            border-color: var(--border-hover);
-            color: var(--text);
-            background: var(--bg-hover);
-            transform: translateY(-2px);
-        }
-
-        /* ============================================================
-               分割线
-               ============================================================ */
-        .section-divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 20px 0 40px;
-        }
-
-        /* ============================================================
-               常用链接（分类）
-               ============================================================ */
-        .quick-links h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text);
-            letter-spacing: -0.3px;
-        }
-
-        .quick-links .category {
-            margin-bottom: 28px;
-        }
-
-        .quick-links .category-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .quick-links .category-title .badge {
-            font-size: 11px;
-            font-weight: 400;
-            color: var(--text-muted);
-            background: var(--bg-card);
-            padding: 0 10px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
+        .nav-logo .logo-bracket {
+            color: var(--accent-cyan);
         }
 
-        .quick-links .link-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-            gap: 10px;
+        .nav-logo .logo-name {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .quick-links .link-grid a {
-            display: block;
-            padding: 10px 16px;
-            border-radius: var(--radius-sm);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
-            transition: all var(--transition);
-            text-align: center;
-            word-break: break-word;
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
         }
 
-        .quick-links .link-grid a:hover {
-            border-color: var(--border-hover);
-            background: var(--bg-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .quick-links .link-grid a .tag {
-            display: block;
-            font-size: 11px;
-            font-weight: 400;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* ============================================================
-               资料下载入口
-               ============================================================ */
-        .download-entry {
-            text-align: center;
-            padding: 30px 0 10px;
-        }
-
-        .download-entry .premium-btn {
+        .nav-links a {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: color 0.2s;
             position: relative;
-            display: inline-flex;
-            align-items: center;
-            gap: 14px;
-            padding: 20px 56px;
-            font-size: 26px;
-            font-weight: 700;
-            color: #1a1a2e;
-            background: #f0f2f7;
-            border: 2px solid #2c3e8f;
-            border-radius: 20px;
-            text-decoration: none;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 12px rgba(44, 62, 143, 0.10);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-cyan);
+            transition: width 0.25s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-cyan);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 8px 20px;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 4px;
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+            transition: all 0.25s ease;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+
+        /* Mobile menu */
+        .nav-mobile-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
             cursor: pointer;
         }
 
-        .download-entry .premium-btn:hover {
-            transform: translateY(-3px);
-            background: #2c3e8f;
-            color: #ffffff;
-            border-color: #1a2a6a;
-            box-shadow: 0 8px 32px rgba(44, 62, 143, 0.25);
+        .nav-mobile-btn span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            transition: all 0.3s;
         }
 
-        .download-entry .premium-btn:active {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(44, 62, 143, 0.15);
-        }
-
-        .download-entry .premium-btn .btn-text {
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
             position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
             z-index: 1;
         }
 
-        .download-entry .premium-btn .btn-icon {
-            width: 28px;
-            height: 28px;
-            position: relative;
-            z-index: 1;
-            transition: transform 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .download-entry .premium-btn:hover .btn-icon {
-            transform: translateY(3px);
-        }
-
-        .download-entry .premium-btn .btn-icon svg {
+        #dna-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            stroke: currentColor;
-            stroke-width: 2.5;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+            z-index: 1;
         }
 
-        .download-entry .hint {
-            margin-top: 14px;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        /* ============================================================
-               联系区
-               ============================================================ */
-        .contact-section {
+        .hero-content {
+            position: relative;
+            z-index: 2;
             text-align: center;
-            padding: 20px 0 10px;
+            padding: 0 32px;
+            max-width: 800px;
         }
 
-        .contact-section h2 {
-            font-size: 22px;
+        .hero-tag {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.3s forwards;
+        }
+
+        .hero-tag::before {
+            content: '> ';
+            color: var(--accent-cyan);
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
             font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text);
-            letter-spacing: -0.3px;
+            line-height: 1.05;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.5s forwards;
         }
 
-        .contact-section .desc {
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 50%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.3rem);
             color: var(--text-secondary);
-            margin-bottom: 16px;
-            font-size: 15px;
+            margin-bottom: 40px;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.7s forwards;
         }
 
-        .contact-section .contact-actions {
+        .hero-subtitle .typed-text {
+            color: var(--accent-cyan);
+            font-weight: 400;
+        }
+
+        .hero-subtitle .cursor-blink {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background: var(--accent-cyan);
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .hero-meta {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.9s forwards;
+        }
+
+        .hero-meta-item {
+            text-align: center;
+        }
+
+        .hero-meta-number {
+            font-family: var(--font-mono);
+            font-size: 1.8rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-meta-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 4px;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 1.2s forwards;
+        }
+
+        .scroll-indicator span {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--accent-cyan), transparent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: var(--accent-cyan);
+            animation: scrollDown 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollDown {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(200%); }
+        }
+
+        /* ============================================
+           SECTIONS COMMON
+           ============================================ */
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 120px 32px;
+        }
+
+        .section-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent-purple);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
             gap: 12px;
         }
 
-        .contact-section .contact-actions a,
-        .contact-section .contact-actions button {
-            padding: 8px 24px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text);
-            font-size: 14px;
+        .section-label::before {
+            content: '';
+            width: 32px;
+            height: 1px;
+            background: var(--accent-purple);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 600;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .section-desc {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 64px;
+        }
+
+        /* ============================================
+           ABOUT SECTION
+           ============================================ */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: start;
+        }
+
+        .about-text p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .about-text .highlight {
+            color: var(--accent-cyan);
             font-weight: 500;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: inherit;
         }
 
-        .contact-section .contact-actions a:hover,
-        .contact-section .contact-actions button:hover {
-            border-color: var(--border-hover);
-            background: var(--bg-hover);
-            color: var(--text);
+        .about-text .highlight-green {
+            color: var(--accent-green);
+            font-weight: 500;
         }
 
-        /* ============================================================
-               页脚
-               ============================================================ */
-        .footer {
-            text-align: center;
-            padding: 32px 24px;
-            border-top: 1px solid var(--border);
-            font-size: 13px;
+        .about-code {
+            background: rgba(11, 13, 24, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 24px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            backdrop-filter: blur(10px);
+        }
+
+        .about-code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .about-code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .about-code-dot.red { background: #ff5f56; }
+        .about-code-dot.yellow { background: #ffbd2e; }
+        .about-code-dot.green { background: #27c93f; }
+
+        .about-code-filename {
+            margin-left: auto;
             color: var(--text-muted);
-            font-weight: 400;
+            font-size: 0.75rem;
         }
 
-        /* ============================================================
-               响应式
-               ============================================================ */
+        .code-line { display: block; }
+        .code-keyword { color: var(--accent-purple); }
+        .code-string { color: var(--accent-green); }
+        .code-number { color: var(--accent-pink); }
+        .code-comment { color: var(--text-muted); font-style: italic; }
+        .code-fn { color: var(--accent-cyan); }
+
+        /* ============================================
+           DOMAINS / EXPERTISE
+           ============================================ */
+        .domains-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .domain-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 40px 32px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .domain-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--card-color, var(--accent-cyan)), transparent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.35s ease;
+        }
+
+        .domain-card:hover {
+            background: var(--glass-hover);
+            border-color: var(--card-color, var(--accent-cyan));
+            transform: translateY(-4px);
+        }
+
+        .domain-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .domain-icon {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--card-color, var(--accent-cyan));
+            font-family: var(--font-mono);
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .domain-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .domain-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .domain-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .domain-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .domain-tag {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 4px 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Card colors */
+        .domain-card[data-color="cyan"] { --card-color: #00f0ff; }
+        .domain-card[data-color="green"] { --card-color: #00ff9d; }
+        .domain-card[data-color="purple"] { --card-color: #9d6bff; }
+        .domain-card[data-color="pink"] { --card-color: #ff4d8d; }
+
+        /* ============================================
+           PHILOSOPHY SECTION
+           ============================================ */
+        .philosophy {
+            background: linear-gradient(180deg, transparent, rgba(17, 20, 38, 0.5), transparent);
+        }
+
+        .quote-block {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 48px;
+            padding: 0 20px;
+        }
+
+        .quote-text {
+            font-family: var(--font-serif);
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .quote-text .em {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .quote-author {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 64px;
+        }
+
+        .philosophy-card {
+            text-align: center;
+            padding: 36px 24px;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .philosophy-card:hover {
+            border-color: var(--accent-purple);
+            background: rgba(157, 107, 255, 0.05);
+        }
+
+        .philosophy-card-icon {
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+        }
+
+        .philosophy-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .philosophy-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           TIMELINE
+           ============================================ */
+        .timeline {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+            padding-left: 32px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 40px;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -32px;
+            top: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-cyan);
+            background: var(--bg-primary);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+        }
+
+        .timeline-date {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .timeline-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+           CONTACT
+           ============================================ */
+        .contact {
+            text-align: center;
+        }
+
+        .contact-inner {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        .contact-title .gradient-text {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .contact-desc {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 48px;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: all 0.25s ease;
+        }
+
+        .contact-link:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 240, 255, 0.15);
+        }
+
+        .contact-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 32px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-text {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .footer-text .accent {
+            color: var(--accent-cyan);
+        }
+
+        /* ============================================
+           SCROLL ANIMATIONS
+           ============================================ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 768px) {
-            .navbar {
-                padding: 0 16px;
-                height: 56px;
-            }
-            .navbar .nav-links a {
-                padding: 4px 12px;
-                font-size: 13px;
-            }
-            .container {
-                padding: 24px 16px 60px;
-            }
-            .hero h1 {
-                font-size: 28px;
-            }
-            .hero .subtitle {
-                font-size: 16px;
-            }
-            .quick-links .link-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            }
-            .download-entry .premium-btn {
-                padding: 16px 32px;
-                font-size: 20px;
-                gap: 10px;
-            }
-            .download-entry .premium-btn .btn-icon {
-                width: 22px;
-                height: 22px;
-            }
+            .nav-links { display: none; }
+            .nav-mobile-btn { display: flex; }
+            .about-grid { grid-template-columns: 1fr; gap: 32px; }
+            .domains-grid { grid-template-columns: 1fr; }
+            .philosophy-grid { grid-template-columns: 1fr; }
+            .hero-meta { gap: 24px; }
+            section { padding: 80px 20px; }
+            .nav-cta { display: none; }
+            .footer-inner { flex-direction: column; }
         }
 
-        @media (max-width: 400px) {
-            .hero .social-row a {
-                font-size: 12px;
-                padding: 6px 14px;
-            }
-            .quick-links .link-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .quick-links .link-grid a {
-                font-size: 12px;
-                padding: 8px 10px;
-            }
-            .download-entry .premium-btn {
-                padding: 14px 24px;
-                font-size: 17px;
-            }
-            .contact-section .contact-actions a,
-            .contact-section .contact-actions button {
-                font-size: 13px;
-                padding: 6px 16px;
-            }
-        }
-
-        /* ============================================================
-               打印样式
-               ============================================================ */
-        @media print {
-            .navbar,
-            .theme-toggle,
-            .footer {
-                display: none;
-            }
-            .container {
-                padding: 20px;
-                max-width: 100%;
-            }
-            .download-entry .premium-btn {
-                border: 2px solid #2c3e8f;
-                color: #1a1a2e !important;
-                background: #f0f2f7 !important;
-                box-shadow: none !important;
-                transform: none !important;
-            }
-            .quick-links .link-grid a {
-                border-color: #d0d4dc;
-                background: #f8f9fc;
-            }
-            .section-divider {
-                border-color: #d0d4dc;
-            }
+        @media (max-width: 480px) {
+            .nav-inner { padding: 0 16px; }
+            .hero-meta { gap: 16px; }
+            .hero-meta-number { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
 
-    <!-- ============================================================
-    导航栏
-    ============================================================ -->
-    <nav class="navbar" role="navigation" aria-label="主导航">
-        <a href="/content" class="brand" aria-label="首页">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
-            </svg>
-            lmz
-        </a>
-        <ul class="nav-links">
-            <li><a href="#links">链接</a></li>
-            <li><a href="download.html" target="_blank" rel="noopener noreferrer">资料</a></li>
-            <li><a href="#contact">联系</a></li>
-            <li><a href="https://in-bio2025-d6gfpdwu36a210919.webapps.tcloudbase.com/" target="_blank" rel="noopener noreferrer">备用网址</a></li>
-            <li>
-                <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换深色/浅色主题">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                    </svg>
-                </button>
-            </li>
-        </ul>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-text">Initializing System</div>
+        <div class="loader-bar"></div>
+        <div class="loader-code">// loading genome data...</div>
+    </div>
+
+    <!-- Particle Background Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-inner">
+            <a href="#hero" class="nav-logo">
+                <span class="logo-bracket">&lt;</span>
+                <span class="logo-name">Kael</span>
+                <span class="logo-bracket">/&gt;</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#about">关于</a></li>
+                <li><a href="#domains">领域</a></li>
+                <li><a href="#philosophy">哲思</a></li>
+                <li><a href="#timeline">历程</a></li>
+				<li><a href="/content">导航页</a></li>
+            </ul>
+            <a href="#contact" class="nav-cta">Get in Touch</a>
+            <div class="nav-mobile-btn" id="mobileBtn">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
     </nav>
 
-    <!-- ============================================================
-    主容器
-    ============================================================ -->
-    <main class="container" id="top">
-
-        <!-- ====== 英雄区 ====== -->
-        <section class="hero">
-            <div class="avatar" aria-hidden="true">🧬</div>
-            <h1>M.Z.LIU</h1>
-            <p class="subtitle">生物工程 · 人工智能爱好者 · 终身学习者</p>
-            <p class="bio">
-                生命本质上是一个对抗熵增的过程。我们穷尽一生构建秩序、维持稳态，
-                却在基因里写着衰亡的指令。所谓活着，不过是暂时赢得了这场与混乱的战争。
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <canvas id="dna-canvas"></canvas>
+        <div class="hero-content">
+            <div class="hero-tag">Bioengineer × Developer × Thinker</div>
+            <h1 class="hero-title">
+                在<span class="gradient-text">基因序列</span>与<br>
+                <span class="gradient-text">代码逻辑</span>之间<br>
+                探寻真理
+            </h1>
+            <p class="hero-subtitle">
+                <span class="typed-text" id="typedText"></span><span class="cursor-blink"></span>
             </p>
-            <div class="social-row">
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>
-                <a href="https://blog.csdn.net" target="_blank" rel="noopener noreferrer">📝 博客</a>
-                <a href="mailto:qflmz2007@163.com">✉️ 邮箱</a>
-            </div>
-        </section>
-
-        <hr class="section-divider" />
-
-        <!-- ====== 常用链接（分类） ====== -->
-        <section class="quick-links" id="links">
-            <h2>🔗 常用链接</h2>
-
-            <!-- 学习平台 -->
-            <div class="category">
-                <div class="category-title">📚 学习平台 <span class="badge">6</span></div>
-                <div class="link-grid">
-                    <a href="https://passport2.chaoxing.com/login" target="_blank" rel="noopener noreferrer">超星学习通 <span class="tag">课程</span></a>
-                    <a href="https://www.zhihuishu.com/" target="_blank" rel="noopener noreferrer">智慧树 <span class="tag">课程</span></a>
-                    <a href="https://www.icourse163.org/" target="_blank" rel="noopener noreferrer">MOOC <span class="tag">课程</span></a>
-                    <a href="https://www.xuetangx.com/" target="_blank" rel="noopener noreferrer">学堂在线 <span class="tag">课程</span></a>
-                    <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener noreferrer">Desmos <span class="tag">计算器</span></a>
-                    <a href="https://www.paperpass.com/" target="_blank" rel="noopener noreferrer">PaperPass <span class="tag">查重</span></a>
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <div class="hero-meta-number">4</div>
+                    <div class="hero-meta-label">交叉领域</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="hero-meta-number">∞</div>
+                    <div class="hero-meta-label">好奇心</div>
+                </div>
+                <div class="hero-meta-item">
+                    <div class="hero-meta-number">ATCG</div>
+                    <div class="hero-meta-label">生命密码</div>
                 </div>
             </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
 
-            <!-- 文献数据库 -->
-            <div class="category">
-                <div class="category-title">📖 文献数据库 <span class="badge">7</span></div>
-                <div class="link-grid">
-                    <a href="https://www.cnki.net/" target="_blank" rel="noopener noreferrer">中国知网 <span class="tag">文献</span></a>
-                    <a href="https://www.wanfangdata.com.cn/" target="_blank" rel="noopener noreferrer">万方数据 <span class="tag">文献</span></a>
-                    <a href="https://qikan.cqvip.com/" target="_blank" rel="noopener noreferrer">维普期刊 <span class="tag">文献</span></a>
-                    <a href="https://www.webofscience.com" target="_blank" rel="noopener noreferrer">Web of Science <span class="tag">文献</span></a>
-                    <a href="https://pubscholar.cn/" target="_blank" rel="noopener noreferrer">PubScholar <span class="tag">文献</span></a>
-                    <a href="https://zh.kid1412.by/" target="_blank" rel="noopener noreferrer">Z-Library <span class="tag">电子书</span></a>
-                    <a href="https://scholar.google.com/" target="_blank" rel="noopener noreferrer">Google Scholar <span class="tag">文献</span></a>
+    <!-- About -->
+    <section id="about">
+        <div class="section-inner">
+            <div class="section-label reveal">// about</div>
+            <h2 class="section-title reveal reveal-delay-1">代码是工具，生命是研究对象，哲学是底层操作系统。</h2>
+            <p class="section-desc reveal reveal-delay-2">游走在湿实验与干实验之间，用计算思维解构生物问题，用哲学思维审视一切前提。</p>
+            
+            <div class="about-grid">
+                <div class="about-text reveal reveal-delay-2">
+                    <p>
+                        我是 <span class="highlight">Kael</span>，一名<span class="highlight-green">生物工程</span>专业的学生与研究者。对生命的运行机制着迷——从 DNA 双螺旋到蛋白质折叠，从代谢通路到生态系统。
+                    </p>
+                    <p>
+                        同时也是一个重度 <span class="highlight">计算机</span> 爱好者。相信计算不只是工具，更是一种思维方式。<span class="highlight">生物信息学</span>是我将两者融合的桥梁：用算法解读基因组，用数据驱动发现。
+                    </p>
+                    <p>
+                        在技术与科学之外，<span class="highlight">哲学</span>是我审视一切的底层框架。生命的意义是什么？意识从何而来？当我们用代码模拟生命时，我们究竟在创造什么？这些问题驱动我不断思考与探索。
+                    </p>
+                </div>
+                <div class="about-code reveal reveal-delay-3">
+                    <div class="about-code-header">
+                        <div class="about-code-dot red"></div>
+                        <div class="about-code-dot yellow"></div>
+                        <div class="about-code-dot green"></div>
+                        <span class="about-code-filename">kael.json</span>
+                    </div>
+<pre><code><span class="code-line"><span class="code-keyword">const</span> <span class="code-fn">kael</span> = {</span>
+<span class="code-line">  <span class="code-string">"identity"</span>: <span class="code-string">"bioengineer + coder"</span>,</span>
+<span class="code-line">  <span class="code-string">"genome"</span>: [<span class="code-string">"A"</span>, <span class="code-string">"T"</span>, <span class="code-string">"C"</span>, <span class="code-string">"G"</span>],</span>
+<span class="code-line">  <span class="code-string">"stack"</span>: {</span>
+<span class="code-line">    <span class="code-string">"lang"</span>: [<span class="code-string">"Python"</span>, <span class="code-string">"R"</span>, <span class="code-string">"JS"</span>],</span>
+<span class="code-line">    <span class="code-string">"bio"</span>: [<span class="code-string">"BLAST"</span>, <span class="code-string">"Bowtie2"</span>, <span class="code-string">"DESeq2"</span>],</span>
+<span class="code-line">    <span class="code-string">"tools"</span>: [<span class="code-string">"Linux"</span>, <span class="code-string">"Git"</span>, <span class="code-string">"Docker"</span>]</span>
+<span class="code-line">  },</span>
+<span class="code-line">  <span class="code-string">"philosophy"</span>: <span class="code-string">"代码即思想"</span>,</span>
+<span class="code-line">  <span class="code-string">"curiosity"</span>: <span class="code-number">Infinity</span>,</span>
+<span class="code-line">  <span class="code-comment">// TODO: 改变世界</span></span>
+<span class="code-line">};</span></code></pre>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <!-- 生物信息学 -->
-            <div class="category">
-                <div class="category-title">🧬 生物信息学 <span class="badge">7</span></div>
-                <div class="link-grid">
-                    <a href="https://www.cncb.ac.cn/" target="_blank" rel="noopener noreferrer">CNCB <span class="tag">国家生物信息中心</span></a>
-                    <a href="https://www.ncbi.nlm.nih.gov/" target="_blank" rel="noopener noreferrer">NCBI <span class="tag">PubMed / GenBank</span></a>
-                    <a href="https://www.uniprot.org/" target="_blank" rel="noopener noreferrer">UniProt <span class="tag">蛋白质数据库</span></a>
-                    <a href="https://www.ebi.ac.uk/" target="_blank" rel="noopener noreferrer">EBI <span class="tag">欧洲生物信息所</span></a>
-                    <a href="https://www.rcsb.org/" target="_blank" rel="noopener noreferrer">RCSB PDB <span class="tag">蛋白质结构</span></a>
-                    <a href="https://www.ensembl.org/" target="_blank" rel="noopener noreferrer">Ensembl <span class="tag">基因组浏览器</span></a>
-                    <a href="https://www.ebi.ac.uk/interpro/" target="_blank" rel="noopener noreferrer">InterPro <span class="tag">蛋白功能分析</span></a>
+    <!-- Domains / Expertise -->
+    <section id="domains">
+        <div class="section-inner">
+            <div class="section-label reveal">// domains</div>
+            <h2 class="section-title reveal reveal-delay-1">四个维度的交叉探索</h2>
+            <p class="section-desc reveal reveal-delay-2">不是四个独立的领域，而是一个有机整体——生物学提供数据与问题，计算机学提供工具与方法，生物信息学是桥梁，哲学是底层驱动。</p>
+            
+            <div class="domains-grid">
+                <div class="domain-card reveal" data-color="green">
+                    <div class="domain-icon">🧬</div>
+                    <h3 class="domain-title">生物工程</h3>
+                    <div class="domain-subtitle">Bioengineering</div>
+                    <p class="domain-desc">研究生命系统的工程化改造——基因编辑、代谢工程、合成生物学。在湿实验室里理解生命的运作逻辑，用工程思维重新设计生物系统。</p>
+                    <div class="domain-tags">
+                        <span class="domain-tag">基因工程</span>
+                        <span class="domain-tag">合成生物学</span>
+                        <span class="domain-tag">发酵工程</span>
+                        <span class="domain-tag">蛋白质工程</span>
+                    </div>
+                </div>
+
+                <div class="domain-card reveal reveal-delay-1" data-color="cyan">
+                    <div class="domain-icon">⌨</div>
+                    <h3 class="domain-title">计算机科学</h3>
+                    <div class="domain-subtitle">Computer Science</div>
+                    <p class="domain-desc">编程不仅是一种技能，更是一种思维方式。从算法设计到系统架构，从前端可视化到后端数据处理，用代码构建工具、解决问题、表达想法。</p>
+                    <div class="domain-tags">
+                        <span class="domain-tag">Python</span>
+                        <span class="domain-tag">算法</span>
+                        <span class="domain-tag">Web开发</span>
+                        <span class="domain-tag">Linux</span>
+                        <span class="domain-tag">Docker</span>
+                    </div>
+                </div>
+
+                <div class="domain-card reveal reveal-delay-2" data-color="purple">
+                    <div class="domain-icon">📊</div>
+                    <h3 class="domain-title">生物信息学</h3>
+                    <div class="domain-subtitle">Bioinformatics</div>
+                    <p class="domain-desc">站在生物学与计算机科学的交叉点上。用算法分析基因组数据，用统计学发现生物学规律，用可视化呈现生命的复杂性。让数据说话。</p>
+                    <div class="domain-tags">
+                        <span class="domain-tag">序列比对</span>
+                        <span class="domain-tag">转录组分析</span>
+                        <span class="domain-tag">变异检测</span>
+                        <span class="domain-tag">数据可视化</span>
+                    </div>
+                </div>
+
+                <div class="domain-card reveal reveal-delay-3" data-color="pink">
+                    <div class="domain-icon">∞</div>
+                    <h3 class="domain-title">哲学</h3>
+                    <div class="domain-subtitle">Philosophy</div>
+                    <p class="domain-desc">追问「为什么」而不是「怎么做」。生命的本质是什么？意识从何而来？技术伦理的边界在哪？哲学不是空谈，而是对一切前提的审视与重构。</p>
+                    <div class="domain-tags">
+                        <span class="domain-tag">科学哲学</span>
+                        <span class="domain-tag">生命伦理</span>
+                        <span class="domain-tag">认知科学</span>
+                        <span class="domain-tag">技术哲学</span>
+                    </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-
-
-        </section>
-
-        <hr class="section-divider" />
-
-        <!-- ====== 资料下载入口 ====== -->
-        <section class="download-entry">
-            <a href="download.html" target="_blank" rel="noopener noreferrer" class="premium-btn">
-                <span class="btn-text">📂 资料下载中心</span>
-                <span class="btn-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                </span>
-            </a>
-            <p class="hint">文档 · 视频 · 工具 · 持续更新</p>
-        </section>
-
-        <hr class="section-divider" />
-
-        <!-- ====== 联系 ====== -->
-        <section class="contact-section" id="contact">
-            <h2>📬 联系我</h2>
-            <p class="desc">欢迎交流 · 我会在 24 小时内回复</p>
-            <div class="contact-actions">
-                <a href="mailto:qflmz2007@163.com">📧 qflmz2007@163.com</a>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>
-                <button type="button" onclick="navigator.clipboard.writeText('qflmz2007y').then(()=>alert('✅ 微信号已复制'))">💬 复制微信</button>
+    <!-- Philosophy -->
+    <section id="philosophy" class="philosophy">
+        <div class="section-inner">
+            <div class="section-label reveal">// philosophy</div>
+            <h2 class="section-title reveal reveal-delay-1">思想的底座</h2>
+            
+            <div class="quote-block reveal reveal-delay-2">
+                <p class="quote-text">
+                    「生命不过是<span class="em">信息的流动</span>，而代码是<span class="em">思维的结晶</span>。<br>当我们在序列中寻找意义，我们也在<span class="em">定义自己</span>。」
+                </p>
+                <p class="quote-author">— Kael</p>
             </div>
-        </section>
 
-    </main>
+            <div class="philosophy-grid">
+                <div class="philosophy-card reveal">
+                    <div class="philosophy-card-icon">🔍</div>
+                    <h4>还原论与整体论</h4>
+                    <p>生命可以拆解为分子，但意识不能还原为神经元。真正的理解，需要在分解与整合之间反复切换。</p>
+                </div>
+                <div class="philosophy-card reveal reveal-delay-1">
+                    <div class="philosophy-card-icon">⚖</div>
+                    <h4>技术与伦理</h4>
+                    <p>基因编辑让我们成为造物主，但我们有资格吗？技术的边界不在能力，而在智慧。能做不等于应该做。</p>
+                </div>
+                <div class="philosophy-card reveal reveal-delay-2">
+                    <div class="philosophy-card-icon">🧩</div>
+                    <h4>涌现与复杂性</h4>
+                    <p>简单的规则可以涌现出复杂的生命。蚁群无中心，却能构建精密巢穴。代码无灵魂，却能模拟世界。涌现，是宇宙最深的魔法。</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <!-- ============================================================
-    页脚
-    ============================================================ -->
-<footer class="footer">
-    <p>&copy; 2026 lmz · 版权所有</p>
-    <p style="margin-top: 6px;"><a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted);">鲁ICP备2025209153号-1</a></p>
-</footer>
+    <!-- Timeline -->
+    <section id="timeline">
+        <div class="section-inner">
+            <div class="section-label reveal">// journey</div>
+            <h2 class="section-title reveal reveal-delay-1">探索之路</h2>
+            <p class="section-desc reveal reveal-delay-2">每一步都在拓宽认知的边界。</p>
 
-    <!-- ============================================================
-    JavaScript（轻量，仅主题切换）
-    ============================================================ -->
+            <div class="timeline">
+                <div class="timeline-item reveal">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2026 — NOW</div>
+                    <h3 class="timeline-title">生物工程 · 深度探索</h3>
+                    <p class="timeline-desc">深入学习生物工程核心课程，同步自学生物信息学全流程分析，学习人工智能算法。</p>
+                </div>
+                <div class="timeline-item reveal reveal-delay-1">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2026</div>
+                    <h3 class="timeline-title">编程能力 · 系统构建</h3>
+                    <p class="timeline-desc">从脚本编写走向系统开发。掌握 Linux 运维、Docker 容器化部署、Web 全栈开发，搭建个人工具链。</p>
+                </div>
+                <div class="timeline-item reveal reveal-delay-2">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2025</div>
+                    <h3 class="timeline-title">交叉觉醒 · 第一段代码</h3>
+                    <p class="timeline-desc">写下第一行处理 DNA 序列的 Python 脚本。那一刻，两个世界开始融合。意识到计算可以是理解生命的新语言。</p>
+                </div>
+                <div class="timeline-item reveal reveal-delay-3">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2022</div>
+                    <h3 class="timeline-title">起点 · 走进生命科学</h3>
+                    <p class="timeline-desc">踏入生物科学专业。第一次在显微镜下看到细胞分裂，第一次在课本里读到中心法则。好奇心的种子种下了。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="contact">
+        <div class="section-inner">
+            <div class="contact-inner">
+                <div class="section-label reveal" style="justify-content: center;">// contact</div>
+                <h2 class="contact-title reveal reveal-delay-1">
+                    让我们一起<br><span class="gradient-text">解码未来</span>
+                </h2>
+                <p class="contact-desc reveal reveal-delay-2">无论你想讨论基因组学、聊代码架构、辩哲学命题，还是只是想交个朋友——随时联系。</p>
+                <div class="contact-links reveal reveal-delay-3">
+                    <a href="mailto:qflmz2007@163.com" class="contact-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        Email
+                    </a>
+                    <a href="#" class="contact-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                        GitHub
+                    </a>
+                    
+                    <a href="#" class="contact-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        微信
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <p class="footer-text"><span class="accent">&lt;Kael/&gt;</span> — Built with curiosity, code & coffee ☕</p>
+            <p class="footer-text">© 2026 · Lmz</p>
+        </div>
+    </footer>
+
     <script>
-        (function() {
-            'use strict';
+    /* ================================================
+       LOADING SCREEN
+       ================================================ */
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('loader').classList.add('hidden');
+        }, 1200);
+    });
 
-            const root = document.documentElement;
-            const toggleBtn = document.getElementById('themeToggle');
+    /* ================================================
+       CUSTOM CURSOR
+       ================================================ */
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorRing = document.getElementById('cursorRing');
+    let mouseX = 0, mouseY = 0;
+    let ringX = 0, ringY = 0;
 
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const savedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
-            root.setAttribute('data-theme', savedTheme);
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursorDot.style.left = mouseX + 'px';
+        cursorDot.style.top = mouseY + 'px';
+    });
 
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', function() {
-                    const current = root.getAttribute('data-theme');
-                    const next = current === 'dark' ? 'light' : 'dark';
-                    root.setAttribute('data-theme', next);
-                    localStorage.setItem('theme', next);
-                });
+    // Smooth follow for ring
+    function animateCursor() {
+        ringX += (mouseX - ringX) * 0.15;
+        ringY += (mouseY - ringY) * 0.15;
+        cursorRing.style.left = ringX + 'px';
+        cursorRing.style.top = ringY + 'px';
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Hover effect on interactive elements
+    document.querySelectorAll('a, button, .domain-card, .philosophy-card').forEach(el => {
+        el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+    });
+
+    /* ================================================
+       NAV SCROLL EFFECT
+       ================================================ */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    });
+
+    /* ================================================
+       TYPEWRITER EFFECT
+       ================================================ */
+    const phrases = [
+        'Decoding life, one base pair at a time.',
+        'Where biology meets computation.',
+        'DNA is just code. So is everything else.',
+        '在序列中寻找意义，在代码中构建世界。',
+    ];
+    const typedEl = document.getElementById('typedText');
+    let phraseIdx = 0;
+    let charIdx = 0;
+    let isDeleting = false;
+
+    function typeWriter() {
+        const current = phrases[phraseIdx];
+        if (isDeleting) {
+            typedEl.textContent = current.substring(0, charIdx - 1);
+            charIdx--;
+        } else {
+            typedEl.textContent = current.substring(0, charIdx + 1);
+            charIdx++;
+        }
+
+        let delay = isDeleting ? 40 : 80;
+
+        if (!isDeleting && charIdx === current.length) {
+            delay = 2500;
+            isDeleting = true;
+        } else if (isDeleting && charIdx === 0) {
+            isDeleting = false;
+            phraseIdx = (phraseIdx + 1) % phrases.length;
+            delay = 500;
+        }
+
+        setTimeout(typeWriter, delay);
+    }
+    setTimeout(typeWriter, 1500);
+
+    /* ================================================
+       SCROLL REVEAL ANIMATIONS
+       ================================================ */
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
             }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
-        })();
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ================================================
+       DNA DOUBLE HELIX CANVAS
+       ================================================ */
+    const dnaCanvas = document.getElementById('dna-canvas');
+    const dnaCtx = dnaCanvas.getContext('2d');
+
+    function resizeDNACanvas() {
+        dnaCanvas.width = window.innerWidth;
+        dnaCanvas.height = window.innerHeight;
+    }
+    resizeDNACanvas();
+    window.addEventListener('resize', resizeDNACanvas);
+
+    // DNA Helix parameters
+    const dnaHelix = {
+        basePairs: 60,
+        spacing: 28,
+        amplitude: 140,
+        rotation: 0,
+        speed: 0.012,
+        colors: ['#00f0ff', '#9d6bff', '#00ff9d', '#ff4d8d']
+    };
+
+    function drawDNA() {
+        const w = dnaCanvas.width;
+        const h = dnaCanvas.height;
+        dnaCtx.clearRect(0, 0, w, h);
+
+        const centerX = w / 2;
+        const startY = h * 0.15;
+        const totalHeight = h * 0.7;
+
+        // Draw strands and base pairs
+        for (let i = 0; i < dnaHelix.basePairs; i++) {
+            const t = i / dnaHelix.basePairs;
+            const y = startY + t * totalHeight;
+            const phase = i * 0.35 + dnaHelix.rotation;
+            const x1 = centerX + Math.cos(phase) * dnaHelix.amplitude;
+            const x2 = centerX + Math.cos(phase + Math.PI) * dnaHelix.amplitude;
+            const depth1 = (Math.sin(phase) + 1) / 2;
+            const depth2 = (Math.sin(phase + Math.PI) + 1) / 2;
+
+            // Base pair connecting line
+            const colorIdx = i % 4;
+            const bpColor = dnaHelix.colors[colorIdx];
+            const bpAlpha = 0.08 + 0.15 * Math.min(depth1, depth2);
+            dnaCtx.strokeStyle = bpColor;
+            dnaCtx.globalAlpha = bpAlpha;
+            dnaCtx.lineWidth = 1.5;
+            dnaCtx.beginPath();
+            dnaCtx.moveTo(x1, y);
+            dnaCtx.lineTo(x2, y);
+            dnaCtx.stroke();
+
+            // Backbone dot (strand 1)
+            const size1 = 2 + depth1 * 3;
+            dnaCtx.globalAlpha = 0.15 + depth1 * 0.45;
+            dnaCtx.fillStyle = '#00f0ff';
+            dnaCtx.beginPath();
+            dnaCtx.arc(x1, y, size1, 0, Math.PI * 2);
+            dnaCtx.fill();
+
+            // Backdot dot (strand 2)
+            const size2 = 2 + depth2 * 3;
+            dnaCtx.globalAlpha = 0.15 + depth2 * 0.45;
+            dnaCtx.fillStyle = '#9d6bff';
+            dnaCtx.beginPath();
+            dnaCtx.arc(x2, y, size2, 0, Math.PI * 2);
+            dnaCtx.fill();
+        }
+
+        dnaCtx.globalAlpha = 1;
+        dnaHelix.rotation += dnaHelix.speed;
+        requestAnimationFrame(drawDNA);
+    }
+    drawDNA();
+
+    /* ================================================
+       PARTICLE BACKGROUND
+       ================================================ */
+    const pCanvas = document.getElementById('particle-canvas');
+    const pCtx = pCanvas.getContext('2d');
+    let particles = [];
+
+    function resizeParticleCanvas() {
+        pCanvas.width = window.innerWidth;
+        pCanvas.height = window.innerHeight;
+        initParticles();
+    }
+
+    function initParticles() {
+        particles = [];
+        const count = Math.floor((pCanvas.width * pCanvas.height) / 18000);
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * pCanvas.width,
+                y: Math.random() * pCanvas.height,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                size: Math.random() * 1.5 + 0.5,
+                opacity: Math.random() * 0.5 + 0.1
+            });
+        }
+    }
+
+    resizeParticleCanvas();
+    window.addEventListener('resize', resizeParticleCanvas);
+
+    function drawParticles() {
+        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+
+        particles.forEach((p, i) => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap around edges
+            if (p.x < 0) p.x = pCanvas.width;
+            if (p.x > pCanvas.width) p.x = 0;
+            if (p.y < 0) p.y = pCanvas.height;
+            if (p.y > pCanvas.height) p.y = 0;
+
+            // Draw particle
+            pCtx.fillStyle = `rgba(0, 240, 255, ${p.opacity})`;
+            pCtx.beginPath();
+            pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            pCtx.fill();
+
+            // Connect nearby particles
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const dx = p.x - p2.x;
+                const dy = p.y - p2.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    pCtx.strokeStyle = `rgba(0, 240, 255, ${(1 - dist / 120) * 0.12})`;
+                    pCtx.lineWidth = 0.5;
+                    pCtx.beginPath();
+                    pCtx.moveTo(p.x, p.y);
+                    pCtx.lineTo(p2.x, p2.y);
+                    pCtx.stroke();
+                }
+            }
+        });
+
+        requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    /* ================================================
+       MOBILE MENU (simple toggle)
+       ================================================ */
+    const mobileBtn = document.getElementById('mobileBtn');
+    const navLinks = document.querySelector('.nav-links');
+    mobileBtn?.addEventListener('click', () => {
+        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        navLinks.style.flexDirection = 'column';
+        navLinks.style.position = 'absolute';
+        navLinks.style.top = '60px';
+        navLinks.style.right = '20px';
+        navLinks.style.background = 'rgba(6,7,13,0.95)';
+        navLinks.style.padding = '16px 24px';
+        navLinks.style.borderRadius = '8px';
+        navLinks.style.border = '1px solid rgba(255,255,255,0.08)';
+        navLinks.style.backdropFilter = 'blur(20px)';
+    });
+
+    // Close mobile menu on link click
+    navLinks?.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                navLinks.style.display = 'none';
+            }
+        });
+    });
+
+    /* ================================================
+       SMOOTH SCROLL OFFSET FIX
+       ================================================ */
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const target = document.querySelector(targetId);
+            if (target) {
+                e.preventDefault();
+                const offset = 70;
+                const targetPos = target.getBoundingClientRect().top + window.scrollY - offset;
+                window.scrollTo({ top: targetPos, behavior: 'smooth' });
+            }
+        });
+    });
     </script>
-
 </body>
 </html>
