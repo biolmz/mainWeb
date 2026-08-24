@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<meta name="description" content="CET-4 四级成绩换算工具 v3：快速估分、智能综合算法、置信区间与过线概率、报道分反推卷面分，科学真实、多端适配。">
+<title>CET-4 四级成绩换算工具 · 快速估分 / 换算 / 卷面反推</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f46e5'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-size='30' font-family='Arial' font-weight='bold' fill='%23fff' text-anchor='middle'%3E4%3C/text%3E%3C/svg%3E">
+<style>
+/* ============ 主题变量（含深色模式适配） ============ */
+:root{
+  --bg:#f4f6fb; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --primary:#4f46e5; --primary-2:#7c3aed;
+  --ok:#10b981; --info:#3b82f6; --good:#8b5cf6; --bad:#ef4444;
+  --shadow:0 10px 30px rgba(15,23,42,.08);
+  --shadow-hover:0 16px 40px rgba(79,70,229,.14);
+  --radius:18px; --tabs-bg:rgba(255,255,255,.78);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1220; --card:#121a2e; --ink:#e2e8f0; --muted:#94a3b8; --line:#24304a;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --shadow-hover:0 16px 40px rgba(0,0,0,.55);
+    --tabs-bg:rgba(11,18,32,.82);
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:system-ui,-apple-system,"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+[hidden]{display:none!important}
+button{font:inherit;cursor:pointer}
+/* sticky 导航下的滚动定位让位，防止区块被顶部 tabs 遮挡 */
+.mode-bar,.quick-card,.section-card,.result-panel,.norm-panel,.convert-grid>.card{scroll-margin-top:84px}
+
+/* ============ Hero ============ */
+.hero{
+  position:relative;color:#fff;overflow:hidden;
+  background:linear-gradient(135deg,#4338ca 0%,#4f46e5 45%,#7c3aed 100%);
+  padding:46px 20px 34px;
+}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.35;pointer-events:none}
+.hero::before{width:340px;height:340px;background:#a78bfa;top:-140px;right:-80px}
+.hero::after{width:280px;height:280px;background:#22d3ee;bottom:-160px;left:-60px;opacity:.22}
+.hero-inner{position:relative;max-width:1080px;margin:0 auto;text-align:center}
+.logo{
+  display:inline-block;font-weight:800;letter-spacing:1px;font-size:13px;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+  padding:4px 14px;border-radius:99px;margin-bottom:14px;backdrop-filter:blur(6px);
+}
+.exam-seg{
+  display:inline-flex;gap:4px;padding:4px;margin-bottom:16px;border-radius:14px;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
+}
+.exam-seg button{
+  border:none;background:transparent;color:rgba(255,255,255,.85);font-weight:700;font-size:14px;
+  padding:7px 24px;border-radius:10px;transition:all .2s;white-space:nowrap;
+}
+.exam-seg button:hover{color:#fff}
+.exam-seg button.active{background:#fff;color:var(--primary);box-shadow:0 4px 14px rgba(0,0,0,.22)}
+.hero h1{font-size:clamp(25px,4.5vw,38px);font-weight:800;letter-spacing:.5px}
+.hero p{margin-top:10px;font-size:clamp(13px,1.8vw,15px);opacity:.88;max-width:660px;margin-inline:auto}
+.hero-stats{margin-top:24px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.hero-stats div{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:13px;padding:8px 18px;min-width:110px;backdrop-filter:blur(8px);
+}
+.hero-stats b{display:block;font-size:18px}
+.hero-stats span{font-size:12px;opacity:.8}
+
+/* ============ Tabs ============ */
+.tabs{position:sticky;top:0;z-index:50;background:var(--tabs-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.tabs-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:4px;padding:8px 12px;overflow-x:auto}
+.tab-btn{
+  border:none;background:transparent;color:var(--muted);
+  padding:10px 18px;border-radius:12px;font-weight:600;font-size:15px;white-space:nowrap;transition:all .2s;
+}
+.tab-btn:hover{color:var(--ink);background:color-mix(in srgb,var(--primary) 8%,transparent)}
+.tab-btn[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2));box-shadow:0 6px 16px rgba(79,70,229,.35)}
+
+/* 顶部导航常驻考试选择器（滚动时始终可见） */
+.exam-seg.bar{margin-left:auto;flex:none;display:inline-flex;gap:3px;padding:3px;border-radius:11px;
+  background:color-mix(in srgb,var(--primary) 7%,var(--card));border:1.5px solid var(--line)}
+.exam-seg.bar button{border:none;background:transparent;color:var(--muted);font-weight:700;font-size:13px;
+  padding:6px 14px;border-radius:8px;transition:all .2s;white-space:nowrap}
+.exam-seg.bar button:hover{color:var(--ink)}
+.exam-seg.bar button.active{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;
+  box-shadow:0 3px 10px rgba(79,70,229,.35);
+}
+@media (max-width:640px){
+  .no-m{display:none}
+  .tab-btn{padding:8px 12px;font-size:14px}
+  .exam-seg.bar button{padding:5px 10px;font-size:12px}
+  /* 吸附右端常驻，tab 横向滚动时考试选择始终可见 */
+  .exam-seg.bar{position:sticky;right:4px;margin-left:auto;box-shadow:-6px 0 14px rgba(0,0,0,.05)}
+  .tabs-inner{gap:2px;padding:8px 8px}
+}
+
+/* ============ 布局 ============ */
+main{max-width:1080px;margin:16px auto 0;padding:0 16px 40px;position:relative;z-index:2}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px;
+  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+@media (hover:hover){
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover);border-color:color-mix(in srgb,var(--primary) 30%,var(--line))}
+}
+.tab-panel{animation:fadein .3s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.calc-grid{display:grid;grid-template-columns:1fr;gap:18px}
+@media (min-width:1024px){
+  .calc-grid{grid-template-columns:minmax(0,1fr) 390px;align-items:start}
+  .result-panel{position:sticky;top:74px}
+}
+
+/* ============ 分段切换器（模式/算法） ============ */
+.seg{
+  display:flex;gap:4px;background:color-mix(in srgb,var(--primary) 7%,var(--card));
+  border:1px solid var(--line);border-radius:13px;padding:4px;
+}
+.seg button{
+  flex:1;border:none;background:transparent;color:var(--muted);border-radius:10px;
+  padding:8px 10px;font-weight:600;font-size:13.5px;transition:all .2s;white-space:nowrap;
+}
+.seg button.active{
+  color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  box-shadow:0 4px 12px rgba(79,70,229,.35);
+}
+.mode-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.mode-bar .seg{flex:1;min-width:240px}
+.mode-hint{font-size:12.5px;color:var(--muted)}
+.quick-card{margin-bottom:18px}
+
+.sec-head{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding-bottom:12px;border-bottom:2px solid var(--line);margin-bottom:4px;
+}
+.sec-title{display:flex;align-items:center;gap:12px}
+.sec-icon{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;
+  background:linear-gradient(135deg,rgba(79,70,229,.14),rgba(124,58,237,.14));
+}
+.sec-title h3{font-size:17px}
+.sec-title small{color:var(--muted);font-size:12px;display:block}
+.sec-sum{text-align:right;color:var(--muted);font-size:11px;white-space:nowrap}
+.sec-sum div{white-space:nowrap}
+.sec-sum b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.section-card{margin-bottom:18px}
+
+/* 题型行 */
+.q-row{
+  display:grid;grid-template-columns:172px 1fr 86px 74px;gap:14px;align-items:center;
+  padding:12px 0;border-bottom:1px dashed var(--line);
+}
+.q-row:last-of-type{border-bottom:none;padding-bottom:6px}
+.q-name b{font-size:14px;font-weight:600;display:block}
+.q-name small{color:var(--muted);font-size:12px}
+.q-ctl{display:flex;align-items:center;gap:6px;justify-self:end}
+.q-total{color:var(--muted);font-size:12px;white-space:nowrap}
+.q-score{
+  text-align:right;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;
+  color:var(--primary);white-space:nowrap;
+}
+@media (max-width:680px){
+  .q-row{grid-template-columns:1fr 86px;gap:8px 12px;padding:12px 0}
+  .q-name{grid-column:1;grid-row:1}
+  .q-score{grid-column:2;grid-row:1}
+  .q-range-wrap{grid-column:1;grid-row:2}
+  .q-ctl{grid-column:2;grid-row:2}
+}
+.rubric-live{
+  grid-column:1/-1;margin-top:2px;padding:7px 12px;border-radius:10px;
+  background:color-mix(in srgb,var(--primary) 6%,transparent);
+  font-size:12.5px;color:var(--muted);line-height:1.5;
+}
+.rubric-live b{color:var(--primary)}
+@media (max-width:680px){.rubric-live{grid-column:1/-1;grid-row:3}}
+
+.q-range-wrap{display:flex;align-items:center}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;
+  background:linear-gradient(to right,var(--primary) var(--p,0%),var(--line) var(--p,0%));outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:#fff;border:3px solid var(--primary);cursor:pointer;
+  box-shadow:0 2px 8px rgba(79,70,229,.4);transition:transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18)}
+input[type=range]::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--primary);
+  cursor:pointer;box-shadow:0 2px 8px rgba(79,70,229,.4);
+}
+.num{
+  width:64px;text-align:center;border:1.5px solid var(--line);border-radius:10px;
+  padding:7px 4px;font:inherit;font-size:14px;color:var(--ink);background:var(--card);
+  font-variant-numeric:tabular-nums;transition:border-color .15s,box-shadow .15s;
+}
+.num:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+.num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none}
+.num[type=number]{-moz-appearance:textfield;appearance:textfield}
+
+.rubric{margin-top:10px;font-size:13px;color:var(--muted)}
+.rubric summary{cursor:pointer;color:var(--primary);font-weight:600;user-select:none}
+.rubric ul{margin:8px 0 2px 18px}
+.rubric li{margin:3px 0}
+
+/* 常模参数面板 */
+.norm-panel{margin-bottom:0}
+.norm-panel summary{cursor:pointer;font-weight:700;font-size:15px;user-select:none;color:var(--primary)}
+.norm-grid{
+  display:grid;grid-template-columns:64px 1fr 1fr;gap:8px;align-items:center;
+  margin-top:12px;font-size:13px;
+}
+.norm-grid .head{color:var(--muted);font-size:12px}
+.norm-grid .num{width:100%}
+.norm-formula{
+  margin-top:12px;font-size:12.5px;color:var(--muted);
+  background:color-mix(in srgb,var(--primary) 5%,transparent);border-radius:10px;padding:10px 12px;
+}
+
+/* ============ 结果面板 ============ */
+.result-panel{display:flex;flex-direction:column;align-items:center}
+.ring-wrap{position:relative;width:196px;height:196px;margin:2px auto 0}
+.ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--line);stroke-width:13}
+.ring-fg{
+  fill:none;stroke-width:13;stroke-linecap:round;
+  transition:stroke-dashoffset .7s cubic-bezier(.22,1,.36,1);
+  filter:drop-shadow(0 4px 8px rgba(79,70,229,.28));
+}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.ring-text b{font-size:40px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.ring-text span{color:var(--muted);font-size:12px}
+.badge{
+  display:inline-block;font-size:12px;font-weight:700;border-radius:99px;
+  padding:3px 12px;margin-top:5px;background:color-mix(in srgb,var(--primary) 12%,transparent);
+  color:var(--primary);transition:all .3s;
+}
+.badge.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.badge.info{background:color-mix(in srgb,var(--info) 14%,transparent);color:var(--info)}
+.badge.good{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.badge.bad{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
+
+.algo-seg-wrap{width:100%;margin-top:10px}
+.algo-sub{
+  width:100%;text-align:center;font-size:12px;color:var(--muted);margin-top:7px;
+  font-variant-numeric:tabular-nums;
+}
+.algo-sub b{color:var(--ink)}
+.algo-sub i{font-style:normal;color:var(--good)}
+
+.gap-tip{
+  margin:10px 0 2px;font-size:13px;color:var(--muted);text-align:center;
+  background:color-mix(in srgb,var(--primary) 5%,transparent);
+  border-radius:12px;padding:9px 14px;width:100%;
+}
+.gap-tip b{color:var(--ink)}
+
+.ci-card{width:100%;margin-top:10px;border-radius:14px;border:1px solid var(--line);padding:12px 14px}
+.ci-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:8px;flex-wrap:wrap}
+.ci-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+.ci-row span{color:var(--muted)}
+.ci-row b{font-variant-numeric:tabular-nums}
+.prob-block{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.prob-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.prob-head span{color:var(--muted)}
+.prob-head b{font-variant-numeric:tabular-nums;font-size:15px}
+.goal-chips{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.goal-chips .chip-btn{font-size:12px;padding:3px 11px}
+.goal-chips .chip-btn.active{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border-color:transparent;
+  box-shadow:0 3px 10px rgba(79,70,229,.3);
+}
+.prob-bar{height:9px;border-radius:99px;background:var(--line);overflow:hidden}
+.prob-bar span{display:block;height:100%;border-radius:99px;width:0;transition:width .6s cubic-bezier(.22,1,.36,1),background .4s}
+.prob-note{font-size:12px;color:var(--muted);margin-top:6px}
+
+.switch-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink);cursor:pointer;font-weight:600}
+.switch-row input{display:none}
+.sw{width:34px;height:20px;border-radius:99px;background:var(--line);position:relative;transition:.25s;flex:none}
+.sw::after{
+  content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;
+  background:#fff;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.switch-row input:checked + .sw{background:var(--ok)}
+.switch-row input:checked + .sw::after{transform:translateX(14px)}
+
+.bars{width:100%;margin-top:14px;display:flex;flex-direction:column;gap:12px}
+.bar-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.bar-head b{font-variant-numeric:tabular-nums}
+.bar-head i{font-style:normal;color:var(--muted);font-size:12px}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar span{display:block;height:100%;border-radius:99px;width:0;transition:width .7s cubic-bezier(.22,1,.36,1)}
+.panel-actions{display:flex;gap:8px;width:100%;margin-top:18px;flex-wrap:wrap}
+.btn{
+  flex:1;min-width:84px;border-radius:12px;padding:10px 12px;font-weight:600;font-size:14px;
+  border:1.5px solid var(--line);background:var(--card);color:var(--ink);transition:all .2s;
+}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn.solid{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border:none;box-shadow:0 6px 16px rgba(79,70,229,.35)}
+.btn.solid:hover{filter:brightness(1.08);color:#fff}
+.btn.line{width:100%;margin-top:8px;flex:none}
+
+/* 移动端迷你总分条 */
+.mini-bar{
+  display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:60;
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;
+  border-radius:16px;padding:10px 18px;box-shadow:0 10px 30px rgba(79,70,229,.45);
+  align-items:center;gap:14px;cursor:pointer;
+}
+@media (max-width:1023px){
+  .mini-bar{display:flex}
+  body{padding-bottom:72px}
+}
+.mini-bar b{font-size:22px;font-variant-numeric:tabular-nums}
+.mini-bar span{font-size:13px;opacity:.92;flex:1}
+.mini-bar em{font-style:normal;font-size:12px;opacity:.8}
+
+/* ============ Tab 2 ============ */
+.convert-grid{display:grid;grid-template-columns:1fr;gap:18px}
+@media (min-width:900px){.convert-grid{grid-template-columns:1fr 1fr;align-items:start}}
+.convert-right{display:flex;flex-direction:column;gap:18px}
+.convert-grid h3{font-size:17px;margin-bottom:14px}
+.field-label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px;font-weight:600}
+.score-input{display:flex;align-items:baseline;gap:8px}
+.score-input .num{width:110px;font-size:20px;font-weight:700;padding:10px}
+.score-input span{color:var(--muted)}
+.quick-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip-btn{
+  border:1.5px solid var(--line);background:transparent;color:var(--muted);border-radius:99px;
+  padding:4px 13px;font-size:13px;transition:all .15s;
+}
+.chip-btn:hover{border-color:var(--primary);color:var(--primary)}
+.radio-row{
+  display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;
+  border:1.5px solid var(--line);margin-bottom:8px;cursor:pointer;transition:all .15s;
+}
+.radio-row:has(input:checked){border-color:var(--primary);background:color-mix(in srgb,var(--primary) 6%,transparent)}
+.radio-row input{margin-top:4px;accent-color:var(--primary)}
+.radio-row b{font-size:14px;display:block}
+.radio-row small{color:var(--muted);font-size:12px}
+.divider{height:1px;background:var(--line);margin:18px 0}
+.rev-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.rev-row .num{width:76px}
+.rev-row b{font-size:18px;color:var(--primary);font-variant-numeric:tabular-nums}
+.cv-main{text-align:center;padding:10px 0 4px}
+.cv-main b{font-size:50px;font-weight:800;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,var(--primary),var(--primary-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.cv-main span{display:block;color:var(--muted);font-size:13px}
+.cv-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0 20px}
+.cv-chips .chip{font-size:13px;color:var(--muted);background:color-mix(in srgb,var(--primary) 6%,transparent);border-radius:99px;padding:5px 14px}
+.cv-chips b{color:var(--ink)}
+
+/* 卷面反推卡 */
+.raw-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.raw-main{display:flex;align-items:baseline;gap:10px;margin:14px 0 6px;justify-content:center;flex-wrap:wrap}
+.raw-main b{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--good)}
+.raw-main span{color:var(--muted);font-size:13px}
+.raw-rate{text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px}
+.raw-rate b{color:var(--ink)}
+tfoot td{font-size:12.5px}
+.fine{font-size:12px;color:var(--muted);margin-top:24px}
+
+/* 标尺 */
+.ruler{margin:8px 4px 4px;padding:0 6px}
+.ruler-track{position:relative;height:6px;border-radius:99px;background:linear-gradient(to right,#ef4444 0%,#f59e0b 59%,#10b981 77%,#3b82f6 84%,#8b5cf6 100%);opacity:.9}
+.tick{position:absolute;top:-4px;transform:translateX(-50%);text-align:center}
+.tick i{display:block;width:2px;height:14px;background:var(--card);border:1px solid var(--muted);border-radius:2px;margin:0 auto}
+.tick em{font-style:normal;font-size:11px;color:var(--muted);display:block;margin-top:4px;white-space:nowrap}
+.tick.first{left:0!important;transform:none;text-align:left}
+.tick.first i{margin:0}
+.tick.last{left:100%!important;transform:translateX(-100%);text-align:right}
+.tick.last i{margin:0 0 0 auto}
+.needle{position:absolute;top:-26px;transform:translateX(-50%);transition:left .5s cubic-bezier(.22,1,.36,1)}
+.needle::after{content:"";display:block;width:0;height:0;margin:14px auto 0;border:6px solid transparent;border-top:8px solid var(--primary)}
+.needle b{
+  display:block;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;
+  font-size:12px;border-radius:8px;padding:3px 9px;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+
+/* ============ 说明 Tab ============ */
+.about-card{margin-bottom:18px}
+.about-card h3{font-size:17px;margin-bottom:12px}
+.about-card p,.about-card li{font-size:14px;color:var(--ink)}
+.about-card .muted{color:var(--muted);font-size:13px}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px;white-space:nowrap}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:color-mix(in srgb,var(--primary) 7%,transparent);font-weight:700;font-size:12px;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--primary) 4%,transparent)}
+td b{color:var(--primary)}
+.about-card ol,.about-card ul{margin:8px 0 8px 20px}
+.formula{
+  background:color-mix(in srgb,var(--primary) 6%,transparent);border-left:3px solid var(--primary);
+  padding:10px 16px;border-radius:0 10px 10px 0;margin:10px 0;font-size:14px;
+}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:1px}
+.tag.official{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.tag.ref{background:color-mix(in srgb,var(--info) 12%,transparent);color:var(--info)}
+.tag.est{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
+
+footer{text-align:center;color:var(--muted);font-size:12px;padding:10px 16px 34px}
+#toast{
+  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:99px;font-size:14px;
+  opacity:0;pointer-events:none;transition:all .3s;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="logo">CET · SCORE TOOL v4</span>
+    <div class="exam-seg" id="examSeg" role="tablist" aria-label="选择考试">
+      <button data-exam="cet4" class="active">CET-4 四级</button>
+      <button data-exam="cet6">CET-6 六级</button>
+    </div>
+    <h1 id="heroTitle">四级成绩换算工具</h1>
+    <p id="heroDesc">快速 4 步估分 · 智能综合算法（默认最优）· 置信区间与过线概率 · 卷面 100 分与报道 710 分双口径</p>
+    <div class="hero-stats">
+      <div><b>100 → 710</b><span>卷面 ×7.1 = 报道</span></div>
+      <div><b>425</b><span id="statPass">六级报考资格线</span></div>
+      <div><b>4 步</b><span>快速模式输入</span></div>
+      <div><b>双模型</b><span>累加+常模融合</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <div class="tabs-inner">
+    <button class="tab-btn" role="tab" data-tab="calc" aria-selected="true">① 估分计算</button>
+    <button class="tab-btn" role="tab" data-tab="convert" aria-selected="false">② 换算与反推</button>
+    <button class="tab-btn" role="tab" data-tab="about" aria-selected="false">③ 算法说明</button>
+    <div class="exam-seg bar" id="examSegBar" role="tablist" aria-label="选择考试">
+      <button data-exam="cet4" class="active"><em class="no-m">CET-4 </em>四级</button>
+      <button data-exam="cet6"><em class="no-m">CET-6 </em>六级</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ================= Tab 1：估分计算 ================= -->
+  <section class="tab-panel" id="panel-calc">
+    <div class="calc-grid">
+      <div>
+        <div class="mode-bar">
+          <div class="seg" id="modeSeg">
+            <button data-mode="quick" class="active">⚡ 快速估分（4 步）</button>
+            <button data-mode="detail">📋 按题型精确估分</button>
+          </div>
+          <span class="mode-hint" id="modeHint">快速模式按真实题型比例自动分配，无精度损失</span>
+        </div>
+
+        <div id="quickWrap">
+          <section class="card quick-card">
+            <header class="sec-head">
+              <div class="sec-title">
+                <span class="sec-icon">⚡</span>
+                <div><h3>快速估分</h3><small>只需 4 个数字，30 秒完成</small></div>
+              </div>
+            </header>
+            <div id="quickArea"><!-- JS 渲染 --></div>
+          </section>
+        </div>
+
+        <div id="detailWrap" hidden><!-- JS 渲染：3 张精确卡 + 常模参数 --></div>
+      </div>
+
+      <aside class="card result-panel">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" id="gradA" stop-color="#a5b4fc"/>
+                <stop offset="1" id="gradB" stop-color="#4f46e5"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="100" cy="100" r="86"></circle>
+            <circle class="ring-fg" cx="100" cy="100" r="86" id="ringFg" stroke="url(#ringGrad)"></circle>
+          </svg>
+          <div class="ring-text">
+            <b id="totalNum">0.0</b>
+            <span>/ 710 报道分</span>
+            <span id="ringSub" style="font-size:11px">卷面 0 / 100</span>
+            <em class="badge" id="gradeBadge">待估分</em>
+          </div>
+        </div>
+
+        <div class="algo-seg-wrap">
+          <div class="seg" id="algoSeg">
+            <button data-algo="blend" class="active">🧠 智能综合</button>
+            <button data-algo="sum">累加</button>
+            <button data-algo="norm">常模</button>
+          </div>
+          <div class="algo-sub" id="algoSub">累加 <b>0.0</b> ｜ 常模校准 <i>--</i>（综合 = 分歧自适应加权）</div>
+        </div>
+
+        <div class="gap-tip" id="gapTip">输入答题情况，实时估算总分</div>
+
+        <div class="ci-card">
+          <div class="ci-head">
+            <span>误差模型 · 置信区间</span>
+            <label class="switch-row">
+              <input type="checkbox" id="chkAnswered"><span class="sw"></span>已对答案
+            </label>
+          </div>
+          <div class="ci-row"><span>68% 区间（μ ± 1σ）</span><b id="ci68">--</b></div>
+          <div class="ci-row"><span>95% 区间（μ ± 1.96σ）</span><b id="ci95">--</b></div>
+          <div class="prob-block">
+            <div class="prob-head"><span id="probLabel">🎯 总分 ≥ 425 概率</span><b id="probVal">--</b></div>
+            <div class="goal-chips" id="goalChips">
+              <button class="chip-btn active" data-goal="425">425</button>
+              <button class="chip-btn" data-goal="500">500</button>
+              <button class="chip-btn" data-goal="550">550</button>
+              <button class="chip-btn" data-goal="600">600</button>
+            </div>
+            <div class="prob-bar"><span id="probFill"></span></div>
+            <div class="prob-note" id="probNote">估分越高、误差越窄，概率越确定</div>
+          </div>
+        </div>
+
+        <div class="bars" id="bars">
+          <div class="bar-item">
+            <div class="bar-head"><span>🎧 听力理解</span><b id="barLstV">0 <i>/ 248.5</i></b></div>
+            <div class="bar"><span id="barLst" style="background:linear-gradient(90deg,#4f46e5,#818cf8)"></span></div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-head"><span>📖 阅读理解</span><b id="barRdV">0 <i>/ 248.5</i></b></div>
+            <div class="bar"><span id="barRd" style="background:linear-gradient(90deg,#7c3aed,#a78bfa)"></span></div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-head"><span>✍️ 写作与翻译</span><b id="barWtV">0 <i>/ 213</i></b></div>
+            <div class="bar"><span id="barWt" style="background:linear-gradient(90deg,#0d9488,#2dd4bf)"></span></div>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button class="btn" id="btnDemo">示例</button>
+          <button class="btn" id="btnReset">重置</button>
+          <button class="btn solid" id="btnCopy">复制结果</button>
+        </div>
+        <button class="btn line" id="btnToConvert">带入「换算与反推」→</button>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= Tab 2：换算与反推 ================= -->
+  <section class="tab-panel" id="panel-convert" hidden>
+    <div class="convert-grid">
+      <div class="card">
+        <h3 id="convertTitle">📥 输入四级报道分</h3>
+
+        <label class="field-label" for="cvScore">笔试报道总分（220 – 710）</label>
+        <div class="score-input">
+          <input type="number" class="num" id="cvScore" min="220" max="710" step="0.5" value="520">
+          <span>分</span>
+        </div>
+        <div class="quick-btns" id="quickBtns">
+          <button class="chip-btn" data-v="425" id="qbtn425">425</button>
+          <button class="chip-btn" data-v="480">480</button>
+          <button class="chip-btn" data-v="550">550 良好</button>
+          <button class="chip-btn" data-v="600">600 优秀</button>
+          <button class="chip-btn" data-v="710">710 满分</button>
+        </div>
+
+        <label class="field-label">百分制换算公式</label>
+        <label class="radio-row">
+          <input type="radio" name="formula" value="A" checked>
+          <div><b>等比例折算</b><small>分数 ÷ 710 × 100，最常见的校内折算与简历自评方式</small></div>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="formula" value="B">
+          <div><b>下限基准折算</b><small>(分数 − 220) ÷ 490 × 100，将报道分下限 220 计为 0 分</small></div>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="formula" value="C">
+          <div><b>资格线映射</b><small>220 → 0、425 → 60、710 → 100 分段映射，贴合「425 即及格」认知</small></div>
+        </label>
+
+        <div class="divider"></div>
+
+        <h3 style="font-size:15px">🔄 反向查询</h3>
+        <div class="rev-row">
+          校内目标 <input type="number" class="num" id="cvPercent" min="0" max="100" value="85"> 分
+          <span>→</span> 需要<span id="revLabel">四级</span>约 <b id="revScore">603.5</b> 分
+        </div>
+      </div>
+
+      <div class="convert-right">
+        <div class="card">
+          <div class="raw-head">
+            <h3 style="margin:0">🔬 报道分 → 卷面分反推</h3>
+            <span class="muted" style="font-size:12px;color:var(--muted)">卷面满分 100 · 按小题分拆分</span>
+          </div>
+          <div class="raw-main">
+            <b id="rawTotal">--</b><span>/ 100 卷面分</span>
+          </div>
+          <div class="raw-rate">对应整体正确率 <b id="rawPct">--</b>（常模锚点等比例反推）</div>
+          <div class="table-wrap" style="margin-top:12px">
+            <table style="min-width:440px;font-size:12px">
+              <thead><tr><th>部分</th><th>题型</th><th>参考作答</th><th>卷面小分</th></tr></thead>
+              <tbody id="rawBody"></tbody>
+              <tfoot><tr><td colspan="3"><b>卷面总分</b></td><td><b id="rawSum">--</b> <span style="color:var(--muted)">/ 100</span></td></tr></tfoot>
+            </table>
+          </div>
+          <p class="fine">* 反推模型：以常模锚点 220↔0%、500↔60%、710↔100% 分段线性还原正确率，再按<b>当前考试</b>各题型真实卷面小题分（听力、阅读、写译构成见「算法说明」分值表）等比例拆分。反映常模典型考生的答题结构，个体强弱项会有差异，仅供参考。</p>
+        </div>
+
+        <div class="card">
+          <h3>📤 百分制换算结果</h3>
+          <div class="cv-main">
+            <b id="cvPercentOut">--</b>
+            <span>对应百分制</span>
+          </div>
+          <div class="cv-chips">
+            <span class="chip">得分率 <b id="cvRate">--</b></span>
+            <span class="chip">参考等级 <b id="cvGrade">--</b></span>
+            <span class="chip">六级资格 <b id="cvElig">--</b></span>
+          </div>
+
+          <div class="ruler">
+            <div class="ruler-track" id="rulerTrack">
+              <div class="tick first" style="left:0%"><i></i><em>0</em></div>
+              <div class="tick" style="left:30.99%"><i></i><em>220 下限</em></div>
+              <div class="tick" style="left:59.86%"><i></i><em>425 资格线</em></div>
+              <div class="tick" style="left:77.46%"><i></i><em>550 良好</em></div>
+              <div class="tick" style="left:84.51%"><i></i><em>600 优秀</em></div>
+              <div class="tick last" style="left:100%"><i></i><em>710</em></div>
+              <div class="needle" id="needle" style="left:73%"><b id="needleVal">520</b></div>
+            </div>
+          </div>
+          <p class="fine" style="margin-top:30px">* 折算公式为高校与单位常见做法整理，非官方统一标准；请以目标院校 / 单位规定为准。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Tab 3：算法说明 ================= -->
+  <section class="tab-panel" id="panel-about" hidden>
+    <div class="card about-card">
+      <h3>🧠 智能综合算法（默认最优）<span class="tag ref">集成估计</span></h3>
+      <p>权重累加与常模校准是两条<b>信息来源独立</b>的估计路径：前者完全由你的答题数据决定，后者引入常模分布先验。v4 采用<b>分歧自适应加权</b>：两视角分歧越大，说明你的强弱项越偏离常模假设，基于估计参数的常模校准越不可信，应回归答题数据本身：</p>
+      <div class="formula">
+        综合估分 = w × 累加 + (1 − w) × 常模，截断至 [220, 710]<br>
+        w = |累加 − 常模| / (|累加 − 常模| + 60)：分歧 60 分 → 等权；分歧越大 → 常模参数（学术估计）越不可靠，综合越向答题数据本身回归
+      </div>
+      <ul>
+        <li>答题结构接近常模典型形态时，两视角接近，综合分稳健；</li>
+        <li>强弱项明显（如听力远强于阅读）时，综合分自动向累加倾斜，结果面板实时显示当前分歧值与权重 w；</li>
+        <li>置信区间与达标概率始终基于当前所选算法的分值计算；</li>
+        <li>卷面口径（满分 100）不参与算法切换：卷面分完全由答题数据决定，与常模参数无关。</li>
+      </ul>
+    </div>
+
+    <div class="card about-card">
+      <h3>⚡ 快速模式原理<span class="tag ref">无精度损失</span></h3>
+      <p>快速模式只输入「听力答对 / 25、阅读答对 / 30、写作档次、翻译档次」4 个数字。工具内部将题数按<b>当前考试真实题型比例</b>分配到 8 个题型（听力按当前考试题型构成、阅读 10:10:10，余数归入高分值题型），再用官方单题分值精确计算——因此快速模式与精确模式共享同一套计算内核，<b>没有平均分近似损失</b>，四 / 六级切换后自动按对应题型结构分配。</p>
+    </div>
+
+    <div class="card about-card">
+      <h3>🔬 报道分 → 卷面分反推模型<span class="tag est">参数为学术估计</span></h3>
+      <p>官方常模参数未公开，无法精确逆运算。本工具采用常模锚点 + 等比例假设的分段线性还原：</p>
+      <div class="formula">
+        报道分 220 ↔ 正确率 0%　·　500 ↔ 60%（常模均值）　·　710 ↔ 100%<br>
+        500 以上：p̂ = 0.6 + (S − 500) / 210 × 0.4；500 以下：p̂ = (S − 220) / 280 × 0.6<br>
+        卷面总分（满分 100）= p̂ × 100；分项按小题卷面分等比拆分（新闻/对话/匹配 1 分、篇章/仔细 2 分、选词 0.5 分、写译各 15 档）
+      </div>
+      <p class="muted">示例：425 分 → 正确率约 43.9% → 卷面约 43.9 / 100（新闻 ≈3 题、对话 ≈4 题、篇章 ≈4 题、选词 ≈4 题、匹配 ≈4 题、仔细 ≈4 题、写/译 ≈6.6 档）。</p>
+    </div>
+
+    <div class="card about-card">
+      <h3>📐 分值结构：卷面 100 → 报道 710<span class="tag official">官方大纲</span></h3>
+      <p class="muted" style="margin-bottom:12px"><span id="scoreTitle">四级</span><b>卷面原始分满分为 100 分</b>（听力 35 + 阅读 35 + 写作 15 + 翻译 15），报道分 = 卷面分 × 7.1（系数全局统一）。下表随顶部考试切换自动更新：</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>部分</th><th>题型</th><th>题数</th><th>卷面单题</th><th>卷面小计</th><th>报道单题</th><th>报道小计</th></tr></thead>
+          <tbody id="scoreTableBody"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:10px">小题卷面分不同是关键：同为 10 题，仔细阅读/讲座占 20 分卷面，而选词填空仅 5 分。本工具估分行、分项条与卷面反推均按此小题结构计算。</p>
+    </div>
+
+    <div class="card about-card">
+      <h3>🔄 四 / 六级考试差异<span class="tag official">官方大纲</span></h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>对比项</th><th>CET-4 四级</th><th>CET-6 六级</th></tr></thead>
+          <tbody>
+            <tr><td><b>听力结构</b></td><td>短篇新闻 7 题×1 分<br>长对话 8 题×1 分<br>听力篇章 10 题×2 分</td><td>长对话 8 题×1 分<br>听力篇章 7 题×1 分<br>讲话·报道·讲座 10 题×2 分</td></tr>
+            <tr><td><b>阅读结构</b></td><td colspan="2">相同：选词填空 10×0.5 + 长篇阅读 10×1 + 仔细阅读 10×2（卷面 35 分）</td></tr>
+            <tr><td><b>写译结构</b></td><td colspan="2">相同：写作 15 分制 + 翻译 15 分制（卷面 30 分），评分档次体系一致</td></tr>
+            <tr><td><b>卷面/报道</b></td><td colspan="2">相同：卷面 100 分，报道 = 卷面 × 7.1（满分 710）</td></tr>
+            <tr><td><b>常模差异</b></td><td>常模群体为全国大学英语教学样本，均值较低、分布较宽</td><td>报考门槛为四级 ≥425，考生水平整体更高，原始分均值更高、分布更窄（本工具常模参数为学术估计）</td></tr>
+            <tr><td><b>425 的含义</b></td><td>六级报考资格线（官方规定）</td><td>普遍认可的及格参考线（民间标准）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card about-card">
+      <h3>✍️ 写作与翻译官方评分档次<span class="tag official">官方评分标准</span></h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>档次</th><th>作文评分描述</th><th>翻译评分描述</th></tr></thead>
+          <tbody>
+            <tr><td><b>13–15 分</b></td><td>切题，表达思想清楚，文字通顺、连贯，基本上无语言错误，仅有个别小错</td><td>准确表达原文意思，用词贴切，行文流畅，基本无语言错误</td></tr>
+            <tr><td><b>10–12 分</b></td><td>切题，表达思想清楚，文字连贯，但有少量语言错误</td><td>基本表达原文意思，文字通顺、连贯，无重大语言错误</td></tr>
+            <tr><td><b>7–9 分</b></td><td>基本切题，部分表达不够清楚，文字勉强连贯，语言错误相当多，含严重错误</td><td>勉强表达原文意思，用词欠准确，错误相当多，部分严重</td></tr>
+            <tr><td><b>4–6 分</b></td><td>基本切题，表达思想不清楚，连贯性差，较多严重语言错误</td><td>仅表达一小部分原文意思，有相当多严重错误</td></tr>
+            <tr><td><b>1–3 分</b></td><td>条理不清，思路紊乱，语言支离破碎，大部分句子有严重错误</td><td>译文支离破碎，大部分文字未表达原文意思</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card about-card">
+      <h3>📊 统计误差模型与过线概率<span class="tag ref">统计学方法</span></h3>
+      <ul>
+        <li><b>记忆误差（客观题）</b>：凭印象估对错时，听力 ±1.5 题（σ≈14.9）、阅读 ±1.5 题（σ≈12.4）；勾选「已对答案」归零；</li>
+        <li><b>主观自评误差（写译）</b>：按官方档次自评的档间摆动 ±1.5 分/项 → 合成 σ≈15.1（无标准答案，不可归零）；</li>
+        <li><b>合成</b>：σ<sub>总</sub> = √(σ<sub>听</sub>² + σ<sub>读</sub>² + σ<sub>写译</sub>²)，未对答案 ≈ 24.6，已对答案 ≈ 15.1；</li>
+        <li><b>达标概率</b>：P(总分 ≥ 目标) = 1 − Φ((目标 − μ)/σ)，Φ 为标准正态分布（erf 数值近似，精度 10⁻⁷）。目标线可在结果面板切换（425 / 500 / 550 / 600，默认 425）；</li>
+      </ul>
+    </div>
+
+    <div class="card about-card">
+      <h3>🧮 常模参照原理<span class="tag official">官方机制</span></h3>
+      <div class="formula">报道分 = (原始分 − 常模均值) ÷ 常模标准差 × 70 + 500（常模量尺：均值 500，标准差 70，区间 220–710）</div>
+      <ul>
+        <li>常模校准分 = 500 + 70 × (0.35·z<sub>听</sub> + 0.35·z<sub>读</sub> + 0.30·z<sub>写译</sub>)，截断至 [220, 710]；</li>
+        <li>默认参数为历年成绩分布研究的<b>学术估计值（非官方）</b>，随考试切换（四级：听 149.1/σ45、读 149.1/σ45、写译 130/σ38；六级：听 160/σ40、读 155/σ40、写译 133/σ35），估分页「按题型精确估分」底部可调；</li>
+        <li>关键线：220 报道分下限（官方）· 425 达标线（四级为六级报考资格线，六级为及格参考）· 550 良好参考 · 600 优秀参考（民间标准）。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  数据依据《全国大学英语四、六级考试大纲（2016 年版）》及官方写译评分标准 · 估分与概率仅供参考，以中国教育考试网官方成绩为准<br>
+  Pure HTML / CSS / JS · 单文件 · 无依赖 · 响应式适配桌面 / 平板 / 手机
+</footer>
+
+<!-- 移动端迷你总分条 -->
+<div class="mini-bar" id="miniBar" title="点击查看详细结果">
+  <b id="miniScore">0</b>
+  <span id="miniGrade">待估分 · 点击查看详情</span>
+  <em>▲</em>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+"use strict";
+/* =========================================================
+ * 双考试数据层：CET-4 / CET-6
+ * 卷面满分均为 100（听 35 + 读 35 + 写 15 + 译 15），报道 = 卷面 × 7.1
+ * 差异在听力题型结构（四级：新闻+对话+篇章；六级：对话+篇章+讲座）
+ * ========================================================= */
+const EXAM_CET4 = {
+  id: "cet4", name: "四级", statPass: "六级报考资格线",
+  title: "四级成绩换算工具",
+  desc: "CET-4 · 快速 4 步估分 · 智能综合算法（默认最优）· 置信区间与过线概率 · 卷面 100 分 / 报道 710 分双口径",
+  items: [
+    { id: "lst_news",  name: "短篇新闻",        sub: "7 题 · 卷面 1 分/题",  count: 7,   rawPer: 1,   per: 7.1,   sec: "lst" },
+    { id: "lst_conv",  name: "长对话",          sub: "8 题 · 卷面 1 分/题",  count: 8,   rawPer: 1,   per: 7.1,   sec: "lst" },
+    { id: "lst_pass",  name: "听力篇章",        sub: "10 题 · 卷面 2 分/题", count: 10,  rawPer: 2,   per: 14.2,  sec: "lst" },
+    { id: "rd_bank",   name: "词汇理解（选词填空）", sub: "10 题 · 卷面 0.5 分/题", count: 10, rawPer: 0.5, per: 3.55, sec: "rd" },
+    { id: "rd_match",  name: "长篇阅读（信息匹配）", sub: "10 题 · 卷面 1 分/题", count: 10, rawPer: 1,  per: 7.1,  sec: "rd" },
+    { id: "rd_care",   name: "仔细阅读",        sub: "10 题 · 卷面 2 分/题",  count: 10,  rawPer: 2,   per: 14.2,  sec: "rd" },
+    { id: "wt_essay",  name: "短文写作",        sub: "官方 15 分制 · 卷面即档次", count: 15, rawPer: 1, per: 7.1, sec: "wt", step: 0.5, rubric: "essay" },
+    { id: "wt_trans",  name: "段落翻译（汉译英）", sub: "官方 15 分制 · 卷面即档次", count: 15, rawPer: 1, per: 7.1, sec: "wt", step: 0.5, rubric: "trans" },
+  ],
+  sections: [
+    { id: "lst", name: "听力理解", icon: "🎧", max: 248.5, rawMax: 35, note: "卷面 35 分（新闻1/对话1/篇章2 分每题）· 报道 248.5" },
+    { id: "rd",  name: "阅读理解", icon: "📖", max: 248.5, rawMax: 35, note: "卷面 35 分（0.5/1/2 分每题）· 报道 248.5" },
+    { id: "wt",  name: "写作与翻译", icon: "✍️", max: 213, rawMax: 30, note: "卷面 30 分（写/译各 15 分制）· 报道 213" },
+  ],
+  demo: { lst_news: 5, lst_conv: 6, lst_pass: 7, rd_bank: 6, rd_match: 7, rd_care: 7, wt_essay: 11, wt_trans: 10 },
+  norm: { lst: { mu: 149.1, sd: 45 }, rd: { mu: 149.1, sd: 45 }, wt: { mu: 130, sd: 38 } },
+  rawRows: [
+    { sec: "🎧 听力", name: "短篇新闻", n: 7,  per: 1 },
+    { sec: "",       name: "长对话",   n: 8,  per: 1 },
+    { sec: "",       name: "听力篇章", n: 10, per: 2 },
+    { sec: "📖 阅读", name: "选词填空", n: 10, per: 0.5 },
+    { sec: "",       name: "长篇阅读", n: 10, per: 1 },
+    { sec: "",       name: "仔细阅读", n: 10, per: 2 },
+    { sec: "✍️ 写译", name: "短文写作", n: 15, per: 1, grade: true },
+    { sec: "",       name: "段落翻译", n: 15, per: 1, grade: true },
+  ],
+  lines: {
+    pass: 425, passLabel: "425 资格线", good: 550, great: 600,
+    gapTpl: ["距 <b>{pass} 资格线</b>还差", "✔ 已过线，具备六级报考资格；距 <b>{good} 良好</b>线", "✔ 已达<b>良好</b>；距 <b>{great} 优秀</b>线"],
+  },
+};
+const EXAM_CET6 = {
+  id: "cet6", name: "六级", statPass: "及格参考线",
+  title: "六级成绩换算工具",
+  desc: "CET-6 · 快速 4 步估分 · 智能综合算法（默认最优）· 置信区间与过线概率 · 卷面 100 分 / 报道 710 分双口径",
+  items: [
+    { id: "lst_conv",  name: "长对话",          sub: "8 题 · 卷面 1 分/题",  count: 8,   rawPer: 1,   per: 7.1,   sec: "lst" },
+    { id: "lst_pass",  name: "听力篇章",        sub: "7 题 · 卷面 1 分/题",  count: 7,   rawPer: 1,   per: 7.1,   sec: "lst" },
+    { id: "lst_talk",  name: "讲话 · 报道 · 讲座", sub: "10 题 · 卷面 2 分/题", count: 10, rawPer: 2, per: 14.2, sec: "lst" },
+    { id: "rd_bank",   name: "词汇理解（选词填空）", sub: "10 题 · 卷面 0.5 分/题", count: 10, rawPer: 0.5, per: 3.55, sec: "rd" },
+    { id: "rd_match",  name: "长篇阅读（信息匹配）", sub: "10 题 · 卷面 1 分/题", count: 10, rawPer: 1,  per: 7.1,  sec: "rd" },
+    { id: "rd_care",   name: "仔细阅读",        sub: "10 题 · 卷面 2 分/题",  count: 10,  rawPer: 2,   per: 14.2,  sec: "rd" },
+    { id: "wt_essay",  name: "短文写作",        sub: "官方 15 分制 · 卷面即档次", count: 15, rawPer: 1, per: 7.1, sec: "wt", step: 0.5, rubric: "essay" },
+    { id: "wt_trans",  name: "段落翻译（汉译英）", sub: "官方 15 分制 · 卷面即档次", count: 15, rawPer: 1, per: 7.1, sec: "wt", step: 0.5, rubric: "trans" },
+  ],
+  sections: [
+    { id: "lst", name: "听力理解", icon: "🎧", max: 248.5, rawMax: 35, note: "卷面 35 分（对话1/篇章1/讲座2 分每题）· 报道 248.5" },
+    { id: "rd",  name: "阅读理解", icon: "📖", max: 248.5, rawMax: 35, note: "卷面 35 分（0.5/1/2 分每题）· 报道 248.5" },
+    { id: "wt",  name: "写作与翻译", icon: "✍️", max: 213, rawMax: 30, note: "卷面 30 分（写/译各 15 分制）· 报道 213" },
+  ],
+  demo: { lst_conv: 5, lst_pass: 5, lst_talk: 7, rd_bank: 6, rd_match: 7, rd_care: 7, wt_essay: 11, wt_trans: 10 },
+  norm: { lst: { mu: 160, sd: 40 }, rd: { mu: 155, sd: 40 }, wt: { mu: 133, sd: 35 } },
+  rawRows: [
+    { sec: "🎧 听力", name: "长对话",        n: 8,  per: 1 },
+    { sec: "",       name: "听力篇章",      n: 7,  per: 1 },
+    { sec: "",       name: "讲话·报道·讲座", n: 10, per: 2 },
+    { sec: "📖 阅读", name: "选词填空",      n: 10, per: 0.5 },
+    { sec: "",       name: "长篇阅读",      n: 10, per: 1 },
+    { sec: "",       name: "仔细阅读",      n: 10, per: 2 },
+    { sec: "✍️ 写译", name: "短文写作",      n: 15, per: 1, grade: true },
+    { sec: "",       name: "段落翻译",      n: 15, per: 1, grade: true },
+  ],
+  lines: {
+    pass: 425, passLabel: "425 及格线", good: 550, great: 600,
+    gapTpl: ["距 <b>{pass} 及格线</b>还差", "✔ 已达及格参考；距 <b>{good} 良好</b>线", "✔ 已达<b>良好</b>；距 <b>{great} 优秀</b>线"],
+  },
+};
+
+let EXAM = EXAM_CET4;          // 当前考试
+let ITEMS = EXAM.items;         // 指向当前考试的题型表（compute 等直接引用）
+let SECTIONS = EXAM.sections;
+let DEMO = EXAM.demo;
+let NORM_DEFAULT = EXAM.norm;
+let RAW_ROWS = EXAM.rawRows;
+let LINES = EXAM.lines;
+
+const QUICK = [
+  { id: "q_lst",  name: "听力答对", sub: "共 25 题 · 卷面 35 分", count: 25 },
+  { id: "q_rd",   name: "阅读答对", sub: "共 30 题 · 卷面 35 分", count: 30 },
+  { id: "q_wt_e", name: "写作档次", sub: "官方 15 分制",           count: 15, step: 0.5, rubric: "essay", src: "wt_essay" },
+  { id: "q_wt_t", name: "翻译档次", sub: "官方 15 分制",           count: 15, step: 0.5, rubric: "trans", src: "wt_trans" },
+];
+
+/* 官方写译评分档次 */
+const RUBRICS = {
+  essay: [
+    { min: 13.5, tag: "一档 13–15 分", desc: "切题，表达思想清楚，文字通顺连贯，基本无语言错误，仅个别小错" },
+    { min: 10,   tag: "二档 10–12 分", desc: "切题，表达思想清楚，文字连贯，有少量语言错误" },
+    { min: 7,    tag: "三档 7–9 分",   desc: "基本切题，部分表达不够清楚，文字勉强连贯，语言错误相当多，含严重错误" },
+    { min: 4,    tag: "四档 4–6 分",   desc: "基本切题，表达思想不清楚，连贯性差，有较多严重语言错误" },
+    { min: 1,    tag: "五档 1–3 分",   desc: "条理不清，思路紊乱，语言支离破碎，大部分句子有严重错误" },
+    { min: -1,   tag: "0 分",          desc: "未作答，或与题目毫不相关" },
+  ],
+  trans: [
+    { min: 13.5, tag: "一档 13–15 分", desc: "准确表达原文意思，用词贴切，行文流畅，基本无语言错误" },
+    { min: 10,   tag: "二档 10–12 分", desc: "基本表达原文意思，文字通顺连贯，无重大语言错误" },
+    { min: 7,    tag: "三档 7–9 分",   desc: "勉强表达原文意思，用词欠准确，语言错误相当多，部分严重" },
+    { min: 4,    tag: "四档 4–6 分",   desc: "仅表达一小部分原文意思，有相当多严重语言错误" },
+    { min: 1,    tag: "五档 1–3 分",   desc: "译文支离破碎，大部分文字未表达原文意思" },
+    { min: -1,   tag: "0 分",          desc: "未作答，或译文与原文意思无关" },
+  ],
+};
+const rubricOf = (type, v) => RUBRICS[type].find((r) => v >= r.min);
+
+const $ = (s) => document.querySelector(s);
+const fmt1 = (n) => (Math.round(n * 10) / 10).toFixed(1);
+const fmt0 = (n) => String(Math.round(n));
+const fmtR = (n) => String(Math.round(n * 10) / 10); // 卷面分（0.5 步长，去多余小数）
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+/* 标准正态 Φ（erf 有理逼近，精度 ~1.5e-7） */
+function erf(x) {
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return s * y;
+}
+const phi = (x) => 0.5 * (1 + erf(x / Math.SQRT2));
+
+/* ---------- 通用输入组件工具 ---------- */
+function paintRange(el) {
+  const p = (el.value - el.min) / (el.max - el.min) * 100;
+  el.style.setProperty("--p", p + "%");
+}
+function setVal(id, v) { // 写入数据源（range + number 同步刷新）
+  ["r_", "n_"].forEach((p) => {
+    const el = document.getElementById(p + id);
+    if (el) { el.value = v; if (p === "r_") paintRange(el); }
+  });
+}
+function getVal(id) {
+  const el = document.getElementById("n_" + id);
+  let v = parseFloat(el && el.value);
+  if (isNaN(v)) v = 0;
+  const it = ITEMS.find((i) => i.id === id) || QUICK.find((i) => i.id === id);
+  return clamp(v, 0, it ? it.count : Infinity);
+}
+
+/* ---------- 渲染 ---------- */
+function rowHTML(it) {
+  const step = it.step || 1;
+  const rub = it.rubric ? `<div class="rubric-live" id="d_${it.id}"></div>` : "";
+  return `
+  <div class="q-row" data-item="${it.id}">
+    <div class="q-name"><b>${it.name}</b><small>${it.sub}</small></div>
+    <div class="q-range-wrap"><input type="range" min="0" max="${it.count}" step="${step}" value="0" id="r_${it.id}" aria-label="${it.name}"></div>
+    <div class="q-ctl"><input type="number" class="num" min="0" max="${it.count}" step="${step}" value="0" id="n_${it.id}" aria-label="${it.name}输入"><span class="q-total">/ ${it.count}${it.step ? " 分制" : ""}</span></div>
+    <div class="q-score" id="s_${it.id}">--</div>
+    ${rub}
+  </div>`;
+}
+function renderQuick() {
+  $("#quickArea").innerHTML = QUICK.map(rowHTML).join("");
+}
+function renderDetail() {
+  const cards = SECTIONS.map((sec) => {
+    const rows = ITEMS.filter((i) => i.sec === sec.id).map(rowHTML).join("");
+    const rubric = sec.id === "wt" ? `
+      <details class="rubric"><summary>✎ 官方 15 分制评分档次说明</summary>
+        <ul>
+          <li><b>13–15</b>：切题准确，表达流畅，基本无错 → 报道分 92.3–106.5</li>
+          <li><b>10–12</b>：表达清楚，少量错误 → 71–85.2</li>
+          <li><b>7–9</b>：基本达意，错误较多 → 49.7–63.9</li>
+          <li><b>4–6</b>：表达不清，严重错误多 → 28.4–42.6</li>
+          <li><b>1–3</b>：支离破碎，多数严重错误 → 7.1–21.3</li>
+        </ul>
+      </details>` : "";
+    return `
+    <section class="card section-card">
+      <header class="sec-head">
+        <div class="sec-title">
+          <span class="sec-icon">${sec.icon}</span>
+          <div><h3>${sec.name}</h3><small>${sec.note}</small></div>
+        </div>
+        <div class="sec-sum">
+          <div>卷面 <b id="sum_raw_${sec.id}">0</b> / ${sec.rawMax}</div>
+          <div>报道 <b id="sum_${sec.id}">0</b> / ${fmt1(sec.max)}</div>
+        </div>
+      </header>
+      ${rows}${rubric}
+    </section>`;
+  }).join("") + `
+  <details class="card norm-panel">
+    <summary>⚙️ 常模校准参数（进阶可调）</summary>
+    <div class="norm-grid">
+      <span></span><span class="head">原始分均值 μ</span><span class="head">标准差 σ</span>
+      <span>🎧 听力</span>
+      <input type="number" class="num" id="nm_lst_mu" value="${NORM_DEFAULT.lst.mu}" step="0.1">
+      <input type="number" class="num" id="nm_lst_sd" value="${NORM_DEFAULT.lst.sd}" step="0.1">
+      <span>📖 阅读</span>
+      <input type="number" class="num" id="nm_rd_mu" value="${NORM_DEFAULT.rd.mu}" step="0.1">
+      <input type="number" class="num" id="nm_rd_sd" value="${NORM_DEFAULT.rd.sd}" step="0.1">
+      <span>✍️ 写译</span>
+      <input type="number" class="num" id="nm_wt_mu" value="${NORM_DEFAULT.wt.mu}" step="0.1">
+      <input type="number" class="num" id="nm_wt_sd" value="${NORM_DEFAULT.wt.sd}" step="0.1">
+    </div>
+    <div class="norm-formula">
+      常模校准分 = 500 + 70 × (0.35·z<sub>听</sub> + 0.35·z<sub>读</sub> + 0.30·z<sub>写译</sub>)，z = (得分 − μ)/σ，截断至 [220, 710]。默认参数为<b>学术估计值（非官方）</b>：常模均值约对应 60% 得分率。
+    </div>
+  </details>`;
+  $("#detailWrap").innerHTML = cards;
+}
+
+/* ---------- 快速 ↔ 精确 同步（按当前考试题型动态分组，无精度损失） ---------- */
+function bySecSum(sec) {
+  return ITEMS.filter((i) => i.sec === sec).reduce((s, i) => s + getVal(i.id), 0);
+}
+function syncQuickFromDetail() {
+  setVal("q_lst", bySecSum("lst"));
+  setVal("q_rd", bySecSum("rd"));
+  setVal("q_wt_e", getVal("wt_essay"));
+  setVal("q_wt_t", getVal("wt_trans"));
+}
+function syncDetailFromQuick() {
+  // 按题量比例分配到该部分各题型，余数归入最后一个（高分值）题型
+  const dist = (sec, n) => {
+    const list = ITEMS.filter((i) => i.sec === sec);
+    if (!list.length) return;
+    const total = list.reduce((s, i) => s + i.count, 0);
+    let rest = n;
+    list.forEach((i, idx) => {
+      const v = idx === list.length - 1 ? rest : Math.round(n * i.count / total);
+      const cv = clamp(v, 0, i.count);
+      rest -= cv;
+      setVal(i.id, cv);
+    });
+  };
+  dist("lst", getVal("q_lst"));
+  dist("rd", getVal("q_rd"));
+  setVal("wt_essay", getVal("q_wt_e"));
+  setVal("wt_trans", getVal("q_wt_t"));
+}
+
+/* ---------- 计算 ---------- */
+const state = { mode: "quick", algo: "blend", goal: 425 };
+
+function compute() {
+  const res = { lst: 0, rd: 0, wt: 0, lstRaw: 0, rdRaw: 0, wtRaw: 0 };
+  for (const it of ITEMS) {
+    const v = getVal(it.id);
+    const raw = v * it.rawPer;   // 卷面小题分（篇章/仔细 2 分、选词 0.5 分、新闻/对话/匹配 1 分）
+    const score = raw * 7.1;     // 报道分（换算系数全局统一：卷面 × 7.1）
+    res[it.sec] += score;
+    res[it.sec + "Raw"] += raw;
+    // 更新行内小题卷面分与档次描述（元素隐藏时也在 DOM 中，安全）
+    const sEl = document.getElementById("s_" + it.id);
+    if (sEl) sEl.textContent = fmtR(raw) + " 分";
+    if (it.rubric) {
+      const d = document.getElementById("d_" + it.id);
+      if (d) {
+        const r = rubricOf(it.rubric, v);
+        d.innerHTML = v > 0
+          ? `<b>${r.tag}</b> · ${r.desc}　→　卷面 ${fmtR(raw)}/15 · 报道 <b>${fmt1(score)}</b>/106.5`
+          : `<b>0 分</b> · 未作答或与题目无关`;
+      }
+    }
+  }
+  res.lst = Math.min(res.lst, 248.5); res.rd = Math.min(res.rd, 248.5); res.wt = Math.min(res.wt, 213);
+  res.lstRaw = Math.min(res.lstRaw, 35); res.rdRaw = Math.min(res.rdRaw, 35); res.wtRaw = Math.min(res.wtRaw, 30);
+  res.total = res.lst + res.rd + res.wt;
+  res.totalRaw = res.lstRaw + res.rdRaw + res.wtRaw; // 卷面总分（满分 100）
+  for (const sec of SECTIONS) {
+    const el = document.getElementById("sum_" + sec.id);
+    if (el) el.textContent = fmt1(res[sec.id]);
+    const rEl = document.getElementById("sum_raw_" + sec.id);
+    if (rEl) rEl.textContent = fmtR(res[sec.id + "Raw"]);
+  }
+  // 快速视图行内小题卷面分（聚合显示）
+  const qLst = document.getElementById("s_q_lst"), qRd = document.getElementById("s_q_rd");
+  if (qLst) qLst.textContent = fmtR(res.lstRaw) + " / 35";
+  if (qRd) qRd.textContent = fmtR(res.rdRaw) + " / 35";
+  // 快速视图写译档位描述与得分联动（数据源为 wt_essay / wt_trans）
+  [["q_wt_e", "wt_essay"], ["q_wt_t", "wt_trans"]].forEach(([qid, src]) => {
+    const sEl = document.getElementById("s_" + qid), dEl = document.getElementById("d_" + qid);
+    const v = getVal(src);
+    if (sEl) sEl.textContent = fmtR(v) + " / 15";
+    if (dEl) {
+      const r = rubricOf(src === "wt_essay" ? "essay" : "trans", v);
+      dEl.innerHTML = v > 0
+        ? `<b>${r.tag}</b> · ${r.desc}　→　卷面 ${fmtR(v)}/15 · 报道 <b>${fmt1(v * 7.1)}</b>/106.5`
+        : `<b>0 分</b> · 未作答或与题目无关`;
+    }
+  });
+  return res;
+}
+function normScoreOf(res) {
+  const z = (x, mu, sd) => (x - mu) / sd;
+  const s = 500 + 70 * (
+    0.35 * z(res.lst, +$("#nm_lst_mu").value, +$("#nm_lst_sd").value) +
+    0.35 * z(res.rd,  +$("#nm_rd_mu").value,  +$("#nm_rd_sd").value) +
+    0.30 * z(res.wt,  +$("#nm_wt_mu").value,  +$("#nm_wt_sd").value)
+  );
+  return clamp(s, 220, 710);
+}
+function sigmaOf(answered) {
+  const sLst = answered ? 0 : 1.5 * 248.5 / 25;   // ≈14.9
+  const sRd  = answered ? 0 : 1.5 * 248.5 / 30;   // ≈12.4
+  const sWt  = 1.5 * 7.1 * Math.SQRT2;            // ≈15.1
+  return Math.sqrt(sLst * sLst + sRd * sRd + sWt * sWt);
+}
+function gradeOf(t) {
+  if (t >= 600) return { label: "优秀", cls: "good", color: "#8b5cf6" };
+  if (t >= 550) return { label: "良好", cls: "info", color: "#3b82f6" };
+  if (t >= 425) return { label: "合格 · 可报六级", cls: "ok", color: "#10b981" };
+  if (t > 0)    return { label: "未达资格线", cls: "bad", color: "#ef4444" };
+  return { label: "待估分", cls: "", color: "#4f46e5" };
+}
+function probStyle(p) {
+  if (p >= 0.95) return { color: "var(--ok)",   note: "发挥稳定，基本锁定达标" };
+  if (p >= 0.70) return { color: "var(--ok)",   note: "大概率达标，保持写译档次即可" };
+  if (p >= 0.30) return { color: "var(--info)", note: "处于临界区间，写译档次是关键变量" };
+  if (p >= 0.05) return { color: "var(--bad)",  note: "达标存在风险，重点评估写译实际档次" };
+  return { color: "var(--bad)", note: "距目标较远，建议聚焦弱项突破" };
+}
+
+/* ---------- 数字动画 ---------- */
+function animateNum(el, to, decimals = 1) {
+  const from = parseFloat(el.dataset.v || 0) || 0;
+  el.dataset.v = to;
+  const t0 = performance.now(), dur = 500;
+  function step(now) {
+    const k = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    el.textContent = (from + (to - from) * e).toFixed(decimals);
+    if (k < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ---------- 结果渲染（按 state.algo 选择主分） ---------- */
+const RING_C = 2 * Math.PI * 86;
+/* 圆环渐变配色（按等级） */
+const RING_GRADS = {
+  good: ["#c4b5fd", "#7c3aed"], info: ["#93c5fd", "#2563eb"],
+  ok: ["#6ee7b7", "#059669"], bad: ["#fca5a5", "#dc2626"], "": ["#a5b4fc", "#4f46e5"],
+};
+function renderResult(r) {
+  const norm = normScoreOf(r);
+  /* 智能综合 = 分歧自适应加权：
+   * 两个视角分歧小（答题结构贴近常模典型）→ 两值接近，加权影响小
+   * 分歧大（强弱项明显偏离常模假设）→ 常模参数（学术估计）越不可信，权重向答题数据回归
+   * w = diff / (diff + 60)，diff = |累加 − 常模|：分歧 60 分时等权，分歧越大越偏累加 */
+  const diff = Math.abs(r.total - norm);
+  const w = r.total > 0 ? diff / (diff + 60) : 1;
+  const blend = clamp(w * r.total + (1 - w) * norm, 220, 710);
+  const main = r.total <= 0 ? 0 : (state.algo === "sum" ? r.total : state.algo === "norm" ? norm : blend);
+  const algoName = state.algo === "sum" ? "权重累加" : state.algo === "norm" ? "常模校准" : "智能综合";
+  const goal = state.goal;
+
+  const g = gradeOf(main);
+  const ring = $("#ringFg");
+  ring.style.strokeDasharray = RING_C;
+  ring.style.strokeDashoffset = RING_C * (1 - Math.min(main, 710) / 710);
+  const [cA, cB] = RING_GRADS[g.cls] || RING_GRADS[""];
+  document.getElementById("gradA").setAttribute("stop-color", cA);
+  document.getElementById("gradB").setAttribute("stop-color", cB);
+  animateNum($("#totalNum"), main);
+  $("#ringSub").textContent = `卷面 ${fmtR(r.totalRaw)} / 100`;
+  const badge = $("#gradeBadge");
+  badge.textContent = r.total <= 0 ? "待估分" : g.label + " · " + algoName;
+  badge.className = "badge " + g.cls;
+
+  $("#algoSub").innerHTML = `累加 <b>${fmt1(r.total)}</b> ｜ 常模校准 <i>${fmt0(norm)}</i>${state.algo === "blend" ? `（分歧 ${fmt0(diff)}，综合权重 w=${w.toFixed(2)}）` : ""}`;
+  $("#probLabel").textContent = `🎯 总分 ≥ ${goal} 概率`;
+
+  /* 差距提示（目标线可调；425 保留考试语义文案） */
+  const tip = $("#gapTip");
+  const { pass, good, great } = LINES;
+  if (r.total <= 0) {
+    tip.innerHTML = `输入答题情况，实时估算总分（当前算法：${algoName}）`;
+  } else if (goal === LINES.pass) {
+    if (main < pass) {
+      const need = pass - main;
+      const n14 = Math.ceil(need / 14.2);
+      tip.innerHTML = `距 <b>${pass} ${EXAM.id === "cet4" ? "资格线" : "及格线"}</b>还差 <b>${fmt1(need)} 分</b> ≈ 再答对 <b>${n14} 道</b>仔细阅读题`;
+    } else if (main < good) {
+      tip.innerHTML = `${EXAM.id === "cet4" ? "✔ 已过线，具备六级报考资格" : "✔ 已达及格参考"}；距 <b>${good} 良好</b>线还差 <b>${fmt1(good - main)} 分</b>`;
+    } else if (main < great) {
+      tip.innerHTML = `✔ 已达<b>良好</b>；距 <b>${great} 优秀</b>线还差 <b>${fmt1(great - main)} 分</b>`;
+    } else {
+      tip.innerHTML = `🎉 已达 <b>优秀</b>水平（≥${great}）`;
+    }
+  } else {
+    const label = { 500: "目标 500 分", 550: "良好线 550", 600: "优秀线 600" }[goal] || `目标 ${goal}`;
+    if (main < goal) {
+      const need = goal - main;
+      const n14 = Math.ceil(need / 14.2);
+      tip.innerHTML = `距 <b>${label}</b>还差 <b>${fmt1(need)} 分</b> ≈ 再答对 <b>${n14} 道</b>仔细阅读题`;
+    } else {
+      tip.innerHTML = `✔ 已达 <b>${label}</b>（${algoName}口径）`;
+    }
+  }
+
+  /* 置信区间 + 达标概率（基于主分与目标线） */
+  const sigma = sigmaOf($("#chkAnswered").checked);
+  if (r.total > 0) {
+    $("#ci68").textContent = `[${fmt0(clamp(main - sigma, 220, 710))} – ${fmt0(clamp(main + sigma, 220, 710))}]  σ=${fmt1(sigma)}`;
+    $("#ci95").textContent = `[${fmt0(clamp(main - 1.96 * sigma, 220, 710))} – ${fmt0(clamp(main + 1.96 * sigma, 220, 710))}]`;
+    const p = main >= 710 ? 1 : 1 - phi((goal - main) / sigma);
+    const st = probStyle(p);
+    $("#probVal").textContent = p >= 0.9995 ? "≈100%" : p <= 0.0005 ? "≈0%" : (p * 100).toFixed(1) + "%";
+    $("#probVal").style.color = st.color;
+    const fill = $("#probFill");
+    fill.style.width = (p * 100).toFixed(1) + "%";
+    fill.style.background = `linear-gradient(90deg, ${st.color}55, ${st.color})`;
+    $("#probNote").textContent = `${st.note}（${algoName}口径）`;
+  } else {
+    $("#ci68").textContent = "--"; $("#ci95").textContent = "--";
+    $("#probVal").textContent = "--"; $("#probVal").style.color = "";
+    $("#probFill").style.width = "0";
+    $("#probNote").textContent = "估分越高、误差越窄，概率越确定";
+  }
+
+  /* 分项条形（卷面 + 报道双口径） */
+  const bars = [
+    ["Lst", r.lst, 248.5, r.lstRaw, 35],
+    ["Rd", r.rd, 248.5, r.rdRaw, 35],
+    ["Wt", r.wt, 213, r.wtRaw, 30],
+  ];
+  for (const [k, v, max, vRaw, rawMax] of bars) {
+    document.getElementById("bar" + k).style.width = (v / max * 100) + "%";
+    document.getElementById("bar" + k + "V").innerHTML =
+      `卷 ${fmtR(vRaw)}/${rawMax} · 报 ${fmt1(v)}/${max} <i>(${Math.round(v / max * 100)}%)</i>`;
+  }
+
+  /* 迷你条 */
+  $("#miniScore").textContent = fmt1(main);
+  $("#miniGrade").textContent = r.total <= 0 ? "待估分 · 点击查看详情" : `${g.label} · ${algoName}算法 · 点击查看详情`;
+  return { main, norm, blend };
+}
+
+function update() { renderResult(compute()); }
+
+/* ---------- 绑定输入（range/number 双向） ---------- */
+function bindItem(id) {
+  const r = document.getElementById("r_" + id);
+  const n = document.getElementById("n_" + id);
+  if (!r || !n) return;
+  const it = ITEMS.find((i) => i.id === id) || QUICK.find((i) => i.id === id);
+  const onInput = (fromRange) => {
+    let v = parseFloat(fromRange ? r.value : n.value);
+    if (!isNaN(v)) {
+      v = clamp(v, 0, it.count);
+      if (fromRange) n.value = v; else r.value = v;
+      paintRange(r);
+      // 快速输入 → 同步到数据源（写译直接映射，客观题比例分配）
+      if (state.mode === "quick" && QUICK.some((q) => q.id === id)) {
+        if (id === "q_lst" || id === "q_rd") syncDetailFromQuick();
+        else if (id === "q_wt_e") setVal("wt_essay", v);
+        else if (id === "q_wt_t") setVal("wt_trans", v);
+      }
+    }
+    update();
+  };
+  r.addEventListener("input", () => onInput(true));
+  n.addEventListener("input", () => onInput(false));
+  n.addEventListener("change", () => { // 失焦规整
+    let v = parseFloat(n.value); if (isNaN(v)) v = 0;
+    v = clamp(v, 0, it.count);
+    n.value = v; r.value = v; paintRange(r);
+    if (state.mode === "quick" && QUICK.some((q) => q.id === id)) {
+      if (id === "q_lst" || id === "q_rd") syncDetailFromQuick();
+      else if (id === "q_wt_e") setVal("wt_essay", v);
+      else if (id === "q_wt_t") setVal("wt_trans", v);
+    }
+    update();
+  });
+  paintRange(r);
+}
+
+/* 说明页分值结构表（随考试切换） */
+function renderScoreTable() {
+  const rows = [];
+  let secId = "";
+  for (const it of ITEMS) {
+    let secCell = "";
+    if (it.sec !== secId) {
+      secId = it.sec;
+      const s = SECTIONS.find((x) => x.id === it.sec);
+      const span = ITEMS.filter((i) => i.sec === secId).length;
+      secCell = `<td rowspan="${span}"><b>${s.name}</b><br>卷 ${s.rawMax} / 报 ${s.max}</td>`;
+    }
+    rows.push(`<tr>${secCell}<td>${it.name}</td><td>${it.count}${it.rubric ? " 篇" : ""}</td><td>${fmtR(it.rawPer)} 分</td><td>${fmtR(it.rawPer * it.count)}</td><td>${fmtR(it.per)}</td><td>${fmtR(it.per * it.count)}</td></tr>`);
+  }
+  rows.push(`<tr><td colspan="4"><b>合计</b></td><td><b>100</b></td><td></td><td><b>710</b></td></tr>`);
+  $("#scoreTableBody").innerHTML = rows.join("");
+  $("#scoreTitle").textContent = EXAM.name;
+}
+
+/* 绑定输入区（每次切换考试后重建 DOM，需重新绑定） */
+function bindInputs() {
+  [...ITEMS, ...QUICK].forEach((it) => bindItem(it.id));
+  $("#chkAnswered").addEventListener("change", update);
+  ["nm_lst_mu", "nm_lst_sd", "nm_rd_mu", "nm_rd_sd", "nm_wt_mu", "nm_wt_sd"]
+    .forEach((id) => document.getElementById(id).addEventListener("input", update));
+  update();
+}
+
+/* =========================================================
+ * 考试切换：数据层 + 输入区 + 说明页全联动
+ * hero 大按钮与顶部导航小按钮双入口，localStorage 记忆用户选择
+ * ========================================================= */
+function switchExam(id) {
+  if (id === EXAM.id) return;
+  EXAM = id === "cet6" ? EXAM_CET6 : EXAM_CET4;
+  ITEMS = EXAM.items; SECTIONS = EXAM.sections; DEMO = EXAM.demo;
+  NORM_DEFAULT = EXAM.norm; RAW_ROWS = EXAM.rawRows; LINES = EXAM.lines;
+
+  document.querySelectorAll("#examSeg button, #examSegBar button")
+    .forEach((x) => x.classList.toggle("active", x.dataset.exam === id));
+  $("#heroTitle").textContent = EXAM.title;
+  $("#heroDesc").textContent = EXAM.desc;
+  $("#statPass").textContent = EXAM.statPass;
+  $("#probLabel").textContent = `🎯 总分 ≥ ${state.goal} 概率`;
+  $("#convertTitle").textContent = "📥 输入" + EXAM.name + "报道分";
+  $("#revLabel").textContent = EXAM.name;
+  $("#qbtn425").textContent = "425 " + (EXAM.id === "cet4" ? "资格线" : "及格线");
+
+  // 重置常模参数面板默认值
+  ["lst", "rd", "wt"].forEach((s) => {
+    $("#nm_" + s + "_mu").value = NORM_DEFAULT[s].mu;
+    $("#nm_" + s + "_sd").value = NORM_DEFAULT[s].sd;
+  });
+
+  // 重建输入区（题型结构变化）并重置
+  state.mode = "quick";
+  document.querySelectorAll("#modeSeg button").forEach((x) =>
+    x.classList.toggle("active", x.dataset.mode === "quick"));
+  $("#quickWrap").hidden = false; $("#detailWrap").hidden = true;
+  $("#modeHint").textContent = "快速模式按真实题型比例自动分配，无精度损失";
+  renderQuick(); renderDetail(); bindInputs();
+  syncQuickFromDetail(); update();
+  renderScoreTable();
+  convertNow();           // 反推表同步（rawRows 已切换）
+  try { localStorage.setItem("cetExam", id); } catch (e) {} // 记住用户选择
+  showToast(`已切换到 ${EXAM.title}`);
+}
+
+function bindCalc() {
+
+  /* 模式切换（数据互通） */
+  $("#modeSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-mode]");
+    if (!b) return;
+    state.mode = b.dataset.mode;
+    document.querySelectorAll("#modeSeg button").forEach((x) => x.classList.toggle("active", x === b));
+    $("#quickWrap").hidden = state.mode !== "quick";
+    $("#detailWrap").hidden = state.mode !== "detail";
+    $("#modeHint").textContent = state.mode === "quick"
+      ? "快速模式按真实题型比例自动分配，无精度损失"
+      : "按 8 个题型逐项输入，底部可调常模参数";
+    if (state.mode === "quick") syncQuickFromDetail();
+    update();
+  });
+
+  /* 算法切换 */
+  $("#algoSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-algo]");
+    if (!b) return;
+    state.algo = b.dataset.algo;
+    document.querySelectorAll("#algoSeg button").forEach((x) => x.classList.toggle("active", x === b));
+    update();
+  });
+
+  /* 考试切换双入口（hero 大按钮 + 顶部导航常驻按钮） */
+  const onExamClick = (e) => {
+    const b = e.target.closest("button[data-exam]");
+    if (b) switchExam(b.dataset.exam);
+  };
+  $("#examSeg").addEventListener("click", onExamClick);
+  $("#examSegBar").addEventListener("click", onExamClick);
+
+  /* 目标线切换（425 / 500 / 550 / 600） */
+  $("#goalChips").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-goal]");
+    if (!b) return;
+    state.goal = +b.dataset.goal;
+    document.querySelectorAll("#goalChips button").forEach((x) => x.classList.toggle("active", x === b));
+    update();
+  });
+
+  /* 快捷键：数字 1-8 快速聚焦？保持简单，不做 */
+
+  $("#btnDemo").addEventListener("click", () => {
+    for (const [k, v] of Object.entries(DEMO)) setVal(k, v);
+    syncQuickFromDetail(); update(); showToast("已填入示例数据");
+  });
+  $("#btnReset").addEventListener("click", () => {
+    [...ITEMS, ...QUICK].forEach((it) => setVal(it.id, 0));
+    update(); showToast("已重置");
+  });
+
+  $("#btnCopy").addEventListener("click", async () => {
+    const r = compute();
+    const { main, norm, blend } = renderResult(r); // 复用计算（幂等）
+    const g = gradeOf(main);
+    const sigma = sigmaOf($("#chkAnswered").checked);
+    const p = r.total > 0 ? 1 - phi((LINES.pass - main) / sigma) : null;
+    const rate = (x, m) => Math.round(x / m * 100) + "%";
+    const text =
+`CET-${EXAM.id === "cet4" ? "4" : "6"} 估分结果（${state.algo === "blend" ? "智能综合" : state.algo === "sum" ? "权重累加" : "常模校准"}算法）
+报道总分：${fmt1(main)} / 710（${g.label}）｜ 卷面总分：${fmtR(r.totalRaw)} / 100
+　├ 权重累加：${fmt1(r.total)}
+　└ 常模校准：${fmt0(norm)}
+68% 置信区间：[${fmt0(clamp(main - sigma, 220, 710))} – ${fmt0(clamp(main + sigma, 220, 710))}]
+95% 置信区间：[${fmt0(clamp(main - 1.96 * sigma, 220, 710))} – ${fmt0(clamp(main + 1.96 * sigma, 220, 710))}]
+过线概率（≥${state.goal}）：${p === null ? "--" : p >= 0.9995 ? "≈100%" : (p * 100).toFixed(1) + "%"}
+听力：卷面 ${fmtR(r.lstRaw)}/35 · 报道 ${fmt1(r.lst)}/248.5（${rate(r.lst, 248.5)}）
+阅读：卷面 ${fmtR(r.rdRaw)}/35 · 报道 ${fmt1(r.rd)}/248.5（${rate(r.rd, 248.5)}）
+写译：卷面 ${fmtR(r.wtRaw)}/30 · 报道 ${fmt1(r.wt)}/213（${rate(r.wt, 213)}）
+—— 大学英语${EXAM.name}成绩换算工具 v4 生成，仅供参考，以官方成绩为准`;
+    try { await navigator.clipboard.writeText(text); }
+    catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); ta.remove();
+    }
+    showToast("结果已复制到剪贴板 ✓");
+  });
+
+  $("#btnToConvert").addEventListener("click", () => {
+    const r = compute();
+    const out = renderResult(r);
+    $("#cvScore").value = Math.round(out.main * 10) / 10;
+    convertNow();
+    switchTab("convert");
+    showToast(`已带入${state.algo === "blend" ? "综合" : "当前"}估分 ${fmt1(out.main)} 分`);
+  });
+
+  /* 迷你条点击 → 滚动到结果 */
+  $("#miniBar").addEventListener("click", () => {
+    $(".result-panel").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  update();
+}
+
+/* =========================================================
+ * Tab 2：百分制换算 + 报道分 → 卷面分反推
+ * ========================================================= */
+function percentOf(score, f) {
+  score = clamp(score, 220, 710);
+  if (f === "A") return score / 710 * 100;
+  if (f === "B") return (score - 220) / 490 * 100;
+  if (score >= 425) return 60 + (score - 425) / 285 * 40;
+  return (score - 220) / 205 * 60;
+}
+function scoreOf(p, f) {
+  p = clamp(p, 0, 100);
+  if (f === "A") return p * 7.1;
+  if (f === "B") return 220 + p * 4.9;
+  if (p > 60) return 425 + (p - 60) / 40 * 285;
+  return 220 + p / 60 * 205;
+}
+/* 卷面反推：常模锚点分段线性（220↔0%、500↔60%、710↔100%）
+ * 卷面分满分 100：各考试小题分结构见 EXAM.rawRows（四/六级听力题型不同） */
+function rawOf(S) {
+  S = clamp(S, 220, 710);
+  const p = S >= 500 ? 0.6 + (S - 500) / 210 * 0.4 : (S - 220) / 280 * 0.6;
+  return { p, total: p * 100 }; // 卷面满分 100
+}
+function renderRaw(p) {
+  const rows = RAW_ROWS.map((r) => {    const max = r.n * r.per;
+    const act = r.grade
+      ? `≈ ${(p * r.n).toFixed(1)} 档`
+      : `≈ ${Math.round(p * r.n)} 题 × ${fmtR(r.per)} 分`;
+    return `<tr><td>${r.sec}</td><td>${r.name}</td><td>${act}</td><td><b>${(p * max).toFixed(1)}</b> <span style="color:var(--muted)">/ ${fmtR(max)}</span></td></tr>`;
+  }).join("");
+  $("#rawBody").innerHTML = rows;
+  $("#rawSum").textContent = (p * 100).toFixed(1);
+}
+function convertNow() {
+  let score = parseFloat($("#cvScore").value);
+  if (isNaN(score)) score = 220;
+  score = clamp(score, 220, 710);
+
+  const f = document.querySelector('input[name="formula"]:checked').value;
+  const p = percentOf(score, f);
+  const g = gradeOf(score);
+
+  /* 百分制换算 */
+  $("#cvPercentOut").textContent = p.toFixed(1);
+  $("#cvRate").textContent = (score / 710 * 100).toFixed(1) + "%";
+  $("#cvGrade").textContent = g.label.replace(" · 可报六级", "");
+  $("#cvGrade").style.color = g.color;
+  $("#cvElig").textContent = score >= 425 ? "✓ 具备" : "✗ 不具备";
+  $("#cvElig").style.color = score >= 425 ? "var(--ok)" : "var(--bad)";
+  const left = clamp(score / 710 * 100, 3, 97);
+  $("#needle").style.left = left + "%";
+  $("#needleVal").textContent = Math.round(score);
+
+  /* 反向查询 */
+  const target = parseFloat($("#cvPercent").value);
+  $("#revScore").textContent = isNaN(target) ? "--" : fmt1(scoreOf(target, f));
+
+  /* 卷面反推（满分 100 + 小题分结构） */
+  const raw = rawOf(score);
+  $("#rawTotal").textContent = raw.total.toFixed(1);
+  $("#rawPct").textContent = (raw.p * 100).toFixed(1) + "%";
+  renderRaw(raw.p);
+}
+function bindConvert() {
+  $("#cvScore").addEventListener("input", convertNow);
+  document.querySelectorAll('input[name="formula"]').forEach((r) => r.addEventListener("change", convertNow));
+  $("#cvPercent").addEventListener("input", convertNow);
+  $("#quickBtns").addEventListener("click", (e) => {
+    const b = e.target.closest(".chip-btn");
+    if (b) { $("#cvScore").value = b.dataset.v; convertNow(); }
+  });
+  convertNow();
+}
+
+/* ---------- Tabs ---------- */
+function switchTab(name) {
+  document.querySelectorAll(".tab-btn").forEach((b) =>
+    b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+  document.querySelectorAll(".tab-panel").forEach((p) => { p.hidden = p.id !== "panel-" + name; });
+  if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
+  $("#miniBar").style.display = name === "calc" ? "" : "none";
+}
+function bindTabs() {
+  document.querySelectorAll(".tab-btn").forEach((b) =>
+    b.addEventListener("click", () => switchTab(b.dataset.tab)));
+  window.addEventListener("hashchange", () => {
+    const h = location.hash.slice(1);
+    if (["calc", "convert", "about"].includes(h)) switchTab(h);
+  });
+  const h = location.hash.slice(1);
+  switchTab(["calc", "convert", "about"].includes(h) ? h : "calc");
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function showToast(msg) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+/* ---------- Init ---------- */
+renderQuick();
+renderDetail();
+bindTabs();
+bindCalc();
+bindInputs();
+bindConvert();
+renderScoreTable();
+/* 恢复用户上次选择的考试（localStorage 记忆） */
+try {
+  const saved = localStorage.getItem("cetExam");
+  if (saved === "cet6") switchExam("cet6");
+} catch (e) { /* 隐私模式等场景静默降级 */ }
+</script>
+</body>
+</html>
