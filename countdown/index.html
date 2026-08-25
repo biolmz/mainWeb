@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>星光倒计时 · 29考研</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 星空背景 -->
+  <div class="stars stars-small"></div>
+  <div class="stars stars-medium"></div>
+  <div class="stars stars-large"></div>
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+
+  <main class="container">
+    <!-- 顶部：当前时间 -->
+    <header class="clock-panel glass">
+      <div class="sync-badge" id="syncBadge">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncText">正在网络校时…</span>
+      </div>
+      <div class="clock-date" id="clockDate">----</div>
+      <div class="clock-time" id="clockTime">--:--:--</div>
+      <div class="clock-hint" id="clockHint">当前时间来自网络授时，每 5 分钟自动校准</div>
+    </header>
+
+    <!-- 主倒计时（由 JSON 自动渲染） -->
+    <section class="primary-slot" id="primarySlot"></section>
+
+    <!-- 其他倒计时卡片（由 JSON 自动渲染） -->
+    <section class="grid" id="grid"></section>
+
+    <footer class="footer glass-subtle">
+      <span>在 <code>countdowns.json</code> 中添加条目即可自动显示 · 时间源：网络授时服务</span>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

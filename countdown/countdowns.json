@@ -1,0 +1,36 @@
+{
+  "title": "星光倒计时",
+  "subtitle": "每一秒都在靠近目标",
+  "countdowns": [
+    {
+      "id": "kaoyan29",
+      "name": "29考研初试",
+      "date": "2028-12-23T08:30:00+08:00",
+      "emoji": "📚",
+      "description": "2029年全国硕士研究生招生考试初试（预计，以官方公告为准）",
+      "primary": true,
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "newyear2027",
+      "name": "2027 元旦",
+      "date": "2027-01-01T00:00:00+08:00",
+      "emoji": "🎆",
+      "description": "新的一年，新的起点"
+    },
+    {
+      "id": "kaoyan29_chufen",
+      "name": "29考研出分（预计）",
+      "date": "2029-02-21T00:00:00+08:00",
+      "emoji": "🎯",
+      "description": "初试成绩公布（预计 2 月下旬）"
+    },
+    {
+      "id": "example",
+      "name": "示例：自定义倒计时",
+      "date": "2026-12-31T23:59:59+08:00",
+      "emoji": "✨",
+      "description": "在 countdowns.json 中按此格式添加任意倒计时即可自动渲染"
+    }
+  ]
+}
