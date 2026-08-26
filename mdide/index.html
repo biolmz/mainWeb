@@ -77,6 +77,7 @@
       <button data-act="table" title="表格">▦</button>
       <button data-act="hr" title="分割线">―</button>
       <button data-act="pyblock" title="插入 Python 代码块（可运行）">🐍</button>
+      <button id="btnPyPlayground" title="打开独立 Python 编辑器（可运行 · 语法高亮 · Ctrl+Alt+Y）">🐍 编辑器</button>
       <span class="tb-sep"></span>
       <span class="tb-flex"></span>
       <button id="btnRunAll" title="运行所有 Python 代码块 (Ctrl+Enter)">▶ 运行全部</button>
@@ -124,6 +125,53 @@
       <span class="st-item" id="readTime">约 0 分钟</span>
       <span class="st-item engine" id="engineStatus">引擎加载中…</span>
     </footer>
+  </div>
+
+  <!-- ============ Python 编辑器（独立运行环境 · 模态） ============ -->
+  <div class="py-playground" id="pyPlayground" aria-hidden="true">
+    <div class="pyg-header" id="pygHeader">
+      <span class="pyg-title">🐍 Python 编辑器</span>
+      <span class="pyg-engine" id="pygEngine">引擎：Pyodide（真实 CPython / WASM）</span>
+      <div class="pyg-actions">
+        <button class="pyg-btn run" id="pygRun" title="运行 (Ctrl+Enter)">▶ 运行</button>
+        <button class="pyg-btn" id="pygFull" title="全屏 / 退出全屏">⤢ 全屏</button>
+        <button class="pyg-btn" id="pygSave" title="保存为 .py 到本地">⤓ 保存 .py</button>
+        <button class="pyg-btn" id="pygCopy" title="复制全部代码">⧉ 复制</button>
+        <button class="pyg-btn" id="pygClear" title="清空编辑器与输出">⌫ 清空</button>
+        <button class="pyg-btn close" id="pygClose" title="关闭 (Esc)">✕ 关闭</button>
+      </div>
+    </div>
+    <div class="pyg-body" id="pygBody">
+      <div class="pyg-editor">
+        <div class="line-numbers" id="pygLineNumbers">1</div>
+        <div id="pygEditorArea">
+          <div class="editor-highlight" id="pygHighlight" aria-hidden="true"><code id="pygHighlightCode"></code></div>
+          <textarea id="pygEditor" spellcheck="false" autocomplete="off"
+            placeholder="# 在此编写 Python 代码…&#10;# 点击 ▶ 运行（基于 Pyodide 真实 CPython，变量可在多次运行间保留）"># 在下方编写 Python，点击 ▶ 运行（基于 Pyodide 真实 CPython / WASM）
+print("Hello from MD IDE!")
+
+for i in range(3):
+    print("count", i)
+</textarea>
+        </div>
+      </div>
+      <div class="pyg-splitter" id="pygSplitter" title="拖动调整编辑区 / 控制台高度"></div>
+      <div class="pyg-console">
+        <div class="pyg-console-head"><span class="dot green"></span>输出 / 控制台
+          <button class="pyg-plot-export" id="pygSavePlot" title="导出当前图形为 PNG">⤓ 图 PNG</button>
+        </div>
+        <div class="pyg-console-body" id="pygOutput"><span class="pyg-empty-hint">运行结果将显示在此处…</span></div>
+      </div>
+    </div>
+    <!-- 缩放手柄（拖拽边缘/角调整窗口大小） -->
+    <div class="pyg-rsz" data-dir="n"></div>
+    <div class="pyg-rsz" data-dir="s"></div>
+    <div class="pyg-rsz" data-dir="e"></div>
+    <div class="pyg-rsz" data-dir="w"></div>
+    <div class="pyg-rsz" data-dir="ne"></div>
+    <div class="pyg-rsz" data-dir="nw"></div>
+    <div class="pyg-rsz" data-dir="se"></div>
+    <div class="pyg-rsz" data-dir="sw"></div>
   </div>
 
   <!-- 隐藏元素 -->

@@ -535,6 +535,9 @@ button {
 /* 围栏行（```python / ```）淡显为标点 */
 .editor-highlight .md-fence { color: var(--text-muted); }
 
+/* Python 代码区域：编辑区内淡显背景，区分于普通 Markdown 文本 */
+.editor-highlight .md-py { background: rgba(0, 240, 255, 0.05); border-radius: 3px; }
+
 #editor::placeholder { color: var(--text-muted); }
 
 #editor::selection,
@@ -773,8 +776,10 @@ button {
   text-transform: uppercase;
 }
 
+.py-cell-spacer { flex: 1; }
+
 .py-run-btn {
-  margin-left: auto;
+  margin-left: 0;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   padding: 3px 14px;
@@ -786,6 +791,21 @@ button {
   transition: all 0.15s;
   white-space: nowrap;
 }
+
+.py-cell-act {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.py-cell-act:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
 
 .py-run-btn:hover:not(:disabled) {
   background: var(--accent-green);
@@ -826,6 +846,21 @@ button {
 .py-out-result::before {
   content: 'Out: ';
   opacity: 0.65;
+}
+
+/* matplotlib 出图（内嵌 PNG） */
+.py-out-plots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 0 2px;
+}
+.py-plot-img {
+  max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  background: #ffffff;
+  display: block;
 }
 
 /* ============================================================
@@ -995,4 +1030,289 @@ button {
 
   .markdown-body { padding: 20px 18px 48px; }
   .line-numbers { display: none; }
+}
+
+/* ============================================================
+   Python 编辑器（独立 Playground · 模态）
+   ============================================================ */
+.py-playground {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(1100px, 92vw);
+  height: min(820px, 86vh);
+  min-width: 480px; min-height: 360px;
+  z-index: 800;
+  display: none;
+  flex-direction: column;
+  background: var(--bg-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+/* 全屏态：覆盖整个视口，去掉浮动窗口的居中/圆角/阴影 */
+.py-playground.fullscreen {
+  left: 0; top: 0; right: 0; bottom: 0;
+  transform: none;
+  width: 100vw;
+  height: 100vh;
+  min-width: 0; min-height: 0;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  z-index: 900;
+}
+
+/* 八向缩放手柄（置于边界内侧，避免被 overflow:hidden 裁剪） */
+.pyg-rsz { position: absolute; z-index: 5; }
+.pyg-rsz[data-dir="n"] { top: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.pyg-rsz[data-dir="s"] { bottom: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.pyg-rsz[data-dir="e"] { right: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.pyg-rsz[data-dir="w"] { left: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.pyg-rsz[data-dir="ne"] { top: 0; right: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+.pyg-rsz[data-dir="nw"] { top: 0; left: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+.pyg-rsz[data-dir="se"] { bottom: 0; right: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+.pyg-rsz[data-dir="sw"] { bottom: 0; left: 0; width: 14px; height: 14px; cursor: nesw-resize; }
+
+.py-playground.show { display: flex; }
+
+.pyg-header {
+  height: var(--topbar-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: var(--bar-bg);
+  border-bottom: 1px solid var(--glass-border);
+  cursor: move;
+}
+
+.pyg-title {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.pyg-engine {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  border-radius: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.pyg-actions { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; }
+
+.pyg-btn {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 7px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  background: var(--glass-bg);
+  transition: all 0.2s;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pyg-btn:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.05); }
+.pyg-btn.run { color: var(--accent-green); border-color: rgba(0, 255, 157, 0.4); background: rgba(0, 255, 157, 0.06); }
+.pyg-btn.run:hover { background: var(--accent-green); color: var(--bg-primary); }
+.pyg-btn.run:disabled { opacity: 0.55; cursor: wait; }
+.pyg-btn.close:hover { color: var(--accent-pink); border-color: var(--accent-pink); }
+
+.pyg-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+.pyg-editor {
+  flex: 0 0 56%;
+  display: flex;
+  min-height: 0;
+  position: relative;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* 编辑区 / 控制台 高度分隔条 */
+.pyg-splitter {
+  flex: 0 0 6px;
+  cursor: row-resize;
+  background: var(--glass-border);
+  transition: background 0.15s;
+}
+.pyg-splitter:hover { background: var(--accent-cyan); }
+
+#pygLineNumbers {
+  flex-shrink: 0;
+  width: 48px;
+  padding: 16px 8px 16px 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+  background: var(--gutter-bg);
+  border-right: 1px solid var(--glass-border);
+  overflow: hidden;
+  user-select: none;
+  white-space: pre;
+}
+
+#pygEditorArea { flex: 1; position: relative; display: flex; min-width: 0; }
+
+#pygEditor {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: transparent;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  caret-color: var(--accent-cyan);
+  tab-size: 4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#pygHighlight {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--text-primary);
+  tab-size: 4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#pygHighlight code {
+  display: block;
+  font: inherit;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  white-space: inherit;
+  word-wrap: inherit;
+  overflow-wrap: inherit;
+  tab-size: inherit;
+}
+
+#pygEditor::placeholder { color: var(--text-muted); }
+#pygEditor::selection, #pygEditor *::selection { background: var(--selection-bg); }
+
+.pyg-console {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-secondary);
+}
+
+.pyg-console-head {
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.pyg-console-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-primary);
+}
+
+.pyg-line-stdout { color: var(--text-primary); }
+.pyg-line-stderr, .pyg-line-error { color: var(--accent-pink); }
+.pyg-line-result { color: var(--accent-green); }
+.pyg-line-result::before { content: 'Out: '; opacity: 0.65; }
+
+/* 独立编辑器输出区的 matplotlib 出图 */
+.pyg-line-plot { position: relative; padding: 6px 0; }
+.pyg-plot-img {
+  max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  background: #ffffff;
+  display: block;
+}
+
+/* md 单元出图（带下载按钮） */
+.py-out-figure { position: relative; display: inline-block; margin: 4px 8px 4px 0; }
+
+/* 出图上的“导出 PNG”悬浮按钮（编辑器与 md 单元共用） */
+.py-plot-dl {
+  position: absolute;
+  top: 10px; right: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+}
+.pyg-line-plot:hover .py-plot-dl,
+.py-out-figure:hover .py-plot-dl { opacity: 1; }
+.py-plot-dl:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+/* 控制台标题栏“导出图”按钮 */
+.pyg-plot-export {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+.pyg-plot-export:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
+.pyg-empty-hint { color: var(--text-muted); }
+
+/* 小屏：Playground 改为上下布局，编辑器/控制台各占一半 */
+@media (max-width: 720px) {
+  .pyg-editor { flex: 1 1 50%; }
+  .pyg-console { flex: 1 1 50%; }
+  .pyg-engine { display: none; }
+  .pyg-actions .pyg-btn { padding: 6px 9px; font-size: 0.72rem; }
 }

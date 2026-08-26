@@ -66,13 +66,18 @@ let renderTimer = null;    // 渲染防抖
 let autoSaveTimer = null;  // 草稿自动保存防抖
 let toastTimer = null;
 
+/* 增量预览渲染：按“顶层块”缓存已解析 HTML，仅重新渲染发生变化的块 */
+const previewBlockCache = new Map(); // 块文本 → 已完成 hljs 着色的 HTML
+let previewHljsReady = false;        // 上次渲染时 hljs 是否就绪（变化时清空缓存）
+
 /* Python 运行相关状态 */
 let pyodideInstance = null;  // Pyodide 单例（类 Jupyter 内核，变量跨单元保留）
 let pyodideLoading = null;   // 加载中的 Promise，避免重复加载
-let pyRunning = false;       // 串行执行锁
+let pyBusy = false;          // 统一忙标志：任意 Python 执行进行中（防止 md/编辑器交叉启动）
 let execCount = 0;           // 全局执行计数（类 In[n]）
 let outputsDirty = false;    // 输出缓存是否有变化（用于草稿持久化）
 const cellOutputs = new Map(); // 代码文本 → 输出记录
+let pyExecQueue = Promise.resolve(); // Pyodide 执行串行队列（保证同一解释器不并发，避免状态错乱）
 
 /* ============================================================
    通用小工具
@@ -81,6 +86,15 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
+}
+
+/* 安全的高亮封装：调用 hljs，失败回退为转义文本（不破坏编辑区逐字对齐） */
+function safeHighlight(code, lang) {
+  try {
+    return window.hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
+  } catch (e) {
+    return escapeHtml(code);
+  }
 }
 
 function toast(msg, warn = false) {
@@ -180,6 +194,7 @@ function initEngine() {
   if (window.marked && window.DOMPurify) {
     marked.use({ gfm: true, breaks: true });
     engineReady = true;
+    previewBlockCache.clear();   // 引擎就绪后以真正的渲染替换可能的降级缓存
     engineStatus.classList.add('ok');
     engineStatus.textContent = window.hljs ? '引擎就绪 · 代码高亮' : '引擎就绪';
   } else {
@@ -223,10 +238,85 @@ function postProcess(container, opts = {}) {
   });
 }
 
-/* 刷新预览 */
+/* 大文档增量渲染：把 Markdown 按“顶层块”切分（空白行分隔，且尊重围栏代码块），
+   仅对发生变化的块重新解析，其余复用缓存，避免整篇重排。 */
+function splitTopLevelBlocks(md) {
+  const lines = md.split('\n');
+  const blocks = [];
+  let cur = [];
+  let inFence = false;
+  let fenceMarker = '';
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const fm = line.match(/^\s*(```|~~~)/);
+    if (fm) {
+      if (!inFence) { inFence = true; fenceMarker = fm[1]; }
+      else if (line.trim().startsWith(fenceMarker)) { inFence = false; }
+    }
+    if (!inFence && line.trim() === '') {
+      if (cur.length) { blocks.push(cur.join('\n')); cur = []; }
+    } else {
+      cur.push(line);
+    }
+  }
+  if (cur.length) blocks.push(cur.join('\n'));
+  return blocks.length ? blocks : [''];
+}
+
+/* 提取全文的链接引用定义（如 [foo]: http://…），前置到每个块以保证跨块引用仍可解析 */
+function extractRefDefs(md) {
+  const defs = [];
+  const re = /^\s*\[[^\]]+\]:\s+\S+/;
+  const lines = md.split('\n');
+  for (const line of lines) if (re.test(line)) defs.push(line);
+  return defs.join('\n');
+}
+
+/* 渲染单个块：命中缓存直接返回；否则解析 → 在缓存阶段完成 hljs 着色（复用
+   postProcess 的 hljs 会因 data-highlighted 跳过，避免每次按键重复着色）。 */
+function renderBlockHtml(block, refDefs) {
+  let h = previewBlockCache.get(block);
+  if (h !== undefined) return h;
+  const md = refDefs ? (refDefs + '\n\n' + block) : block;
+  h = renderToHtml(md);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = h;
+  if (window.hljs) {
+    try { window.hljs.configure({ ignoreUnescapedHTML: true }); } catch (e) { /* noop */ }
+    tmp.querySelectorAll('pre code').forEach(b => {
+      try { window.hljs.highlightElement(b); } catch (e) { /* 单块失败不影响整体 */ }
+    });
+  }
+  h = tmp.innerHTML;
+  previewBlockCache.set(block, h);
+  return h;
+}
+
+/* 刷新预览（增量） */
 function refreshPreview() {
-  preview.innerHTML = renderToHtml(editor.value);
-  postProcess(preview, { interactive: true });
+  try {
+    /* hljs 就绪状态变化时，已缓存（未着色）的块需要重新生成 */
+    const hljsNow = !!window.hljs;
+    if (hljsNow !== previewHljsReady) { previewBlockCache.clear(); previewHljsReady = hljsNow; }
+
+    const full = editor.value;
+    const refDefs = extractRefDefs(full);
+    const blocks = splitTopLevelBlocks(full);
+    const parts = blocks.map(b => renderBlockHtml(b, refDefs));
+    preview.innerHTML = parts.join('\n\n');
+
+    /* 仅保留当前文档用到的块缓存，防止无限增长 */
+    const live = new Map();
+    blocks.forEach(b => { const v = previewBlockCache.get(b); if (v !== undefined) live.set(b, v); });
+    previewBlockCache.clear();
+    live.forEach((v, k) => previewBlockCache.set(k, v));
+
+    postProcess(preview, { interactive: true });
+  } catch (e) {
+    /* 渲染异常不应拖垮编辑器：保留上一次预览并提示 */
+    console.error('预览渲染失败：', e);
+    toast('预览渲染出错（内容已保留）', true);
+  }
 }
 
 function scheduleRender() {
@@ -257,15 +347,11 @@ function buildEditorHighlightHtml(text) {
     const cm = closeRe.exec(text);
     const codeEnd = cm ? cm.index : text.length;
     const code = text.slice(pos, codeEnd);
-    if (window.hljs && code) {
-      try {
-        html += window.hljs.highlight(code, { language: 'python', ignoreIllegals: true }).value;
-      } catch (e) {
-        html += escapeHtml(code);
-      }
-    } else {
-      html += escapeHtml(code);
-    }
+    /* 代码区域：hljs 真实着色，并包一层 .md-py 以在编辑区淡显代码块背景 */
+    const codeHtml = (window.hljs && code)
+      ? safeHighlight(code, 'python')
+      : escapeHtml(code || '');
+    html += '<span class="md-py">' + codeHtml + '</span>';
     if (cm) {
       html += '<span class="md-fence">' + escapeHtml(cm[0]) + '</span>';
       pos = closeRe.lastIndex;
@@ -328,12 +414,32 @@ function buildPyCell(pre, codeEl, interactive) {
   bar.appendChild(lang);
 
   if (interactive) {
+    const spacer = document.createElement('span');
+    spacer.className = 'py-cell-spacer';
+    bar.appendChild(spacer);
+
     const btn = document.createElement('button');
     btn.className = 'py-run-btn';
     btn.textContent = '▶ 运行';
     btn.title = '运行此 Python 代码块';
     btn.addEventListener('click', () => runPyCell(cell, codeText, label, btn));
     bar.appendChild(btn);
+
+    /* 在独立 Python 编辑器中打开此代码 */
+    const editBtn = document.createElement('button');
+    editBtn.className = 'py-cell-act';
+    editBtn.textContent = '↗ 编辑器';
+    editBtn.title = '在独立 Python 编辑器中打开此代码';
+    editBtn.addEventListener('click', () => openPlayground(codeText));
+    bar.appendChild(editBtn);
+
+    /* 导出为 .py 文件（可交给本地 Python 编辑器运行） */
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'py-cell-act';
+    saveBtn.textContent = '⤓ .py';
+    saveBtn.title = '导出为 .py 文件（可用本地编辑器运行）';
+    saveBtn.addEventListener('click', () => savePyFile(codeText, 'cell.py'));
+    bar.appendChild(saveBtn);
   }
 
   const out = document.createElement('div');
@@ -353,7 +459,8 @@ function renderPyOutput(out, labelEl, rec) {
   if (labelEl) labelEl.textContent = rec && rec.count ? `[${rec.count}]` : '[ ]';
   out.innerHTML = '';
   if (!rec) { out.classList.remove('has-content'); return; }
-  const hasContent = rec.stdout || rec.stderr || rec.error || rec.result;
+  const hasContent = rec.stdout || rec.stderr || rec.error || rec.result ||
+                     (rec.plots && rec.plots.length);
   if (!hasContent) { out.classList.remove('has-content'); return; }
   out.classList.add('has-content');
 
@@ -367,6 +474,23 @@ function renderPyOutput(out, labelEl, rec) {
   if (rec.stderr) append('py-out-stderr', rec.stderr);
   if (rec.error) append('py-out-error', rec.error);
   if (rec.result) append('py-out-result', rec.result);
+  /* matplotlib 出图：以内嵌 PNG 形式直接显示 */
+  if (rec.plots && rec.plots.length) {
+    const wrap = document.createElement('div');
+    wrap.className = 'py-out-plots';
+    rec.plots.forEach((src, i) => {
+      const fig = document.createElement('div');
+      fig.className = 'py-out-figure';
+      const img = document.createElement('img');
+      img.className = 'py-plot-img';
+      img.src = src;
+      img.alt = 'Python 绘图输出';
+      fig.appendChild(img);
+      fig.appendChild(makePlotDownloadBtn(src, i));
+      wrap.appendChild(fig);
+    });
+    out.appendChild(wrap);
+  }
 }
 
 /* 惰性加载 Pyodide，全局单例复用（变量跨单元保留） */
@@ -389,54 +513,136 @@ async function getPyodide() {
   return pyodideLoading;
 }
 
+/* 共享：在 Pyodide 中执行一段 Python，返回 { stdout, stderr, result, error }
+   这是"真正的 Python"——Pyodide 即编译到 WebAssembly 的 CPython。
+   支持 input()：通过浏览器 prompt 阻塞式读取一行（沙箱内无法直连本地解释器时的真实执行方案）。
+   通过 pyExecQueue 串行化：同一 Pyodide 解释器不允许并发 runPythonAsync，否则全局状态会错乱。 */
+async function executePythonCode(code, opts = {}) {
+  const task = async () => {
+  const py = await getPyodide();
+  let stdoutBuf = '';
+  let stderrBuf = '';
+  py.setStdout({ batched: s => {
+    stdoutBuf += s + '\n';
+    if (opts.onStdout) opts.onStdout(s);
+  } });
+  py.setStderr({ batched: s => {
+    stderrBuf += s + '\n';
+    if (opts.onStderr) opts.onStderr(s);
+  } });
+
+  /* input() 支持：WASM 同步 stdin，用 prompt 阻塞读取 */
+  if (typeof py.setStdin === 'function') {
+    let queue = '';
+    py.setStdin({
+      stdin: () => {
+        if (!queue) {
+          const v = window.prompt(opts.inputPrompt || 'Python input()：', '');
+          queue = (v === null ? '' : v) + '\n';
+        }
+        if (!queue.length) return null;
+        const c = queue.charCodeAt(0);
+        queue = queue.slice(1);
+        return c;
+      }
+    });
+  }
+
+  /* 按 import 自动加载包（如 numpy / pandas / matplotlib）；失败不阻断执行 */
+  try { await py.loadPackagesFromImports(code); } catch (e) { /* noop */ }
+
+  let resultText = null;
+  let error = null;
+  let plots = [];
+  try {
+    const result = await py.runPythonAsync(code);
+    if (result !== undefined && result !== null) {
+      try {
+        resultText = String(result);
+        if (typeof result.destroy === 'function') result.destroy();
+      } catch (e) { resultText = '<object>'; }
+    }
+    /* 捕获 matplotlib 已生成的图形（真实出图，非模拟） */
+    plots = captureMatplotlibPlots(py);
+  } catch (err) {
+    error = String(err && err.message ? err.message : err);
+    /* 即便执行异常，也尽量取回已生成的图形 */
+    try { plots = plots.concat(captureMatplotlibPlots(py)); } catch (e) { /* noop */ }
+  }
+  return { stdout: stdoutBuf, stderr: stderrBuf, result: resultText, error, plots };
+  };
+  /* 串行排队：前一次未结束时，本次进入队列等待，互不影响全局状态 */
+  const run = pyExecQueue.then(task, task);
+  pyExecQueue = run.then(() => {}, () => {});
+  return run;
+}
+
+/* 在 Pyodide 中捕获 matplotlib 已生成的图像，返回 data URL 数组。
+   这是“真正画图”——后端是编译到 WASM 的真实 CPython + 真实 matplotlib。 */
+function captureMatplotlibPlots(py) {
+  try {
+    /* 仅在 matplotlib 被 import 时才尝试捕获，避免无谓开销 */
+    let imported = false;
+    try { imported = py.globals.has('__mdide_mpl_loaded'); } catch (e) { imported = false; }
+    if (!imported) {
+      try { imported = py.runPython("'matplotlib' in __import__('sys').modules"); } catch (e) { imported = false; }
+    }
+    if (!imported) return [];
+    /* 惰性注册捕获辅助函数（仅首次） */
+    let defined = false;
+    try { defined = py.globals.has('__mdide_capture_plots'); } catch (e) { defined = false; }
+    if (!defined) {
+      py.runPython(`
+def __mdide_capture_plots():
+    import io as _mdio, base64 as _mdb64, matplotlib.pyplot as _mdplt
+    _out = []
+    for _num in _mdplt.get_fignums():
+        _fig = _mdplt.figure(_num)
+        _buf = _mdio.BytesIO()
+        _fig.savefig(_buf, format='png', bbox_inches='tight', dpi=110)
+        _buf.seek(0)
+        _out.append(_mdb64.b64encode(_buf.read()).decode('ascii'))
+    _mdplt.close('all')
+    return _out
+`);
+    }
+    const fn = py.globals.get('__mdide_capture_plots');
+    if (!fn) return [];
+    const res = fn();
+    const arr = (res && typeof res.toJs === 'function') ? res.toJs() : (res || []);
+    if (res && typeof res.destroy === 'function') res.destroy();
+    return Array.from(arr).map(b => 'data:image/png;base64,' + String(b));
+  } catch (e) {
+    return [];
+  }
+}
+
 /* 执行单个单元：捕获 stdout / stderr / 表达式返回值 / 异常 */
-async function runPyCell(cell, codeText, labelEl, btnEl) {
-  if (pyRunning) {
+async function runPyCell(cell, codeText, labelEl, btnEl, isBatch = false) {
+  if (!isBatch && pyBusy) {
     toast('已有单元正在运行，请稍候', true);
     return;
   }
-  pyRunning = true;
+  if (!isBatch) pyBusy = true;
   const out = cell.querySelector('.py-output');
   try {
-    const py = await getPyodide();
     if (btnEl) { btnEl.disabled = true; btnEl.textContent = '… 运行中'; }
     if (labelEl) labelEl.textContent = '[*]';
 
-    let stdoutBuf = '';
-    let stderrBuf = '';
-    py.setStdout({ batched: s => { stdoutBuf += s + '\n'; } });
-    py.setStderr({ batched: s => { stderrBuf += s + '\n'; } });
-
-    /* 按 import 自动加载包（如 numpy / pandas）；失败不阻断执行 */
-    try { await py.loadPackagesFromImports(codeText); } catch (e) { /* noop */ }
-
-    let resultText = null;
-    let error = null;
-    try {
-      const result = await py.runPythonAsync(codeText);
-      if (result !== undefined && result !== null) {
-        try {
-          resultText = String(result);
-          if (typeof result.destroy === 'function') result.destroy();
-        } catch (e) { resultText = '<object>'; }
-      }
-    } catch (err) {
-      error = String(err && err.message ? err.message : err);
-    }
-
+    const rec = await executePythonCode(codeText, {});
     execCount++;
-    const record = { stdout: stdoutBuf, stderr: stderrBuf, result: resultText, error, count: execCount };
-    cellOutputs.set(cellKey(codeText), record);
+    rec.count = execCount;
+    cellOutputs.set(cellKey(codeText), rec);
     outputsDirty = true;
     trimOutputs();
-    renderPyOutput(out, labelEl, record);
-    if (!error) toast(`执行完成 [${execCount}]`);
+    renderPyOutput(out, labelEl, rec);
+    if (!rec.error) toast(`执行完成 [${execCount}]`);
   } catch (err) {
     renderPyOutput(out, labelEl, { error: '运行时错误：' + (err && err.message ? err.message : err), count: null });
     toast('Python 运行时加载失败', true);
   } finally {
     if (btnEl) { btnEl.disabled = false; btnEl.textContent = '▶ 运行'; }
-    pyRunning = false;
+    if (!isBatch) pyBusy = false;
   }
 }
 
@@ -447,20 +653,26 @@ async function runAllCells() {
     toast('当前文档没有 Python 代码块', true);
     return;
   }
-  if (pyRunning) {
+  if (pyBusy) {
     toast('已有单元正在运行，请稍候', true);
     return;
   }
+  pyBusy = true;
   toast(`顺序运行 ${cells.length} 个 Python 单元…`);
-  for (const cell of cells) {
-    const codeEl = cell.querySelector('pre code');
-    if (!codeEl) continue;
-    await runPyCell(
-      cell,
-      codeEl.textContent,
-      cell.querySelector('.py-cell-label'),
-      cell.querySelector('.py-run-btn')
-    );
+  try {
+    for (const cell of cells) {
+      const codeEl = cell.querySelector('pre code');
+      if (!codeEl) continue;
+      await runPyCell(
+        cell,
+        codeEl.textContent,
+        cell.querySelector('.py-cell-label'),
+        cell.querySelector('.py-run-btn'),
+        true
+      );
+    }
+  } finally {
+    pyBusy = false;
   }
 }
 
@@ -489,6 +701,12 @@ function updateStats() {
   let minutes = 0;
   if (text.trim()) minutes = Math.max(1, Math.round(cjk / 300 + words / 200));
   readTimeEl.textContent = `约 ${minutes} 分钟`;
+}
+
+let statsTimer = null;   // 统计信息防抖：避免大文档下每次按键都跑正则（流畅性）
+function scheduleStats() {
+  clearTimeout(statsTimer);
+  statsTimer = setTimeout(updateStats, 250);
 }
 
 function updateCursorPos() {
@@ -857,6 +1075,8 @@ hr { border: none; height: 1px; background: #d8dee4; margin: 2.2em 0; }
 .py-out-stderr, .py-out-error { color: #cf222e; }
 .py-out-result { color: #0969da; }
 .py-out-result::before { content: 'Out: '; opacity: .65; }
+.py-out-plots { display: flex; flex-wrap: wrap; gap: 10px; padding: 8px 0 2px; }
+.py-plot-img { max-width: 100%; border-radius: 6px; border: 1px solid #d8dee4; background: #fff; display: block; }
 .py-run-btn { display: none; }
 @media print {
   body { background: #fff; }
@@ -965,6 +1185,8 @@ const PDF_DOC_CSS = `
 .pdf-page .py-out-stderr, .pdf-page .py-out-error { color: #cf222e; }
 .pdf-page .py-out-result { color: #0969da; }
 .pdf-page .py-out-result::before { content: 'Out: '; opacity: .65; }
+.pdf-page .py-out-plots { display: flex; flex-wrap: wrap; gap: 10px; padding: 8px 0 2px; }
+.pdf-page .py-plot-img { max-width: 100%; border-radius: 6px; border: 1px solid #d8dee4; background: #fff; display: block; }
 .pdf-page .py-run-btn { display: none; }
 `;
 
@@ -1161,15 +1383,22 @@ function initSplitter() {
 }
 
 function initScrollSync() {
+  let syncRaf = 0;
+  let syncRatio = 0;
   editor.addEventListener('scroll', () => {
+    /* 行号与高亮垫层需实时跟随，开销极小，直接更新 */
     lineNumbers.scrollTop = editor.scrollTop;
-    /* 高亮垫层始终跟随滚动 */
     editorHighlight.scrollTop = editor.scrollTop;
     if (!syncScroll || viewMode === 'edit') return;
     const denom = editor.scrollHeight - editor.clientHeight;
-    const ratio = denom > 0 ? editor.scrollTop / denom : 0;
-    const pDenom = previewScroll.scrollHeight - previewScroll.clientHeight;
-    previewScroll.scrollTop = ratio * Math.max(0, pDenom);
+    syncRatio = denom > 0 ? editor.scrollTop / denom : 0;
+    /* 预览同步用 rAF 合并，避免滚动事件中频繁触发布局（流畅性） */
+    if (syncRaf) return;
+    syncRaf = requestAnimationFrame(() => {
+      syncRaf = 0;
+      const pDenom = previewScroll.scrollHeight - previewScroll.clientHeight;
+      previewScroll.scrollTop = syncRatio * Math.max(0, pDenom);
+    });
   });
 }
 
@@ -1210,7 +1439,7 @@ function onInput() {
   scheduleRender();
   scheduleHighlight();
   updateLineNumbers();
-  updateStats();
+  scheduleStats();
   setDirty(true);
   autoSaveDraft();
 }
@@ -1236,6 +1465,22 @@ function bindEvents() {
   } else {
     window.addEventListener('resize', highlightEditor);
   }
+
+  /* 视口缩小后，把已打开（且非全屏）的 Py 编辑器重新夹回可视区域并记录 */
+  window.addEventListener('resize', () => {
+    if (pyg.el && pyg.el.classList.contains('show') && !pyg.el.classList.contains('fullscreen')) {
+      const r = pyg.el.getBoundingClientRect();
+      const w = Math.max(480, Math.min(r.width, window.innerWidth));
+      const h = Math.max(360, Math.min(r.height, window.innerHeight));
+      const left = Math.max(0, Math.min(r.left, window.innerWidth - w));
+      const top = Math.max(0, Math.min(r.top, window.innerHeight - h));
+      pyg.el.style.width = w + 'px';
+      pyg.el.style.height = h + 'px';
+      pyg.el.style.left = left + 'px';
+      pyg.el.style.top = top + 'px';
+      savePygWin();
+    }
+  });
 
   /* 文件名变化 → 视为修改 */
   fileNameInput.addEventListener('input', () => setDirty(true));
@@ -1294,6 +1539,10 @@ function bindEvents() {
       /* 注意：Ctrl+数字是浏览器保留键（切换标签页），故叠加 Alt */
       e.preventDefault();
       setView(e.key === '1' ? 'edit' : e.key === '2' ? 'split' : 'preview');
+    } else if (e.altKey && (e.key === 'y' || e.key === 'Y')) {
+      /* Ctrl+Alt+Y：打开独立 Python 编辑器 */
+      e.preventDefault();
+      openPlayground();
     } else if (e.key === 'Enter') {
       /* Ctrl/Cmd + Enter：运行全部 Python 单元 */
       e.preventDefault();
@@ -1338,6 +1587,8 @@ const WELCOME_DOC = `# 欢迎使用 MD IDE ✨
 
 - [x] 实时分栏预览，支持 GFM 表格、任务列表、删除线
 - [x] **Python 代码运行**：预览中 \`\`\`python 代码块可点击 ▶ 运行（Pyodide，变量跨单元保留）
+- [x] **独立 Python 编辑器**：工具栏 🐍 编辑器（或 Ctrl+Alt+Y）打开，可运行 / 语法高亮 / 导出 .py 交给本地编辑器
+- [x] **Python 画图**：\`matplotlib\` 出图直接显示在输出区（预览区与独立编辑器均支持，真实 CPython + 真实 matplotlib）
 - [x] 四种主题：跟随系统 / 白天 / 黑夜 / 高对比度
 - [x] 一键保存 \`.md\`、另存独立 \`.html\`、导出 \`.pdf\`
 - [x] 拖拽 \`.md\` 文件到窗口直接打开
@@ -1354,6 +1605,23 @@ def hello_markdown():
 hello_markdown()
 \`\`\`
 
+## Python 画图（matplotlib）
+
+预览区与独立编辑器里的 Python 都是**真实 CPython（Pyodide）+ 真实 matplotlib**——点 ▶ 运行即可看到图：
+
+\`\`\`python
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 1, 8, 5]
+plt.figure(figsize=(6, 3))
+plt.plot(x, y, marker='o', color='#2f81f7', label='示例数据')
+plt.title('示例折线图')
+plt.xlabel('x'); plt.ylabel('y')
+plt.legend()
+plt.show()
+\`\`\`
+
 ---
 
 ### 提示
@@ -1362,6 +1630,418 @@ hello_markdown()
 也可以试试 **另存 HTML** 与 **导出 PDF**。
 顶栏的 **◐ 主题** 按钮可循环切换主题，工具栏的 **▶ 运行全部** 可依次执行所有 Python 单元。
 `;
+
+/* ============================================================
+   Python 编辑器（独立 Playground · 真实 CPython / Pyodide）
+   ============================================================ */
+const pyg = {
+  el: $('pyPlayground'),
+  header: $('pygHeader'),
+  body: $('pygBody'),
+  splitter: $('pygSplitter'),
+  fullBtn: $('pygFull'),
+  savePlotBtn: $('pygSavePlot'),
+  editor: $('pygEditor'),
+  highlight: $('pygHighlight'),
+  highlightCode: $('pygHighlightCode'),
+  lineNumbers: $('pygLineNumbers'),
+  output: $('pygOutput'),
+  runBtn: $('pygRun'),
+  saveBtn: $('pygSave'),
+  copyBtn: $('pygCopy'),
+  clearBtn: $('pygClear'),
+  closeBtn: $('pygClose'),
+  openBtn: $('btnPyPlayground'),
+};
+let pygRunning = false;
+let pygLineCount = -1;
+let pygLastPlots = [];
+
+function pygHighlightEditor() {
+  const v = pyg.editor.value;
+  pyg.highlightCode.innerHTML = (window.hljs && v) ? safeHighlight(v, 'python') : escapeHtml(v);
+  const sb = pyg.editor.offsetWidth - pyg.editor.clientWidth;
+  pyg.highlight.style.paddingRight = (18 + sb) + 'px';
+  pyg.highlight.scrollTop = pyg.editor.scrollTop;
+}
+
+function pygUpdateLineNumbers() {
+  const count = pyg.editor.value.split('\n').length;
+  if (count !== pygLineCount) {
+    const parts = new Array(count);
+    for (let i = 0; i < count; i++) parts[i] = i + 1;
+    pyg.lineNumbers.textContent = parts.join('\n');
+    pygLineCount = count;
+  }
+  pyg.lineNumbers.scrollTop = pyg.editor.scrollTop;
+}
+
+function pygAppend(kind, text) {
+  if (!text) return;
+  const hint = pyg.output.querySelector('.pyg-empty-hint');
+  if (hint) hint.remove();
+  const d = document.createElement('div');
+  d.className = 'pyg-line-' + kind;
+  d.textContent = text;
+  pyg.output.appendChild(d);
+  pyg.output.scrollTop = pyg.output.scrollHeight;
+}
+
+/* 在独立编辑器输出区渲染 matplotlib 出图（内嵌 PNG），附导出按钮 */
+function pygAppendPlot(src) {
+  const hint = pyg.output.querySelector('.pyg-empty-hint');
+  if (hint) hint.remove();
+  const d = document.createElement('div');
+  d.className = 'pyg-line-plot';
+  const img = document.createElement('img');
+  img.className = 'pyg-plot-img';
+  img.src = src;
+  img.alt = 'Python 绘图输出';
+  d.appendChild(img);
+  d.appendChild(makePlotDownloadBtn(src));
+  pyg.output.appendChild(d);
+  pyg.output.scrollTop = pyg.output.scrollHeight;
+}
+
+/* 生成“导出此图为 PNG”按钮（用于独立编辑器与 md 单元出图） */
+function makePlotDownloadBtn(src, idx) {
+  const dl = document.createElement('button');
+  dl.className = 'py-plot-dl';
+  dl.type = 'button';
+  dl.title = '导出此图为 PNG';
+  dl.textContent = '⤓ PNG';
+  dl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    downloadDataUrlImage(src, 'mdide-plot-' + (idx != null ? (idx + 1) : Date.now()) + '.png');
+  });
+  return dl;
+}
+
+/* 触发浏览器下载一个 data URL 图像 */
+function downloadDataUrlImage(dataUrl, filename) {
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function pygClearOutput() {
+  pyg.output.innerHTML = '<span class="pyg-empty-hint">运行结果将显示在此处…</span>';
+}
+
+async function pygRun() {
+  if (pyBusy) { toast('已有单元正在运行，请稍候', true); return; }
+  pyBusy = true;
+  pygRunning = true;
+  pyg.runBtn.disabled = true;
+  pyg.runBtn.textContent = '… 运行中';
+  pygClearOutput();
+  try {
+    const code = pyg.editor.value;
+    if (!code.trim()) { pygAppend('stderr', '（空代码，未执行）'); return; }
+    const rec = await executePythonCode(code, {
+      onStdout: s => pygAppend('stdout', s),
+      onStderr: s => pygAppend('stderr', s),
+    });
+    if (rec.plots && rec.plots.length) rec.plots.forEach(src => pygAppendPlot(src));
+    pygLastPlots = rec.plots || [];
+    if (rec.result) pygAppend('result', rec.result);
+    if (rec.error) pygAppend('error', rec.error);
+    if (!rec.stdout && !rec.stderr && !rec.result && !rec.error && !(rec.plots && rec.plots.length)) pygAppend('stdout', '（无输出）');
+    if (!rec.error) toast('Python 执行完成');
+  } catch (err) {
+    pygAppend('error', '运行时加载失败：' + (err && err.message ? err.message : err));
+    toast('Python 运行时加载失败', true);
+  } finally {
+    pyg.runBtn.disabled = false;
+    pyg.runBtn.textContent = '▶ 运行';
+    pygRunning = false;
+    pyBusy = false;
+  }
+}
+
+/* 打开独立 Python 编辑器；传入 seed 则载入该段代码 */
+function openPlayground(seed) {
+  if (typeof seed === 'string') {
+    pyg.editor.value = seed;
+    pygLineCount = -1;
+  }
+  /* 恢复上次保存的窗口位置/大小/全屏（首次则保持默认居中） */
+  restorePygWin();
+  pygLastPlots = [];
+  pyg.el.classList.add('show');
+  pyg.el.setAttribute('aria-hidden', 'false');
+  pygHighlightEditor();
+  pygUpdateLineNumbers();
+  pyg.editor.focus();
+}
+
+function closePlayground() {
+  pyg.el.classList.remove('show');
+  pyg.el.setAttribute('aria-hidden', 'true');
+}
+
+/* 全屏 / 退出全屏：CSS 视口填充（覆盖其余界面） */
+function togglePygFullscreen() {
+  const fs = pyg.el.classList.toggle('fullscreen');
+  if (pyg.fullBtn) pyg.fullBtn.textContent = fs ? '⤡ 退出' : '⤢ 全屏';
+  if (fs) {
+    /* 全屏时清掉拖拽/缩放留下的内联定位，交给 .fullscreen 规则接管 */
+    pyg.el.style.transform = '';
+    pyg.el.style.left = pyg.el.style.top = pyg.el.style.width = pyg.el.style.height = '';
+  }
+  pygHighlightEditor();
+  savePygWin();
+}
+
+/* ============================================================
+   Playground 窗口状态持久化（位置 / 大小 / 全屏 / 分隔条）
+   存入 localStorage，下次打开自动恢复；隐私模式下静默降级。
+   ============================================================ */
+const PYG_WIN_KEY = 'mdide.pygwin.v1';
+
+function savePygWin() {
+  try {
+    const isFs = pyg.el.classList.contains('fullscreen');
+    const r = pyg.el.getBoundingClientRect();
+    const data = {
+      fullscreen: isFs,
+      left: isFs ? null : Math.round(r.left),
+      top: isFs ? null : Math.round(r.top),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+      editorH: Math.round(pyg.editor.getBoundingClientRect().height),
+    };
+    localStorage.setItem(PYG_WIN_KEY, JSON.stringify(data));
+  } catch (e) { /* 隐私模式 / 配额错误：忽略即可 */ }
+}
+
+function restorePygWin() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(PYG_WIN_KEY) || 'null'); } catch (e) { data = null; }
+  /* 清除可能残留的定位/尺寸，从干净状态恢复 */
+  pyg.el.classList.remove('fullscreen');
+  pyg.el.style.transform = '';
+  pyg.el.style.left = pyg.el.style.top = pyg.el.style.width = pyg.el.style.height = '';
+  pyg.editor.style.flex = '';
+  if (pyg.fullBtn) pyg.fullBtn.textContent = '⤢ 全屏';
+
+  if (!data) return; /* 首次：保持默认居中 */
+
+  if (data.fullscreen) {
+    pyg.el.classList.add('fullscreen');
+    if (pyg.fullBtn) pyg.fullBtn.textContent = '⤡ 退出';
+    return;
+  }
+  const minW = 480, minH = 360;
+  const w = Math.max(minW, Math.min(data.width || minW, window.innerWidth));
+  const h = Math.max(minH, Math.min(data.height || minH, window.innerHeight));
+  let left = (typeof data.left === 'number') ? data.left : (window.innerWidth - w) / 2;
+  let top = (typeof data.top === 'number') ? data.top : (window.innerHeight - h) / 2;
+  left = Math.max(0, Math.min(left, window.innerWidth - w));
+  top = Math.max(0, Math.min(top, window.innerHeight - h));
+  pyg.el.style.left = left + 'px';
+  pyg.el.style.top = top + 'px';
+  pyg.el.style.width = w + 'px';
+  pyg.el.style.height = h + 'px';
+  if (data.editorH && data.editorH > 80) pyg.editor.style.flex = '0 0 ' + data.editorH + 'px';
+}
+
+/* Tab 缩进（4 空格），Shift+Tab 反缩进 */
+function pygHandleTab(e) {
+  const ed = pyg.editor;
+  const start = ed.selectionStart;
+  const end = ed.selectionEnd;
+  const value = ed.value;
+  if (!e.shiftKey && !value.slice(start, end).includes('\n')) {
+    ed.setRangeText('    ', start, end, 'end');
+    pygHighlightEditor();
+    pygUpdateLineNumbers();
+    return;
+  }
+  const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+  const lineEndIdx = value.indexOf('\n', end);
+  const lineEnd = lineEndIdx === -1 ? value.length : lineEndIdx;
+  const block = value.slice(lineStart, lineEnd);
+  const shifted = block.split('\n')
+    .map(l => e.shiftKey ? l.replace(/^ {1,4}/, '') : '    ' + l)
+    .join('\n');
+  ed.setRangeText(shifted, lineStart, lineEnd, 'end');
+  ed.setSelectionRange(lineStart, lineStart + shifted.length);
+  pygHighlightEditor();
+  pygUpdateLineNumbers();
+}
+
+/* 保存为 .py：优先用 File System Access API 直写本地磁盘，否则下载 */
+function savePyFile(text, name) {
+  if (window.showSaveFilePicker) {
+    window.showSaveFilePicker({
+      suggestedName: name,
+      types: [{ description: 'Python 文件', accept: { 'text/x-python': ['.py'] } }]
+    })
+      .then(handle => handle.createWritable().then(w => w.write(text).then(() => w.close())))
+      .then(() => toast('已保存为 ' + name))
+      .catch(err => { if (!err || err.name !== 'AbortError') fallbackSave(text, name); });
+  } else {
+    fallbackSave(text, name);
+  }
+}
+
+function fallbackSave(text, name) {
+  downloadFile(text, name, 'text/x-python;charset=utf-8');
+  toast('已下载 ' + name + '（可双击用本地 Python 编辑器打开运行）');
+}
+
+/* 编辑器 / 控制台 高度分隔条（上下拖拽调整） */
+function initPygSplitter() {
+  if (!pyg.splitter) return;
+  pyg.splitter.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const body = pyg.body;
+    const onMove = (ev) => {
+      const rect = body.getBoundingClientRect();
+      const min = 80, max = rect.height - 80 - 6;
+      let h = Math.max(min, Math.min(max, ev.clientY - rect.top));
+      pyg.editor.style.flex = '0 0 ' + h + 'px';
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.body.style.userSelect = '';
+      pygHighlightEditor();
+      savePygWin();
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.body.style.userSelect = 'none';
+  });
+}
+
+/* 窗口拖动（标题栏）/ 缩放（八向手柄） */
+function initPygResizeMove() {
+  const el = pyg.el;
+  if (!el) return;
+  let mode = null, dir = '';
+  let startX = 0, startY = 0, startRect = null;
+
+  const onMove = (e) => {
+    if (!mode) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const r = startRect;
+    let left = r.left, top = r.top, w = r.width, h = r.height;
+    if (dir.includes('e')) w = r.width + dx;
+    if (dir.includes('s')) h = r.height + dy;
+    if (dir.includes('w')) w = r.width - dx;
+    if (dir.includes('n')) h = r.height - dy;
+    if (mode === 'move') { left = r.left + dx; top = r.top + dy; }
+    else { if (dir.includes('w')) left = r.left + dx; if (dir.includes('n')) top = r.top + dy; }
+    const minW = 480, minH = 360;
+    if (w < minW) { if (mode === 'resize' && dir.includes('w')) left = r.left + (r.width - minW); w = minW; }
+    if (h < minH) { if (mode === 'resize' && dir.includes('n')) top = r.top + (r.height - minH); h = minH; }
+    left = Math.max(0, Math.min(left, window.innerWidth - w));
+    top = Math.max(0, Math.min(top, window.innerHeight - h));
+    el.style.transform = 'none';
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+    el.style.width = w + 'px';
+    el.style.height = h + 'px';
+  };
+  const onUp = () => {
+    mode = null; dir = '';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.body.style.userSelect = '';
+    savePygWin();
+  };
+
+  pyg.header.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.pyg-btn')) return;
+    if (e.button !== 0) return;
+    mode = 'move'; dir = '';
+    startX = e.clientX; startY = e.clientY;
+    startRect = el.getBoundingClientRect();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  el.querySelectorAll('.pyg-rsz').forEach(h => {
+    h.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      mode = 'resize'; dir = h.dataset.dir;
+      startX = e.clientX; startY = e.clientY;
+      startRect = el.getBoundingClientRect();
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+}
+
+function bindPyPlayground() {
+  if (!pyg.el) return;
+  pyg.openBtn.addEventListener('click', () => openPlayground());
+  pyg.closeBtn.addEventListener('click', closePlayground);
+  pyg.runBtn.addEventListener('click', pygRun);
+  pyg.saveBtn.addEventListener('click', () => savePyFile(pyg.editor.value, 'playground.py'));
+  pyg.copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(pyg.editor.value)
+      .then(() => toast('代码已复制到剪贴板'))
+      .catch(() => toast('复制失败', true));
+  });
+  pyg.clearBtn.addEventListener('click', () => {
+    pyg.editor.value = '';
+    pygClearOutput();
+    pygHighlightEditor();
+    pygUpdateLineNumbers();
+    pyg.editor.focus();
+  });
+  /* 全屏 / 退出全屏（CSS 视口填充，叠加原生 Fullscreen API） */
+  pyg.fullBtn.addEventListener('click', togglePygFullscreen);
+  /* 导出当前输出区中的所有图形为 PNG */
+  pyg.savePlotBtn.addEventListener('click', () => {
+    if (!pygLastPlots.length) { toast('当前没有可导出的图形', true); return; }
+    pygLastPlots.forEach((src, i) => downloadDataUrlImage(src, 'mdide-plot-' + (i + 1) + '.png'));
+    toast('已导出 ' + pygLastPlots.length + ' 张图形');
+  });
+
+  initPygSplitter();
+  initPygResizeMove();
+
+  let pygHlTimer = null;
+  pyg.editor.addEventListener('input', () => {
+    /* 行号即时更新（开销极小），高亮延后防抖，避免每次按键都跑 hljs（流畅性） */
+    pygUpdateLineNumbers();
+    clearTimeout(pygHlTimer);
+    pygHlTimer = setTimeout(pygHighlightEditor, 70);
+  });
+  pyg.editor.addEventListener('scroll', () => {
+    pyg.lineNumbers.scrollTop = pyg.editor.scrollTop;
+    pyg.highlight.scrollTop = pyg.editor.scrollTop;
+  });
+  pyg.editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') { e.preventDefault(); pygHandleTab(e); }
+    else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); pygRun(); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && pyg.el.classList.contains('show')) {
+      if (pyg.el.classList.contains('fullscreen')) togglePygFullscreen();
+      else closePlayground();
+    }
+  });
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => {
+      const sb = pyg.editor.offsetWidth - pyg.editor.clientWidth;
+      pyg.highlight.style.paddingRight = (18 + sb) + 'px';
+    }).observe(pyg.editor);
+  }
+}
 
 /* ============================================================
    启动
@@ -1387,6 +2067,7 @@ hello_markdown()
   initScrollSync();
   initSplitter();
   initDragDrop();
+  bindPyPlayground();
 
   refreshAll();
 })();
