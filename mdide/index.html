@@ -93,8 +93,12 @@
         </div>
         <div class="editor-wrap">
           <div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div>
-          <textarea id="editor" spellcheck="false" autocomplete="off"
-            placeholder="# 在这里开始书写 Markdown …&#10;&#10;支持 GFM：表格 / 任务列表 / 删除线 / 代码块&#10;可直接把 .md 文件拖进窗口打开"></textarea>
+          <div class="editor-area">
+            <!-- 高亮垫层：与 textarea 逐字对齐，文本由 textarea 透明叠加 -->
+            <div class="editor-highlight" id="editorHighlight" aria-hidden="true"><code id="editorHighlightCode"></code></div>
+            <textarea id="editor" spellcheck="false" autocomplete="off"
+              placeholder="# 在这里开始书写 Markdown …&#10;&#10;支持 GFM：表格 / 任务列表 / 删除线 / 代码块&#10;可直接把 .md 文件拖进窗口打开"></textarea>
+          </div>
         </div>
       </section>
 

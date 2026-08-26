@@ -32,6 +32,8 @@ const dropOverlay   = $('dropOverlay');
 const toastEl       = $('toast');
 const busyMask      = $('busyMask');
 const busyText      = $('busyText');
+const editorHighlight     = $('editorHighlight');
+const editorHighlightCode = $('editorHighlightCode');
 
 /* ============================================================
    全局状态
@@ -230,6 +232,64 @@ function refreshPreview() {
 function scheduleRender() {
   clearTimeout(renderTimer);
   renderTimer = setTimeout(refreshPreview, 180);
+}
+
+/* ============================================================
+   编辑区 Python 代码高亮（透明 textarea + 高亮垫层）
+   只对 ```python / ```py 围栏块内代码做 hljs 着色，
+   其余 Markdown 原文保持基础色；输出文本与源文逐字一致。
+   ============================================================ */
+let highlightTimer = null;
+
+function buildEditorHighlightHtml(text) {
+  const openRe  = /^```(?:python|py)\b.*$/gm;  /* 开始围栏 */
+  const closeRe = /^```.*$/gm;                 /* 结束围栏（任意语言） */
+  let html = '';
+  let last = 0;
+  let m;
+  while ((m = openRe.exec(text)) !== null) {
+    html += escapeHtml(text.slice(last, m.index));
+    html += '<span class="md-fence">' + escapeHtml(m[0]) + '</span>';
+    let pos = openRe.lastIndex;
+    if (text[pos] === '\n') pos += 1;
+    /* 查找结束围栏；未闭合时（正在输入）一直高亮到文末 */
+    closeRe.lastIndex = pos;
+    const cm = closeRe.exec(text);
+    const codeEnd = cm ? cm.index : text.length;
+    const code = text.slice(pos, codeEnd);
+    if (window.hljs && code) {
+      try {
+        html += window.hljs.highlight(code, { language: 'python', ignoreIllegals: true }).value;
+      } catch (e) {
+        html += escapeHtml(code);
+      }
+    } else {
+      html += escapeHtml(code);
+    }
+    if (cm) {
+      html += '<span class="md-fence">' + escapeHtml(cm[0]) + '</span>';
+      pos = closeRe.lastIndex;
+    } else {
+      pos = text.length;
+    }
+    last = pos;
+    openRe.lastIndex = pos;
+  }
+  html += escapeHtml(text.slice(last));
+  return html;
+}
+
+function highlightEditor() {
+  editorHighlightCode.innerHTML = buildEditorHighlightHtml(editor.value);
+  /* textarea 出现纵向滚动条时会占宽，垫层补偿同等宽度保证折行一致 */
+  const sb = editor.offsetWidth - editor.clientWidth;
+  editorHighlight.style.paddingRight = (18 + sb) + 'px';
+  editorHighlight.scrollTop = editor.scrollTop;
+}
+
+function scheduleHighlight() {
+  clearTimeout(highlightTimer);
+  highlightTimer = setTimeout(highlightEditor, 80);
 }
 
 /* ============================================================
@@ -455,6 +515,7 @@ function markSaved(label) {
 
 function refreshAll() {
   refreshPreview();
+  highlightEditor();
   updateLineNumbers();
   updateStats();
   updateCursorPos();
@@ -1102,6 +1163,8 @@ function initSplitter() {
 function initScrollSync() {
   editor.addEventListener('scroll', () => {
     lineNumbers.scrollTop = editor.scrollTop;
+    /* 高亮垫层始终跟随滚动 */
+    editorHighlight.scrollTop = editor.scrollTop;
     if (!syncScroll || viewMode === 'edit') return;
     const denom = editor.scrollHeight - editor.clientHeight;
     const ratio = denom > 0 ? editor.scrollTop / denom : 0;
@@ -1145,6 +1208,7 @@ function initDragDrop() {
    ============================================================ */
 function onInput() {
   scheduleRender();
+  scheduleHighlight();
   updateLineNumbers();
   updateStats();
   setDirty(true);
@@ -1161,6 +1225,17 @@ function bindEvents() {
     if (e.key === 'Tab') return handleTab(e);
     if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) return handleEnter(e);
   });
+  /* 中文输入法上屏后立即刷新高亮，避免候选期间滞后 */
+  editor.addEventListener('compositionend', highlightEditor);
+  /* 宽度变化（窗口缩放 / 视图切换 / 拖动分隔条）时重算折行宽度 */
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => {
+      const sb = editor.offsetWidth - editor.clientWidth;
+      editorHighlight.style.paddingRight = (18 + sb) + 'px';
+    }).observe(editor);
+  } else {
+    window.addEventListener('resize', highlightEditor);
+  }
 
   /* 文件名变化 → 视为修改 */
   fileNameInput.addEventListener('input', () => setDirty(true));

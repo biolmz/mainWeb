@@ -474,11 +474,14 @@ button {
 
 #editor {
   flex: 1;
+  position: relative;
+  z-index: 1;
   padding: 16px 18px;
   font-family: var(--font-mono);
   font-size: 0.92rem;
   line-height: 1.75;
-  color: var(--text-primary);
+  /* 文本透明，由垫层负责显色；光标保留可见 */
+  color: transparent;
   background: transparent;
   border: none;
   outline: none;
@@ -487,7 +490,50 @@ button {
   tab-size: 2;
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: break-word;
 }
+
+/* 编辑区容器：行号 + （高亮垫层 + 透明 textarea） */
+.editor-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+/* 高亮垫层：字体/行高/内边距/折行方式必须与 #editor 完全一致，才能逐字对齐 */
+.editor-highlight {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--text-primary);
+  tab-size: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.editor-highlight code {
+  display: block;
+  font: inherit;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  white-space: inherit;
+  word-wrap: inherit;
+  overflow-wrap: inherit;
+  tab-size: inherit;
+}
+
+/* 围栏行（```python / ```）淡显为标点 */
+.editor-highlight .md-fence { color: var(--text-muted); }
 
 #editor::placeholder { color: var(--text-muted); }
 
