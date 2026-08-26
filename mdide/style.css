@@ -42,7 +42,7 @@
   --shadow-float: 0 8px 40px rgba(0, 0, 0, 0.5);
   --app-glow-1: rgba(0, 240, 255, 0.04);
   --app-glow-2: rgba(157, 107, 255, 0.05);
-  --font-sans: 'Space Grotesk', 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-sans: 'Space Grotesk', -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', 'Noto Serif SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
   --font-serif: 'Noto Serif SC', serif;
   --topbar-h: 56px;

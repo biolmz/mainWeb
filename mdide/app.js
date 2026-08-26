@@ -41,12 +41,25 @@ const editorHighlightCode = $('editorHighlightCode');
 const DRAFT_KEY = 'mdide:draft';
 const VIEW_KEY  = 'mdide:view';
 const THEME_KEY = 'mdide:theme';
-const HTML2PDF_CDN = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js';
+const HTML2PDF_CDN = 'vendor/html2pdf.bundle.min.js';
 
-/* Pyodide（浏览器端 Python 运行时，首次运行代码时按需加载） */
-const PYODIDE_VERSION = 'v0.26.4';
-const PYODIDE_CDN   = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full/pyodide.js`;
-const PYODIDE_INDEX = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full/`;
+/* Pyodide（浏览器端 Python 运行时，首次运行代码时按需加载）。
+   默认优先加载站点自带的本地 ./pyodide/ 目录（整站离线、零外部依赖，真站点最稳）；
+   本地缺失时依次回退到多个公共 CDN 镜像，也可用 URL 参数 ?pyodide=地址/ 强制指定。
+   注意：file:// 协议下浏览器会拦截对本地 .wasm 的 fetch()（同源 file 请求被 CORS 拦），
+   故本地目录仅对 http(s) 生效；本地双击打开时自动回退 CDN。 */
+const PYODIDE_VERSION = '0.26.4';
+const _pyParam = (typeof URLSearchParams !== 'undefined')
+  ? new URLSearchParams(location.search).get('pyodide') : null;
+const _isFileProto = (typeof location !== 'undefined') && location.protocol === 'file:';
+const PYODIDE_BASES = [
+  _pyParam,
+  _isFileProto ? null : './pyodide/',
+  `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  `https://fastly.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  `https://gcore.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  `https://unpkg.com/pyodide@${PYODIDE_VERSION}/full/`,
+].filter(Boolean);
 
 /* 主题：跟随系统 / 白天 / 黑夜 / 高对比度 */
 const THEMES = [
@@ -116,12 +129,13 @@ function hideBusy() {
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[data-loaded="${src}"]`)) return resolve();
+    const existing = document.querySelector(`script[data-loaded="${src}"]`);
+    if (existing && existing.dataset.ok === '1') return resolve();
     const s = document.createElement('script');
     s.src = src;
     s.dataset.loaded = src;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error('网络脚本加载失败'));
+    s.onload = () => { s.dataset.ok = '1'; resolve(); };
+    s.onerror = () => { s.remove(); reject(new Error('网络脚本加载失败：' + src)); };
     document.head.appendChild(s);
   });
 }
@@ -498,18 +512,34 @@ async function getPyodide() {
   if (pyodideInstance) return pyodideInstance;
   if (pyodideLoading) return pyodideLoading;
   pyodideLoading = (async () => {
+    const tried = [];
     showBusy('正在加载 Python 运行时（Pyodide）…首次运行需几秒');
     try {
-      await loadScript(PYODIDE_CDN);
-      if (!window.loadPyodide) throw new Error('pyodide.js 加载失败');
-      const py = await window.loadPyodide({ indexURL: PYODIDE_INDEX });
-      pyodideInstance = py;
-      return py;
+      for (const base of PYODIDE_BASES) {
+        try {
+          await loadScript(base + 'pyodide.js');
+          if (!window.loadPyodide) throw new Error('pyodide.js 未导出 loadPyodide');
+          const py = await window.loadPyodide({ indexURL: base });
+          pyodideInstance = py;
+          /* 在独立编辑器里标注已就绪 + 实际使用的源，便于排查 */
+          const eng = $('pygEngine');
+          if (eng) eng.textContent = '引擎：Pyodide · 已就绪（' + base.replace(/\/full\/$/, '').replace(/\/$/, '') + '）';
+          return py;
+        } catch (e) {
+          tried.push(base);
+          /* 清掉本源已注入的脚本，避免污染 window.loadPyodide 与下次重试 */
+          const bad = document.querySelector(`script[src^="${base}"]`);
+          if (bad) bad.remove();
+          console.warn('Pyodide 源加载失败：', base, e);
+        }
+      }
+      throw new Error('Python 运行时加载失败（已尝试 ' + tried.length + ' 个源）。若为本地部署，请确认站点目录下已包含 pyodide/ 文件夹；否则多为网络受限，可改用 ?pyodide=地址/ 指定可用源。');
     } finally {
       hideBusy();
-      pyodideLoading = null;
     }
   })();
+  /* 结束后清空在途标记，允许下次运行重新尝试所有源 */
+  pyodideLoading.finally(() => { pyodideLoading = null; });
   return pyodideLoading;
 }
 
@@ -638,8 +668,9 @@ async function runPyCell(cell, codeText, labelEl, btnEl, isBatch = false) {
     renderPyOutput(out, labelEl, rec);
     if (!rec.error) toast(`执行完成 [${execCount}]`);
   } catch (err) {
-    renderPyOutput(out, labelEl, { error: '运行时错误：' + (err && err.message ? err.message : err), count: null });
-    toast('Python 运行时加载失败', true);
+    const msg = (err && err.message) ? err.message : String(err);
+    renderPyOutput(out, labelEl, { error: '运行时错误：' + msg, count: null });
+    toast('Python 运行时加载失败：' + msg, true);
   } finally {
     if (btnEl) { btnEl.disabled = false; btnEl.textContent = '▶ 运行'; }
     if (!isBatch) pyBusy = false;
@@ -1228,7 +1259,6 @@ function saveAsHtml() {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="MD IDE">
 <title>${escapeHtml(title)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
 <style>${LIGHT_DOC_CSS}</style>
 </head>
 <body>
@@ -1752,8 +1782,9 @@ async function pygRun() {
     if (!rec.stdout && !rec.stderr && !rec.result && !rec.error && !(rec.plots && rec.plots.length)) pygAppend('stdout', '（无输出）');
     if (!rec.error) toast('Python 执行完成');
   } catch (err) {
-    pygAppend('error', '运行时加载失败：' + (err && err.message ? err.message : err));
-    toast('Python 运行时加载失败', true);
+    const msg = (err && err.message) ? err.message : String(err);
+    pygAppend('error', '运行时加载失败：' + msg);
+    toast('Python 运行时加载失败：' + msg, true);
   } finally {
     pyg.runBtn.disabled = false;
     pyg.runBtn.textContent = '▶ 运行';
