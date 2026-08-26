@@ -1,0 +1,102 @@
+# ============================================================
+#  前端通用 .gitignore（适用于纯 HTML/JS、Vue、React、Vite 等）
+#  已追加 WorkBuddy / Qoder / DSH 等 AI 工具本地数据
+# ============================================================
+
+# ========== 依赖 ==========
+node_modules/
+.pnp
+.pnp.js
+
+# ========== 构建产物 ==========
+dist/
+build/
+.out/
+.next/
+.nuxt/
+.svelte-kit/
+.vercel/
+.turbo/
+
+# ========== 缓存 ==========
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# ========== 环境变量（敏感，绝不能提交） ==========
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# ========== 日志 ==========
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ========== 运行时 ==========
+.pid
+.pid.lock
+
+# ========== 编辑器 & IDE ==========
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========== TypeScript ==========
+*.tsbuildinfo
+
+# ========== 测试覆盖率 ==========
+coverage/
+.nyc_output/
+
+# ========== 临时文件 ==========
+*.local
+
+# ============================================================
+#  AI 工具本地数据
+#  原则：本地缓存 / 会话 / 索引 / 记忆统统忽略；
+#        只有团队要共享的规则文件才取反放行。
+# ============================================================
+
+# --- WorkBuddy / CodeBuddy ---
+.workbuddy/**
+!.workbuddy/SOUL.md
+!.workbuddy/USER.md
+# MEMORY / cache / logs / session 等本地数据不提交
+
+# --- Qoder ---
+.qoder/**
+!.qoder/rules/
+!.qoder/rules/*.rule
+.qoderignore
+# 说明：本地索引/会话忽略，团队共享的 rules 放行
+
+# --- DSH（资料较少，按 AI 编码助手惯例兜底） ---
+.dsh/
+.aiignore
+
+# --- 通用 AI Agent 缓存兜底 ---
+.claude/
+.cursor/
+.aider/
+*.agent.json
+
+# ========== 兜底：密钥 / 凭据（最高优先级） ==========
+*.key
+*.pem
+*.crt
+credentials.json

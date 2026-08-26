@@ -41,6 +41,7 @@
         html {
             scroll-behavior: smooth;
             scroll-padding-top: 80px;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
@@ -281,6 +282,8 @@
             flex-direction: column;
             gap: 5px;
             cursor: pointer;
+            padding: 10px;
+            margin: -10px;
         }
 
         .nav-mobile-btn span {
@@ -290,12 +293,25 @@
             transition: all 0.3s;
         }
 
+        .nav-mobile-btn.active span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .nav-mobile-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-mobile-btn.active span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
         /* ============================================
            HERO SECTION
            ============================================ */
         .hero {
             position: relative;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -539,6 +555,11 @@
             font-size: 0.85rem;
             line-height: 1.8;
             backdrop-filter: blur(10px);
+        }
+
+        .about-code pre {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .about-code-header {
@@ -935,22 +956,73 @@
         /* ============================================
            RESPONSIVE
            ============================================ */
+        @media (max-width: 1024px) {
+            section { padding: 96px 28px; }
+            .about-grid { gap: 40px; }
+        }
+
+        @media (max-width: 900px) {
+            .philosophy-grid {
+                grid-template-columns: 1fr;
+                max-width: 520px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .nav-mobile-btn { display: flex; }
+
+            /* 移动端下拉菜单（类切换，避免内联样式残留） */
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                position: absolute;
+                top: 68px;
+                right: 16px;
+                background: rgba(6, 7, 13, 0.95);
+                padding: 18px 28px;
+                border-radius: 10px;
+                border: 1px solid var(--glass-border);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+            }
+
             .about-grid { grid-template-columns: 1fr; gap: 32px; }
             .domains-grid { grid-template-columns: 1fr; }
-            .philosophy-grid { grid-template-columns: 1fr; }
             .hero-meta { gap: 24px; }
-            section { padding: 80px 20px; }
+            section { padding: 72px 20px; }
+            .section-desc { margin-bottom: 48px; }
             .nav-cta { display: none; }
             .footer-inner { flex-direction: column; }
+            .about-code { padding: 20px 16px; font-size: 0.78rem; }
+            .contact-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
         }
 
         @media (max-width: 480px) {
             .nav-inner { padding: 0 16px; }
+            .hero-content { padding: 0 20px; }
             .hero-meta { gap: 16px; }
             .hero-meta-number { font-size: 1.4rem; }
+            .domain-card { padding: 32px 24px; }
+            .scroll-indicator { display: none; }
+        }
+
+        /* 尊重系统「减弱动态效果」设置 */
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .hero-tag, .hero-title, .hero-subtitle, .hero-meta, .scroll-indicator {
+                animation: none;
+                opacity: 1;
+            }
+            .reveal { transition: none; opacity: 1; transform: none; }
         }
     </style>
 </head>
@@ -985,7 +1057,7 @@
 				<li><a href="/content">导航页</a></li>
             </ul>
             <a href="#contact" class="nav-cta">Get in Touch</a>
-            <div class="nav-mobile-btn" id="mobileBtn">
+            <div class="nav-mobile-btn" id="mobileBtn" role="button" tabindex="0" aria-label="菜单" aria-expanded="false">
                 <span></span><span></span><span></span>
             </div>
         </div>
@@ -1248,35 +1320,37 @@
     });
 
     /* ================================================
-       CUSTOM CURSOR
+       CUSTOM CURSOR（仅精确指针设备启用，避免触屏空耗性能）
        ================================================ */
-    const cursorDot = document.getElementById('cursorDot');
-    const cursorRing = document.getElementById('cursorRing');
-    let mouseX = 0, mouseY = 0;
-    let ringX = 0, ringY = 0;
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        const cursorDot = document.getElementById('cursorDot');
+        const cursorRing = document.getElementById('cursorRing');
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
 
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        cursorDot.style.left = mouseX + 'px';
-        cursorDot.style.top = mouseY + 'px';
-    });
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top = mouseY + 'px';
+        });
 
-    // Smooth follow for ring
-    function animateCursor() {
-        ringX += (mouseX - ringX) * 0.15;
-        ringY += (mouseY - ringY) * 0.15;
-        cursorRing.style.left = ringX + 'px';
-        cursorRing.style.top = ringY + 'px';
-        requestAnimationFrame(animateCursor);
+        // Smooth follow for ring
+        function animateCursor() {
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            cursorRing.style.left = ringX + 'px';
+            cursorRing.style.top = ringY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Hover effect on interactive elements
+        document.querySelectorAll('a, button, .domain-card, .philosophy-card').forEach(el => {
+            el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+        });
     }
-    animateCursor();
-
-    // Hover effect on interactive elements
-    document.querySelectorAll('a, button, .domain-card, .philosophy-card').forEach(el => {
-        el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
-        el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
-    });
 
     /* ================================================
        NAV SCROLL EFFECT
@@ -1347,10 +1421,16 @@
        ================================================ */
     const dnaCanvas = document.getElementById('dna-canvas');
     const dnaCtx = dnaCanvas.getContext('2d');
+    // 高分屏适配（上限 2，兼顾清晰度与性能）
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let dnaW = 0, dnaH = 0;
 
     function resizeDNACanvas() {
-        dnaCanvas.width = window.innerWidth;
-        dnaCanvas.height = window.innerHeight;
+        dnaW = window.innerWidth;
+        dnaH = window.innerHeight;
+        dnaCanvas.width = dnaW * DPR;
+        dnaCanvas.height = dnaH * DPR;
+        dnaCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
     }
     resizeDNACanvas();
     window.addEventListener('resize', resizeDNACanvas);
@@ -1366,21 +1446,23 @@
     };
 
     function drawDNA() {
-        const w = dnaCanvas.width;
-        const h = dnaCanvas.height;
+        const w = dnaW;
+        const h = dnaH;
         dnaCtx.clearRect(0, 0, w, h);
 
         const centerX = w / 2;
         const startY = h * 0.15;
         const totalHeight = h * 0.7;
+        // 小屏幕上收缩振幅，避免螺旋绘出可视区外造成压迫感
+        const amplitude = Math.min(dnaHelix.amplitude, w * 0.28);
 
         // Draw strands and base pairs
         for (let i = 0; i < dnaHelix.basePairs; i++) {
             const t = i / dnaHelix.basePairs;
             const y = startY + t * totalHeight;
             const phase = i * 0.35 + dnaHelix.rotation;
-            const x1 = centerX + Math.cos(phase) * dnaHelix.amplitude;
-            const x2 = centerX + Math.cos(phase + Math.PI) * dnaHelix.amplitude;
+            const x1 = centerX + Math.cos(phase) * amplitude;
+            const x2 = centerX + Math.cos(phase + Math.PI) * amplitude;
             const depth1 = (Math.sin(phase) + 1) / 2;
             const depth2 = (Math.sin(phase + Math.PI) + 1) / 2;
 
@@ -1425,20 +1507,25 @@
     const pCanvas = document.getElementById('particle-canvas');
     const pCtx = pCanvas.getContext('2d');
     let particles = [];
+    let pW = 0, pH = 0;
 
     function resizeParticleCanvas() {
-        pCanvas.width = window.innerWidth;
-        pCanvas.height = window.innerHeight;
+        pW = window.innerWidth;
+        pH = window.innerHeight;
+        pCanvas.width = pW * DPR;
+        pCanvas.height = pH * DPR;
+        pCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
         initParticles();
     }
 
     function initParticles() {
         particles = [];
-        const count = Math.floor((pCanvas.width * pCanvas.height) / 18000);
+        // 限制粒子数上限，避免大屏上 O(n²) 连线计算过载
+        const count = Math.min(120, Math.floor((pW * pH) / 18000));
         for (let i = 0; i < count; i++) {
             particles.push({
-                x: Math.random() * pCanvas.width,
-                y: Math.random() * pCanvas.height,
+                x: Math.random() * pW,
+                y: Math.random() * pH,
                 vx: (Math.random() - 0.5) * 0.3,
                 vy: (Math.random() - 0.5) * 0.3,
                 size: Math.random() * 1.5 + 0.5,
@@ -1451,17 +1538,17 @@
     window.addEventListener('resize', resizeParticleCanvas);
 
     function drawParticles() {
-        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+        pCtx.clearRect(0, 0, pW, pH);
 
         particles.forEach((p, i) => {
             p.x += p.vx;
             p.y += p.vy;
 
             // Wrap around edges
-            if (p.x < 0) p.x = pCanvas.width;
-            if (p.x > pCanvas.width) p.x = 0;
-            if (p.y < 0) p.y = pCanvas.height;
-            if (p.y > pCanvas.height) p.y = 0;
+            if (p.x < 0) p.x = pW;
+            if (p.x > pW) p.x = 0;
+            if (p.y < 0) p.y = pH;
+            if (p.y > pH) p.y = 0;
 
             // Draw particle
             pCtx.fillStyle = `rgba(0, 240, 255, ${p.opacity})`;
@@ -1491,30 +1578,48 @@
     drawParticles();
 
     /* ================================================
-       MOBILE MENU (simple toggle)
+       MOBILE MENU (类切换，避免内联样式覆盖响应式规则)
        ================================================ */
     const mobileBtn = document.getElementById('mobileBtn');
     const navLinks = document.querySelector('.nav-links');
-    mobileBtn?.addEventListener('click', () => {
-        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-        navLinks.style.flexDirection = 'column';
-        navLinks.style.position = 'absolute';
-        navLinks.style.top = '60px';
-        navLinks.style.right = '20px';
-        navLinks.style.background = 'rgba(6,7,13,0.95)';
-        navLinks.style.padding = '16px 24px';
-        navLinks.style.borderRadius = '8px';
-        navLinks.style.border = '1px solid rgba(255,255,255,0.08)';
-        navLinks.style.backdropFilter = 'blur(20px)';
+
+    function setMobileMenu(open) {
+        if (!navLinks || !mobileBtn) return;
+        navLinks.classList.toggle('open', open);
+        mobileBtn.classList.toggle('active', open);
+        mobileBtn.setAttribute('aria-expanded', String(open));
+    }
+
+    mobileBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setMobileMenu(!navLinks.classList.contains('open'));
+    });
+
+    // 键盘可访问性（Enter / 空格）
+    mobileBtn?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setMobileMenu(!navLinks.classList.contains('open'));
+        }
+    });
+
+    // 点击菜单外部关闭
+    document.addEventListener('click', (e) => {
+        if (navLinks?.classList.contains('open')
+            && !navLinks.contains(e.target)
+            && !mobileBtn.contains(e.target)) {
+            setMobileMenu(false);
+        }
     });
 
     // Close mobile menu on link click
     navLinks?.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                navLinks.style.display = 'none';
-            }
-        });
+        link.addEventListener('click', () => setMobileMenu(false));
+    });
+
+    // 回到桌面宽度时清理展开状态，防止菜单样式残留
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) setMobileMenu(false);
     });
 
     /* ================================================

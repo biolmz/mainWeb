@@ -806,6 +806,7 @@
                     var ul = card.querySelector('.note-list');
                     if (!ul) return;
                     cardRefs.set(ul.dataset.category, {
+                        cat: ul.dataset.category,
                         card: card,
                         items: Array.from(ul.children),
                         btn: card.querySelector('.more-btn')

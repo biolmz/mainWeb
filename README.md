@@ -1,6 +1,5 @@
-# download
-## 资料下载页面
-挂在个人网站上
+# 个人网站
+
 /
 ├── index.html          → example.com/
 ├── about.html          → example.com/about.html
@@ -9,6 +8,3 @@
 │   ├── index.html      → example.com/blog/
 │   └── post-1.html     → example.com/blog/post-1.html
 └── CNAME
-<img width="780" height="362" alt="2332858c-5d8c-45c3-9d50-eb30701783c0" src="https://github.com/user-attachments/assets/b5b9649e-05d8-4d8a-95f8-cd2992c4ad65" />
-<img width="1036" height="379" alt="image" src="https://github.com/user-attachments/assets/2da946bf-a8bc-4edc-ac5b-6553fdf4df24" />
-<img width="1579" height="608" alt="11" src="https://github.com/user-attachments/assets/9e2da4df-b13b-4f76-b349-beb1e97ce658" />

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD IDE · 在线 Markdown 编辑器</title>
+  <meta name="description" content="在线 Markdown 编辑器：实时预览、Python 代码运行、保存为 .md、另存为 HTML、导出 PDF">
+  <script>
+    /* 主题防闪烁：在样式加载前尽早应用已保存的主题 */
+    (function () {
+      try {
+        var m = localStorage.getItem('mdide:theme') || 'auto';
+        var t = m;
+        if (m === 'auto') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = t;
+      } catch (e) { /* noop */ }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2300f0ff'/><stop offset='100%25' stop-color='%239d6bff'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='%2306070d'/><text x='50' y='68' font-family='monospace' font-size='46' font-weight='bold' text-anchor='middle' fill='url(%23g)'>M</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============ 顶栏：品牌 / 文件名 / 视图切换 / 文件操作 ============ -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-bracket">&lt;</span>
+        <span class="brand-name">MD&nbsp;IDE</span>
+        <span class="brand-bracket">/&gt;</span>
+      </div>
+
+      <div class="file-slot">
+        <span class="dirty-dot" id="dirtyDot" title="有未保存的修改"></span>
+        <input id="fileName" class="filename-input" value="untitled.md" spellcheck="false" autocomplete="off">
+      </div>
+
+      <div class="view-switch" id="viewSwitch" title="切换视图">
+        <button data-view="edit" title="仅编辑 (Ctrl+Alt+1)">仅编辑</button>
+        <button data-view="split" class="active" title="分栏 (Ctrl+Alt+2)">分栏</button>
+        <button data-view="preview" title="仅预览 (Ctrl+Alt+3)">仅预览</button>
+      </div>
+
+      <button class="btn" id="btnTheme" title="点击切换主题（跟随系统 / 白天 / 黑夜 / 高对比度）">◐ 主题</button>
+
+      <div class="actions">
+        <button class="btn" id="btnNew" title="新建文档">新建</button>
+        <button class="btn" id="btnOpen" title="打开本地 .md 文件 (Ctrl+O)">打开</button>
+        <button class="btn accent" id="btnSaveMd" title="保存为 .md 到本地 (Ctrl+S)">保存 .md</button>
+        <button class="btn" id="btnSaveHtml" title="另存为 HTML (Ctrl+Shift+S)">另存 HTML</button>
+        <button class="btn" id="btnSavePdf" title="导出 PDF (Ctrl+Alt+P)">导出 PDF</button>
+      </div>
+    </header>
+
+    <!-- ============ 工具栏：Markdown 语法快捷插入 ============ -->
+    <nav class="toolbar" id="toolbar">
+      <button data-act="h1" title="一级标题">H1</button>
+      <button data-act="h2" title="二级标题">H2</button>
+      <button data-act="h3" title="三级标题">H3</button>
+      <span class="tb-sep"></span>
+      <button data-act="bold" title="粗体 (Ctrl+B)"><b>B</b></button>
+      <button data-act="italic" title="斜体 (Ctrl+I)"><i>I</i></button>
+      <button data-act="strike" title="删除线"><s>S</s></button>
+      <button data-act="code" title="行内代码">&lt;/&gt;</button>
+      <span class="tb-sep"></span>
+      <button data-act="quote" title="引用">❝</button>
+      <button data-act="ul" title="无序列表">•—</button>
+      <button data-act="ol" title="有序列表">1.</button>
+      <button data-act="task" title="任务列表">☑</button>
+      <span class="tb-sep"></span>
+      <button data-act="link" title="链接 (Ctrl+K)">🔗</button>
+      <button data-act="image" title="图片">🖼</button>
+      <button data-act="codeblock" title="代码块">▤</button>
+      <button data-act="table" title="表格">▦</button>
+      <button data-act="hr" title="分割线">―</button>
+      <button data-act="pyblock" title="插入 Python 代码块（可运行）">🐍</button>
+      <span class="tb-sep"></span>
+      <span class="tb-flex"></span>
+      <button id="btnRunAll" title="运行所有 Python 代码块 (Ctrl+Enter)">▶ 运行全部</button>
+      <span class="tb-sep"></span>
+      <button data-act="sync-scroll" id="btnSyncScroll" class="active" title="编辑区滚动时同步预览">⇅ 同步滚动</button>
+    </nav>
+
+    <!-- ============ 主工作区：编辑面板 | 拖拽分隔条 | 预览面板 ============ -->
+    <main class="workspace" id="workspace">
+      <section class="pane" id="editorPane">
+        <div class="pane-header">
+          <span class="pane-label"><span class="dot cyan"></span>MARKDOWN</span>
+          <span class="pane-sub">编辑</span>
+        </div>
+        <div class="editor-wrap">
+          <div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div>
+          <textarea id="editor" spellcheck="false" autocomplete="off"
+            placeholder="# 在这里开始书写 Markdown …&#10;&#10;支持 GFM：表格 / 任务列表 / 删除线 / 代码块&#10;可直接把 .md 文件拖进窗口打开"></textarea>
+        </div>
+      </section>
+
+      <div class="splitter" id="splitter" title="拖动调整分栏比例"></div>
+
+      <section class="pane" id="previewPane">
+        <div class="pane-header">
+          <span class="pane-label"><span class="dot green"></span>PREVIEW</span>
+          <span class="pane-sub">预览</span>
+        </div>
+        <div class="preview-scroll" id="previewScroll">
+          <article class="markdown-body" id="preview"></article>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ 状态栏 ============ -->
+    <footer class="statusbar">
+      <span class="st-item" id="saveStatus">就绪</span>
+      <span class="st-flex"></span>
+      <span class="st-item" id="cursorPos">行 1 · 列 1</span>
+      <span class="st-item" id="stats">0 字 · 0 行</span>
+      <span class="st-item" id="readTime">约 0 分钟</span>
+      <span class="st-item engine" id="engineStatus">引擎加载中…</span>
+    </footer>
+  </div>
+
+  <!-- 隐藏元素 -->
+  <input type="file" id="fileInput" hidden accept=".md,.markdown,.mdown,.txt">
+  <div class="pdf-stage" id="pdfStage" aria-hidden="true"></div>
+  <div class="drop-overlay" id="dropOverlay"><div class="drop-box">释放以打开 Markdown 文件</div></div>
+  <div class="toast" id="toast"></div>
+  <div class="busy-mask" id="busyMask"><div class="busy-box"><span class="busy-spin"></span><span id="busyText">正在导出…</span></div></div>
+
+  <!-- 渲染引擎（CDN，加载失败时自动降级为纯文本预览） -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
