@@ -1037,8 +1037,9 @@ button {
    ============================================================ */
 .py-playground {
   position: fixed;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 10%;                    /* 默认初始位置：窗口顶部距视口顶部 10% 高度 */
+  transform: translate(-50%, 0);
   width: min(1100px, 92vw);
   height: min(820px, 86vh);
   min-width: 480px; min-height: 360px;

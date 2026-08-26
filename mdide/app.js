@@ -1831,7 +1831,7 @@ function togglePygFullscreen() {
    Playground 窗口状态持久化（位置 / 大小 / 全屏 / 分隔条）
    存入 localStorage，下次打开自动恢复；隐私模式下静默降级。
    ============================================================ */
-const PYG_WIN_KEY = 'mdide.pygwin.v1';
+const PYG_WIN_KEY = 'mdide.pygwin.v2';   /* v2：默认初始位置改为顶部留 10% 视口高（旧 v1 记忆作废） */
 
 function savePygWin() {
   try {
@@ -1852,14 +1852,14 @@ function savePygWin() {
 function restorePygWin() {
   let data = null;
   try { data = JSON.parse(localStorage.getItem(PYG_WIN_KEY) || 'null'); } catch (e) { data = null; }
-  /* 清除可能残留的定位/尺寸，从干净状态恢复 */
+  /* 清除可能残留的定位/尺寸，从干净状态恢复（默认即 CSS：顶部留 10% 视口高、水平居中） */
   pyg.el.classList.remove('fullscreen');
   pyg.el.style.transform = '';
   pyg.el.style.left = pyg.el.style.top = pyg.el.style.width = pyg.el.style.height = '';
   pyg.editor.style.flex = '';
   if (pyg.fullBtn) pyg.fullBtn.textContent = '⤢ 全屏';
 
-  if (!data) return; /* 首次：保持默认居中 */
+  if (!data) return; /* 首次/无记忆：保持默认初始位置（顶部 10% 视口高、水平居中） */
 
   if (data.fullscreen) {
     pyg.el.classList.add('fullscreen');
@@ -1869,10 +1869,23 @@ function restorePygWin() {
   const minW = 480, minH = 360;
   const w = Math.max(minW, Math.min(data.width || minW, window.innerWidth));
   const h = Math.max(minH, Math.min(data.height || minH, window.innerHeight));
-  let left = (typeof data.left === 'number') ? data.left : (window.innerWidth - w) / 2;
-  let top = (typeof data.top === 'number') ? data.top : (window.innerHeight - h) / 2;
+  /* 默认初始位置：窗口顶部距视口顶部 10% 高度 */
+  const defaultTop = Math.round(window.innerHeight * 0.10);
+  const centerTop = Math.round((window.innerHeight - h) / 2);
+  const vMargin = Math.max(24, Math.round(window.innerHeight * 0.06));
+  let left = (typeof data.left === 'number') ? data.left : Math.round((window.innerWidth - w) / 2);
+  let top;
+  if (typeof data.top !== 'number') {
+    top = defaultTop;
+  } else if (data.top < vMargin || Math.abs(data.top - centerTop) > Math.round(window.innerHeight * 0.25)) {
+    /* 保存的位置贴着视口顶部或偏离垂直居中过远（历史残留/拖动残留）→ 回落默认 10% 顶部 */
+    top = defaultTop;
+  } else {
+    top = data.top;
+  }
   left = Math.max(0, Math.min(left, window.innerWidth - w));
   top = Math.max(0, Math.min(top, window.innerHeight - h));
+  pyg.el.style.transform = 'none';
   pyg.el.style.left = left + 'px';
   pyg.el.style.top = top + 'px';
   pyg.el.style.width = w + 'px';
