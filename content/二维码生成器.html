@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" id="themeColorMeta" content="#0a0a0a" />
+<title>QR Studio · 专业二维码生成器</title>
+
+<link id="favicon" rel="icon" type="image/svg+xml" />
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<!-- ==================== 主题初始化（防白闪） ==================== -->
+<script>
+(function() {
+  const stored = localStorage.getItem('qr-theme') || 'auto';
+  let theme = stored;
+  if (stored === 'auto') {
+    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', theme);
+  const colors = { light: '#0f172a', dark: '#f5f5f5', hc: '#ffff00' };
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="4" fill="${colors[theme]||'#0f172a'}"/><rect x="6" y="6" width="8" height="8" rx="2" fill="${theme==='hc'?'#000':theme==='dark'?'#0a0a0a':'#fff'}"/><rect x="18" y="6" width="8" height="8" rx="2" fill="${theme==='hc'?'#000':theme==='dark'?'#0a0a0a':'#fff'}"/><rect x="6" y="18" width="8" height="8" rx="2" fill="${theme==='hc'?'#000':theme==='dark'?'#0a0a0a':'#fff'}"/><rect x="18" y="18" width="4" height="4" rx="1" fill="${theme==='hc'?'#000':theme==='dark'?'#0a0a0a':'#fff'}"/><rect x="24" y="18" width="4" height="4" rx="1" fill="${theme==='hc'?'#000':theme==='dark'?'#0a0a0a':'#fff'}"/><rect x="18" y="24" width="10" height="4" rx="1" fill="${theme==='hc'?'#000':theme==='dark'?'#0a0a0a':'#fff'}"/></svg>`;
+  document.getElementById('favicon').href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+})();
+</script>
+
+<style>
+/* ==================== 设计系统 ==================== */
+:root, [data-theme="light"] {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+  --border: #e5e7eb;
+  --border-light: #f0f1f3;
+  --text: #111827;
+  --text-2: #6b7280;
+  --text-3: #9ca3af;
+  --accent: #0f172a;
+  --accent-hover: #1e293b;
+  --accent-light: #e8ecf1;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+  --transition: .2s cubic-bezier(.4,0,.2,1);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", Roboto, Helvetica, Arial, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --surface: #171717;
+  --surface-2: #1f1f1f;
+  --border: #2a2a2a;
+  --border-light: #222;
+  --text: #f5f5f5;
+  --text-2: #a3a3a3;
+  --text-3: #666;
+  --accent: #f5f5f5;
+  --accent-hover: #e5e5e5;
+  --accent-light: #262626;
+  --shadow: 0 1px 3px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
+}
+[data-theme="hc"] {
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #111111;
+  --border: #ffff00;
+  --border-light: #333300;
+  --text: #ffff00;
+  --text-2: #ffff00;
+  --text-3: #cccc00;
+  --accent: #ffff00;
+  --accent-hover: #ffffff;
+  --accent-light: #222200;
+  --shadow: none;
+  --shadow-md: 0 0 0 2px #ffff00;
+}
+
+/* ==================== Reset ==================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* ==================== 顶部栏 ==================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition), border-color var(--transition);
+  position: relative;
+  z-index: 30;
+  height: 48px;
+  flex-shrink: 0;
+}
+.topbar-left {
+  display: flex; align-items: center; gap: 8px;
+}
+.brand-dot {
+  width: 22px; height: 22px;
+  background: var(--accent);
+  border-radius: 5px;
+  position: relative;
+  transition: background var(--transition);
+}
+.brand-dot::after {
+  content: ''; position: absolute; inset: 5px;
+  background: var(--surface); border-radius: 2px; transition: background var(--transition);
+}
+.topbar h1 { font-size: 15px; font-weight: 700; letter-spacing: -.3px; }
+.topbar .ver { font-size: 10px; color: var(--text-3); font-weight: 400; margin-left: 2px; }
+
+/* 主题按钮 */
+.theme-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+}
+.theme-btn:hover { border-color: var(--accent); color: var(--text); }
+.theme-btn .theme-icon { font-size: 13px; }
+
+/* 主题弹出面板 */
+.theme-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 16px;
+  width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  padding: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  z-index: 100;
+}
+.theme-popover.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.theme-popover::before {
+  content: '';
+  position: absolute;
+  top: -5px; right: 18px;
+  width: 10px; height: 10px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+.theme-opt {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--transition);
+  font-size: 12px;
+  color: var(--text-2);
+}
+.theme-opt:hover { background: var(--accent-light); }
+.theme-opt.active { color: var(--text); font-weight: 600; background: var(--accent-light); }
+.theme-opt .dot-preview {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid;
+  flex-shrink: 0;
+}
+.theme-opt .check { margin-left: auto; font-size: 11px; opacity: 0; }
+.theme-opt.active .check { opacity: 1; }
+
+/* ==================== 主区域（可拖拽分隔） ==================== */
+.main {
+  display: flex;
+  height: calc(100vh - 48px);
+  overflow: hidden;
+}
+
+/* 设置面板 */
+.panel {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: max(env(safe-area-inset-top), 16px) 16px max(env(safe-area-inset-bottom), 16px);
+  overflow-y: auto;
+  height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  flex-shrink: 0;
+  transition: background var(--transition), border-color var(--transition);
+  /* 默认宽度由 JS 设置 */
+}
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* 拖拽分隔条 */
+.resizer {
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+  transition: background .15s;
+}
+.resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 40px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background .15s, height .15s;
+}
+.resizer:hover::after,
+.resizer.dragging::after {
+  background: var(--accent);
+  height: 60px;
+}
+.resizer:hover,
+.resizer.dragging {
+  background: var(--accent-light);
+}
+
+/* 预览 */
+.preview {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+  min-width: 200px;
+}
+
+/* ==================== 折叠组 ==================== */
+.group { margin-top: 14px; }
+.group-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition), border-color var(--transition);
+}
+.group-header:hover { background: var(--accent-light); }
+.group-header .gh-label {
+  font-size: 11px; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: .8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.group-header .gh-icon { transition: transform var(--transition); font-size: 10px; color: var(--text-3); }
+.group-header.open .gh-icon { transform: rotate(180deg); }
+.group-body { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1); }
+.group-body.open { max-height: 800px; }
+.group-body-inner { padding: 10px 2px 4px; }
+
+/* ==================== 表单 ==================== */
+.field { margin-bottom: 10px; }
+.field label { display: block; font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; transition: color var(--transition); }
+.field label .hint { color: var(--text-3); font-weight: 400; font-size: 10px; }
+
+select, input[type="text"], input[type="number"], input[type="password"], textarea {
+  width: 100%; padding: 7px 10px;
+  border: 1.5px solid var(--border); border-radius: 6px;
+  font-size: 13px; font-family: var(--font);
+  background: var(--surface); color: var(--text);
+  transition: border var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+}
+select:focus, input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+textarea { resize: vertical; min-height: 60px; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.checkbox {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-2); cursor: pointer; margin-bottom: 6px; transition: color var(--transition);
+}
+.checkbox input { accent-color: var(--accent); width: 14px; height: 14px; }
+
+/* 颜色 */
+.color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.color-pick {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 6px 3px 3px;
+  border: 1.5px solid var(--border); border-radius: 6px;
+  background: var(--surface); transition: border-color var(--transition);
+}
+.color-pick input[type="color"] { width: 24px; height: 24px; border: none; border-radius: 3px; cursor: pointer; background: none; flex-shrink: 0; }
+.color-pick input[type="text"] { border: none; padding: 2px 0; font-size: 10px; font-family: monospace; min-width: 0; flex: 1; background: transparent; color: var(--text); }
+.color-pick input[type="text"]:focus { outline: none; }
+
+/* 滑块 */
+.slider-row { display: flex; align-items: center; gap: 8px; }
+.slider-row input[type="range"] { flex: 1; height: 3px; accent-color: var(--accent); }
+.slider-val { font-size: 10px; font-weight: 600; color: var(--text); background: var(--surface-2); padding: 1px 5px; border-radius: 3px; min-width: 26px; text-align: center; }
+
+/* 定位角 */
+.corner-styles { display: flex; gap: 5px; }
+.corner-opt {
+  flex: 1; text-align: center; padding: 6px 2px;
+  border: 1.5px solid var(--border); border-radius: 6px;
+  font-size: 10px; color: var(--text-2); cursor: pointer;
+  transition: all var(--transition); font-family: monospace;
+}
+.corner-opt.active { border-color: var(--accent); background: var(--accent-light); color: var(--text); font-weight: 600; }
+.corner-opt:hover:not(.active) { border-color: var(--text-3); }
+
+/* 文件 */
+.file-btn {
+  display: block; padding: 7px; border: 1.5px dashed var(--border);
+  border-radius: 6px; text-align: center;
+  font-size: 11px; color: var(--text-2); cursor: pointer; transition: all var(--transition);
+}
+.file-btn:hover { border-color: var(--accent); color: var(--accent); }
+.file-btn input { display: none; }
+
+/* ==================== 按钮 ==================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 8px 14px; border: none; border-radius: 6px;
+  font-size: 13px; font-weight: 500; font-family: var(--font);
+  cursor: pointer; transition: all var(--transition); touch-action: manipulation;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--accent); color: var(--bg); width: 100%; padding: 10px; font-size: 14px; margin-top: 14px; }
+.btn-primary:hover { opacity: .85; }
+.btn-outline { background: var(--surface); color: var(--text-2); border: 1px solid var(--border); transition: all var(--transition); }
+.btn-outline:hover { background: var(--surface-2); }
+.btn-sm { padding: 4px 8px; font-size: 11px; }
+
+.actions { display: flex; gap: 6px; margin-top: 10px; }
+.actions .btn { flex: 1; }
+
+/* ==================== 预览 ==================== */
+.preview-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.preview-bar h2 { font-size: 14px; font-weight: 600; color: var(--text-2); }
+.preview-bar .count { font-size: 11px; color: var(--text-3); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.card {
+  background: var(--surface); border-radius: 10px; padding: 14px;
+  text-align: center; box-shadow: var(--shadow);
+  break-inside: avoid; page-break-inside: avoid;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+.card-wrap { display: inline-block; position: relative; }
+.card canvas, .card svg { max-width: 100%; height: auto; display: block; }
+.card-title { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--text); }
+.card-meta { margin-top: 2px; font-size: 10px; color: var(--text-3); word-break: break-all; }
+.card-acts { margin-top: 8px; }
+
+.a4-page {
+  background: white; margin: 0 auto 20px; box-shadow: var(--shadow-md);
+  position: relative; overflow: hidden;
+}
+.a4-page canvas, .a4-page svg { display: block; margin: 0 auto; }
+.crop-line { position: absolute; background: #ccc; }
+.crop-line-t { top: 0; left: 0; right: 0; height: 1px; }
+.crop-line-b { bottom: 0; left: 0; right: 0; height: 1px; }
+.crop-line-l { left: 0; top: 0; bottom: 0; width: 1px; }
+.crop-line-r { right: 0; top: 0; bottom: 0; width: 1px; }
+
+.empty { text-align: center; padding: 80px 20px; color: var(--text-3); }
+.empty-icon { font-size: 40px; margin-bottom: 8px; }
+
+/* ==================== 移动端 ==================== */
+.panel-toggle {
+  display: none; position: fixed;
+  bottom: max(env(safe-area-inset-bottom), 16px); right: 16px;
+  z-index: 100; width: 46px; height: 46px; border-radius: 50%;
+  background: var(--accent); color: var(--bg); font-size: 20px;
+  border: none; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  cursor: pointer; align-items: center; justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+.panel-mask {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.4); z-index: 49; backdrop-filter: blur(2px);
+}
+
+/* ==================== 打印 ==================== */
+@media print {
+  body { background: white; height: auto; overflow: visible; }
+  .topbar, .panel, .resizer, .panel-toggle, .panel-mask, .preview-bar, .card-acts, .no-print { display: none !important; }
+  .main { display: block; height: auto; }
+  .preview { padding: 0; overflow: visible; }
+  .a4-page { box-shadow: none; margin: 0; page-break-after: always; break-after: always; }
+  .cards { display: block; }
+  .card { box-shadow: none; border: 1px solid #ddd; margin-bottom: 10px; page-break-inside: avoid; break-inside: avoid; }
+}
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 900px) {
+  .main { display: block; height: calc(100vh - 48px); overflow: hidden; }
+  .resizer { display: none; }
+  .panel {
+    position: fixed; top: 48px; left: 0;
+    width: 86%; max-width: 340px; height: calc(100vh - 48px);
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    border-right: none; box-shadow: 4px 0 24px rgba(0,0,0,.15);
+  }
+  .panel.open { transform: translateX(0); }
+  .panel-mask.open { display: block; }
+  .panel-toggle { display: flex; }
+  .preview { padding: 14px 12px 80px; overflow-y: auto; }
+  .cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .theme-popover { right: 12px; }
+}
+@media (max-width: 480px) {
+  .cards { grid-template-columns: 1fr 1fr; }
+  .preview-bar h2 { font-size: 13px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== 顶部栏 ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand-dot"></div>
+    <h1>QR Studio <span class="ver">Pro</span></h1>
+  </div>
+  <button class="theme-btn" id="themeBtn" onclick="toggleThemePopover()">
+    <span class="theme-icon" id="themeBtnIcon">🌓</span>
+    <span id="themeBtnLabel">自动</span>
+    <span style="font-size:9px;opacity:.5;">▼</span>
+  </button>
+
+  <!-- 主题弹出面板 -->
+  <div class="theme-popover" id="themePopover">
+    <div class="theme-opt active" data-theme="auto" onclick="applyTheme('auto', this)">
+      <span class="dot-preview" style="background:linear-gradient(135deg,#0f172a 50%,#f5f5f5 50%);border-color:#999;"></span>
+      跟随系统
+      <span class="check">✓</span>
+    </div>
+    <div class="theme-opt" data-theme="light" onclick="applyTheme('light', this)">
+      <span class="dot-preview" style="background:#fff;border-color:#d0d0d0;"></span>
+      白天
+      <span class="check">✓</span>
+    </div>
+    <div class="theme-opt" data-theme="dark" onclick="applyTheme('dark', this)">
+      <span class="dot-preview" style="background:#1a1a2e;border-color:#555;"></span>
+      黑夜
+      <span class="check">✓</span>
+    </div>
+    <div class="theme-opt" data-theme="hc" onclick="applyTheme('hc', this)">
+      <span class="dot-preview" style="background:#000;border-color:#ff0;"></span>
+      高对比度
+      <span class="check">✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- 遮罩（移动端） -->
+<div class="panel-mask" id="mask" onclick="togglePanel()"></div>
+
+<!-- ===== 主区域 ===== -->
+<div class="main">
+
+  <!-- 设置面板 -->
+  <div class="panel" id="panel">
+    <!-- 基础设置 -->
+    <div class="group">
+      <div class="group-header open" onclick="toggleGroup(this)">
+        <span class="gh-label">⚙️ 基础设置</span>
+        <span class="gh-icon">▼</span>
+      </div>
+      <div class="group-body open open-default">
+        <div class="group-body-inner">
+          <div class="field">
+            <label>模式</label>
+            <select id="mode" onchange="onModeChange()">
+              <option value="single">单条</option>
+              <option value="batch">批量</option>
+            </select>
+          </div>
+          <div class="field" id="typeField">
+            <label>类型</label>
+            <select id="type" onchange="switchType()">
+              <option value="url">🌐 网址</option>
+              <option value="text">📝 文本</option>
+              <option value="wifi">📶 WiFi</option>
+            </select>
+          </div>
+          <div id="singleInputs">
+            <div id="textBox" style="display:none" class="field"><textarea id="text" rows="2" placeholder="文本…">Hello</textarea></div>
+            <div id="urlBox" class="field"><input id="url" type="text" value="https://example.com" /></div>
+            <div id="wifiBox" style="display:none">
+              <div class="row">
+                <div class="field"><input id="ssid" type="text" placeholder="SSID" value="MyWiFi" /></div>
+                <div class="field"><input id="pwd" type="text" placeholder="密码" value="12345678" /></div>
+              </div>
+              <select id="enc"><option value="WPA">WPA</option><option value="WEP">WEP</option><option value="nopass">无密码</option></select>
+            </div>
+          </div>
+          <div id="batchInputs" style="display:none" class="field">
+            <textarea id="batchText" rows="5" placeholder="每行一个&#10;https://a.com&#10;https://b.com"></textarea>
+          </div>
+          <div class="row">
+            <div class="field"><label>尺寸</label><input id="size" type="number" value="320" /></div>
+            <div class="field"><label>容错</label><select id="level"><option value="L">L</option><option value="M">M</option><option value="Q">Q</option><option value="H" selected>H</option></select></div>
+          </div>
+          <label class="checkbox"><input type="checkbox" id="showTitle" checked onchange="toggleTitleField()"> 显示标题</label>
+          <div class="field" id="titleField"><input id="titleText" type="text" value="扫码访问" /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 样式 -->
+    <div class="group">
+      <div class="group-header open" onclick="toggleGroup(this)">
+        <span class="gh-label">🎨 样式</span>
+        <span class="gh-icon">▼</span>
+      </div>
+      <div class="group-body open open-default">
+        <div class="group-body-inner">
+          <div class="field">
+            <label>圆角 <span class="hint" id="dotRadiusVal">0%</span></label>
+            <div class="slider-row">
+              <input type="range" min="0" max="50" value="0" oninput="document.getElementById('dotRadiusVal').textContent=this.value+'%'" />
+            </div>
+          </div>
+          <div class="field">
+            <label>前景</label>
+            <div class="color-row">
+              <div class="color-pick"><input type="color" id="fgColor" value="#000000" /><input type="text" value="#000000" id="fgText" onchange="syncColor(this,'fgColor')" /></div>
+              <div class="color-pick"><input type="color" id="bgColor" value="#ffffff" /><input type="text" value="#ffffff" id="bgText" onchange="syncColor(this,'bgColor')" /></div>
+            </div>
+          </div>
+          <label class="checkbox"><input type="checkbox" id="useGrad" onchange="toggleGrad()"> 渐变前景</label>
+          <div id="gradBox" style="display:none">
+            <div class="row">
+              <div class="color-pick"><input type="color" id="g1" value="#0f172a" /><input type="text" value="#0f172a" onchange="syncColor(this,'g1')" /></div>
+              <div class="color-pick"><input type="color" id="g2" value="#38bdf8" /><input type="text" value="#38bdf8" onchange="syncColor(this,'g2')" /></div>
+            </div>
+            <div class="row" style="margin-top:6px">
+              <select id="gType"><option value="linear">线性</option><option value="radial">径向</option></select>
+              <input id="gAngle" type="number" value="135" placeholder="角度" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 高级 -->
+    <div class="group">
+      <div class="group-header" onclick="toggleGroup(this)">
+        <span class="gh-label">🔧 定位角 & 艺术</span>
+        <span class="gh-icon">▼</span>
+      </div>
+      <div class="group-body">
+        <div class="group-body-inner">
+          <div class="field">
+            <label>定位角样式</label>
+            <div class="corner-styles">
+              <div class="corner-opt active" data-style="square" onclick="selectCorner(this)">▢ 方</div>
+              <div class="corner-opt" data-style="round" onclick="selectCorner(this)">▢ 圆</div>
+              <div class="corner-opt" data-style="dot" onclick="selectCorner(this)">◉ 点</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>中心挖空 <span class="hint">(艺术二维码)</span></label>
+            <div class="slider-row">
+              <input type="range" id="centerHole" min="0" max="30" value="0" oninput="document.getElementById('holeVal').textContent=this.value+'%'" />
+              <span class="slider-val" id="holeVal">0%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Logo</label>
+            <label class="file-btn">
+              📁 选择图片
+              <input type="file" accept="image/*" onchange="onLogo(this)" />
+            </label>
+            <div id="logoName" style="font-size:10px;color:var(--text-3);margin-top:2px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A4 -->
+    <div class="group">
+      <div class="group-header" onclick="toggleGroup(this)">
+        <span class="gh-label">🖨️ 印刷排版</span>
+        <span class="gh-icon">▼</span>
+      </div>
+      <div class="group-body">
+        <div class="group-body-inner">
+          <div class="row">
+            <div class="field">
+              <label>纸张</label>
+              <select id="paperSize">
+                <option value="a4">A4</option>
+                <option value="a5">A5</option>
+                <option value="4x6">4×6"</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>每页个数</label>
+              <select id="perPage">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="4" selected>4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+              </select>
+            </div>
+          </div>
+          <label class="checkbox"><input type="checkbox" id="showCrop"> 显示裁剪线</label>
+          <div class="actions">
+            <button class="btn btn-outline btn-sm" onclick="layoutA4()">📐 排版预览</button>
+            <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ 打印</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="generate()">🚀 生成</button>
+  </div>
+
+  <!-- 拖拽分隔条 -->
+  <div class="resizer" id="resizer"></div>
+
+  <!-- 预览 -->
+  <div class="preview" id="preview">
+    <div class="preview-bar no-print">
+      <h2 id="prevTitle">预览</h2>
+      <span class="count" id="prevCount"></span>
+    </div>
+    <div id="cards">
+      <div class="empty"><div class="empty-icon">🔲</div><div style="font-size:13px;">点击「生成」开始</div></div>
+    </div>
+  </div>
+</div>
+
+<button class="panel-toggle" onclick="togglePanel()">☰</button>
+
+<script>
+// ==================== 主题系统 ====================
+const themeLabels = { auto: '自动', light: '白天', dark: '黑夜', hc: '高对比' };
+const themeIcons = { auto: '🌓', light: '☀️', dark: '🌙', hc: '🔴' };
+
+function toggleThemePopover() {
+  document.getElementById('themePopover').classList.toggle('open');
+}
+
+function closeThemePopover(e) {
+  const pop = document.getElementById('themePopover');
+  const btn = document.getElementById('themeBtn');
+  if (!pop.contains(e.target) && !btn.contains(e.target)) {
+    pop.classList.remove('open');
+  }
+}
+document.addEventListener('click', closeThemePopover);
+
+function applyTheme(mode, el) {
+  document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  let resolved = mode;
+  if (mode === 'auto') {
+    resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  document.documentElement.setAttribute('data-theme', resolved);
+  localStorage.setItem('qr-theme', mode);
+
+  // 更新按钮
+  document.getElementById('themeBtnLabel').textContent = themeLabels[mode];
+  document.getElementById('themeBtnIcon').textContent = themeIcons[mode];
+
+  // meta
+  const metaColors = { light: '#f4f5f7', dark: '#0a0a0a', hc: '#000000' };
+  document.getElementById('themeColorMeta').content = metaColors[resolved] || '#0a0a0a';
+
+  updateFavicon(resolved);
+  document.getElementById('themePopover').classList.remove('open');
+}
+
+function updateFavicon(theme) {
+  const fgMap = { light: '#0f172a', dark: '#f5f5f5', hc: '#ffff00' };
+  const bgMap = { light: '#f5f5f5', dark: '#0a0a0a', hc: '#000000' };
+  const fg = fgMap[theme] || fgMap.light;
+  const bg = bgMap[theme] || bgMap.light;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${fg}"/><rect x="5" y="5" width="9" height="9" rx="2" fill="${bg}"/><rect x="18" y="5" width="9" height="9" rx="2" fill="${bg}"/><rect x="5" y="18" width="9" height="9" rx="2" fill="${bg}"/><circle cx="22.5" cy="22.5" r="4" fill="${bg}"/><rect x="18" y="18" width="4" height="4" rx="1" fill="${bg}"/></svg>`;
+  document.getElementById('favicon').href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if ((localStorage.getItem('qr-theme') || 'auto') === 'auto') {
+    const newTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    updateFavicon(newTheme);
+    document.getElementById('themeBtnLabel').textContent = '自动';
+    document.getElementById('themeBtnIcon').textContent = '🌓';
+  }
+});
+
+// 初始化
+(function initThemeUI() {
+  const stored = localStorage.getItem('qr-theme') || 'auto';
+  document.querySelectorAll('.theme-opt').forEach(o => {
+    o.classList.toggle('active', o.dataset.theme === stored);
+  });
+  document.getElementById('themeBtnLabel').textContent = themeLabels[stored];
+  document.getElementById('themeBtnIcon').textContent = themeIcons[stored];
+})();
+
+// ==================== 拖拽分隔条 ====================
+(function initResizer() {
+  const resizer = document.getElementById('resizer');
+  const panel = document.getElementById('panel');
+  const preview = document.getElementById('preview');
+  let startX = 0, startW = 0;
+
+  // 恢复上次宽度
+  const savedW = localStorage.getItem('qr-panel-width');
+  if (savedW) panel.style.width = savedW + 'px';
+  else panel.style.width = '320px';
+
+  resizer.addEventListener('mousedown', e => {
+    e.preventDefault();
+    startX = e.clientX;
+    startW = panel.offsetWidth;
+    resizer.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    function onMove(e) {
+      const delta = e.clientX - startX;
+      let newW = startW + delta;
+      newW = Math.max(220, Math.min(newW, window.innerWidth * 0.7));
+      panel.style.width = newW + 'px';
+    }
+    function onUp() {
+      resizer.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      localStorage.setItem('qr-panel-width', panel.offsetWidth);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // 触摸支持
+  resizer.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startW = panel.offsetWidth;
+    resizer.classList.add('dragging');
+
+    function onMove(e) {
+      const delta = e.touches[0].clientX - startX;
+      let newW = startW + delta;
+      newW = Math.max(220, Math.min(newW, window.innerWidth * 0.7));
+      panel.style.width = newW + 'px';
+    }
+    function onEnd() {
+      resizer.classList.remove('dragging');
+      localStorage.setItem('qr-panel-width', panel.offsetWidth);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onEnd);
+    }
+    document.addEventListener('touchmove', onMove, { passive: true });
+    document.addEventListener('touchend', onEnd);
+  }, { passive: true });
+})();
+
+// ==================== UI 交互 ====================
+function toggleGroup(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+function togglePanel() {
+  document.getElementById('panel').classList.toggle('open');
+  document.getElementById('mask').classList.toggle('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('panel').classList.remove('open');
+    document.getElementById('mask').classList.remove('open');
+    document.getElementById('themePopover').classList.remove('open');
+  }
+});
+function syncColor(textInput, pickerId) {
+  const v = textInput.value;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(pickerId).value = v;
+}
+function toggleGrad() {
+  document.getElementById('gradBox').style.display = document.getElementById('useGrad').checked ? 'block' : 'none';
+}
+function toggleTitleField() {
+  document.getElementById('titleField').style.display = document.getElementById('showTitle').checked ? 'block' : 'none';
+}
+function selectCorner(el) {
+  document.querySelectorAll('.corner-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  cornerStyle = el.dataset.style;
+}
+function onLogo(input) {
+  const f = input.files[0];
+  if (!f) { logoImg = null; return; }
+  document.getElementById('logoName').textContent = f.name;
+  const r = new FileReader();
+  r.onload = e => { const img = new Image(); img.onload = () => logoImg = img; img.src = e.target.result; };
+  r.readAsDataURL(f);
+}
+function onModeChange() {
+  const m = document.getElementById('mode').value;
+  document.getElementById('singleInputs').style.display = m === 'single' ? 'block' : 'none';
+  document.getElementById('batchInputs').style.display = m === 'batch' ? 'block' : 'none';
+  document.getElementById('typeField').style.display = m === 'single' ? 'block' : 'none';
+}
+function switchType() {
+  const t = document.getElementById('type').value;
+  document.getElementById('textBox').style.display = t === 'text' ? 'block' : 'none';
+  document.getElementById('urlBox').style.display = t === 'url' ? 'block' : 'none';
+  document.getElementById('wifiBox').style.display = t === 'wifi' ? 'block' : 'none';
+  const map = { url: '扫码访问', text: '扫码查看', wifi: '扫码连WiFi' };
+  document.getElementById('titleText').value = map[t] || '扫码';
+}
+
+// ==================== 内容 ====================
+let logoImg = null;
+let cardsData = [];
+let cornerStyle = 'square';
+
+function getContent() {
+  const t = document.getElementById('type').value;
+  if (t === 'text') return document.getElementById('text').value.trim();
+  if (t === 'url') return document.getElementById('url').value.trim();
+  if (t === 'wifi') return `WIFI:T:${document.getElementById('enc').value};S:${document.getElementById('ssid').value};P:${document.getElementById('pwd').value};;`;
+}
+function getItems() {
+  if (document.getElementById('mode').value === 'single') {
+    const c = getContent();
+    return c ? [{ content: c, title: document.getElementById('showTitle').checked ? document.getElementById('titleText').value : '' }] : [];
+  }
+  const raw = document.getElementById('batchText').value.split('\n').map(l => l.trim()).filter(Boolean);
+  const t = document.getElementById('type').value;
+  const baseTitle = document.getElementById('titleText').value;
+  return raw.map((line, i) => {
+    let c = line;
+    if (t === 'wifi') { const p = line.split(','); c = `WIFI:T:${p[2]||'WPA'};S:${p[0]};P:${p[1]||''};;`; }
+    return { content: c, title: document.getElementById('showTitle').checked ? `${baseTitle} ${i+1}` : '' };
+  });
+}
+
+// ==================== 生成 ====================
+function generate() {
+  const items = getItems();
+  if (!items.length) return;
+  const size = +document.getElementById('size').value || 320;
+  const level = document.getElementById('level').value;
+  const dotR = +document.querySelector('input[type="range"]').value;
+  const hole = +document.getElementById('centerHole').value;
+  const fg = document.getElementById('useGrad').checked
+    ? { g: true, c1: document.getElementById('g1').value, c2: document.getElementById('g2').value }
+    : { g: false, c: document.getElementById('fgColor').value };
+  const bg = document.getElementById('bgColor').value;
+
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+  cardsData = [];
+  document.getElementById('prevCount').textContent = `${items.length} 个`;
+
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const wrap = document.createElement('div');
+    wrap.className = 'card-wrap';
+    card.appendChild(wrap);
+    new QRCode(wrap, { text: item.content, width: size, height: size, colorDark: '#000', colorLight: bg, correctLevel: QRCode.CorrectLevel[level] });
+    setTimeout(() => {
+      processCanvas(wrap.querySelector('canvas'), size, dotR, hole, fg, bg, cornerStyle);
+      addLogo(wrap, size);
+      addCardInfo(card, item);
+      cardsData.push({ content: item.content, title: item.title, el: card });
+    }, 60);
+  });
+  if (window.innerWidth <= 900) togglePanel();
+}
+
+// ==================== Canvas 后处理 ====================
+function processCanvas(canvas, size, dotR, hole, fg, bg, cornerStyle) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, size, size).data;
+  let ms = 1;
+  for (let x = 0; x < size; x++) { if (data[x*4] < 128) { ms = x; break; } }
+  const modules = size / ms, cell = size / modules;
+  const visited = new Uint8Array(modules * modules);
+  const dots = [];
+
+  for (let y = 0; y < modules; y++) {
+    for (let x = 0; x < modules; x++) {
+      if (visited[y * modules + x]) continue;
+      const px = Math.floor((x + .5) * cell), py = Math.floor((y + .5) * cell);
+      if (data[(py * size + px) * 4] < 128) {
+        const stack = [[x, y]], region = [];
+        while (stack.length) {
+          const [cx, cy] = stack.pop();
+          if (cx < 0 || cy < 0 || cx >= modules || cy >= modules || visited[cy * modules + cx]) continue;
+          const cpx = Math.floor((cx + .5) * cell), cpy = Math.floor((cy + .5) * cell);
+          if (data[(cpy * size + cpx) * 4] < 128) {
+            visited[cy * modules + cx] = 1; region.push([cx, cy]);
+            stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+          }
+        }
+        dots.push(region);
+      }
+    }
+  }
+
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = fg.g
+    ? (() => { const grd = ctx.createLinearGradient(0,0,size,size); grd.addColorStop(0,fg.c1); grd.addColorStop(1,fg.c2); return grd; })()
+    : fg.c;
+
+  let holeRegions = [];
+  if (hole > 0) {
+    const hSize = Math.floor(modules * hole / 100), hStart = Math.floor((modules - hSize) / 2), hEnd = hStart + hSize;
+    holeRegions = dots.filter(r => r.some(([dx,dy]) => dx>=hStart && dx<hEnd && dy>=hStart && dy<hEnd));
+    dots.splice(0, dots.length, ...dots.filter(r => !holeRegions.includes(r)));
+  }
+
+  const corners = extractCorners(dots, modules);
+  drawCorners(ctx, corners, cell, dotR, cornerStyle);
+
+  const r = Math.floor(cell * dotR / 100);
+  for (const region of dots) {
+    for (const [dx, dy] of region) roundRect(ctx, dx*cell, dy*cell, cell, cell, r);
+  }
+  ctx.fill();
+
+  if (hole > 0) { ctx.fillStyle = bg; for (const r2 of holeRegions) for (const [dx,dy] of r2) ctx.fillRect(dx*cell, dy*cell, cell, cell); }
+}
+
+function extractCorners(dots, modules) {
+  const corners = [], pos = [[0,0],[modules-7,0],[0,modules-7]];
+  for (const [cx, cy] of pos) {
+    for (let i = dots.length - 1; i >= 0; i--) {
+      if (dots[i].some(([dx,dy]) => dx>=cx && dx<cx+7 && dy>=cy && dy<cy+7)) {
+        corners.push(dots[i]); dots.splice(i, 1);
+      }
+    }
+  }
+  return corners;
+}
+function drawCorners(ctx, regions, cell, dotR, style) {
+  const r = style === 'round' ? Math.floor(cell * .3) : 0;
+  for (const region of regions) {
+    for (const [dx, dy] of region) {
+      if (style === 'dot') {
+        if (dx%2===0 && dy%2===0) { ctx.beginPath(); ctx.arc(dx*cell+cell/2, dy*cell+cell/2, cell*.4, 0, Math.PI*2); ctx.fill(); }
+      } else roundRect(ctx, dx*cell, dy*cell, cell, cell, r);
+    }
+    ctx.fill();
+  }
+}
+function roundRect(ctx, x, y, w, h, r) {
+  if (r <= 0) { ctx.fillRect(x, y, w, h); return; }
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath(); ctx.fill();
+}
+
+// ==================== Logo & 卡片 ====================
+function addLogo(wrap, size) {
+  if (!logoImg) return;
+  const ls = Math.floor(size * .22), off = Math.floor((size - ls) / 2);
+  const ctx = wrap.querySelector('canvas').getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(off-3, off-3, ls+6, ls+6);
+  ctx.drawImage(logoImg, off, off, ls, ls);
+}
+function addCardInfo(card, item) {
+  if (item.title) { const t = document.createElement('div'); t.className = 'card-title'; t.textContent = item.title; card.appendChild(t); }
+  const m = document.createElement('div'); m.className = 'card-meta'; m.textContent = item.content.slice(0,40); card.appendChild(m);
+  const acts = document.createElement('div'); acts.className = 'card-acts';
+  acts.innerHTML = `<button class="btn btn-outline btn-sm" onclick="dlCard(this)">⬇</button>`;
+  card.appendChild(acts);
+}
+function dlCard(btn) {
+  const c = btn.closest('.card').querySelector('canvas');
+  if (!c) return;
+  const a = document.createElement('a'); a.href = c.toDataURL(); a.download = 'qrcode.png'; a.click();
+}
+
+// ==================== A4 排版 ====================
+function layoutA4() {
+  const items = cardsData;
+  if (!items.length) { generate(); setTimeout(layoutA4, 200); return; }
+  const paper = document.getElementById('paperSize').value;
+  const perPage = +document.getElementById('perPage').value;
+  const showCrop = document.getElementById('showCrop').checked;
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+  const paperW = { a4: 210, a5: 148, '4x6': 154 }[paper];
+  const paperH = { a4: 297, a5: 210, '4x6': 102 }[paper];
+  const margin = { a4: 10, a5: 8, '4x6': 5 }[paper];
+  const cols = Math.ceil(Math.sqrt(perPage)), rows = Math.ceil(perPage / cols);
+  const cellW = (paperW - margin*2) / cols, cellH = (paperH - margin*2) / rows;
+  const qrSize = Math.min(cellW, cellH) * 0.85;
+  const totalPages = Math.ceil(items.length / perPage);
+
+  for (let p = 0; p < totalPages; p++) {
+    const page = document.createElement('div');
+    page.className = `a4-page`;
+    page.style.width = paperW + 'mm';
+    page.style.minHeight = paperH + 'mm';
+    page.style.padding = margin + 'mm';
+    if (showCrop) ['t','b','l','r'].forEach(d => { const l = document.createElement('div'); l.className = `crop-line crop-line-${d}`; page.appendChild(l); });
+    const grid = document.createElement('div');
+    grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);gap:4mm;width:100%;height:100%;`;
+    for (let i = 0; i < perPage; i++) {
+      const idx = p * perPage + i;
+      if (idx >= items.length) break;
+      const cell = document.createElement('div');
+      cell.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;';
+      const wrap = document.createElement('div');
+      wrap.style.width = qrSize + 'mm'; wrap.style.height = qrSize + 'mm';
+      const orig = items[idx].el.querySelector('canvas');
+      if (orig) { const clone = document.createElement('canvas'); clone.width = orig.width; clone.height = orig.height; clone.getContext('2d').drawImage(orig, 0, 0); clone.style.cssText = 'width:100%;height:100%;'; wrap.appendChild(clone); }
+      cell.appendChild(wrap);
+      if (items[idx].title) { const t = document.createElement('div'); t.style.cssText = 'font-size:3mm;font-weight:600;margin-top:2mm;'; t.textContent = items[idx].title; cell.appendChild(t); }
+      grid.appendChild(cell);
+    }
+    page.appendChild(grid);
+    container.appendChild(page);
+  }
+  document.getElementById('prevCount').textContent = `${items.length} 个 → ${totalPages} 页`;
+}
+
+switchType();
+</script>
+
+</body>
+</html>

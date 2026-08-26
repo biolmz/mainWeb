@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生物学单位换算器 Ultimate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(135deg,#ecfdf5 0%,#ccfbf1 100%);min-height:100vh;padding:20px;color:#064e3b}
+.container{max-width:1100px;margin:0 auto}
+header{text-align:center;margin-bottom:24px}
+h1{font-size:2.2rem;color:#065f46;margin-bottom:6px}
+.subtitle{color:#047857;font-size:0.95rem}
+.tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:20px}
+.tab-btn{padding:8px 14px;border-radius:9999px;border:none;font-weight:600;cursor:pointer;transition:all 0.2s;font-size:0.8rem;background:#fff;color:#047857;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.tab-btn.active{background:#059669;color:#fff;box-shadow:0 4px 6px rgba(5,150,105,0.3)}
+.card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 10px 25px rgba(0,0,0,0.08);border:1px solid #d1fae5}
+.panel{display:none}
+.panel.active{display:block}
+h2{font-size:1.4rem;color:#065f46;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
+.space-y > * + *{margin-top:12px}
+label{display:block;font-size:0.8rem;font-weight:600;color:#047857;margin-bottom:4px}
+input,select{width:100%;padding:10px 14px;border:2px solid #a7f3d0;border-radius:10px;font-size:1rem;font-family:monospace;outline:none;transition:border-color 0.2s;background:#fff}
+input:focus,select:focus{border-color:#059669}
+.result-box{padding:10px 14px;border-radius:10px;background:#ecfdf5;border:2px solid #a7f3d0;font-size:1rem;font-family:monospace;color:#065f46;min-height:44px;display:flex;align-items:center;font-weight:600}
+.tip{margin-top:16px;padding:12px 16px;background:#fef3c7;border-radius:10px;border:1px solid #fde68a;color:#92400e;font-size:0.8rem;line-height:1.5}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+@media(max-width:768px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+.preset-btn{padding:8px 10px;background:#fff;border:2px solid #a7f3d0;border-radius:8px;font-size:0.75rem;font-weight:600;color:#047857;cursor:pointer;transition:all 0.2s}
+.preset-btn:hover{background:#ecfdf5}
+.sub-card{padding:16px;border-radius:12px;margin-bottom:16px}
+.sub-card h3{font-size:1rem;margin-bottom:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:768px){.grid-3,.grid-5{grid-template-columns:1fr}}
+.stat-box{padding:12px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;text-align:center}
+.stat-box .label{font-size:0.7rem;color:#6b7280}
+.stat-box .value{font-size:1.2rem;font-weight:700;color:#111827;font-family:monospace}
+footer{text-align:center;margin-top:20px;color:#059669;font-size:0.8rem}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🧬 生物学单位换算器 Ultimate</h1>
+    <p class="subtitle">分子生物学 · 生物化学 · 细胞生物学 · 微生物学 · 蛋白质组学</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('length',this)">📏 长度</button>
+    <button class="tab-btn" onclick="switchTab('mass',this)">⚖️ 质量</button>
+    <button class="tab-btn" onclick="switchTab('volume',this)">🧪 体积</button>
+    <button class="tab-btn" onclick="switchTab('conc',this)">🧫 浓度</button>
+    <button class="tab-btn" onclick="switchTab('dilution',this)">💧 稀释</button>
+    <button class="tab-btn" onclick="switchTab('temp',this)">🌡️ 温度</button>
+    <button class="tab-btn" onclick="switchTab('buffer',this)">🧪 缓冲液</button>
+    <button class="tab-btn" onclick="switchTab('dna',this)">🧬 DNA</button>
+    <button class="tab-btn" onclick="switchTab('protein',this)">🥚 蛋白</button>
+    <button class="tab-btn" onclick="switchTab('cent',this)">🌀 离心</button>
+    <button class="tab-btn" onclick="switchTab('cell',this)">🔬 细胞</button>
+    <button class="tab-btn" onclick="switchTab('primer',this)">🎯 引物</button>
+    <button class="tab-btn" onclick="switchTab('radio',this)">☢️ 放射性</button>
+  </div>
+
+  <div class="card">
+
+    <!-- Length -->
+    <div id="panel-length" class="panel active">
+      <h2>📏 长度换算</h2>
+      <div class="grid-2">
+        <div class="space-y">
+          <label>输入值</label>
+          <input type="number" id="len-in" value="1" step="any" oninput="convLen()">
+          <select id="len-f" onchange="convLen()">
+            <option value="m">米 (m)</option><option value="cm">厘米 (cm)</option><option value="mm">毫米 (mm)</option>
+            <option value="um" selected>微米 (μm)</option><option value="nm">纳米 (nm)</option><option value="pm">皮米 (pm)</option>
+            <option value="angstrom">埃 (Å)</option><option value="inch">英寸 (in)</option>
+          </select>
+        </div>
+        <div class="space-y">
+          <label>结果</label>
+          <div id="len-res" class="result-box">1000</div>
+          <select id="len-t" onchange="convLen()">
+            <option value="m">米 (m)</option><option value="cm">厘米 (cm)</option><option value="mm">毫米 (mm)</option>
+            <option value="um">微米 (μm)</option><option value="nm" selected>纳米 (nm)</option><option value="pm">皮米 (pm)</option>
+            <option value="angstrom">埃 (Å)</option><option value="inch">英寸 (in)</option>
+          </select>
+        </div>
+      </div>
+      <div class="tip">💡 细胞直径 ≈ 10-100 μm | 细菌 ≈ 1-10 μm | 病毒 ≈ 20-300 nm | DNA双螺旋 ≈ 2 nm | 核小体 ≈ 11 nm | 肌动蛋白丝 ≈ 7 nm | 微管 ≈ 25 nm</div>
+    </div>
+
+    <!-- Mass -->
+    <div id="panel-mass" class="panel">
+      <h2>⚖️ 质量换算</h2>
+      <div class="grid-2">
+        <div class="space-y">
+          <label>输入值</label>
+          <input type="number" id="mass-in" value="1" step="any" oninput="convMass()">
+          <select id="mass-f" onchange="convMass()">
+            <option value="kg">千克 (kg)</option><option value="g">克 (g)</option><option value="mg">毫克 (mg)</option>
+            <option value="ug" selected>微克 (μg)</option><option value="ng">纳克 (ng)</option><option value="pg">皮克 (pg)</option>
+            <option value="Da">道尔顿 (Da)</option><option value="kDa">千道尔顿 (kDa)</option>
+          </select>
+        </div>
+        <div class="space-y">
+          <label>结果</label>
+          <div id="mass-res" class="result-box">1000</div>
+          <select id="mass-t" onchange="convMass()">
+            <option value="kg">千克 (kg)</option><option value="g">克 (g)</option><option value="mg">毫克 (mg)</option>
+            <option value="ug">微克 (μg)</option><option value="ng" selected>纳克 (ng)</option><option value="pg">皮克 (pg)</option>
+            <option value="Da">道尔顿 (Da)</option><option value="kDa">千道尔顿 (kDa)</option>
+          </select>
+        </div>
+      </div>
+      <div class="tip">💡 1 Da ≈ 1 g/mol | 血红蛋白 ≈ 64 kDa | 胰岛素 ≈ 5.8 kDa | BSA ≈ 66.5 kDa | 肌球蛋白 ≈ 520 kDa | 核糖体 ≈ 2.5 MDa | 典型IgG ≈ 150 kDa</div>
+    </div>
+
+    <!-- Volume -->
+    <div id="panel-volume" class="panel">
+      <h2>🧪 体积换算</h2>
+      <div class="grid-2">
+        <div class="space-y">
+          <label>输入值</label>
+          <input type="number" id="vol-in" value="1" step="any" oninput="convVol()">
+          <select id="vol-f" onchange="convVol()">
+            <option value="L">升 (L)</option><option value="mL">毫升 (mL)</option>
+            <option value="uL" selected>微升 (μL)</option><option value="nL">纳升 (nL)</option>
+            <option value="pL">皮升 (pL)</option><option value="fL">飞升 (fL)</option>
+            <option value="gal">加仑 (gal)</option><option value="oz">盎司 (fl oz)</option>
+          </select>
+        </div>
+        <div class="space-y">
+          <label>结果</label>
+          <div id="vol-res" class="result-box">1000</div>
+          <select id="vol-t" onchange="convVol()">
+            <option value="L">升 (L)</option><option value="mL" selected>毫升 (mL)</option>
+            <option value="uL">微升 (μL)</option><option value="nL">纳升 (nL)</option>
+            <option value="pL">皮升 (pL)</option><option value="fL">飞升 (fL)</option>
+            <option value="gal">加仑 (gal)</option><option value="oz">盎司 (fl oz)</option>
+          </select>
+        </div>
+      </div>
+      <div class="tip">💡 PCR体系 10-50 μL | 微量离心管 1.5 mL | 红细胞 ≈ 90 fL | 血小板 ≈ 10 fL | 大肠杆菌 ≈ 1-2 fL | 典型培养瓶 25-175 mL</div>
+    </div>
+
+    <!-- Concentration -->
+    <div id="panel-conc" class="panel">
+      <h2>🧫 浓度换算</h2>
+      <div class="grid-2">
+        <div class="space-y">
+          <label>输入值</label>
+          <input type="number" id="conc-in" value="1" step="any" oninput="convConc()">
+          <select id="conc-f" onchange="convConc()">
+            <option value="M">摩尔 (M)</option><option value="mM">毫摩尔 (mM)</option>
+            <option value="uM" selected>微摩尔 (μM)</option><option value="nM">纳摩尔 (nM)</option>
+            <option value="pM">皮摩尔 (pM)</option><option value="fM">飞摩尔 (fM)</option>
+            <option value="mg_mL">mg/mL</option><option value="ug_mL">μg/mL</option>
+            <option value="ng_mL">ng/mL</option><option value="percent">% (w/v)</option>
+          </select>
+        </div>
+        <div class="space-y">
+          <label>结果</label>
+          <div id="conc-res" class="result-box">1000</div>
+          <select id="conc-t" onchange="convConc()">
+            <option value="M">摩尔 (M)</option><option value="mM">毫摩尔 (mM)</option>
+            <option value="uM">微摩尔 (μM)</option><option value="nM" selected>纳摩尔 (nM)</option>
+            <option value="pM">皮摩尔 (pM)</option><option value="fM">飞摩尔 (fM)</option>
+            <option value="mg_mL">mg/mL</option><option value="ug_mL">μg/mL</option>
+            <option value="ng_mL">ng/mL</option><option value="percent">% (w/v)</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label>摩尔质量 (g/mol) — 质量浓度与摩尔浓度转换时需要</label>
+        <input type="number" id="conc-mw" value="1000" step="any" oninput="convConc()" placeholder="输入分子量">
+      </div>
+      <div class="tip">💡 生理盐水 0.9% = 154 mM NaCl | PBS 10 mM | 抗体稀释 1-10 μg/mL | Amp 100 μg/mL | Kan 50 μg/mL | IPTG 0.1-1 mM</div>
+    </div>
+
+    <!-- Dilution -->
+    <div id="panel-dilution" class="panel">
+      <h2>💧 稀释计算 C₁V₁ = C₂V₂</h2>
+      <div class="grid-3">
+        <div class="sub-card" style="background:linear-gradient(135deg,#e0f2fe,#dbeafe);border:1px solid #bfdbfe">
+          <h3 style="color:#1e40af">原液 (Stock)</h3>
+          <div class="space-y">
+            <label style="color:#1e40af">浓度 C₁</label>
+            <input type="number" id="dil-c1" value="100" step="any" oninput="calcDil()">
+            <label style="color:#1e40af">体积 V₁</label>
+            <input type="number" id="dil-v1" value="" step="any" oninput="calcDil()" placeholder="待计算">
+          </div>
+        </div>
+        <div class="sub-card" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #a7f3d0">
+          <h3 style="color:#065f46">工作液 (Working)</h3>
+          <div class="space-y">
+            <label style="color:#065f46">浓度 C₂</label>
+            <input type="number" id="dil-c2" value="10" step="any" oninput="calcDil()">
+            <label style="color:#065f46">体积 V₂</label>
+            <input type="number" id="dil-v2" value="1000" step="any" oninput="calcDil()">
+          </div>
+        </div>
+        <div class="sub-card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d">
+          <h3 style="color:#92400e">结果</h3>
+          <div class="space-y">
+            <div class="stat-box"><div class="label">稀释倍数</div><div id="dil-factor" class="value" style="color:#92400e">10×</div></div>
+            <div class="stat-box"><div class="label">需加稀释液</div><div id="dil-add" class="value" style="color:#92400e">900</div><div class="label">与V₂同单位</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-4" style="margin-top:16px">
+        <button class="preset-btn" onclick="setDil(100,10,1000)">100→10 (10×)</button>
+        <button class="preset-btn" onclick="setDil(1000,100,1000)">1000→100 (10×)</button>
+        <button class="preset-btn" onclick="setDil(100,1,1000)">100→1 (100×)</button>
+        <button class="preset-btn" onclick="setDil(50,10,500)">50→10 (5×)</button>
+      </div>
+    </div>
+
+    <!-- Temperature -->
+    <div id="panel-temp" class="panel">
+      <h2>🌡️ 温度换算</h2>
+      <div class="grid-2">
+        <div class="space-y">
+          <label>输入值</label>
+          <input type="number" id="temp-in" value="37" step="any" oninput="convTemp()">
+          <select id="temp-f" onchange="convTemp()">
+            <option value="C" selected>摄氏度 (°C)</option><option value="F">华氏度 (°F)</option><option value="K">开尔文 (K)</option>
+          </select>
+        </div>
+        <div class="space-y">
+          <label>结果</label>
+          <div id="temp-res" class="result-box">310.15</div>
+          <select id="temp-t" onchange="convTemp()">
+            <option value="C">摄氏度 (°C)</option><option value="F">华氏度 (°F)</option><option value="K" selected>开尔文 (K)</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-4">
+        <button class="preset-btn" onclick="setTemp(37)">人体体温 37°C</button>
+        <button class="preset-btn" onclick="setTemp(25)">室温 25°C</button>
+        <button class="preset-btn" onclick="setTemp(4)">冷藏 4°C</button>
+        <button class="preset-btn" onclick="setTemp(-20)">冷冻 -20°C</button>
+        <button class="preset-btn" onclick="setTemp(-80)">超低温 -80°C</button>
+        <button class="preset-btn" onclick="setTemp(95)">PCR变性 95°C</button>
+        <button class="preset-btn" onclick="setTemp(55)">退火 55°C</button>
+        <button class="preset-btn" onclick="setTemp(72)">延伸 72°C</button>
+        <button class="preset-btn" onclick="setTemp(56)">蛋白变性 56°C</button>
+        <button class="preset-btn" onclick="setTemp(100)">沸水 100°C</button>
+        <button class="preset-btn" onclick="setTemp(37.5)">CO₂培养箱 37.5°C</button>
+        <button class="preset-btn" onclick="setTemp(16)">蛋白纯化 16°C</button>
+      </div>
+    </div>
+
+    <!-- Buffer -->
+    <div id="panel-buffer" class="panel">
+      <h2>🧪 缓冲液 pH 计算 (Henderson-Hasselbalch)</h2>
+      <div class="grid-2">
+        <div class="space-y">
+          <label>pKa 值</label>
+          <input type="number" id="buf-pka" value="7.2" step="0.01" oninput="calcBuf()">
+          <label>[碱式 A⁻] 浓度</label>
+          <input type="number" id="buf-base" value="10" step="any" oninput="calcBuf()">
+          <label>[酸式 HA] 浓度</label>
+          <input type="number" id="buf-acid" value="1" step="any" oninput="calcBuf()">
+        </div>
+        <div class="space-y">
+          <div style="padding:20px;background:linear-gradient(135deg,#ede9fe,#f3e8ff);border-radius:12px;border:1px solid #ddd6fe;text-align:center">
+            <div style="font-size:0.85rem;color:#6d28d9;font-weight:600;margin-bottom:8px">计算 pH</div>
+            <div id="buf-ph" style="font-size:3rem;font-weight:700;color:#5b21b6;font-family:monospace">8.20</div>
+          </div>
+          <div class="tip" style="margin-top:0">
+            <div style="font-weight:600;margin-bottom:6px">常用缓冲体系 pKa</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.75rem">
+              <span style="cursor:pointer" onclick="setBuf(2.15)">柠檬酸 pKa₁ 2.15</span>
+              <span style="cursor:pointer" onclick="setBuf(4.76)">乙酸 pKa 4.76</span>
+              <span style="cursor:pointer" onclick="setBuf(6.15)">MES pKa 6.15</span>
+              <span style="cursor:pointer" onclick="setBuf(7.2)">磷酸盐 pKa₂ 7.2</span>
+              <span style="cursor:pointer" onclick="setBuf(7.5)">HEPES pKa 7.5</span>
+              <span style="cursor:pointer" onclick="setBuf(8.07)">Tris pKa 8.07</span>
+              <span style="cursor:pointer" onclick="setBuf(8.35)">BICINE pKa 8.35</span>
+              <span style="cursor:pointer" onclick="setBuf(9.25)">甘氨酸 pKa₂ 9.25</span>
+              <span style="cursor:pointer" onclick="setBuf(10.3)">CAPS pKa 10.3</span>
+              <span style="cursor:pointer" onclick="setBuf(10.6)">CHES pKa 10.6</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tip">💡 公式：pH = pKa + log([A⁻]/[HA]) | 缓冲能力最强时 pH = pKa ± 1 | Tris-HCl pH随温度变化：ΔpH ≈ -0.031/°C</div>
+    </div>
+
+    <!-- DNA -->
+    <div id="panel-dna" class="panel">
+      <h2>🧬 DNA/RNA 分子生物学换算</h2>
+      <div class="space-y">
+        <div class="sub-card" style="background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #c7d2fe">
+          <h3 style="color:#1e3a8a">DNA 质量 ↔ 摩尔数 转换</h3>
+          <div class="grid-3">
+            <div><label style="color:#1e40af">DNA长度 (bp)</label><input type="number" id="dna-bp" value="1000" oninput="convDNA()"></div>
+            <div><label style="color:#1e40af">输入值</label><input type="number" id="dna-in" value="1" oninput="convDNA()"></div>
+            <div><label style="color:#1e40af">&nbsp;</label><select id="dna-mode" onchange="convDNA()">
+              <option value="ng_to_pmol">ng → pmol</option><option value="pmol_to_ng">pmol → ng</option>
+              <option value="ug_to_nmol">μg → nmol</option><option value="nmol_to_ug">nmol → μg</option>
+            </select></div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #c7d2fe">
+            <span style="font-size:0.8rem;color:#1e40af;font-weight:600">结果：</span>
+            <span id="dna-res" style="font-size:1.1rem;font-weight:700;color:#1e3a8a;font-family:monospace">1.52</span>
+            <span id="dna-unit" style="font-size:0.8rem;color:#4338ca">pmol</span>
+          </div>
+        </div>
+
+        <div class="sub-card" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8);border:1px solid #f9a8d4">
+          <h3 style="color:#831843">OD₂₆₀ 吸光度 → 浓度 转换</h3>
+          <div class="grid-3">
+            <div><label style="color:#9d174d">OD₂₆₀ 值</label><input type="number" id="od-val" value="1" step="0.01" oninput="convOD()"></div>
+            <div><label style="color:#9d174d">光程 (cm)</label><input type="number" id="od-path" value="1" step="0.1" oninput="convOD()"></div>
+            <div><label style="color:#9d174d">类型</label><select id="od-type" onchange="convOD()">
+              <option value="ssDNA">单链 DNA</option><option value="dsDNA" selected>双链 DNA</option>
+              <option value="ssRNA">单链 RNA</option><option value="oligo">寡核苷酸</option>
+            </select></div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #f9a8d4">
+            <span style="font-size:0.8rem;color:#9d174d;font-weight:600">浓度：</span>
+            <span id="od-res" style="font-size:1.1rem;font-weight:700;color:#831843;font-family:monospace">50</span>
+            <span style="font-size:0.8rem;color:#be185d">μg/mL</span>
+          </div>
+          <div style="font-size:0.7rem;color:#9d174d;margin-top:6px">换算系数：dsDNA 1 OD = 50 μg/mL | ssDNA = 33 μg/mL | ssRNA = 40 μg/mL | Oligo ≈ 30 μg/mL</div>
+        </div>
+
+        <div class="sub-card" style="background:linear-gradient(135deg,#d1fae5,#ccfbf1);border:1px solid #6ee7b7">
+          <h3 style="color:#064e3b">拷贝数计算器 (Copies/μL)</h3>
+          <div class="grid-3">
+            <div><label style="color:#065f46">DNA质量浓度 (ng/μL)</label><input type="number" id="copy-conc" value="1" step="0.1" oninput="calcCopy()"></div>
+            <div><label style="color:#065f46">DNA长度 (bp)</label><input type="number" id="copy-bp" value="1000" oninput="calcCopy()"></div>
+            <div><label style="color:#065f46">DNA类型</label><select id="copy-type" onchange="calcCopy()">
+              <option value="dsDNA" selected>双链 DNA</option><option value="ssDNA">单链 DNA</option>
+            </select></div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #6ee7b7">
+            <span style="font-size:0.8rem;color:#065f46;font-weight:600">拷贝数：</span>
+            <span id="copy-res" style="font-size:1.1rem;font-weight:700;color:#064e3b;font-family:monospace">9.09 × 10^11</span>
+            <span style="font-size:0.8rem;color:#047857">copies/μL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Protein -->
+    <div id="panel-protein" class="panel">
+      <h2>🥚 蛋白质相关换算</h2>
+      <div class="space-y">
+        <div class="sub-card" style="background:linear-gradient(135deg,#ffedd5,#fed7aa);border:1px solid #fdba74">
+          <h3 style="color:#7c2d12">Beer-Lambert 定律 浓度计算</h3>
+          <div class="grid-3">
+            <div><label style="color:#9a3412">吸光度 A</label><input type="number" id="bl-a" value="0.5" step="0.01" oninput="calcBL()"></div>
+            <div><label style="color:#9a3412">消光系数 ε</label><input type="number" id="bl-eps" value="50000" step="any" oninput="calcBL()"></div>
+            <div><label style="color:#9a3412">光程 b (cm)</label><input type="number" id="bl-b" value="1" step="0.1" oninput="calcBL()"></div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #fdba74">
+            <span style="font-size:0.8rem;color:#9a3412;font-weight:600">摩尔浓度：</span>
+            <span id="bl-res" style="font-size:1.1rem;font-weight:700;color:#7c2d12;font-family:monospace">1.00 × 10^-5</span>
+            <span style="font-size:0.8rem;color:#c2410c">M</span>
+          </div>
+          <div style="font-size:0.7rem;color:#9a3412;margin-top:6px">公式：A = εbc | 蛋白质常用 280 nm (色氨酸/酪氨酸) | BSA ε ≈ 43824 M⁻¹cm⁻¹</div>
+        </div>
+
+        <div class="sub-card" style="background:linear-gradient(135deg,#ecfccb,#d9f99d);border:1px solid #bef264">
+          <h3 style="color:#3f6212">快速参考 — 点击填入上方</h3>
+          <div class="grid-4">
+            <button class="preset-btn" onclick="setBL(43824,66430)">BSA<br>ε=43824 MW=66430</button>
+            <button class="preset-btn" onclick="setBL(210000,150000)">IgG<br>ε=210000 MW=150k</button>
+            <button class="preset-btn" onclick="setBL(55000,25000)">典型蛋白<br>ε=55000 MW=25k</button>
+            <button class="preset-btn" onclick="setBL(1280,1280)">1mg/mL BSA<br>A₂₈₀≈0.66</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Centrifuge -->
+    <div id="panel-cent" class="panel">
+      <h2>🌀 离心机转速换算 (rpm ↔ RCF/g)</h2>
+      <div class="grid-3">
+        <div class="space-y">
+          <label>转子半径 (cm)</label>
+          <input type="number" id="cent-r" value="8.6" step="0.1" oninput="convCent()">
+          <div style="font-size:0.7rem;color:#047857">从离心机说明书或转子标签获取</div>
+        </div>
+        <div class="space-y">
+          <label>输入值</label>
+          <input type="number" id="cent-in" value="10000" step="any" oninput="convCent()">
+          <select id="cent-mode" onchange="convCent()">
+            <option value="rpm_to_g" selected>rpm → ×g (RCF)</option>
+            <option value="g_to_rpm">×g (RCF) → rpm</option>
+          </select>
+        </div>
+        <div class="space-y">
+          <label>结果</label>
+          <div id="cent-res" class="result-box">10349</div>
+          <div id="cent-unit" style="font-size:0.8rem;color:#047857;font-weight:600">×g (RCF)</div>
+        </div>
+      </div>
+      <div class="grid-4">
+        <button class="preset-btn" onclick="setCent(8.6)">Eppendorf 1.5mL (8.6cm)</button>
+        <button class="preset-btn" onclick="setCent(7.5)">普通角转子 (7.5cm)</button>
+        <button class="preset-btn" onclick="setCent(10.0)">大容量转子 (10cm)</button>
+        <button class="preset-btn" onclick="setCent(15.0)">大容量转子 (15cm)</button>
+      </div>
+      <div class="tip">💡 公式：RCF = 1.118 × 10⁻⁵ × r × (rpm)² | 常用：低速离心 2000×g | 高速 12000×g | 超速 100000×g | 沉淀细菌 4000×g | 沉淀蛋白 12000×g</div>
+    </div>
+
+    <!-- Cell -->
+    <div id="panel-cell" class="panel">
+      <h2>🔬 细胞密度与计数换算</h2>
+      <div class="space-y">
+        <div class="sub-card" style="background:linear-gradient(135deg,#ecfeff,#cffafe);border:1px solid #a5f3fc">
+          <h3 style="color:#164e63">OD₆₀₀ → 细胞浓度 估算</h3>
+          <div class="grid-3">
+            <div><label style="color:#155e75">OD₆₀₀ 值</label><input type="number" id="od600-val" value="0.5" step="0.01" oninput="convOD600()"></div>
+            <div><label style="color:#155e75">稀释倍数</label><input type="number" id="od600-dil" value="1" oninput="convOD600()"></div>
+            <div><label style="color:#155e75">菌株</label><select id="od600-strain" onchange="convOD600()">
+              <option value="ecoli" selected>大肠杆菌 E. coli</option>
+              <option value="yeast">酿酒酵母 S. cerevisiae</option>
+              <option value="bl21">BL21 (DE3)</option>
+              <option value="dh5a">DH5α</option>
+              <option value="custom">自定义</option>
+            </select></div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #a5f3fc">
+            <span style="font-size:0.8rem;color:#155e75;font-weight:600">估算细胞浓度：</span>
+            <span id="od600-res" style="font-size:1.1rem;font-weight:700;color:#164e63;font-family:monospace">4.00 × 10^8</span>
+            <span style="font-size:0.8rem;color:#0e7490">cells/mL</span>
+          </div>
+          <div style="font-size:0.7rem;color:#155e75;margin-top:6px">参考系数：E. coli ≈ 8×10⁸ cells/mL/OD | 酵母 ≈ 3×10⁷ cells/mL/OD | 实际值因菌株和培养条件差异较大</div>
+        </div>
+
+        <div class="sub-card" style="background:linear-gradient(135deg,#fff1f2,#fecdd3);border:1px solid #fda4af">
+          <h3 style="color:#881337">血球计数板 细胞浓度计算</h3>
+          <div class="grid-3">
+            <div><label style="color:#9f1239">四角平均细胞数</label><input type="number" id="hema-count" value="100" oninput="convHema()"></div>
+            <div><label style="color:#9f1239">稀释倍数</label><input type="number" id="hema-dil" value="1" oninput="convHema()"></div>
+            <div><label style="color:#9f1239">计数板类型</label><select id="hema-type" onchange="convHema()">
+              <option value="improved" selected>改良Neubauer</option>
+              <option value="bright">Bright-Line</option>
+              <option value="petroff">Petroff-Hausser</option>
+            </select></div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #fda4af">
+            <span style="font-size:0.8rem;color:#9f1239;font-weight:600">细胞浓度：</span>
+            <span id="hema-res" style="font-size:1.1rem;font-weight:700;color:#881337;font-family:monospace">1.00 × 10^6</span>
+            <span style="font-size:0.8rem;color:#be123c">cells/mL</span>
+          </div>
+          <div style="font-size:0.7rem;color:#9f1239;margin-top:6px">改良Neubauer：每大格体积 = 0.1 mm³ = 1×10⁻⁴ mL | 四角平均 × 10⁴ × 稀释倍数 = cells/mL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Primer -->
+    <div id="panel-primer" class="panel">
+      <h2>🎯 引物与寡核苷酸工具</h2>
+      <div class="space-y">
+        <div class="sub-card" style="background:linear-gradient(135deg,#f3e8ff,#e9d5ff);border:1px solid #d8b4fe">
+          <h3 style="color:#581c87">引物 Tm 值估算</h3>
+          <div class="grid-2">
+            <div><label style="color:#6b21a8">引物序列 (5'→3')</label><input type="text" id="primer-seq" value="ATCGATCGATCG" oninput="calcTm()"></div>
+            <div><label style="color:#6b21a8">计算方法</label><select id="tm-method" onchange="calcTm()">
+              <option value="wallace" selected>Wallace 法 (2+4)</option>
+              <option value="salt">盐校正 (近邻法简化)</option>
+            </select></div>
+          </div>
+          <div class="grid-3" style="margin-top:12px">
+            <div class="stat-box"><div class="label">长度</div><div id="primer-len" class="value" style="color:#581c87">12</div><div class="label">bp</div></div>
+            <div class="stat-box"><div class="label">GC含量</div><div id="primer-gc" class="value" style="color:#581c87">50.0</div><div class="label">%</div></div>
+            <div class="stat-box"><div class="label">估算 Tm</div><div id="primer-tm" class="value" style="color:#581c87">36</div><div class="label">°C</div></div>
+          </div>
+          <div style="font-size:0.7rem;color:#6b21a8;margin-top:6px">Wallace法：Tm = 2×(A+T) + 4×(G+C) | 仅适用于短引物(&lt;20bp)，长引物请使用专业软件</div>
+        </div>
+
+        <div class="sub-card" style="background:linear-gradient(135deg,#fef9c3,#fef08a);border:1px solid #fde047">
+          <h3 style="color:#713f12">寡核苷酸 消光系数与分子量</h3>
+          <div class="grid-2">
+            <div><label style="color:#854d0e">寡核苷酸序列</label><input type="text" id="oligo-seq" value="ATCGATCGATCG" oninput="calcOligo()"></div>
+            <div><label style="color:#854d0e">类型</label><select id="oligo-type" onchange="calcOligo()">
+              <option value="DNA" selected>DNA</option><option value="RNA">RNA</option>
+            </select></div>
+          </div>
+          <div class="grid-3" style="margin-top:12px">
+            <div class="stat-box"><div class="label">分子量</div><div id="oligo-mw" class="value" style="color:#713f12">3718</div><div class="label">Da</div></div>
+            <div class="stat-box"><div class="label">ε₂₆₀</div><div id="oligo-eps" class="value" style="color:#713f12">113100</div><div class="label">M⁻¹cm⁻¹</div></div>
+            <div class="stat-box"><div class="label">1 OD =</div><div id="oligo-od" class="value" style="color:#713f12">33.0</div><div class="label">μg/mL</div></div>
+          </div>
+          <div style="font-size:0.7rem;color:#854d0e;margin-top:6px">消光系数使用近邻法估算：ε = Σ(近邻二核苷酸ε) + 单体修正 | 结果仅供参考</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radioactivity -->
+    <div id="panel-radio" class="panel">
+      <h2>☢️ 放射性活度换算</h2>
+      <div class="grid-2">
+        <div class="space-y">
+          <label>输入值</label>
+          <input type="number" id="radio-in" value="1" step="any" oninput="convRadio()">
+          <select id="radio-f" onchange="convRadio()">
+            <option value="Bq" selected>贝克勒尔 (Bq)</option>
+            <option value="kBq">千贝克勒尔 (kBq)</option>
+            <option value="MBq">兆贝克勒尔 (MBq)</option>
+            <option value="GBq">吉贝克勒尔 (GBq)</option>
+            <option value="Ci">居里 (Ci)</option>
+            <option value="mCi">毫居里 (mCi)</option>
+            <option value="uCi">微居里 (μCi)</option>
+            <option value="nCi">纳居里 (nCi)</option>
+            <option value="dpm">衰变/分钟 (dpm)</option>
+          </select>
+        </div>
+        <div class="space-y">
+          <label>结果</label>
+          <div id="radio-res" class="result-box">2.70 × 10^-11</div>
+          <select id="radio-t" onchange="convRadio()">
+            <option value="Bq">贝克勒尔 (Bq)</option>
+            <option value="kBq">千贝克勒尔 (kBq)</option>
+            <option value="MBq">兆贝克勒尔 (MBq)</option>
+            <option value="GBq">吉贝克勒尔 (GBq)</option>
+            <option value="Ci" selected>居里 (Ci)</option>
+            <option value="mCi">毫居里 (mCi)</option>
+            <option value="uCi">微居里 (μCi)</option>
+            <option value="nCi">纳居里 (nCi)</option>
+            <option value="dpm">衰变/分钟 (dpm)</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-4">
+        <button class="preset-btn" onclick="setRadio(1,'Ci','GBq')">1 Ci = 37 GBq</button>
+        <button class="preset-btn" onclick="setRadio(1,'mCi','MBq')">1 mCi = 37 MBq</button>
+        <button class="preset-btn" onclick="setRadio(1,'uCi','kBq')">1 μCi = 37 kBq</button>
+        <button class="preset-btn" onclick="setRadio(1,'nCi','Bq')">1 nCi = 37 Bq</button>
+      </div>
+      <div class="tip">💡 1 Ci = 3.7×10¹⁰ Bq = 37 GBq | 1 Bq = 1 dps (衰变/秒) | 常用同位素：³²P (14.3d), ³⁵S (87.4d), ¹⁴C (5730y), ¹²⁵I (59.4d), ³H (12.3y)</div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>生物学全功能换算器 Ultimate · 数据仅供参考，关键实验请复核计算</p>
+	<p><a href="./manual.html" target="_blank" rel="noopener noreferrer">使用说明</a></p>
+  </footer>
+</div>
+
+<script>
+function switchTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function fmt(n){
+  if(n===0)return'0';
+  if(!isFinite(n))return'∞';
+  if(Math.abs(n)<0.001||Math.abs(n)>1e6)return n.toExponential(4);
+  return parseFloat(n.toPrecision(6)).toString();
+}
+function fmtSci(n){
+  if(n===0)return'0';
+  return n.toExponential(3).replace('e+',' × 10^').replace('e-',' × 10^-');
+}
+
+// Length
+const lf={m:1,cm:0.01,mm:0.001,um:1e-6,nm:1e-9,pm:1e-12,angstrom:1e-10,inch:0.0254};
+function convLen(){
+  let v=parseFloat(document.getElementById('len-in').value)||0;
+  let f=document.getElementById('len-f').value,t=document.getElementById('len-t').value;
+  document.getElementById('len-res').textContent=fmt(v*lf[f]/lf[t]);
+}
+// Mass
+const mf={kg:1,g:0.001,mg:1e-6,ug:1e-9,ng:1e-12,pg:1e-15,Da:1.66054e-24,kDa:1.66054e-21};
+function convMass(){
+  let v=parseFloat(document.getElementById('mass-in').value)||0;
+  let f=document.getElementById('mass-f').value,t=document.getElementById('mass-t').value;
+  document.getElementById('mass-res').textContent=fmt(v*mf[f]/mf[t]);
+}
+// Volume
+const vf={L:1,mL:0.001,uL:1e-6,nL:1e-9,pL:1e-12,fL:1e-15,gal:3.78541,oz:0.0295735};
+function convVol(){
+  let v=parseFloat(document.getElementById('vol-in').value)||0;
+  let f=document.getElementById('vol-f').value,t=document.getElementById('vol-t').value;
+  document.getElementById('vol-res').textContent=fmt(v*vf[f]/vf[t]);
+}
+// Concentration
+const molarF={M:1,mM:1e-3,uM:1e-6,nM:1e-9,pM:1e-12,fM:1e-15};
+const massCF={mg_mL:1e-3,ug_mL:1e-6,ng_mL:1e-9,percent:10e-3};
+function convConc(){
+  let v=parseFloat(document.getElementById('conc-in').value)||0;
+  let f=document.getElementById('conc-f').value,t=document.getElementById('conc-t').value;
+  let mw=parseFloat(document.getElementById('conc-mw').value)||1;
+  let molV;
+  if(molarF[f]!==undefined)molV=v*molarF[f];
+  else{let m=massCF[f]||1;molV=(v*m)/(mw/1000);}
+  let r;
+  if(molarF[t]!==undefined)r=molV/molarF[t];
+  else{let m=massCF[t]||1;r=(molV*(mw/1000))/m;}
+  document.getElementById('conc-res').textContent=fmt(r);
+}
+// Dilution
+function calcDil(){
+  let c1=parseFloat(document.getElementById('dil-c1').value)||0;
+  let c2=parseFloat(document.getElementById('dil-c2').value)||0;
+  let v2=parseFloat(document.getElementById('dil-v2').value)||0;
+  let v1=parseFloat(document.getElementById('dil-v1').value);
+  if(isNaN(v1)||v1===''){
+    if(c1>0&&c2>0&&v2>0)v1=v2*c2/c1;
+    else v1=0;
+    document.getElementById('dil-v1').placeholder=fmt(v1);
+  }
+  let factor=c2>0?c1/c2:0;
+  let add=v2-v1;
+  document.getElementById('dil-factor').textContent=(factor>0?fmt(factor):'∞')+'×';
+  document.getElementById('dil-add').textContent=fmt(add);
+}
+function setDil(c1,c2,v2){
+  document.getElementById('dil-c1').value=c1;
+  document.getElementById('dil-c2').value=c2;
+  document.getElementById('dil-v2').value=v2;
+  document.getElementById('dil-v1').value='';
+  calcDil();
+}
+// Temperature
+function convTemp(){
+  let v=parseFloat(document.getElementById('temp-in').value)||0;
+  let f=document.getElementById('temp-f').value,t=document.getElementById('temp-t').value;
+  let k;
+  if(f==='C')k=v+273.15;else if(f==='F')k=(v-32)*5/9+273.15;else k=v;
+  let r;
+  if(t==='C')r=k-273.15;else if(t==='F')r=(k-273.15)*9/5+32;else r=k;
+  document.getElementById('temp-res').textContent=fmt(r);
+}
+function setTemp(c){
+  document.getElementById('temp-in').value=c;
+  document.getElementById('temp-f').value='C';
+  convTemp();
+}
+// Buffer
+function calcBuf(){
+  let pka=parseFloat(document.getElementById('buf-pka').value)||0;
+  let base=parseFloat(document.getElementById('buf-base').value)||1;
+  let acid=parseFloat(document.getElementById('buf-acid').value)||1;
+  let ph=pka+Math.log10(base/acid);
+  document.getElementById('buf-ph').textContent=ph.toFixed(2);
+}
+function setBuf(pka){document.getElementById('buf-pka').value=pka;calcBuf();}
+// DNA
+function convDNA(){
+  let bp=parseFloat(document.getElementById('dna-bp').value)||1;
+  let v=parseFloat(document.getElementById('dna-in').value)||0;
+  let m=document.getElementById('dna-mode').value;
+  let mw=bp*660,r,u;
+  if(m==='ng_to_pmol'){r=(v*1e-9)/(mw*1e-12);u='pmol';}
+  else if(m==='pmol_to_ng'){r=(v*1e-12)*mw/1e-9;u='ng';}
+  else if(m==='ug_to_nmol'){r=(v*1e-6)/(mw*1e-9);u='nmol';}
+  else{r=(v*1e-9)*mw/1e-6;u='μg';}
+  document.getElementById('dna-res').textContent=fmt(r);
+  document.getElementById('dna-unit').textContent=u;
+}
+// OD260
+function convOD(){
+  let od=parseFloat(document.getElementById('od-val').value)||0;
+  let path=parseFloat(document.getElementById('od-path').value)||1;
+  let type=document.getElementById('od-type').value;
+  let fac={ssDNA:33,dsDNA:50,ssRNA:40,oligo:30};
+  document.getElementById('od-res').textContent=fmt(od*(fac[type]/path));
+}
+// Copy number
+function calcCopy(){
+  let conc=parseFloat(document.getElementById('copy-conc').value)||0;
+  let bp=parseFloat(document.getElementById('copy-bp').value)||1;
+  let type=document.getElementById('copy-type').value;
+  let avo=6.022e23,mwPer=type==='dsDNA'?660:330;
+  let mw=bp*mwPer;
+  let g=conc*1e-9,mol=g/mw,copies=mol*avo;
+  document.getElementById('copy-res').textContent=fmtSci(copies);
+}
+// Beer-Lambert
+function calcBL(){
+  let a=parseFloat(document.getElementById('bl-a').value)||0;
+  let eps=parseFloat(document.getElementById('bl-eps').value)||1;
+  let b=parseFloat(document.getElementById('bl-b').value)||1;
+  let c=a/(eps*b);
+  document.getElementById('bl-res').textContent=fmtSci(c);
+}
+function setBL(eps,mw){
+  document.getElementById('bl-eps').value=eps;
+  calcBL();
+}
+// Centrifuge
+function convCent(){
+  let r=parseFloat(document.getElementById('cent-r').value)||1;
+  let v=parseFloat(document.getElementById('cent-in').value)||0;
+  let m=document.getElementById('cent-mode').value;
+  let res,unit;
+  if(m==='rpm_to_g'){res=1.118e-5*r*v*v;unit='×g (RCF)';}
+  else{res=Math.sqrt(v/(1.118e-5*r));unit='rpm';}
+  document.getElementById('cent-res').textContent=fmt(res);
+  document.getElementById('cent-unit').textContent=unit;
+}
+function setCent(r){document.getElementById('cent-r').value=r;convCent();}
+// OD600
+function convOD600(){
+  let od=parseFloat(document.getElementById('od600-val').value)||0;
+  let dil=parseFloat(document.getElementById('od600-dil').value)||1;
+  let strain=document.getElementById('od600-strain').value;
+  let fac={ecoli:8e8,yeast:3e7,bl21:8.5e8,dh5a:7.5e8};
+  let factor=fac[strain]||8e8;
+  document.getElementById('od600-res').textContent=fmtSci(od*factor*dil);
+}
+// Hemacytometer
+function convHema(){
+  let count=parseFloat(document.getElementById('hema-count').value)||0;
+  let dil=parseFloat(document.getElementById('hema-dil').value)||1;
+  let type=document.getElementById('hema-type').value;
+  let vf=type==='petroff'?5e4:1e4;
+  document.getElementById('hema-res').textContent=fmtSci(count*vf*dil);
+}
+// Primer Tm
+function calcTm(){
+  let seq=document.getElementById('primer-seq').value.toUpperCase().replace(/[^ATCG]/g,'');
+  document.getElementById('primer-seq').value=seq;
+  let len=seq.length;
+  let a=(seq.match(/A/g)||[]).length,t=(seq.match(/T/g)||[]).length;
+  let g=(seq.match(/G/g)||[]).length,c=(seq.match(/C/g)||[]).length;
+  let gc=len>0?((g+c)/len*100).toFixed(1):0;
+  let tm,method=document.getElementById('tm-method').value;
+  if(method==='wallace')tm=2*(a+t)+4*(g+c);
+  else tm=len>0?81.5+0.41*parseFloat(gc)-675/len:0;
+  document.getElementById('primer-len').textContent=len;
+  document.getElementById('primer-gc').textContent=gc;
+  document.getElementById('primer-tm').textContent=Math.round(tm);
+}
+// Oligo
+const dnaM={A:313.21,T:304.2,C:289.18,G:329.21};
+const rnaM={A:329.21,U:306.17,C:305.18,G:345.21};
+const dnaNN={AA:13700,AT:13700,AC:10600,AG:12500,TA:9400,TT:9400,TC:8200,TG:10200,CA:10600,CT:10200,CC:7400,CG:11800,GA:12500,GT:10600,GC:9000,GG:10800};
+const rnaNN={AA:13700,AU:13700,AC:10600,AG:12500,UA:9400,UU:9400,UC:8200,UG:10200,CA:10600,CU:10200,CC:7400,CG:11800,GA:12500,GU:10600,GC:9000,GG:10800};
+function calcOligo(){
+  let seq=document.getElementById('oligo-seq').value.toUpperCase().replace(/[^ATCGU]/g,'');
+  document.getElementById('oligo-seq').value=seq;
+  let type=document.getElementById('oligo-type').value;
+  let mono=type==='DNA'?dnaM:rnaM,nn=type==='DNA'?dnaNN:rnaNN;
+  let mw=0,eps=0;
+  for(let i=0;i<seq.length;i++)if(mono[seq[i]])mw+=mono[seq[i]];
+  mw-=(seq.length-1)*18.015;
+  for(let i=0;i<seq.length-1;i++){let p=seq.substring(i,i+2);if(nn[p])eps+=nn[p];}
+  if(type==='DNA'){
+    let f=seq[0],l=seq[seq.length-1];
+    let tC={A:-15400,T:-10400,C:-7300,G:-11700},lC={A:-8800,T:-7300,C:-6100,G:-7800};
+    if(tC[f])eps+=tC[f];if(lC[l])eps+=lC[l];
+  }
+  let odConc=eps>0?(1e6/eps).toFixed(1):0;
+  document.getElementById('oligo-mw').textContent=Math.round(mw);
+  document.getElementById('oligo-eps').textContent=Math.round(eps);
+  document.getElementById('oligo-od').textContent=odConc;
+}
+// Radioactivity
+const rf={Bq:1,kBq:1e3,MBq:1e6,GBq:1e9,Ci:3.7e10,mCi:3.7e7,uCi:3.7e4,nCi:37,dpm:1/60};
+function convRadio(){
+  let v=parseFloat(document.getElementById('radio-in').value)||0;
+  let f=document.getElementById('radio-f').value,t=document.getElementById('radio-t').value;
+  document.getElementById('radio-res').textContent=fmt(v*rf[f]/rf[t]);
+}
+function setRadio(v,f,t){
+  document.getElementById('radio-in').value=v;
+  document.getElementById('radio-f').value=f;
+  document.getElementById('radio-t').value=t;
+  convRadio();
+}
+
+// Init
+convLen();convMass();convVol();convConc();calcDil();convTemp();calcBuf();
+convDNA();convOD();calcCopy();calcBL();convCent();convOD600();convHema();
+calcTm();calcOligo();convRadio();
+</script>
+</body>
+</html>

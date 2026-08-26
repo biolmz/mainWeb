@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>线代复习 · 矩阵计算器 (最终版)</title>
+    <!-- 浏览器标签页图标（矩阵主题，base64 内联，离线可用） -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjU2M2ViIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzA2YjZkNCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiByeD0iMTQiIGZpbGw9InVybCgjZykiLz4KICA8cmVjdCB4PSIxNCIgeT0iMTYiIHdpZHRoPSI1IiBoZWlnaHQ9IjMyIiByeD0iMi41IiBmaWxsPSIjZmZmZmZmIi8+CiAgPHJlY3QgeD0iMTQiIHk9IjE2IiB3aWR0aD0iMTQiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxyZWN0IHg9IjE0IiB5PSI0MyIgd2lkdGg9IjE0IiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiNmZmZmZmYiLz4KICA8cmVjdCB4PSI0NSIgeT0iMTYiIHdpZHRoPSI1IiBoZWlnaHQ9IjMyIiByeD0iMi41IiBmaWxsPSIjZmZmZmZmIi8+CiAgPHJlY3QgeD0iMzYiIHk9IjE2IiB3aWR0aD0iMTQiIGhlaWdodD0iNSIgcng9IjIuNSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxyZWN0IHg9IjM2IiB5PSI0MyIgd2lkdGg9IjE0IiBoZWlnaHQ9IjUiIHJ4PSIyLjUiIGZpbGw9IiNmZmZmZmYiLz4KICA8cmVjdCB4PSIyNSIgeT0iMjQiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiLz4KICA8cmVjdCB4PSIzMyIgeT0iMjQiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiLz4KICA8cmVjdCB4PSIyNSIgeT0iMzQiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiLz4KICA8cmVjdCB4PSIzMyIgeT0iMzQiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiLz4KPC9zdmc+">
+    <!-- 预连接加速 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdn.bootcdn.net">
+
+    <style>
+        /* ===== 全局基础样式 ===== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f0f4f9;
+            color: #1a2634;
+            padding: 1.5rem 1rem;
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        body.dark { background: #171e2a; color: #e3eaf2; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #b0c4d8; border-radius: 8px; }
+        body.dark ::-webkit-scrollbar-thumb { background: #3f4d66; }
+
+        .calculator {
+            max-width: 1440px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow: 0 20px 60px rgba(0, 20, 40, 0.08);
+            padding: 2rem 2.2rem 2.2rem;
+            transition: background 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        body.dark .calculator { background: #242b3b; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border-color: #33415a; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.8rem; padding-bottom: 0.8rem; border-bottom: 2px solid #eaeef5; }
+        body.dark .header { border-bottom-color: #33415a; }
+        .header h1 { font-weight: 550; font-size: 1.9rem; letter-spacing: -0.3px; color: #0b1c2e; display: flex; align-items: center; gap: 10px; }
+        body.dark .header h1 { color: #dce6f0; }
+        .header h1 small { font-size: 0.9rem; font-weight: 400; color: #5d7a9a; margin-left: 6px; }
+        body.dark .header h1 small { color: #8aa0c0; }
+        .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .header-actions button { background: transparent; border: 1px solid #d0dcec; border-radius: 40px; padding: 6px 18px; font-size: 0.85rem; font-weight: 500; color: #1a2f44; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        body.dark .header-actions button { border-color: #44536e; color: #c8d6e8; }
+        .header-actions button:hover { background: #e6edf6; transform: translateY(-1px); }
+        body.dark .header-actions button:hover { background: #2c364a; }
+
+        .matrix-panel { display: flex; flex-wrap: wrap; gap: 2rem 1.5rem; background: #f6faff; padding: 1.8rem 2rem; border-radius: 28px; margin-bottom: 1.8rem; border: 1px solid #e3ecf5; transition: background 0.3s, border 0.3s; }
+        body.dark .matrix-panel { background: #1b2333; border-color: #2e3c54; }
+        .matrix-box { flex: 1 1 280px; min-width: 220px; }
+        .matrix-box label { display: block; font-weight: 600; font-size: 0.95rem; color: #1f3b57; margin-bottom: 8px; letter-spacing: 0.2px; }
+        body.dark .matrix-box label { color: #b8cce0; }
+        .matrix-box .dims { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+        .matrix-box .dims input { width: 56px; padding: 6px 4px; text-align: center; border: 1px solid #d0dcec; border-radius: 14px; font-weight: 500; background: #ffffff; transition: 0.2s; font-size: 0.9rem; }
+        body.dark .matrix-box .dims input { background: #1b2333; color: #dce6f0; border-color: #3a4b66; }
+        .matrix-box .dims input:focus { border-color: #2d6a9e; outline: none; box-shadow: 0 0 0 3px rgba(45,106,158,0.15); }
+        .toolbar-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; align-items: center; }
+        .toolbar-row button { background: #e9eff6; border: none; border-radius: 30px; padding: 4px 16px; font-size: 0.75rem; font-weight: 600; color: #1f3b57; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        body.dark .toolbar-row button { background: #2a344a; color: #b8cce0; }
+        .toolbar-row button:hover { background: #d4dfec; transform: scale(0.96); }
+        body.dark .toolbar-row button:hover { background: #374563; }
+        .matrix-grid { display: grid; gap: 8px; background: #e9f0f8; padding: 14px; border-radius: 22px; transition: background 0.3s; }
+        body.dark .matrix-grid { background: #1f283c; }
+        .matrix-grid input { width: 100%; padding: 10px 4px; text-align: center; border: 1px solid #d3deec; border-radius: 14px; background: #ffffff; font-size: 0.95rem; font-family: 'JetBrains Mono', monospace; transition: 0.15s; color: #0b1c2e; }
+        body.dark .matrix-grid input { background: #1b2333; color: #dce6f0; border-color: #3a4b66; }
+        .matrix-grid input:focus { border-color: #2d6a9e; outline: none; box-shadow: 0 0 0 3px rgba(45,106,158,0.12); }
+
+        .action-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 1.2rem 0 1.8rem; padding: 1rem 1.4rem; background: #f6faff; border-radius: 20px; border: 1px solid #e3ecf5; transition: background 0.3s, border 0.3s; }
+        body.dark .action-bar { background: #1b2333; border-color: #2e3c54; }
+        .action-bar .action-group { display: flex; align-items: center; gap: 8px; }
+        .action-bar .action-divider { width: 1px; height: 24px; background: #d0dcec; margin: 0 4px; }
+        body.dark .action-bar .action-divider { background: #3a4b66; }
+        .action-bar button, .action-bar .op-select { background: #ffffff; border: 1px solid #d0dcec; padding: 8px 18px; border-radius: 40px; font-weight: 550; color: #1a3d5e; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        body.dark .action-bar button, body.dark .action-bar .op-select { background: #242b3b; border-color: #3f4f6a; color: #d0dcec; }
+        .action-bar button:hover { background: #e6edf6; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,20,40,0.06); }
+        body.dark .action-bar button:hover { background: #2c364a; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .action-bar button.primary { background: #1d3b5a; border-color: #1d3b5a; color: white; box-shadow: 0 4px 10px rgba(29,59,90,0.25); }
+        body.dark .action-bar button.primary { background: #3b5f8a; border-color: #3b5f8a; }
+        .action-bar button.primary:hover { background: #143049; border-color: #0f283f; transform: translateY(-1px); }
+        .action-bar .op-select { padding-right: 32px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233a5a7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 12px; }
+        body.dark .action-bar .op-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2390a8c8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); }
+        .action-bar .mode-toggle { padding: 6px 14px; font-size: 0.8rem; background: #e9eff6; }
+        body.dark .action-bar .mode-toggle { background: #2a344a; }
+        .action-bar .mode-toggle.active { background: #1d3b5a; color: white; border-color: #1d3b5a; }
+        body.dark .action-bar .mode-toggle.active { background: #3b5f8a; border-color: #3b5f8a; }
+
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 0.5rem; }
+        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 700px) { .main-grid { gap: 1.2rem; } }
+
+        .result-area { background: #f6faff; border-radius: 28px; padding: 1.6rem 1.8rem; border: 1px solid #e3ecf5; transition: background 0.3s, border 0.3s; margin-bottom: 1.2rem; }
+        body.dark .result-area { background: #1b2333; border-color: #2e3c54; }
+        .result-area h3 { font-weight: 600; color: #143049; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; letter-spacing: 0.2px; }
+        body.dark .result-area h3 { color: #c8d8ec; }
+        .result-display { min-height: 3.2rem; margin-bottom: 0.8rem; font-size: 0.95rem; }
+        .result-matrix { display: inline-block; background: #ffffff; padding: 0.8rem 1.4rem; border-radius: 18px; border: 1px solid #d3e0ee; margin: 6px 0; font-family: 'JetBrains Mono', monospace; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: background 0.3s, border 0.3s; }
+        body.dark .result-matrix { background: #242b3b; border-color: #3f4f6a; }
+        .error-msg { color: #b13a3a; background: #ffe9e9; padding: 0.5rem 1.4rem; border-radius: 40px; display: inline-block; font-weight: 500; }
+        body.dark .error-msg { background: #442a2a; color: #f5baba; }
+
+        .steps-container { background: #ffffff; border-radius: 22px; padding: 0.2rem 0; margin-top: 0.8rem; border: 1px solid #e3ecf5; max-height: 320px; overflow-y: auto; transition: background 0.3s, border 0.3s; }
+        body.dark .steps-container { background: #1b2333; border-color: #2e3c54; }
+        .step-collapsible { border-bottom: 1px solid #eaeef5; padding: 0.3rem 0.2rem; }
+        body.dark .step-collapsible { border-color: #2e3c54; }
+        .step-collapsible:last-child { border-bottom: none; }
+        .step-collapsible summary { cursor: pointer; font-weight: 600; padding: 0.7rem 1.4rem; border-radius: 14px; transition: 0.15s; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #1a2f44; list-style: none; }
+        body.dark .step-collapsible summary { color: #c8d8ec; }
+        .step-collapsible summary:hover { background: #f0f5fc; }
+        body.dark .step-collapsible summary:hover { background: #26304a; }
+        .step-collapsible summary::-webkit-details-marker { display: none; }
+        .step-collapsible .step-content { padding: 0.4rem 1.8rem 1.2rem 1.8rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; color: #1a2f44; white-space: pre-wrap; word-break: break-word; }
+        body.dark .step-collapsible .step-content { color: #d6deec; }
+        .step-highlight { background: #fff3cd; padding: 0 6px; border-radius: 6px; font-weight: 600; }
+        body.dark .step-highlight { background: #4a3a1a; }
+
+
+
+        .knowledge-graph { background: #f6faff; border-radius: 22px; padding: 1.2rem 1.6rem; border: 1px solid #e3ecf5; margin-top: 0; transition: background 0.3s, border 0.3s; }
+        body.dark .knowledge-graph { background: #1b2333; border-color: #2e3c54; }
+        .knowledge-graph h4 { margin: 0 0 0.8rem 0; font-weight: 600; color: #143049; font-size: 1.05rem; letter-spacing: 0.2px; }
+        body.dark .knowledge-graph h4 { color: #c8d8ec; }
+        .kg-item { display: inline-block; padding: 4px 16px; border-radius: 40px; margin: 4px 6px 4px 0; font-size: 0.8rem; background: #e9eff6; color: #1f3b57; transition: 0.2s; }
+        body.dark .kg-item { background: #2a344a; color: #b8cce0; }
+        .kg-item.prereq { background: #fff3cd; color: #856404; }
+        body.dark .kg-item.prereq { background: #4a3a1a; color: #f0d080; }
+        .kg-item.next { background: #d4edda; color: #155724; }
+        body.dark .kg-item.next { background: #1a4a2a; color: #8dd0a0; }
+        .kg-item.current { background: #cce5ff; color: #004085; }
+        body.dark .kg-item.current { background: #1a3a5a; color: #8ab4e8; }
+
+
+
+
+        .history-panel { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e3ecf5; }
+        body.dark .history-panel { border-color: #2e3c54; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
+        .history-item { background: #ffffff; padding: 6px 16px; border-radius: 14px; border: 1px solid #e3ecf5; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; transition: background 0.2s; }
+        body.dark .history-item { background: #1b2333; border-color: #2e3c54; color: #c8d8ec; }
+        .history-item .h-op { font-weight: 600; color: #1d3b5a; }
+        body.dark .history-item .h-op { color: #8ab4e8; }
+        .history-item .h-time { color: #7a8ba8; font-size: 0.7rem; }
+
+        .footer-note { margin-top: 1.8rem; font-size: 0.8rem; color: #7a8ba8; text-align: right; border-top: 1px solid #e3ecf5; padding-top: 1.2rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+        body.dark .footer-note { color: #7a8ba8; border-color: #2e3c54; }
+
+        .pwa-install { position: fixed; bottom: 24px; right: 24px; background: #1d3b5a; color: white; padding: 14px 24px; border-radius: 60px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); cursor: pointer; z-index: 1000; display: none; font-size: 0.95rem; border: none; transition: 0.2s; }
+        body.dark .pwa-install { background: #3b5f8a; }
+        .pwa-install.show { display: block; }
+        .pwa-install:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
+
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #d0dcec; border-top-color: #1d3b5a; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: #5d7a9a; font-size: 0.85rem; margin-left: 8px; }
+
+        @media (max-width: 700px) {
+            .calculator { padding: 1.2rem; }
+            .header h1 { font-size: 1.4rem; }
+            .matrix-panel { flex-direction: column; gap: 1.5rem; padding: 1.2rem; }
+            .action-bar { padding: 0.8rem; gap: 8px 10px; }
+            .action-bar button, .action-bar .op-select { padding: 6px 12px; font-size: 0.82rem; }
+            .action-bar .mode-toggle { padding: 5px 10px; font-size: 0.75rem; }
+            .main-grid { gap: 1rem; }
+            .result-area { padding: 1.2rem 1.4rem; }
+        }
+        @media (max-width: 480px) {
+            .matrix-grid input { font-size: 0.8rem; padding: 8px 2px; }
+            .matrix-grid { gap: 5px; padding: 8px; }
+        }
+    
+        html { scroll-behavior: smooth; }
+        @media (max-width: 700px) {
+            .header h1 { font-size: 1.3rem; }
+            .header { gap: 8px; }
+            .matrix-panel { padding: 1.3rem; }
+            .action-bar button, .action-bar .op-select { padding: 7px 12px; font-size: 0.8rem; }
+        }
+        @media (max-width: 480px) {
+            .calculator { padding: 1.1rem; border-radius: 26px; }
+            .matrix-grid input { font-size: 0.8rem; padding: 9px 2px; }
+            .matrix-grid { gap: 5px; padding: 9px; }
+            .result-area { padding: 1.1rem 1.3rem; }
+        }
+
+</style>
+</head>
+<body>
+<div class="calculator" id="app">
+    <div class="header">
+        <h1>🧮 矩阵计算器 <small>· 最终版</small></h1>
+        <div class="header-actions">
+            <button id="themeToggle">🌓 暗色</button>
+            <button id="installPwaBtn" class="pwa-install" style="display:none;position:static;padding:4px 16px;font-size:0.8rem;">📲 安装 App</button>
+        </div>
+    </div>
+    <!-- 矩阵面板 -->
+    <div class="matrix-panel" id="sec-input">
+        <div class="matrix-box">
+            <label>矩阵 A</label>
+            <div class="dims">
+                <span>行</span><input type="number" id="rowsA" value="3" min="1" max="6">
+                <span>列</span><input type="number" id="colsA" value="3" min="1" max="6">
+                <button id="resizeA" style="background:transparent;border:1px solid #d0dcec;border-radius:30px;padding:4px 16px;cursor:pointer;">↻ 更新</button>
+            </div>
+            <div class="toolbar-row">
+                <button data-target="A" data-rows="2" data-cols="2">2×2</button>
+                <button data-target="A" data-rows="3" data-cols="3">3×3</button>
+                <button data-target="A" data-rows="2" data-cols="3">2×3</button>
+                <button data-target="A" data-rows="3" data-cols="2">3×2</button>
+                <span style="font-size:0.7rem;color:#7a8ba8;">填充:</span>
+                <button class="fill-btn" data-target="A" data-fill="random">🎲 随机</button>
+                <button class="fill-btn" data-target="A" data-fill="zero">0</button>
+                <button class="fill-btn" data-target="A" data-fill="identity">I</button>
+            </div>
+            <div id="matrixA" class="matrix-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <input type="number" step="any" value="1"><input type="number" step="any" value="2"><input type="number" step="any" value="3">
+                <input type="number" step="any" value="4"><input type="number" step="any" value="5"><input type="number" step="any" value="6">
+                <input type="number" step="any" value="7"><input type="number" step="any" value="8"><input type="number" step="any" value="9">
+            </div>
+        </div>
+        <div class="matrix-box">
+            <label>矩阵 B</label>
+            <div class="dims">
+                <span>行</span><input type="number" id="rowsB" value="3" min="1" max="6">
+                <span>列</span><input type="number" id="colsB" value="3" min="1" max="6">
+                <button id="resizeB" style="background:transparent;border:1px solid #d0dcec;border-radius:30px;padding:4px 16px;cursor:pointer;">↻ 更新</button>
+            </div>
+            <div class="toolbar-row">
+                <button data-target="B" data-rows="2" data-cols="2">2×2</button>
+                <button data-target="B" data-rows="3" data-cols="3">3×3</button>
+                <button data-target="B" data-rows="2" data-cols="3">2×3</button>
+                <button data-target="B" data-rows="3" data-cols="2">3×2</button>
+                <span style="font-size:0.7rem;color:#7a8ba8;">填充:</span>
+                <button class="fill-btn" data-target="B" data-fill="random">🎲 随机</button>
+                <button class="fill-btn" data-target="B" data-fill="zero">0</button>
+                <button class="fill-btn" data-target="B" data-fill="identity">I</button>
+            </div>
+            <div id="matrixB" class="matrix-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <input type="number" step="any" value="9"><input type="number" step="any" value="8"><input type="number" step="any" value="7">
+                <input type="number" step="any" value="6"><input type="number" step="any" value="5"><input type="number" step="any" value="4">
+                <input type="number" step="any" value="3"><input type="number" step="any" value="2"><input type="number" step="any" value="1">
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar" id="sec-op">
+        <div class="action-group">
+            <select id="operation" class="op-select">
+                <option value="add">A + B</option>
+                <option value="sub">A − B</option>
+                <option value="mul">A × B</option>
+                <option value="transA">Aᵀ (转置)</option>
+                <option value="transB">Bᵀ (转置)</option>
+                <option value="detA">det(A)</option>
+                <option value="detB">det(B)</option>
+                <option value="invA">A⁻¹ (逆)</option>
+                <option value="invB">B⁻¹ (逆)</option>
+                <option value="rankA">秩 rank(A)</option>
+                <option value="rankB">秩 rank(B)</option>
+                <option value="eigenA">特征值 A</option>
+                <option value="luA">LU 分解 A</option>
+                <option value="solve">求解 Ax=b</option>
+            </select>
+            <button id="computeBtn" class="primary">▶ 计算</button>
+        </div>
+        <div class="action-divider"></div>
+        <div class="action-group">
+            <button id="clearStepsBtn">🗑 清空</button>
+            <button id="undoBtn" title="Ctrl+Z">↩ 撤销</button>
+            <button id="redoBtn" title="Ctrl+Y">↪ 重做</button>
+        </div>
+        <div class="action-divider"></div>
+        <div class="action-group">
+            <button class="mode-toggle" id="fractionToggle">🔢 分数</button>
+            <button class="mode-toggle" id="autoComputeToggle">⚡ 自动</button>
+        </div>
+    </div>
+
+    <!-- 两栏布局 -->
+    <div class="main-grid">
+        <div>
+            <div class="result-area" id="sec-result">
+                <h3>📐 结果 & 步骤</h3>
+                <div id="resultDisplay" class="result-display"><span style="color:#5d7a9a;">点击计算查看结果</span></div>
+                <div id="stepsContainer" class="steps-container"></div>
+            </div>
+            <div class="knowledge-graph" id="knowledgeGraph">
+                <h4>📚 知识点图谱</h4>
+                <div id="kgContent"><span class="kg-item current">当前: 未计算</span></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="result-area" id="sec-history">
+                <h3>📜 计算历史</h3>
+                <div id="historyList" class="history-list"></div>
+                <div style="margin-top:10px;display:flex;gap:10px;">
+                    <button id="clearHistoryBtn" style="font-size:0.75rem;padding:5px 18px;border-radius:40px;border:1px solid #d0dcec;background:transparent;cursor:pointer;transition:0.15s;">清空历史</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-note">
+        <span>高斯消元 · 知识图谱 · 拖拽填充 · 撤销/重做 · PWA</span>
+        <span>⌨️ 方向键导航 · Enter 计算 · Ctrl+Z/Y</span>
+    </div>
+</div>
+
+<script type="module">
+
+    // ========================================================================
+    // 最终版 · 矩阵计算器
+    // 特性：多 CDN 备用加载 + 完整功能 + 极速体验
+    // ========================================================================
+
+    // ---------- DOM 引用 ----------
+    const $ = id => document.getElementById(id);
+    const rowsA = $('rowsA'), colsA = $('colsA'), rowsB = $('rowsB'), colsB = $('colsB');
+    const matrixA = $('matrixA'), matrixB = $('matrixB');
+    const resultDisplay = $('resultDisplay'), stepsContainer = $('stepsContainer');
+    const operation = $('operation');
+    const computeBtn = $('computeBtn');
+    const fractionToggle = $('fractionToggle');
+    const autoComputeToggle = $('autoComputeToggle');
+    const historyList = $('historyList');
+    const shareLink = $('shareLink');
+    const chatMessages = $('chatMessages');
+    const chatInput = $('chatInput');
+    const typingIndicator = $('typingIndicator');
+    const kgContent = $('kgContent');
+
+    // ---------- 状态 ----------
+    let fractionMode = false;
+    let autoCompute = true;
+    let history = [];
+    const MAX_HISTORY = 20;
+    let currentSteps = [];
+    let historyState = [];
+    let historyIndex = -1;
+    const MAX_HISTORY_STATES = 30;
+    let mathModule = null;
+    let katexModule = null;
+    let lzStringModule = null;
+
+
+    // ---------- 多 CDN 备用加载器 ----------
+    async function loadScriptWithTimeout(url, timeoutMs = 8000) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.async = true;
+            let timer = setTimeout(() => {
+                script.onload = null;
+                script.onerror = null;
+                reject(new Error(`加载超时 (${timeoutMs}ms)`));
+            }, timeoutMs);
+            script.onload = () => { clearTimeout(timer); resolve(); };
+            script.onerror = () => { clearTimeout(timer); reject(new Error('脚本加载失败')); };
+            document.head.appendChild(script);
+        });
+    }
+
+    async function loadMath() {
+        if (mathModule) return mathModule;
+        const cdnList = [
+            'https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js',
+            'https://unpkg.com/mathjs@11.8.0/lib/browser/math.js',
+            'https://cdn.bootcdn.net/ajax/libs/mathjs/11.8.0/math.min.js'
+        ];
+        for (const url of cdnList) {
+            try {
+                await loadScriptWithTimeout(url, 8000);
+                if (window.math) {
+                    mathModule = window.math;
+                    return mathModule;
+                }
+            } catch (e) { continue; }
+        }
+        // 降级: ES Module 方式
+        try {
+            const mod = await import('https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js');
+            mathModule = mod.default || mod;
+            return mathModule;
+        } catch (e) {
+            throw new Error('所有 mathjs 加载方式均失败，请检查网络或刷新重试。');
+        }
+    }
+
+    async function loadKatex() {
+        if (katexModule) return katexModule;
+        try {
+            await new Promise((resolve, reject) => {
+                if (window.katex) { katexModule = window.katex; resolve(katexModule); return; }
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.js';
+                script.onload = () => { katexModule = window.katex; resolve(katexModule); };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+            return katexModule;
+        } catch (e) {
+            console.warn('KaTeX 加载失败，公式将显示为纯文本。', e);
+            return null;
+        }
+    }
+
+    async function loadLzString() {
+        if (lzStringModule) return lzStringModule;
+        try {
+            await new Promise((resolve, reject) => {
+                if (window.LZString) { lzStringModule = window.LZString; resolve(lzStringModule); return; }
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js';
+                script.onload = () => { lzStringModule = window.LZString; resolve(lzStringModule); };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+            return lzStringModule;
+        } catch (e) {
+            console.warn('LZString 加载失败，分享将使用 base64 编码。', e);
+            return null;
+        }
+    }
+
+    // ---------- 矩阵工具 ----------
+    function getMatrixData(gridId) {
+        const container = document.getElementById(gridId);
+        const inputs = container.querySelectorAll('input');
+        const cols = parseInt(getComputedStyle(container).gridTemplateColumns.split(' ').length) || 1;
+        const mat = [];
+        let idx = 0;
+        const total = inputs.length;
+        const rows = total / cols;
+        for (let r = 0; r < rows; r++) {
+            const row = [];
+            for (let c = 0; c < cols; c++) {
+                const val = parseFloat(inputs[idx]?.value);
+                row.push(isNaN(val) ? 0 : val);
+                idx++;
+            }
+            mat.push(row);
+        }
+        return mat;
+    }
+
+    function setMatrixData(gridId, matrix, cols) {
+        const container = document.getElementById(gridId);
+        container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        container.innerHTML = '';
+        for (let r = 0; r < matrix.length; r++) {
+            for (let c = 0; c < matrix[r].length; c++) {
+                const inp = document.createElement('input');
+                inp.type = 'number';
+                inp.step = 'any';
+                inp.value = matrix[r][c];
+                inp.setAttribute('data-row', r);
+                inp.setAttribute('data-col', c);
+                container.appendChild(inp);
+            }
+        }
+        saveMatrixState();
+    }
+
+    function getDims(prefix) {
+        const rows = parseInt(document.getElementById(`rows${prefix}`).value) || 1;
+        const cols = parseInt(document.getElementById(`cols${prefix}`).value) || 1;
+        return { rows: Math.min(Math.max(rows,1),6), cols: Math.min(Math.max(cols,1),6) };
+    }
+
+    function rebuildMatrix(prefix, gridId) {
+        const dim = getDims(prefix);
+        const current = getMatrixData(gridId);
+        const newMat = [];
+        for (let r = 0; r < dim.rows; r++) {
+            const row = [];
+            for (let c = 0; c < dim.cols; c++) {
+                const val = (current[r] && current[r][c] !== undefined) ? current[r][c] : 0;
+                row.push(val);
+            }
+            newMat.push(row);
+        }
+        setMatrixData(gridId, newMat, dim.cols);
+        if (autoCompute) compute();
+    }
+
+    function formatNum(val) {
+        if (fractionMode) {
+            try {
+                if (!mathModule) return parseFloat(val.toFixed(6));
+                const f = mathModule.fraction(val);
+                if (f.d === 1) return f.n.toString();
+                return `${f.n}/${f.d}`;
+            } catch(e) { return parseFloat(val.toFixed(6)); }
+        }
+        if (Number.isInteger(val)) return val;
+        return parseFloat(val.toFixed(6));
+    }
+
+    function matToString(mat) {
+        if (!mat || mat.length === 0) return '∅';
+        return mat.map(row => '[' + row.map(v => formatNum(v)).join('  ') + ']').join('\n');
+    }
+
+    // ---------- 撤销/重做 ----------
+    function saveMatrixState() {
+        const state = {
+            A: getMatrixData('matrixA'),
+            B: getMatrixData('matrixB'),
+            rowsA: rowsA.value,
+            colsA: colsA.value,
+            rowsB: rowsB.value,
+            colsB: colsB.value
+        };
+        if (historyState.length > 0) {
+            const last = historyState[historyState.length - 1];
+            if (JSON.stringify(last) === JSON.stringify(state)) return;
+        }
+        if (historyIndex < historyState.length - 1) {
+            historyState = historyState.slice(0, historyIndex + 1);
+        }
+        historyState.push(state);
+        if (historyState.length > MAX_HISTORY_STATES) historyState.shift();
+        historyIndex = historyState.length - 1;
+    }
+
+    function undo() { if (historyIndex > 0) { historyIndex--; restoreState(historyState[historyIndex]); } }
+    function redo() { if (historyIndex < historyState.length - 1) { historyIndex++; restoreState(historyState[historyIndex]); } }
+    function restoreState(state) {
+        setMatrixData('matrixA', state.A, state.A[0].length);
+        setMatrixData('matrixB', state.B, state.B[0].length);
+        rowsA.value = state.rowsA; colsA.value = state.colsA;
+        rowsB.value = state.rowsB; colsB.value = state.colsB;
+        if (autoCompute) compute();
+    }
+
+    // ---------- 填充 ----------
+    function fillMatrix(gridId, type) {
+        const container = document.getElementById(gridId);
+        const inputs = container.querySelectorAll('input');
+        const cols = parseInt(getComputedStyle(container).gridTemplateColumns.split(' ').length) || 1;
+        const rows = inputs.length / cols;
+        let values = [];
+        if (type === 'zero') values = Array.from({length: rows}, () => Array(cols).fill(0));
+        else if (type === 'identity') values = Array.from({length: rows}, (_, i) => Array.from({length: cols}, (_, j) => i === j ? 1 : 0));
+        else if (type === 'random') values = Array.from({length: rows}, () => Array.from({length: cols}, () => Math.round((Math.random() - 0.5) * 20)));
+        if (values.length) {
+            let idx = 0;
+            for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) inputs[idx++].value = values[r][c];
+            saveMatrixState();
+            if (autoCompute) compute();
+        }
+    }
+
+    // ---------- 步骤生成 ----------
+    function generateStepHTML(stepsArray) {
+        if (!stepsArray || stepsArray.length === 0) return '<div style="padding:1.2rem;color:#7a8ba8;">无步骤</div>';
+        let html = '';
+        const tags = {
+            '加法':'📘 矩阵加法','减法':'📘 矩阵减法','乘法':'📙 矩阵乘法 · 点积',
+            '转置':'📗 转置 · 行列互换','行列式':'📗 行列式 · 拉普拉斯展开',
+            '逆矩阵':'📕 逆矩阵 · 高斯-若尔当','秩':'📕 矩阵秩 · 行阶梯形',
+            '高斯消元':'📊 高斯消元 · 行变换','特征值':'📈 特征值 · 特征方程',
+            'LU分解':'📐 LU 分解 · 三角化','求解':'📐 线性方程组 · Ax=b'
+        };
+        let stepIdx = 0;
+        for (let step of stepsArray) {
+            stepIdx++;
+            let tag = '📌 步骤';
+            for (const [key, val] of Object.entries(tags)) if (step.includes(key)) { tag = val; break; }
+            const summary = step.length > 80 ? step.substring(0,80)+'…' : step;
+            let content = step.replace(/(det\([A-Z]\) = )([^\n]+)/g, '$1<span class="step-highlight">$2</span>');
+            content = content.replace(/(rank\([A-Z]\) = )([^\n]+)/g, '$1<span class="step-highlight">$2</span>');
+            html += `<details class="step-collapsible" ${stepIdx===1?'open':''}>
+                <summary><span class="tag">${tag}</span> ${summary}</summary>
+                <div class="step-content">${content}</div>
+            </details>`;
+        }
+        return html;
+    }
+
+    // ---------- 高斯消元 ----------
+    function gaussianEliminationSteps(mat, b = null) {
+        const steps = [];
+        const A = mat.map(row => [...row]);
+        const n = A.length, m = A[0].length;
+        let augmented = A.map((row, i) => [...row, b ? b[i] : 0]);
+        steps.push(`📊 高斯消元 · 行变换\n初始增广矩阵:\n${matToString(augmented)}`);
+        let rank = 0;
+        for (let col = 0; col < Math.min(n, m); col++) {
+            let pivot = -1;
+            for (let row = rank; row < n; row++) if (Math.abs(augmented[row][col]) > 1e-10) { pivot = row; break; }
+            if (pivot === -1) continue;
+            if (pivot !== rank) {
+                [augmented[rank], augmented[pivot]] = [augmented[pivot], augmented[rank]];
+                steps.push(`↕ R${rank+1} ↔ R${pivot+1} (行交换)`);
+            }
+            const pv = augmented[rank][col];
+            if (Math.abs(pv - 1) > 1e-10) {
+                augmented[rank] = augmented[rank].map(v => v / pv);
+                steps.push(`✖ R${rank+1} ← R${rank+1} / ${formatNum(pv)} (归一化)`);
+            }
+            for (let row = rank + 1; row < n; row++) {
+                const factor = augmented[row][col];
+                if (Math.abs(factor) > 1e-10) {
+                    augmented[row] = augmented[row].map((v, i) => v - factor * augmented[rank][i]);
+                    steps.push(`➖ R${row+1} ← R${row+1} - ${formatNum(factor)}·R${rank+1}`);
+                }
+            }
+            rank++;
+            steps.push(`📋 当前矩阵:\n${matToString(augmented)}`);
+        }
+        if (b) {
+            const x = Array(n).fill(0);
+            for (let i = n - 1; i >= 0; i--) {
+                let sum = augmented[i][n];
+                for (let j = i + 1; j < n; j++) sum -= augmented[i][j] * x[j];
+                x[i] = sum / augmented[i][i];
+            }
+            steps.push(`✅ 回代求解:\n${x.map((v, i) => `x${i+1} = ${formatNum(v)}`).join('\n')}`);
+            steps.push(`📌 解向量: [${x.map(v => formatNum(v)).join(', ')}]`);
+            return { steps, rank, solution: x };
+        }
+        return { steps, rank };
+    }
+
+    // ---------- 知识图谱 ----------
+    function updateKnowledgeGraph(op, result, error) {
+        const kg = {
+            'add':{current:'矩阵加法',prereq:['矩阵定义','同型矩阵'],next:['矩阵乘法','线性组合']},
+            'sub':{current:'矩阵减法',prereq:['矩阵定义','同型矩阵'],next:['矩阵乘法','线性组合']},
+            'mul':{current:'矩阵乘法',prereq:['点积','矩阵维度'],next:['线性变换','复合变换']},
+            'transA':{current:'矩阵转置',prereq:['矩阵定义','行列互换'],next:['对称矩阵','正交矩阵']},
+            'transB':{current:'矩阵转置',prereq:['矩阵定义','行列互换'],next:['对称矩阵','正交矩阵']},
+            'detA':{current:'行列式',prereq:['方阵','代数余子式'],next:['矩阵可逆性','特征值']},
+            'detB':{current:'行列式',prereq:['方阵','代数余子式'],next:['矩阵可逆性','特征值']},
+            'invA':{current:'逆矩阵',prereq:['行列式','伴随矩阵'],next:['线性变换求逆','矩阵方程']},
+            'invB':{current:'逆矩阵',prereq:['行列式','伴随矩阵'],next:['线性变换求逆','矩阵方程']},
+            'rankA':{current:'矩阵的秩',prereq:['线性无关','行阶梯形'],next:['秩-零化度定理','线性方程组解的结构']},
+            'rankB':{current:'矩阵的秩',prereq:['线性无关','行阶梯形'],next:['秩-零化度定理','线性方程组解的结构']},
+            'eigenA':{current:'特征值',prereq:['行列式','特征方程'],next:['特征向量','对角化','谱定理']},
+            'luA':{current:'LU分解',prereq:['高斯消元','三角矩阵'],next:['行列式计算','矩阵求逆']},
+            'solve':{current:'线性方程组求解',prereq:['矩阵乘法','高斯消元'],next:['解空间','最小二乘法']}
+        };
+        const info = kg[op] || {current:'矩阵运算',prereq:['线性代数基础'],next:['高级线性代数']};
+        let html = `<span class="kg-item current">📍 当前: ${info.current}</span>`;
+        if (error) html += `<br><span style="color:#b13a3a;font-size:0.8rem;">⚠️ 计算出错，请检查矩阵</span>`;
+        else {
+            if (info.prereq.length) {
+                html += `<br><span style="font-size:0.8rem;color:#5d7a9a;">📖 前置知识:</span>`;
+                info.prereq.forEach(p => html += `<span class="kg-item prereq">${p}</span>`);
+            }
+            if (info.next.length) {
+                html += `<br><span style="font-size:0.8rem;color:#5d7a9a;">🚀 推荐学习:</span>`;
+                info.next.forEach(p => html += `<span class="kg-item next">${p}</span>`);
+            }
+        }
+        kgContent.innerHTML = html;
+    }
+
+    // ---------- 核心计算 ----------
+    async function compute() {
+        try {
+            // 确保 mathjs 加载
+            const math = await loadMath();
+            const A = getMatrixData('matrixA');
+            const B = getMatrixData('matrixB');
+            const op = operation.value;
+            let result = null;
+            let steps = [];
+            let displayHTML = '';
+            let kgOp = op;
+
+            if (!A.length || !B.length) throw new Error('矩阵不能为空');
+
+            switch(op) {
+                case 'add': {
+                    if (A.length!==B.length || A[0].length!==B[0].length) throw new Error(`维度不匹配`);
+                    result = math.add(A, B);
+                    steps = buildSteps('add', A, B, result);
+                    displayHTML = `<div class="result-matrix">${matToString(result)}</div>`;
+                    break;
+                }
+                case 'sub': {
+                    if (A.length!==B.length || A[0].length!==B[0].length) throw new Error(`维度不匹配`);
+                    result = math.subtract(A, B);
+                    steps = buildSteps('sub', A, B, result);
+                    displayHTML = `<div class="result-matrix">${matToString(result)}</div>`;
+                    break;
+                }
+                case 'mul': {
+                    if (A[0].length !== B.length) throw new Error(`乘法要求 A列数 = B行数`);
+                    result = math.multiply(A, B);
+                    steps = buildSteps('mul', A, B, result);
+                    displayHTML = `<div class="result-matrix">${matToString(result)}</div>`;
+                    break;
+                }
+                case 'transA': {
+                    result = math.transpose(A);
+                    steps = buildSteps('transA', A, B, result);
+                    displayHTML = `<div class="result-matrix">${matToString(result)}</div>`;
+                    break;
+                }
+                case 'transB': {
+                    result = math.transpose(B);
+                    steps = buildSteps('transB', A, B, result);
+                    displayHTML = `<div class="result-matrix">${matToString(result)}</div>`;
+                    break;
+                }
+                case 'detA': {
+                    if (A.length !== A[0].length) throw new Error(`det(A) 需要方阵`);
+                    const d = math.det(A);
+                    result = d;
+                    steps = buildSteps('detA', A, B, d);
+                    displayHTML = `<div style="font-size:1.3rem;font-weight:500;">det(A) = ${formatNum(d)}</div>`;
+                    break;
+                }
+                case 'detB': {
+                    if (B.length !== B[0].length) throw new Error(`det(B) 需要方阵`);
+                    const d = math.det(B);
+                    result = d;
+                    steps = buildSteps('detB', A, B, d);
+                    displayHTML = `<div style="font-size:1.3rem;font-weight:500;">det(B) = ${formatNum(d)}</div>`;
+                    break;
+                }
+                case 'invA': {
+                    if (A.length !== A[0].length) throw new Error(`A⁻¹ 需要方阵`);
+                    let inv = null;
+                    try { inv = math.inv(A); } catch(e) { inv = null; }
+                    result = inv;
+                    steps = buildSteps('invA', A, B, inv);
+                    displayHTML = inv ? `<div class="result-matrix">${matToString(inv)}</div>` : `<span class="error-msg">矩阵 A 不可逆</span>`;
+                    break;
+                }
+                case 'invB': {
+                    if (B.length !== B[0].length) throw new Error(`B⁻¹ 需要方阵`);
+                    let inv = null;
+                    try { inv = math.inv(B); } catch(e) { inv = null; }
+                    result = inv;
+                    steps = buildSteps('invB', A, B, inv);
+                    displayHTML = inv ? `<div class="result-matrix">${matToString(inv)}</div>` : `<span class="error-msg">矩阵 B 不可逆</span>`;
+                    break;
+                }
+                case 'rankA': {
+                    const r = math.rank(A);
+                    result = r;
+                    steps = buildSteps('rankA', A, B, r);
+                    const gs = gaussianEliminationSteps(A);
+                    steps = steps.concat(gs.steps);
+                    displayHTML = `<div style="font-size:1.3rem;font-weight:500;">rank(A) = ${r}</div>`;
+                    break;
+                }
+                case 'rankB': {
+                    const r = math.rank(B);
+                    result = r;
+                    steps = buildSteps('rankB', A, B, r);
+                    const gs = gaussianEliminationSteps(B);
+                    steps = steps.concat(gs.steps);
+                    displayHTML = `<div style="font-size:1.3rem;font-weight:500;">rank(B) = ${r}</div>`;
+                    break;
+                }
+                case 'eigenA': {
+                    if (A.length !== A[0].length) throw new Error(`特征值需要方阵`);
+                    if (typeof math.eigs !== 'function') throw new Error('math.eigs 不可用，请更新 mathjs');
+                    const eig = math.eigs(A);
+                    result = eig.values;
+                    steps = [`📈 特征值 · 特征方程\n矩阵 A:\n${matToString(A)}`];
+                    steps.push(`特征值: ${eig.values.map(v => formatNum(v)).join(', ')}`);
+                    if (eig.vectors) steps.push(`特征向量:\n${matToString(eig.vectors)}`);
+                    displayHTML = `<div style="font-size:1.1rem;font-weight:500;">特征值: ${eig.values.map(v => formatNum(v)).join(', ')}</div>`;
+                    kgOp = 'eigenA';
+                    break;
+                }
+                case 'luA': {
+                    if (A.length !== A[0].length) throw new Error(`LU分解需要方阵`);
+                    if (typeof math.lu !== 'function') throw new Error('math.lu 不可用，请更新 mathjs');
+                    const lu = math.lu(A);
+                    result = { L: lu.L, U: lu.U, P: lu.P };
+                    steps = [`📐 LU 分解 · 三角化\n矩阵 A:\n${matToString(A)}`];
+                    steps.push(`L (下三角):\n${matToString(lu.L)}`);
+                    steps.push(`U (上三角):\n${matToString(lu.U)}`);
+                    if (lu.P) steps.push(`P (置换矩阵):\n${matToString(lu.P)}`);
+                    displayHTML = `<div><div class="result-matrix">L = ${matToString(lu.L)}</div><div class="result-matrix">U = ${matToString(lu.U)}</div></div>`;
+                    kgOp = 'luA';
+                    break;
+                }
+                case 'solve': {
+                    if (A.length !== A[0].length) throw new Error(`求解需要方阵`);
+                    const b = B.map(row => row[0]);
+                    if (b.length !== A.length) throw new Error(`b 的维度与 A 不匹配`);
+                    const gs = gaussianEliminationSteps(A, b);
+                    steps = gs.steps;
+                    result = gs.solution;
+                    displayHTML = `<div style="font-size:1.1rem;font-weight:500;">解: ${result.map((v, i) => `x${i+1}=${formatNum(v)}`).join(', ')}</div>`;
+                    kgOp = 'solve';
+                    break;
+                }
+                default: throw new Error('未知操作');
+            }
+
+            resultDisplay.innerHTML = displayHTML || '<span style="color:#5d7a9a;">无结果</span>';
+            currentSteps = steps;
+            stepsContainer.innerHTML = generateStepHTML(steps);
+            updateKnowledgeGraph(kgOp, result, null);
+
+            const opName = operation.options[operation.selectedIndex].text;
+            const entry = {
+                time: new Date().toLocaleTimeString(),
+                op: opName,
+                result: typeof result === 'number' ? formatNum(result) : (result ? matToString(result).substring(0,50)+'…' : '无')
+            };
+            history.unshift(entry);
+            if (history.length > MAX_HISTORY) history.pop();
+            renderHistory();
+
+        } catch(e) {
+            resultDisplay.innerHTML = `<span class="error-msg">⚠️ ${e.message || '计算错误'}</span>`;
+            const steps = [`❌ 错误: ${e.message || '请检查矩阵维度或数值'}`];
+            if (e.message.includes('维度')) steps.push('💡 建议: 检查矩阵尺寸是否匹配运算要求');
+            if (e.message.includes('方阵')) steps.push('💡 建议: 使用转置或调整矩阵为方阵');
+            if (e.message.includes('mathjs') || e.message.includes('加载')) {
+                steps.push('🔄 点击下方"重试"按钮重新加载数学库');
+                resultDisplay.innerHTML += `<button id="retryMathBtn" style="margin-left:10px;padding:4px 20px;border-radius:40px;border:1px solid #d0dcec;background:white;cursor:pointer;">🔄 重试</button>`;
+                document.getElementById('retryMathBtn')?.addEventListener('click', () => {
+                    mathModule = null;
+                    compute();
+                });
+            }
+            stepsContainer.innerHTML = generateStepHTML(steps);
+            updateKnowledgeGraph(operation.value, null, e.message);
+        }
+    }
+
+    // ---------- 通用步骤构建 ----------
+    function buildSteps(op, A, B, result, extra) {
+        const steps = [];
+        const opNames = {
+            'add':'加法','sub':'减法','mul':'乘法',
+            'transA':'转置 Aᵀ','transB':'转置 Bᵀ',
+            'detA':'行列式 det(A)','detB':'行列式 det(B)',
+            'invA':'逆矩阵 A⁻¹','invB':'逆矩阵 B⁻¹',
+            'rankA':'秩 rank(A)','rankB':'秩 rank(B)'
+        };
+        const label = opNames[op] || op;
+        steps.push(`📌 操作: ${label}`);
+        if (op === 'add' || op === 'sub') {
+            steps.push(`矩阵 A (${A.length}×${A[0].length}):\n${matToString(A)}`);
+            steps.push(`矩阵 B (${B.length}×${B[0].length}):\n${matToString(B)}`);
+            steps.push(`执行: A ${op==='add'?'+':'−'} B (对应元素${op==='add'?'相加':'相减'})`);
+            steps.push(`结果: (${result.length}×${result[0].length})\n${matToString(result)}`);
+        } else if (op === 'mul') {
+            steps.push(`矩阵 A (${A.length}×${A[0].length}):\n${matToString(A)}`);
+            steps.push(`矩阵 B (${B.length}×${B[0].length}):\n${matToString(B)}`);
+            steps.push(`乘法: C[i][j] = Σ A[i][k]·B[k][j]`);
+            steps.push(`结果: (${result.length}×${result[0].length})\n${matToString(result)}`);
+        } else if (op === 'transA' || op === 'transB') {
+            const mat = op === 'transA' ? A : B;
+            const name = op === 'transA' ? 'A' : 'B';
+            steps.push(`原矩阵 ${name} (${mat.length}×${mat[0].length}):\n${matToString(mat)}`);
+            steps.push(`转置: 行列互换`);
+            steps.push(`结果 ${name}ᵀ (${result.length}×${result[0].length}):\n${matToString(result)}`);
+        } else if (op === 'detA' || op === 'detB') {
+            const mat = op === 'detA' ? A : B;
+            const name = op === 'detA' ? 'A' : 'B';
+            steps.push(`矩阵 ${name} (${mat.length}×${mat[0].length}):\n${matToString(mat)}`);
+            if (mat.length !== mat[0].length) steps.push(`⚠️ 行列式仅适用于方阵`);
+            else {
+                steps.push(`使用拉普拉斯展开计算 det(${name})`);
+                steps.push(`det(${name}) = ${formatNum(result)}`);
+                if (Math.abs(result) < 1e-10) steps.push(`💡 det = 0 → 矩阵奇异，不可逆`);
+            }
+        } else if (op === 'invA' || op === 'invB') {
+            const mat = op === 'invA' ? A : B;
+            const name = op === 'invA' ? 'A' : 'B';
+            steps.push(`矩阵 ${name} (${mat.length}×${mat[0].length}):\n${matToString(mat)}`);
+            if (mat.length !== mat[0].length) steps.push(`⚠️ 逆矩阵仅适用于方阵`);
+            else if (result === null) {
+                steps.push(`❌ 矩阵 ${name} 奇异，不可逆 (det = 0)`);
+                steps.push(`💡 建议: 检查矩阵行是否线性相关`);
+            } else {
+                steps.push(`使用高斯-若尔当消元求逆`);
+                steps.push(`${name}⁻¹ (${result.length}×${result[0].length}):\n${matToString(result)}`);
+            }
+        } else if (op === 'rankA' || op === 'rankB') {
+            const mat = op === 'rankA' ? A : B;
+            const name = op === 'rankA' ? 'A' : 'B';
+            steps.push(`矩阵 ${name} (${mat.length}×${mat[0].length}):\n${matToString(mat)}`);
+            steps.push(`通过行阶梯形变换求秩`);
+            steps.push(`rank(${name}) = ${result}`);
+            const maxRank = Math.min(mat.length, mat[0].length);
+            if (result === maxRank) steps.push(`✅ 满秩矩阵 (rank = ${maxRank})`);
+            else steps.push(`⚠️ 秩亏损: rank = ${result} < ${maxRank}`);
+        }
+        if (extra) steps.push(extra);
+        return steps;
+    }
+
+    // ---------- 历史 ----------
+    function renderHistory() {
+        if (!history.length) {
+            historyList.innerHTML = '<div style="color:#7a8ba8;font-size:0.8rem;padding:4px 0;">暂无计算历史</div>';
+            return;
+        }
+        historyList.innerHTML = history.map(h => `
+            <div class="history-item">
+                <span><span class="h-op">${h.op}</span> → ${h.result}</span>
+                <span class="h-time">${h.time}</span>
+            </div>
+        `).join('');
+    }
+
+    // ---------- 分享 ----------
+    async function generateShareLink() {
+        try {
+            const lz = await loadLzString();
+            const A = getMatrixData('matrixA');
+            const B = getMatrixData('matrixB');
+            const op = operation.value;
+            const stepsText = currentSteps.join('\n\n');
+            const data = { A, B, op, steps: stepsText };
+            const json = JSON.stringify(data);
+            let compressed;
+            if (lz) {
+                compressed = lz.compressToEncodedURIComponent(json);
+            } else {
+                compressed = btoa(encodeURIComponent(json));
+            }
+            const url = `${window.location.origin}${window.location.pathname}?share=${compressed}`;
+            shareLink.value = url;
+            return url;
+        } catch(e) {
+            alert('生成分享链接失败: ' + e.message);
+            return '';
+        }
+    }
+
+    async function loadShareFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const shareData = params.get('share');
+        if (!shareData) return false;
+        try {
+            const lz = await loadLzString();
+            let json;
+            if (lz) {
+                json = lz.decompressFromEncodedURIComponent(shareData);
+            } else {
+                json = decodeURIComponent(atob(shareData));
+            }
+            if (!json) return false;
+            const data = JSON.parse(json);
+            if (data.A && data.B) {
+                setMatrixData('matrixA', data.A, data.A[0].length);
+                setMatrixData('matrixB', data.B, data.B[0].length);
+                document.getElementById('rowsA').value = data.A.length;
+                document.getElementById('colsA').value = data.A[0].length;
+                document.getElementById('rowsB').value = data.B.length;
+                document.getElementById('colsB').value = data.B[0].length;
+                if (data.op) {
+                    const opSelect = document.getElementById('operation');
+                    for (let opt of opSelect.options) if (opt.value === data.op) { opSelect.value = data.op; break; }
+                }
+                await compute();
+                addAIMessage('📎 已加载分享的矩阵和计算步骤。', 'ai');
+                return true;
+            }
+        } catch(e) { console.warn('分享加载失败', e); }
+        return false;
+    }
+
+    // ---------- AI 助手 ----------
+    async function renderLatex(text) {
+        try {
+            const katex = await loadKatex();
+            if (!katex) return text;
+            const latexRegex = /\$([^\$]+)\$/g;
+            let parts = [], lastIndex = 0, match;
+            while ((match = latexRegex.exec(text)) !== null) {
+                if (match.index > lastIndex) parts.push({ text: text.substring(lastIndex, match.index), latex: false });
+                parts.push({ text: match[1], latex: true });
+                lastIndex = match.index + match[0].length;
+            }
+            if (lastIndex < text.length) parts.push({ text: text.substring(lastIndex), latex: false });
+            if (!parts.length) return text;
+            let html = '';
+            for (let p of parts) {
+                if (p.latex) {
+                    try { html += katex.renderToString(p.text, { throwOnError: false, displayMode: false }); }
+                    catch(e) { html += p.text; }
+                } else html += p.text;
+            }
+            return html;
+        } catch(e) { return text; }
+    }
+
+    function addAIMessage(text, sender = 'ai', followups = null) {
+        const div = document.createElement('div');
+        div.className = `msg ${sender === 'ai' ? 'ai-msg' : 'user-msg'}`;
+        if (sender === 'ai') {
+            div.textContent = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            renderLatex(text).then(html => {
+                div.innerHTML = html;
+                if (followups && followups.length) {
+                    const row = document.createElement('div');
+                    row.className = 'followup-row';
+                    for (let f of followups) {
+                        const btn = document.createElement('button');
+                        btn.textContent = f;
+                        btn.addEventListener('click', function() { chatInput.value = f; handleChatSend(); });
+                        row.appendChild(btn);
+                    }
+                    div.appendChild(row);
+                }
+            });
+        } else {
+            div.textContent = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+    function getAIResponse(question) {
+        const q = question.toLowerCase();
+        const responses = [
+            { keywords:['秩','rank','矩阵的秩'], answer:'矩阵的秩（Rank）是矩阵中线性无关的行（或列）的最大数目。\n\n🔑 关键性质：\n• rank(A) ≤ min(m, n)\n• 满秩 ⇔ 矩阵可逆（方阵）\n• rank(A) = rank(Aᵀ)\n• 秩-零化度定理：rank(A) + nullity(A) = n', followups:['如何计算矩阵的秩？','秩-零化度定理是什么？','满秩矩阵有什么性质？'] },
+            { keywords:['可逆','逆矩阵','非奇异','invertible'], answer:'矩阵可逆（非奇异）的充要条件：\n\n✅ det(A) ≠ 0\n✅ 满秩 (rank = n)\n✅ 线性方程组 Ax = 0 只有零解\n✅ 特征值全不为零\n\n💡 计算逆矩阵的方法：\n• 高斯-若尔当消元法\n• 伴随矩阵法\n• 对于 2×2 矩阵：$[[a,b],[c,d]]^{-1} = \\frac{1}{ad-bc}[[d,-b],[-c,a]]$', followups:['如何判断矩阵是否可逆？','奇异矩阵有什么特点？','逆矩阵的几何意义是什么？'] },
+            { keywords:['特征值','特征向量','eigenvalue','eigenvector'], answer:'特征值和特征向量是线性代数中最核心的概念之一。\n\n📐 定义：$A \\cdot v = \\lambda \\cdot v$，其中 $\\lambda$ 是特征值，$v$ 是对应的特征向量。\n\n🔍 求解步骤：\n1. 解特征方程 $det(A - \\lambda I) = 0$ 求 $\\lambda$\n2. 对每个 $\\lambda$，解 $(A - \\lambda I) \\cdot v = 0$ 求 $v$\n\n💡 几何意义：特征向量是变换后方向不变的向量，特征值是缩放比例。', followups:['特征值有什么应用？','如何理解特征向量的几何意义？','什么是谱定理？'] },
+            { keywords:['行列式','determinant','det'], answer:'行列式（Determinant）是方阵的一个重要标量值。\n\n📐 几何意义：\n• 表示线性变换对体积的缩放比例\n• $det = 0 \\Leftrightarrow$ 变换降维（不可逆）\n\n🔑 关键性质：\n• $det(AB) = det(A) \\cdot det(B)$\n• $det(A^T) = det(A)$\n• $det(A^{-1}) = 1/det(A)$\n\n💡 计算：对 2×2 矩阵 $[[a,b],[c,d]]$，$det = ad - bc$', followups:['行列式为零意味着什么？','如何计算高阶行列式？','行列式在几何中有什么应用？'] },
+            { keywords:['矩阵乘法','相乘','multiply'], answer:'矩阵乘法是线性代数中最基本的运算之一。\n\n📐 规则：$C[i][j] = \\sum_k A[i][k] \\cdot B[k][j]$\n\n⚠️ 要求：A 的列数 = B 的行数\n\n🔑 关键性质：\n• 不满足交换律：$AB \\neq BA$（一般情况）\n• 满足结合律：$(AB)C = A(BC)$\n• 分配律：$A(B+C) = AB + AC$\n\n💡 几何意义：矩阵乘法表示线性变换的复合。', followups:['矩阵乘法为什么不可交换？','单位矩阵的作用是什么？','矩阵乘法在图像处理中的应用？'] },
+            { keywords:['转置','transpose'], answer:'矩阵转置是将矩阵的行和列互换。\n\n📐 定义：$(A^T)[i][j] = A[j][i]$\n\n🔑 关键性质：\n• $(A^T)^T = A$\n• $(AB)^T = B^T \\cdot A^T$\n• $det(A^T) = det(A)$\n• 对称矩阵：$A = A^T$\n\n💡 应用：在最小二乘法、奇异值分解中非常重要。', followups:['什么是对称矩阵？','转置在机器学习中有何应用？','正交矩阵有什么特点？'] },
+            { keywords:['正定','positive definite','对称'], answer:'正定矩阵是线性代数中的重要概念。\n\n✅ 判定条件（对称矩阵 A）：\n1. 所有特征值 > 0\n2. 所有顺序主子式 > 0\n3. 对任意非零向量 x，$x^T A x > 0$\n\n📌 性质：\n• 正定矩阵可逆\n• 正定矩阵的 Cholesky 分解\n• 二次型 $x^T A x$ 恒为正', followups:['如何判断矩阵是否正定？','半正定矩阵和正定矩阵的区别？','正定矩阵在优化中的应用？'] },
+            { keywords:['线性相关','线性无关','span','基'], answer:'线性相关与线性无关是线性代数的基石。\n\n📐 定义：\n• 线性无关：只有全零解时，向量组线性无关\n• 线性相关：存在非零系数使组合为零\n\n🔍 判断方法：\n1. 将向量作为矩阵的列，计算秩\n2. $rank =$ 向量个数 $\\Leftrightarrow$ 线性无关\n3. 行列式（方阵）$\\neq 0 \\Leftrightarrow$ 线性无关\n\n💡 几何意义：线性无关向量张成空间，形成一组基。', followups:['如何判断一组向量是否线性相关？','基和维度有什么关系？','线性无关在机器学习中的应用？'] }
+        ];
+        for (let r of responses) {
+            for (let kw of r.keywords) if (q.includes(kw)) return { answer: r.answer, followups: r.followups };
+        }
+        return {
+            answer: `📚 关于 "${question}" 的线性代数问题：\n\n💡 建议从以下角度理解：\n1️⃣ 先确定这个概念属于哪个知识模块\n2️⃣ 回顾它的定义和基本性质\n3️⃣ 尝试用具体的 2×2 或 3×3 矩阵验证\n\n你可以问的更具体一些，比如：\n• "如何计算矩阵的秩？"\n• "行列式为零意味着什么？"\n• "特征值在图像处理中有什么用？"`,
+            followups: ['什么是矩阵的秩？','行列式有什么几何意义？','特征值和特征向量有什么用？']
+        };
+    }
+
+    function handleChatSend() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        addAIMessage(text, 'user');
+        chatInput.value = '';
+        typingIndicator.style.display = 'block';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        setTimeout(() => {
+            typingIndicator.style.display = 'none';
+            const response = getAIResponse(text);
+            addAIMessage(response.answer, 'ai', response.followups);
+        }, 500 + Math.random() * 400);
+    }
+
+    // ---------- 事件绑定 ----------
+    computeBtn.addEventListener('click', compute);
+    $('resizeA').addEventListener('click', () => { rebuildMatrix('A','matrixA'); });
+    $('resizeB').addEventListener('click', () => { rebuildMatrix('B','matrixB'); });
+
+    document.querySelectorAll('.toolbar-row button[data-target]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const target = this.dataset.target;
+            const rows = parseInt(this.dataset.rows);
+            const cols = parseInt(this.dataset.cols);
+            if (rows && cols) {
+                document.getElementById(`rows${target}`).value = rows;
+                document.getElementById(`cols${target}`).value = cols;
+                rebuildMatrix(target, `matrix${target}`);
+            }
+        });
+    });
+
+    document.querySelectorAll('.fill-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            fillMatrix(`matrix${this.dataset.target}`, this.dataset.fill);
+        });
+    });
+
+    $('clearStepsBtn').addEventListener('click', () => {
+        stepsContainer.innerHTML = '<div style="padding:1.2rem;color:#7a8ba8;">步骤已清空</div>';
+        resultDisplay.innerHTML = '<span style="color:#5d7a9a;">已清空</span>';
+        currentSteps = [];
+        shareLink.value = '';
+    });
+
+    fractionToggle.addEventListener('click', function() {
+        fractionMode = !fractionMode;
+        this.textContent = fractionMode ? '🔢 小数显示' : '🔢 分数显示';
+        compute();
+    });
+
+    autoComputeToggle.addEventListener('click', function() {
+        autoCompute = !autoCompute;
+        this.textContent = autoCompute ? '⚡ 自动计算' : '⚡ 手动计算';
+    });
+
+    $('themeToggle').addEventListener('click', function() {
+        document.body.classList.toggle('dark');
+        this.textContent = document.body.classList.contains('dark') ? '☀️ 亮色' : '🌓 暗色';
+    });
+
+    $('clearHistoryBtn').addEventListener('click', () => { history = []; renderHistory(); });
+
+    $('undoBtn').addEventListener('click', undo);
+    $('redoBtn').addEventListener('click', redo);
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); }
+    });
+
+    $('generateShareBtn').addEventListener('click', generateShareLink);
+    $('copyShareBtn').addEventListener('click', function() {
+        if (!shareLink.value) generateShareLink();
+        navigator.clipboard.writeText(shareLink.value).then(() => {
+            this.textContent = '✅ 已复制';
+            setTimeout(() => this.textContent = '📋 复制', 2000);
+        });
+    });
+    $('shareQrBtn').addEventListener('click', function() {
+        if (!shareLink.value) generateShareLink();
+        alert(`📱 分享链接:\n${shareLink.value}\n\n可使用在线二维码生成器生成二维码。`);
+    });
+
+    $('chatSendBtn').addEventListener('click', handleChatSend);
+    chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChatSend(); });
+
+    document.addEventListener('keydown', function(e) {
+        const target = e.target;
+        if (target.tagName === 'INPUT' && target.closest('.matrix-grid')) {
+            if (e.key === 'Enter') { compute(); return; }
+            if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) return;
+            e.preventDefault();
+            const grid = target.closest('.matrix-grid');
+            if (!grid) return;
+            const inputs = Array.from(grid.querySelectorAll('input'));
+            const idx = inputs.indexOf(target);
+            if (idx === -1) return;
+            const cols = parseInt(getComputedStyle(grid).gridTemplateColumns.split(' ').length);
+            const rows = inputs.length / cols;
+            const r = Math.floor(idx / cols), c = idx % cols;
+            let nr = r, nc = c;
+            if (e.key === 'ArrowUp') nr = Math.max(0, r-1);
+            if (e.key === 'ArrowDown') nr = Math.min(rows-1, r+1);
+            if (e.key === 'ArrowLeft') nc = Math.max(0, c-1);
+            if (e.key === 'ArrowRight') nc = Math.min(cols-1, c+1);
+            const newIdx = nr * cols + nc;
+            if (newIdx >= 0 && newIdx < inputs.length) inputs[newIdx].focus();
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        if (e.target.tagName === 'INPUT' && e.target.closest('.matrix-grid') && autoCompute) {
+            clearTimeout(window._computeTimeout);
+            window._computeTimeout = setTimeout(() => { saveMatrixState(); compute(); }, 400);
+        }
+    });
+
+    operation.addEventListener('change', () => { if (autoCompute) compute(); });
+
+
+    // PWA
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btn = document.getElementById('installPwaBtn');
+        btn.style.display = 'block';
+        btn.addEventListener('click', () => { deferredPrompt.prompt(); });
+    });
+
+    // ---------- 初始化 ----------
+    window.addEventListener('load', async () => {
+        rebuildMatrix('A','matrixA');
+        rebuildMatrix('B','matrixB');
+        // 预加载 mathjs
+        loadMath().catch(() => {});
+        if (!(await loadShareFromURL())) {
+            await compute();
+        }
+        renderHistory();
+        saveMatrixState();
+    });
+
+
+
+</script>
+</body>
+</html>

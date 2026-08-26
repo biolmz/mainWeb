@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#667eea">
+<title>大学物理工具箱</title>
+
+<!-- SVG Favicon（内联，无需额外文件） -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23667eea'/><stop offset='100%25' style='stop-color:%23764ba2'/></linearGradient></defs><rect rx='20' width='100' height='100' fill='url(%23g)'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white'>𝜋</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23667eea'/><stop offset='100%25' style='stop-color:%23764ba2'/></linearGradient></defs><rect rx='20' width='100' height='100' fill='url(%23g)'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='white'>𝜋</text></svg>">
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 16px;
+        color: #333;
+    }
+    .container { max-width: 760px; margin: 0 auto; }
+
+    h1 {
+        text-align: center; color: #fff; margin-bottom: 4px;
+        font-size: clamp(1.3em, 4vw, 1.8em);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .subtitle {
+        text-align: center; color: rgba(255,255,255,0.85);
+        margin-bottom: 16px; font-size: clamp(0.8em, 2.5vw, 0.95em);
+    }
+
+    /* 主选项卡 */
+    .main-tabs {
+        display: flex; gap: 0; margin-bottom: 0; justify-content: center;
+    }
+    .main-tabs button {
+        flex: 1; max-width: 200px; padding: 14px 16px; border: none; cursor: pointer;
+        font-size: clamp(0.9em, 2.5vw, 1.05em); font-weight: 600;
+        transition: all 0.3s; background: rgba(255,255,255,0.25); color: #fff;
+        min-height: 48px;
+    }
+    .main-tabs button:first-child { border-radius: 14px 0 0 0; }
+    .main-tabs button:last-child { border-radius: 0 14px 0 0; }
+    .main-tabs button.active { background: #fff; color: #667eea; }
+
+    .card {
+        background: #fff; border-radius: 0 0 18px 18px;
+        padding: clamp(14px, 4vw, 28px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        min-height: 400px;
+    }
+
+    /* 换算器分类标签 */
+    .category-tabs {
+        display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px;
+    }
+    .category-tabs button {
+        padding: 8px 14px; border: 2px solid #667eea; background: #fff; color: #667eea;
+        border-radius: 20px; cursor: pointer; font-size: clamp(0.75em, 2vw, 0.88em);
+        transition: all 0.25s; font-weight: 500; min-height: 36px;
+    }
+    .category-tabs button.active { background: #667eea; color: #fff; }
+
+    /* 输入组 */
+    .input-group {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .input-group label {
+        font-weight: 600; min-width: 48px; color: #555;
+        font-size: clamp(0.85em, 2.5vw, 0.95em);
+    }
+    .input-group input, .input-group select {
+        padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 12px;
+        font-size: clamp(0.95em, 3vw, 1.05em);
+        transition: border-color 0.25s; flex: 1; min-width: 0;
+        min-height: 44px; /* 触摸友好 */
+        appearance: none; -webkit-appearance: none;
+    }
+    .input-group select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23667eea'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+    }
+    .input-group input:focus, .input-group select:focus {
+        outline: none; border-color: #667eea;
+    }
+
+    /* 交换按钮 */
+    .swap-btn { text-align: center; margin: 8px 0; }
+    .swap-btn button {
+        background: #f0f0ff; border: 2px solid #667eea; color: #667eea;
+        width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+        font-size: 1.3em; transition: all 0.25s;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .swap-btn button:hover { background: #667eea; color: #fff; transform: rotate(180deg); }
+
+    /* 结果 */
+    .result {
+        margin-top: 18px; padding: clamp(14px, 4vw, 20px);
+        background: linear-gradient(135deg, #667eea12, #764ba212);
+        border-radius: 14px; text-align: center;
+        font-size: clamp(1.05em, 3.5vw, 1.25em);
+        font-weight: 700; color: #667eea;
+        min-height: 60px; display: flex; align-items: center;
+        justify-content: center; flex-direction: column; gap: 4px;
+    }
+    .result .formula {
+        font-size: 0.55em; font-weight: 400; color: #888; margin-top: 2px;
+    }
+
+    /* 公式区 */
+    .formula-nav {
+        display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px;
+    }
+    .formula-nav button {
+        padding: 8px 14px; border: 2px solid #764ba2; background: #fff; color: #764ba2;
+        border-radius: 20px; cursor: pointer; font-size: clamp(0.75em, 2vw, 0.88em);
+        transition: all 0.25s; font-weight: 500; min-height: 36px;
+    }
+    .formula-nav button.active { background: #764ba2; color: #fff; }
+
+    .formula-section h3 {
+        color: #667eea; margin-bottom: 10px; font-size: 1.05em;
+        border-left: 4px solid #667eea; padding-left: 10px;
+    }
+    .formula-item {
+        background: #f8f8ff; border-radius: 12px; padding: 14px 16px;
+        margin-bottom: 10px; border-left: 3px solid #764ba2;
+        transition: all 0.2s;
+    }
+    .formula-item:hover { background: #f0f0ff; transform: translateX(4px); }
+    .formula-item .name {
+        font-weight: 600; color: #333; margin-bottom: 4px;
+        font-size: clamp(0.85em, 2.5vw, 0.95em);
+    }
+    .formula-item .expr {
+        font-family: "Courier New", "JetBrains Mono", monospace;
+        font-size: clamp(0.95em, 3vw, 1.1em);
+        color: #667eea; word-break: break-all; line-height: 1.5;
+    }
+    .formula-item .note {
+        font-size: 0.82em; color: #999; margin-top: 4px;
+    }
+
+    footer {
+        text-align: center; color: rgba(255,255,255,0.7);
+        margin-top: 14px; font-size: 0.75em; padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* ========== 响应式断点 ========== */
+
+    /* 平板 */
+    @media (min-width: 768px) {
+        body { padding: 24px; }
+        .container { max-width: 800px; }
+    }
+
+    /* 手机横屏 */
+    @media (max-height: 500px) and (orientation: landscape) {
+        body { padding: 8px 16px; }
+        .card { min-height: 280px; }
+        h1 { font-size: 1.2em; margin-bottom: 2px; }
+        .subtitle { margin-bottom: 8px; }
+    }
+
+    /* 小手机 */
+    @media (max-width: 480px) {
+        .main-tabs button { padding: 12px 8px; border-radius: 12px 12px 0 0; }
+        .card { border-radius: 0 0 14px 14px; }
+        .input-group { flex-direction: column; align-items: stretch; gap: 6px; }
+        .input-group label { min-width: auto; }
+        .category-tabs { gap: 4px; }
+        .category-tabs button { padding: 6px 10px; }
+        .formula-nav button { padding: 6px 10px; }
+    }
+
+    /* 超小屏 */
+    @media (max-width: 350px) {
+        .category-tabs button { font-size: 0.7em; padding: 5px 8px; }
+        .formula-nav button { font-size: 0.7em; padding: 5px 8px; }
+    }
+
+    /* 减少动画偏好 */
+    @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; }
+        .swap-btn button:hover { transform: none; }
+    }
+
+    /* 深色模式（跟随系统） */
+    @media (prefers-color-scheme: dark) {
+        .card { background: #1e1e2e; color: #e0e0e0; }
+        .formula-item { background: #2a2a3e; }
+        .formula-item:hover { background: #333350; }
+        .formula-item .name { color: #e0e0e0; }
+        .input-group input, .input-group select {
+            background-color: #2a2a3e; color: #e0e0e0; border-color: #444;
+        }
+        .category-tabs button { background: #2a2a3e; }
+        .formula-nav button { background: #2a2a3e; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>📐 大学物理工具箱</h1>
+    <p class="subtitle">单位换算 · 常用公式速查</p>
+
+    <div class="main-tabs">
+        <button class="active" onclick="switchMainTab('converter', this)">🔄 单位换算</button>
+        <button onclick="switchMainTab('formulas', this)">📖 常用公式</button>
+    </div>
+
+    <div class="card" id="mainCard"></div>
+
+    <footer>大学物理工具箱 · 力学 / 热学 / 电磁学 / 光学 / 近代物理</footer>
+</div>
+
+<script>
+// ==================== 单位换算数据 ====================
+const CONVERTER_CATEGORIES = {
+    length: {
+        name: "长度",
+        units: {
+            "m": { name: "米 (m)", factor: 1 },
+            "km": { name: "千米 (km)", factor: 1e3 },
+            "cm": { name: "厘米 (cm)", factor: 1e-2 },
+            "mm": { name: "毫米 (mm)", factor: 1e-3 },
+            "μm": { name: "微米 (μm)", factor: 1e-6 },
+            "nm": { name: "纳米 (nm)", factor: 1e-9 },
+            "Å": { name: "埃 (Å)", factor: 1e-10 },
+            "mile": { name: "英里", factor: 1609.34 },
+            "AU": { name: "天文单位", factor: 1.496e11 },
+            "ly": { name: "光年", factor: 9.461e15 },
+            "pc": { name: "秒差距", factor: 3.086e16 },
+        }
+    },
+    mass: {
+        name: "质量",
+        units: {
+            "kg": { name: "千克 (kg)", factor: 1 },
+            "g": { name: "克 (g)", factor: 1e-3 },
+            "mg": { name: "毫克 (mg)", factor: 1e-6 },
+            "t": { name: "吨 (t)", factor: 1e3 },
+            "u": { name: "原子质量单位", factor: 1.660539e-27 },
+        }
+    },
+    energy: {
+        name: "能量",
+        units: {
+            "J": { name: "焦耳 (J)", factor: 1 },
+            "eV": { name: "电子伏特", factor: 1.602176634e-19 },
+            "keV": { name: "千电子伏", factor: 1.602176634e-16 },
+            "MeV": { name: "兆电子伏", factor: 1.602176634e-13 },
+            "GeV": { name: "吉电子伏", factor: 1.602176634e-10 },
+            "cal": { name: "卡", factor: 4.184 },
+            "kWh": { name: "千瓦时", factor: 3.6e6 },
+        }
+    },
+    force: {
+        name: "力",
+        units: {
+            "N": { name: "牛顿 (N)", factor: 1 },
+            "dyn": { name: "达因", factor: 1e-5 },
+            "kgf": { name: "千克力", factor: 9.80665 },
+        }
+    },
+    pressure: {
+        name: "压强",
+        units: {
+            "Pa": { name: "帕斯卡", factor: 1 },
+            "atm": { name: "标准大气压", factor: 101325 },
+            "bar": { name: "巴", factor: 1e5 },
+            "mmHg": { name: "毫米汞柱", factor: 133.322 },
+        }
+    },
+    temperature: {
+        name: "温度",
+        units: { "K": {}, "°C": {}, "°F": {} },
+        isTemperature: true
+    },
+    angle: {
+        name: "角度",
+        units: {
+            "rad": { name: "弧度", factor: 1 },
+            "deg": { name: "度", factor: Math.PI / 180 },
+            "arcmin": { name: "角分", factor: Math.PI / 10800 },
+            "arcsec": { name: "角秒", factor: Math.PI / 648000 },
+        }
+    },
+    magnetic: {
+        name: "磁感应",
+        units: {
+            "T": { name: "特斯拉", factor: 1 },
+            "G": { name: "高斯", factor: 1e-4 },
+        }
+    },
+    charge: {
+        name: "电荷量",
+        units: {
+            "C": { name: "库仑", factor: 1 },
+            "e": { name: "元电荷", factor: 1.602176634e-19 },
+        }
+    },
+};
+
+// ==================== 公式数据 ====================
+const FORMULAS = {
+    mechanics: {
+        name: "力学",
+        items: [
+            { name: "匀加速直线运动", expr: "x = v₀t + ½at²", note: "位移公式" },
+            { name: "速度-位移关系", expr: "v² - v₀² = 2ax", note: "不含时间" },
+            { name: "牛顿第二定律", expr: "F = ma", note: "合外力" },
+            { name: "动量", expr: "p = mv", note: "矢量" },
+            { name: "动量定理", expr: "I = Δp = F̅Δt", note: "冲量=动量变化" },
+            { name: "动能", expr: "Eₖ = ½mv²", note: "" },
+            { name: "势能（重力）", expr: "Eₚ = mgh", note: "近地" },
+            { name: "机械能守恒", expr: "Eₖ₁ + Eₚ₁ = Eₖ₂ + Eₚ₂", note: "只有保守力做功" },
+            { name: "角动量", expr: "L = r × p = Iω", note: "矢量" },
+            { name: "角动量守恒", expr: "L = 常量", note: "合外力矩为零" },
+            { name: "胡克定律", expr: "F = -kx", note: "弹簧弹力" },
+            { name: "简谐振动方程", expr: "x = A cos(ωt + φ)", note: "ω = √(k/m)" },
+            { name: "波速", expr: "v = λf = λ/T", note: "" },
+            { name: "多普勒效应", expr: "f' = f·(v±v₀)/(v∓vₛ)", note: "波源/观察者运动" },
+        ]
+    },
+    thermal: {
+        name: "热学",
+        items: [
+            { name: "理想气体状态方程", expr: "pV = nRT = NkT", note: "R=8.314, k=1.38×10⁻²³" },
+            { name: "热力学第一定律", expr: "ΔU = Q + W", note: "W为外界对系统做功" },
+            { name: "等容过程", expr: "Qᵥ = nCᵥΔT", note: "Cᵥ = iR/2" },
+            { name: "等压过程", expr: "Qₚ = nCₚΔT", note: "Cₚ = Cᵥ + R" },
+            { name: "绝热过程", expr: "pV^γ = 常量", note: "γ = Cₚ/Cᵥ" },
+            { name: "卡诺热机效率", expr: "η = 1 - T₂/T₁", note: "T为热力学温度" },
+            { name: "熵变", expr: "ΔS = ∫ dQ/T", note: "可逆过程" },
+            { name: "麦克斯韦速率分布", expr: "f(v) ∝ v² e^{-mv²/2kT}", note: "" },
+            { name: "平均速率", expr: "v̄ = √(8kT/πm)", note: "" },
+            { name: "方均根速率", expr: "vᵣₘₛ = √(3kT/m)", note: "" },
+        ]
+    },
+    electromag: {
+        name: "电磁学",
+        items: [
+            { name: "库仑定律", expr: "F = k·q₁q₂/r²", note: "k = 1/(4πε₀)" },
+            { name: "电场强度", expr: "E = F/q", note: "定义式" },
+            { name: "点电荷电场", expr: "E = q/(4πε₀r²)", note: "方向沿径向" },
+            { name: "高斯定理", expr: "∮ E·dS = Q/ε₀", note: "真空中" },
+            { name: "电势", expr: "V = W/q", note: "定义式" },
+            { name: "点电荷电势", expr: "V = q/(4πε₀r)", note: "" },
+            { name: "电容", expr: "C = Q/U", note: "定义式" },
+            { name: "平行板电容", expr: "C = ε₀εᵣS/d", note: "" },
+            { name: "欧姆定律", expr: "U = IR", note: "" },
+            { name: "电阻定律", expr: "R = ρL/S", note: "ρ为电阻率" },
+            { name: "毕奥-萨伐尔定律", expr: "dB = (μ₀/4π)·(Idl×r̂)/r²", note: "" },
+            { name: "安培环路定理", expr: "∮ B·dl = μ₀I", note: "真空中" },
+            { name: "法拉第电磁感应", expr: "ε = -dΦ/dt", note: "负号表示楞次定律" },
+            { name: "洛伦兹力", expr: "F = q(E + v×B)", note: "" },
+            { name: "安培力", expr: "dF = I dl×B", note: "" },
+        ]
+    },
+    optics: {
+        name: "光学",
+        items: [
+            { name: "折射定律（斯涅尔）", expr: "n₁sinθ₁ = n₂sinθ₂", note: "" },
+            { name: "临界角（全反射）", expr: "sinθ_c = n₂/n₁", note: "n₁ > n₂" },
+            { name: "透镜公式", expr: "1/u + 1/v = 1/f", note: "高斯公式" },
+            { name: "放大率", expr: "m = -v/u = h'/h", note: "" },
+            { name: "杨氏双缝干涉", expr: "Δx = λD/d", note: "条纹间距" },
+            { name: "薄膜干涉（垂直）", expr: "2nd + λ/2 = kλ", note: "有半波损失" },
+            { name: "单缝衍射（暗纹）", expr: "a sinθ = kλ", note: "k=±1,±2,..." },
+            { name: "圆孔衍射极限", expr: "θ = 1.22λ/D", note: "瑞利判据" },
+            { name: "光栅方程", expr: "d sinθ = kλ", note: "k=0,±1,±2,..." },
+            { name: "布儒斯特角", expr: "tanθ_B = n₂/n₁", note: "反射光全偏振" },
+            { name: "马吕斯定律", expr: "I = I₀cos²θ", note: "偏振光" },
+        ]
+    },
+    modern: {
+        name: "近代物理",
+        items: [
+            { name: "质能方程", expr: "E = mc²", note: "总能量" },
+            { name: "相对论动能", expr: "Eₖ = mc² - m₀c²", note: "" },
+            { name: "洛伦兹因子", expr: "γ = 1/√(1-v²/c²)", note: "" },
+            { name: "长度收缩", expr: "L = L₀/γ", note: "" },
+            { name: "时间膨胀", expr: "Δt = γΔτ", note: "" },
+            { name: "光电效应", expr: "hν = W + ½mv²", note: "W为逸出功" },
+            { name: "德布罗意波长", expr: "λ = h/p", note: "" },
+            { name: "玻尔模型（氢）", expr: "Eₙ = -13.6/n² eV", note: "n=1,2,3..." },
+            { name: "氢光谱（里德伯）", expr: "1/λ = R(1/n₁² - 1/n₂²)", note: "R≈1.097×10⁷ m⁻¹" },
+            { name: "不确定关系", expr: "Δx·Δp ≥ ℏ/2", note: "ℏ = h/(2π)" },
+            { name: "薛定谔方程（定态）", expr: "Ĥψ = Eψ", note: "Ĥ = -ℏ²/2m·∇² + V" },
+            { name: "斯特藩-玻尔兹曼定律", expr: "M = σT⁴", note: "σ≈5.67×10⁻⁸" },
+            { name: "维恩位移定律", expr: "λₘT = b", note: "b≈2.898×10⁻³ m·K" },
+            { name: "康普顿散射", expr: "Δλ = h/(m₀c)·(1-cosθ)", note: "电子康普顿波长≈2.43pm" },
+        ]
+    },
+    constants: {
+        name: "常用常数",
+        items: [
+            { name: "真空光速", expr: "c = 2.9979×10⁸ m/s", note: "" },
+            { name: "普朗克常数", expr: "h = 6.626×10⁻³⁴ J·s", note: "ℏ = 1.055×10⁻³⁴ J·s" },
+            { name: "元电荷", expr: "e = 1.602×10⁻¹⁹ C", note: "" },
+            { name: "电子质量", expr: "mₑ = 9.109×10⁻³¹ kg", note: "" },
+            { name: "质子质量", expr: "mₚ = 1.673×10⁻²⁷ kg", note: "" },
+            { name: "真空介电常数", expr: "ε₀ = 8.854×10⁻¹² F/m", note: "" },
+            { name: "真空磁导率", expr: "μ₀ = 4π×10⁻⁷ H/m", note: "" },
+            { name: "万有引力常数", expr: "G = 6.674×10⁻¹¹ N·m²/kg²", note: "" },
+            { name: "玻尔兹曼常数", expr: "k = 1.381×10⁻²³ J/K", note: "" },
+            { name: "阿伏伽德罗常数", expr: "Nₐ = 6.022×10²³ mol⁻¹", note: "" },
+            { name: "理想气体常数", expr: "R = 8.314 J/(mol·K)", note: "" },
+            { name: "标准重力加速度", expr: "g = 9.807 m/s²", note: "通常取9.8" },
+        ]
+    },
+};
+
+// ==================== 状态 ====================
+let convCategory = "length";
+
+// ==================== 主选项卡 ====================
+function switchMainTab(tab, btn) {
+    [...btn.parentElement.children].forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const card = document.getElementById("mainCard");
+    if (tab === "converter") renderConverter(card);
+    else renderFormulas(card);
+}
+
+// ==================== 换算器 ====================
+function renderConverter(card) {
+    card.innerHTML = `
+        <div class="category-tabs" id="convTabs"></div>
+        <div class="input-group">
+            <label>数值</label>
+            <input type="number" id="convValue" value="1" step="any" inputmode="decimal">
+        </div>
+        <div class="input-group">
+            <label>从</label>
+            <select id="convFrom"></select>
+        </div>
+        <div class="swap-btn">
+            <button onclick="swapUnits()" title="交换单位">⇅</button>
+        </div>
+        <div class="input-group">
+            <label>到</label>
+            <select id="convTo"></select>
+        </div>
+        <div class="result" id="convResult"><span>请输入数值并选择单位</span></div>
+    `;
+
+    const tabsEl = document.getElementById("convTabs");
+    Object.entries(CONVERTER_CATEGORIES).forEach(([key, cat]) => {
+        const b = document.createElement("button");
+        b.textContent = cat.name;
+        b.dataset.key = key;
+        b.onclick = () => selectConvCategory(key);
+        tabsEl.appendChild(b);
+    });
+
+    selectConvCategory("length");
+    document.getElementById("convValue").addEventListener("input", doConvert);
+    document.getElementById("convFrom").addEventListener("change", doConvert);
+    document.getElementById("convTo").addEventListener("change", doConvert);
+}
+
+function selectConvCategory(key) {
+    convCategory = key;
+    const tabsEl = document.getElementById("convTabs");
+    [...tabsEl.children].forEach(b => b.classList.toggle("active", b.dataset.key === key));
+
+    const fromEl = document.getElementById("convFrom");
+    const toEl = document.getElementById("convTo");
+    fromEl.innerHTML = ""; toEl.innerHTML = "";
+
+    const units = CONVERTER_CATEGORIES[key].units;
+    Object.entries(units).forEach(([k, u]) => {
+        fromEl.add(new Option(u.name || k, k));
+        toEl.add(new Option(u.name || k, k));
+    });
+    if (toEl.options.length > 1) toEl.selectedIndex = 1;
+    doConvert();
+}
+
+function swapUnits() {
+    const f = document.getElementById("convFrom");
+    const t = document.getElementById("convTo");
+    const tmp = f.value; f.value = t.value; t.value = tmp;
+    doConvert();
+}
+
+function doConvert() {
+    const val = parseFloat(document.getElementById("convValue").value);
+    const from = document.getElementById("convFrom").value;
+    const to = document.getElementById("convTo").value;
+    const resultEl = document.getElementById("convResult");
+
+    if (isNaN(val)) { resultEl.innerHTML = "<span>请输入有效数值</span>"; return; }
+
+    const cat = CONVERTER_CATEGORIES[convCategory];
+    let result;
+
+    if (cat.isTemperature) {
+        const k = from === "K" ? val : from === "°C" ? val+273.15 : (val+459.67)*5/9;
+        result = to === "K" ? k : to === "°C" ? k-273.15 : k*9/5-459.67;
+    } else {
+        result = val * cat.units[from].factor / cat.units[to].factor;
+    }
+
+    const formatted = Math.abs(result) < 1e-6 && result !== 0 ? result.toExponential(6)
+        : Math.abs(result) > 1e9 ? result.toExponential(6)
+        : Number(result.toPrecision(8)).toString();
+
+    resultEl.innerHTML = `<span>${val} ${from} = ${formatted} ${to}</span>`;
+}
+
+// ==================== 公式 ====================
+function renderFormulas(card) {
+    const cats = Object.entries(FORMULAS);
+    const navHtml = cats.map(([key, cat], i) =>
+        `<button class="${i===0?'active':''}" onclick="showFormulaCat('${key}', this)">${cat.name}</button>`
+    ).join('');
+
+    card.innerHTML = `<div class="formula-nav">${navHtml}</div><div id="formulaContent"></div>`;
+    showFormulaCat(cats[0][0], card.querySelector(".formula-nav button"));
+}
+
+function showFormulaCat(key, btn) {
+    if (btn) {
+        [...btn.parentElement.children].forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+    }
+    const cat = FORMULAS[key];
+    const content = document.getElementById("formulaContent");
+    content.innerHTML = cat.items.map(item => `
+        <div class="formula-item">
+            <div class="name">${item.name}</div>
+            <div class="expr">${item.expr}</div>
+            ${item.note ? `<div class="note">${item.note}</div>` : ""}
+        </div>
+    `).join('');
+}
+
+// ==================== 初始化 ====================
+renderConverter(document.getElementById("mainCard"));
+</script>
+</body>
+</html>

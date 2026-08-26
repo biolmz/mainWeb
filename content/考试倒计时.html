@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>模拟考试计时器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link id="favicon" rel="icon" type="image/svg+xml" href="">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #c05600;
+            --primary-bg: linear-gradient(135deg, #f7971e 0%, #ffd194 50%, #f7971e 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 20px 60px rgba(200, 100, 20, 0.22), 0 4px 16px rgba(0,0,0,0.07);
+            --text-main: #2d2d2d;
+            --text-muted: #a05200;
+            --text-sub: #c05600;
+            --time-bg: linear-gradient(180deg, #fff 0%, #fff8f0 100%);
+            --time-shadow: 0 4px 14px rgba(200,100,20,0.1), inset 0 1px 0 rgba(255,255,255,0.9);
+            --time-color: #c05600;
+            --colon-color: #c05600;
+            --label-color: #bb8866;
+            --progress-track: #f0e0d0;
+            --progress-fill: linear-gradient(90deg, #f7971e, #ff6b35);
+            --btn-start: linear-gradient(135deg, #f7971e, #ff6b35);
+            --btn-start-shadow: 0 4px 14px rgba(247,151,30,0.4);
+            --btn-start-hover: 0 6px 20px rgba(247,151,30,0.5);
+            --btn-reset-bg: #f5f0ea;
+            --btn-reset-hover: #ebe4db;
+            --btn-reset-color: #888;
+            --preset-border: #f0c080;
+            --preset-bg: #fffaf0;
+            --preset-active-bg: #f7971e;
+            --preset-active-color: #fff;
+            --preset-active-border: #f7971e;
+            --status-color: #bb8866;
+            --glow1: rgba(255,255,255,0.35);
+            --glow2: rgba(255,120,50,0.25);
+            --clock-bg: linear-gradient(135deg, #fff3e6, #ffe8cc);
+            --clock-text: #555;
+            --clock-date: #999;
+            --footer-color: #ccc;
+            --nav-bg: rgba(255,255,255,0.75);
+            --nav-border: rgba(200,100,20,0.15);
+            --input-bg: #fffaf0;
+            --input-border: #f0c080;
+            --input-color: #c05600;
+        }
+
+        html { touch-action: manipulation; }
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--primary-bg);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            transition: background 0.8s ease;
+            padding: 6px 4px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -120px; left: -120px;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--glow1) 0%, transparent 70%);
+            pointer-events: none;
+            transition: background 0.8s ease;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -150px; right: -100px;
+            width: 450px; height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--glow2) 0%, transparent 70%);
+            pointer-events: none;
+            transition: background 0.8s ease;
+        }
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: var(--nav-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--nav-border);
+            transition: background 0.5s ease, border-color 0.5s ease;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+            transition: color 0.5s ease;
+        }
+        .navbar-brand .brand-icon { font-size: 1.1rem; }
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .nav-btn {
+            width: 34px; height: 34px;
+            border-radius: 9px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--text-main);
+            transition: background 0.2s ease, transform 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-btn:hover { background: rgba(0,0,0,0.06); }
+        .nav-btn:active { transform: scale(0.92); }
+
+        /* ===== 主题面板 ===== */
+        .theme-panel {
+            position: fixed;
+            top: 52px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            z-index: 190;
+            min-width: 180px;
+            padding: 6px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 14px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.06);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s ease;
+        }
+        .theme-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        .theme-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .theme-item:hover { background: rgba(0,0,0,0.05); }
+        .theme-item.active { background: rgba(0,0,0,0.06); }
+        .theme-item .theme-dot {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+        .theme-item .theme-name {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-main);
+            flex: 1;
+            text-align: left;
+        }
+        .theme-item .theme-check {
+            font-size: 0.75rem;
+            opacity: 0;
+            color: var(--primary);
+            transition: opacity 0.15s ease;
+        }
+        .theme-item.active .theme-check { opacity: 1; }
+
+        /* ===== 主体 ===== */
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 52px 24px 18px;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: var(--card-shadow);
+            transition: background 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        body.fullscreen-mode { padding: 0; }
+        body.fullscreen-mode .navbar { display: none; }
+        body.fullscreen-mode .container {
+            max-width: 100%; width: 100vw; height: 100vh;
+            border-radius: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; padding: 16px;
+        }
+        body.fullscreen-mode .hide-fs { display: none !important; }
+        body.fullscreen-mode .time-block { min-width: 170px; padding: 36px 30px 26px; }
+        body.fullscreen-mode .time-block .number { font-size: 6.5rem; }
+        body.fullscreen-mode .colon { font-size: 4.5rem; padding-bottom: 40px; }
+        body.fullscreen-mode .current-time .clock { font-size: 2.6rem; }
+        body.fullscreen-mode .current-time .date { font-size: 1rem; }
+
+        h1 {
+            font-size: 1.3rem; font-weight: 700;
+            color: var(--primary); margin-bottom: 1px;
+            letter-spacing: -0.5px; transition: color 0.5s ease;
+        }
+        .subtitle {
+            font-size: 0.76rem; color: var(--text-muted);
+            margin-bottom: 10px; font-weight: 400; transition: color 0.5s ease;
+        }
+
+        /* ===== 当前时间 ===== */
+        .current-time {
+            margin-bottom: 12px; padding: 8px 18px;
+            background: var(--clock-bg); border-radius: 10px;
+            display: inline-block; transition: all 0.5s ease;
+        }
+        .current-time .clock {
+            font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
+            font-size: 1.6rem; font-weight: 800;
+            color: var(--clock-text); letter-spacing: 1.5px;
+            line-height: 1.15; transition: color 0.5s ease;
+        }
+        .current-time .date {
+            font-size: 0.72rem; color: var(--clock-date);
+            margin-top: 1px; font-weight: 400; letter-spacing: 0.3px; transition: color 0.5s ease;
+        }
+
+        /* ===== 计时器 ===== */
+        .timer-display {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; margin-bottom: 6px;
+        }
+        .time-block {
+            background: var(--time-bg); border-radius: 16px;
+            padding: 18px 22px 13px; min-width: 130px;
+            box-shadow: var(--time-shadow); transition: all 0.5s ease;
+        }
+        .time-block .number {
+            font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
+            font-size: 4rem; font-weight: 800; line-height: 1;
+            color: var(--time-color); letter-spacing: -2px; transition: color 0.5s ease;
+        }
+        .time-block .label {
+            font-size: 0.68rem; color: var(--label-color);
+            margin-top: 8px; font-weight: 500; letter-spacing: 2.5px; transition: color 0.5s ease;
+        }
+        .colon {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.6rem; font-weight: 700;
+            color: var(--colon-color); padding-bottom: 26px;
+            animation: blink 1s step-end infinite; transition: color 0.5s ease;
+        }
+        @keyframes blink { 50% { opacity: 0.25; } }
+
+        /* ===== 进度条 ===== */
+        .progress-bar {
+            width: 100%; height: 4px;
+            background: var(--progress-track); border-radius: 2px;
+            margin: 10px 0 4px; overflow: hidden; transition: background 0.5s ease;
+        }
+        .progress-fill {
+            height: 100%; background: var(--progress-fill);
+            border-radius: 2px; transition: width 0.3s linear, background 0.5s ease;
+            width: 100%;
+        }
+        .progress-text {
+            font-size: 0.72rem; color: var(--status-color);
+            margin-bottom: 12px; font-weight: 500; transition: color 0.5s ease;
+        }
+
+        /* ===== 预设 + 自定义输入 ===== */
+        .settings { margin-bottom: 10px; }
+        .settings-label {
+            font-size: 0.74rem; color: var(--text-muted);
+            margin-bottom: 6px; display: block; font-weight: 500;
+        }
+        .preset-row {
+            display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px;
+        }
+        .preset-btn {
+            padding: 6px 15px; border-radius: 9px;
+            border: 2px solid var(--preset-border);
+            background: var(--preset-bg); color: var(--primary);
+            font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .preset-btn:hover, .preset-btn.active {
+            background: var(--preset-active-bg); color: var(--preset-active-color);
+            border-color: var(--preset-active-border);
+        }
+        .preset-btn:active { transform: scale(0.96); }
+
+        .custom-input-row {
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; flex-wrap: wrap;
+        }
+        .custom-input-row input {
+            width: 56px; padding: 6px 8px;
+            border-radius: 8px; border: 1.5px solid var(--input-border);
+            background: var(--input-bg); color: var(--input-color);
+            font-size: 0.82rem; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+            text-align: center; outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .custom-input-row input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(200,100,20,0.12);
+        }
+        .custom-input-row input::placeholder { color: rgba(192,86,0,0.35); font-weight: 400; }
+        .custom-input-row .input-label {
+            font-size: 0.76rem; color: var(--text-muted); font-weight: 500;
+        }
+        .custom-input-row .custom-btn {
+            padding: 6px 14px; border-radius: 8px;
+            border: 1.5px solid var(--preset-border);
+            background: var(--preset-active-bg); color: var(--preset-active-color);
+            font-size: 0.78rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: inherit;
+        }
+        .custom-input-row .custom-btn:hover { opacity: 0.88; }
+        .custom-input-row .custom-btn:active { transform: scale(0.96); }
+
+        /* ===== 音效选择 ===== */
+        .sound-row {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; margin-top: 8px; margin-bottom: 4px;
+        }
+        .sound-row .sound-label {
+            font-size: 0.72rem; color: var(--text-muted); font-weight: 500;
+        }
+        .sound-select {
+            padding: 4px 10px; border-radius: 8px;
+            border: 1.5px solid var(--input-border);
+            background: var(--input-bg); color: var(--input-color);
+            font-size: 0.76rem; font-weight: 500; font-family: inherit;
+            cursor: pointer; outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .sound-select:focus { border-color: var(--primary); }
+
+        /* ===== 按钮行 ===== */
+        .btn-row { display: flex; gap: 8px; margin-top: 6px; }
+        .btn {
+            flex: 1; padding: 11px; border-radius: 11px; border: none;
+            font-size: 0.92rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: inherit; letter-spacing: 0.3px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-start {
+            background: var(--btn-start); color: #fff;
+            box-shadow: var(--btn-start-shadow);
+        }
+        .btn-start:hover { transform: translateY(-1px); box-shadow: var(--btn-start-hover); }
+        .btn-start.running {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 4px 14px rgba(238,90,36,0.4);
+        }
+        .btn-reset { background: var(--btn-reset-bg); color: var(--btn-reset-color); }
+        .btn-reset:hover { background: var(--btn-reset-hover); }
+        .btn-fs {
+            flex: 0 0 auto; width: 44px; border-radius: 11px;
+            border: 1.5px solid var(--preset-border);
+            background: var(--preset-bg); color: var(--primary);
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-fs:hover { background: var(--preset-active-bg); color: var(--preset-active-color); border-color: var(--preset-active-border); }
+        .btn-fs:active { transform: scale(0.96); }
+
+        /* ===== 状态 ===== */
+        .status {
+            margin-top: 10px; font-size: 0.76rem;
+            color: var(--status-color); min-height: 18px;
+            font-weight: 500; transition: color 0.5s ease;
+        }
+        .status.warning {
+            color: #e74c3c; font-weight: 600; font-size: 0.88rem;
+            animation: pulse 0.6s ease infinite alternate;
+        }
+        @keyframes pulse { from { opacity: 0.7; } to { opacity: 1; } }
+        .timer-display.warning .time-block .number { color: #e74c3c; }
+        .timer-display.warning .colon { color: #e74c3c; }
+
+        .footer {
+            margin-top: 10px; font-size: 0.66rem;
+            color: var(--footer-color); transition: color 0.5s ease;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container { padding: 56px 32px 20px; }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 50px 14px 14px; max-width: 100%; border-radius: 14px; }
+            .navbar { padding: 7px 12px; }
+            .navbar-brand { font-size: 0.82rem; }
+            .nav-btn { width: 32px; height: 32px; font-size: 0.92rem; }
+            .theme-panel { top: 48px; min-width: 160px; }
+            .time-block { min-width: 96px; padding: 14px 10px 10px; }
+            .time-block .number { font-size: 2.8rem; }
+            .colon { font-size: 2rem; }
+            .current-time .clock { font-size: 1.35rem; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 4px 2px; }
+            .container { padding: 48px 10px 12px; border-radius: 12px; }
+            .navbar { padding: 6px 10px; }
+            .navbar-brand { font-size: 0.78rem; gap: 5px; }
+            .navbar-brand .brand-icon { font-size: 0.95rem; }
+            .nav-btn { width: 30px; height: 30px; font-size: 0.88rem; border-radius: 8px; }
+            .theme-panel { top: 44px; min-width: 150px; }
+            .theme-item { padding: 7px 10px; gap: 8px; }
+            .theme-item .theme-name { font-size: 0.78rem; }
+            h1 { font-size: 1.1rem; }
+            .subtitle { font-size: 0.7rem; margin-bottom: 8px; }
+            .time-block { min-width: 78px; padding: 12px 7px 9px; border-radius: 13px; }
+            .time-block .number { font-size: 2.3rem; letter-spacing: -1px; }
+            .time-block .label { font-size: 0.62rem; margin-top: 6px; }
+            .colon { font-size: 1.7rem; padding-bottom: 20px; }
+            .preset-row { gap: 4px; }
+            .preset-btn { padding: 5px 10px; font-size: 0.76rem; }
+            .custom-input-row input { width: 48px; font-size: 0.76rem; padding: 5px 6px; }
+            .custom-input-row .custom-btn { padding: 5px 10px; font-size: 0.74rem; }
+            .sound-select { font-size: 0.72rem; padding: 3px 8px; }
+            .current-time { padding: 7px 14px; margin-bottom: 10px; }
+            .current-time .clock { font-size: 1.2rem; }
+            .current-time .date { font-size: 0.66rem; }
+            .btn { padding: 10px; font-size: 0.84rem; }
+            .btn-fs { width: 38px; }
+            .progress-bar { margin: 8px 0 3px; }
+            .footer { font-size: 0.6rem; margin-top: 8px; }
+        }
+        @media (max-width: 360px) {
+            .time-block { min-width: 64px; padding: 9px 5px 7px; }
+            .time-block .number { font-size: 1.85rem; }
+            .colon { font-size: 1.3rem; }
+            .preset-btn { padding: 4px 7px; font-size: 0.7rem; }
+            .custom-input-row { gap: 4px; }
+            .custom-input-row input { width: 42px; }
+            h1 { font-size: 1rem; }
+        }
+        @media (max-height: 480px) and (orientation: landscape) {
+            .container { padding: 40px 14px 8px; }
+            .navbar { padding: 4px 10px; }
+            .theme-panel { top: 38px; }
+            .current-time { margin-bottom: 6px; padding: 5px 14px; }
+            .current-time .clock { font-size: 1.1rem; }
+            .current-time .date { display: none; }
+            .time-block { padding: 10px 14px 8px; min-width: 80px; }
+            .time-block .number { font-size: 2.2rem; }
+            .colon { font-size: 1.6rem; padding-bottom: 14px; }
+            .subtitle, .settings-label, .footer { display: none; }
+            .preset-row { gap: 4px; }
+            .preset-btn { padding: 4px 10px; font-size: 0.72rem; }
+            .custom-input-row { display: none; }
+            .btn-row { margin-top: 4px; }
+            .btn { padding: 7px; font-size: 0.8rem; }
+            .progress-bar { margin: 6px 0 2px; }
+            .status { margin-top: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-icon">⏱</span>
+            <span class="hide-fs">模拟考试计时器</span>
+        </div>
+        <div class="navbar-actions">
+            <button class="nav-btn" id="themeToggleBtn" onclick="toggleThemePanel()" title="切换主题">🎨</button>
+            <button class="nav-btn" id="fsNavBtn" onclick="toggleFullscreen()" title="全屏">⛶</button>
+            <button class="nav-btn" onclick="showShortcuts()" title="快捷键">⌨️</button>
+        </div>
+    </nav>
+
+    <div class="theme-panel" id="themePanel">
+        <div class="theme-item active" data-theme="sun" onclick="selectTheme('sun', this)">
+            <div class="theme-dot" style="background: linear-gradient(135deg, #f7971e, #ffd194)"></div>
+            <span class="theme-name">☀️ 暖阳</span>
+            <span class="theme-check">✓</span>
+        </div>
+        <div class="theme-item" data-theme="ocean" onclick="selectTheme('ocean', this)">
+            <div class="theme-dot" style="background: linear-gradient(135deg, #0d1b2a, #4fc3f7)"></div>
+            <span class="theme-name">🌊 深海</span>
+            <span class="theme-check">✓</span>
+        </div>
+        <div class="theme-item" data-theme="forest" onclick="selectTheme('forest', this)">
+            <div class="theme-dot" style="background: linear-gradient(135deg, #1b4332, #95d5b2)"></div>
+            <span class="theme-name">🌲 森林</span>
+            <span class="theme-check">✓</span>
+        </div>
+        <div class="theme-item" data-theme="sakura" onclick="selectTheme('sakura', this)">
+            <div class="theme-dot" style="background: linear-gradient(135deg, #fce4ec, #f48fb1)"></div>
+            <span class="theme-name">🌸 樱花粉</span>
+            <span class="theme-check">✓</span>
+        </div>
+        <div class="theme-item" data-theme="dark" onclick="selectTheme('dark', this)">
+            <div class="theme-dot" style="background: linear-gradient(135deg, #0a0a0f, #00ff88)"></div>
+            <span class="theme-name">⚡ 极简暗黑</span>
+            <span class="theme-check">✓</span>
+        </div>
+    </div>
+
+    <div class="container" id="container">
+        <h1 class="hide-fs">⏱ 模拟考试计时器</h1>
+        <p class="subtitle hide-fs">设定时长 · 专注作答 · 模拟真实考场节奏</p>
+
+        <div class="current-time">
+            <div class="clock" id="clock">--:--:--</div>
+            <div class="date" id="date">----年--月--日 星期-</div>
+        </div>
+
+        <div class="timer-display" id="timerDisplay">
+            <div class="time-block">
+                <div class="number" id="hours">00</div>
+                <div class="label">小时</div>
+            </div>
+            <div class="colon">:</div>
+            <div class="time-block">
+                <div class="number" id="minutes">00</div>
+                <div class="label">分钟</div>
+            </div>
+            <div class="colon">:</div>
+            <div class="time-block">
+                <div class="number" id="seconds">00</div>
+                <div class="label">秒</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">选择时长后点击开始</div>
+
+        <div class="settings hide-fs">
+            <span class="settings-label">📋 常用考试时长</span>
+            <div class="preset-row">
+                <button class="preset-btn" onclick="setPreset(0, 30, this)">30分钟</button>
+                <button class="preset-btn" onclick="setPreset(1, 0, this)">1小时</button>
+                <button class="preset-btn" onclick="setPreset(1, 30, this)">1.5小时</button>
+                <button class="preset-btn" onclick="setPreset(2, 0, this)">2小时</button>
+                <button class="preset-btn" onclick="setPreset(2, 30, this)">2.5小时</button>
+                <button class="preset-btn" onclick="setPreset(3, 0, this)">3小时</button>
+            </div>
+
+            <div class="custom-input-row">
+                <input type="number" id="customHours" placeholder="0" min="0" max="23" inputmode="numeric">
+                <span class="input-label">小时</span>
+                <input type="number" id="customMinutes" placeholder="45" min="0" max="59" inputmode="numeric">
+                <span class="input-label">分钟</span>
+                <button class="custom-btn" onclick="applyCustomTime()">确认</button>
+            </div>
+
+            <div class="sound-row">
+                <span class="sound-label">🔊 提醒音效</span>
+                <select class="sound-select" id="soundSelect">
+                    <option value="beep">蜂鸣</option>
+                    <option value="bell">铃声</option>
+                    <option value="vibrate">震动</option>
+                    <option value="silent">静音</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-row hide-fs">
+            <button class="btn btn-start" id="startBtn" onclick="toggleTimer()">▶ 开始</button>
+            <button class="btn btn-reset" onclick="resetTimer()">↺ 重置</button>
+            <button class="btn-fs" onclick="toggleFullscreen()" title="全屏">⛶</button>
+        </div>
+
+        <div class="status hide-fs" id="status"></div>
+        <div class="footer hide-fs">💡 最后5分钟数字变红 · 时间到蜂鸣+弹窗 &nbsp;|&nbsp; ⌨ 空格 开始/暂停 · R 重置 · F11 全屏</div>
+    </div>
+
+    <script>
+        // ===== Favicon 动态生成 =====
+        function updateFavicon(state) {
+            const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#c05600';
+            let svg = '';
+
+            if (state === 'danger') {
+                // 红色警告图标
+                svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="14" fill="#e74c3c"/>
+                    <rect x="14.5" y="7" width="3" height="12" rx="1.5" fill="white"/>
+                    <circle cx="16" cy="22" r="2" fill="white"/>
+                </svg>`;
+            } else if (state === 'running') {
+                // 运行中：主题色圆盘 + 白色指针 + 绿色小点
+                svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="14" fill="${primary}"/>
+                    <line x1="16" y1="16" x2="16" y2="8" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="16" y1="16" x2="22" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2.5" fill="white"/>
+                    <circle cx="26" cy="8" r="3" fill="#00cc6a"/>
+                </svg>`;
+            } else {
+                // 默认：主题色圆盘 + 白色指针
+                svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="14" fill="${primary}"/>
+                    <line x1="16" y1="16" x2="16" y2="8" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="16" y1="16" x2="22" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="2.5" fill="white"/>
+                </svg>`;
+            }
+
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            document.getElementById('favicon').href = url;
+        }
+
+        // 初始化 favicon
+        updateFavicon('default');
+
+        // ===== 主题 =====
+        const themes = {
+            sun: {
+                vars: {
+                    '--primary': '#c05600', '--primary-bg': 'linear-gradient(135deg, #f7971e 0%, #ffd194 50%, #f7971e 100%)',
+                    '--card-bg': 'rgba(255, 255, 255, 0.9)', '--card-shadow': '0 20px 60px rgba(200, 100, 20, 0.22), 0 4px 16px rgba(0,0,0,0.07)',
+                    '--text-main': '#2d2d2d', '--text-muted': '#a05200', '--text-sub': '#c05600',
+                    '--time-bg': 'linear-gradient(180deg, #fff 0%, #fff8f0 100%)',
+                    '--time-shadow': '0 4px 14px rgba(200,100,20,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
+                    '--time-color': '#c05600', '--colon-color': '#c05600', '--label-color': '#bb8866',
+                    '--progress-track': '#f0e0d0', '--progress-fill': 'linear-gradient(90deg, #f7971e, #ff6b35)',
+                    '--btn-start': 'linear-gradient(135deg, #f7971e, #ff6b35)', '--btn-start-shadow': '0 4px 14px rgba(247,151,30,0.4)', '--btn-start-hover': '0 6px 20px rgba(247,151,30,0.5)',
+                    '--btn-reset-bg': '#f5f0ea', '--btn-reset-hover': '#ebe4db', '--btn-reset-color': '#888',
+                    '--preset-border': '#f0c080', '--preset-bg': '#fffaf0', '--preset-active-bg': '#f7971e', '--preset-active-color': '#fff', '--preset-active-border': '#f7971e',
+                    '--status-color': '#bb8866', '--glow1': 'rgba(255,255,255,0.35)', '--glow2': 'rgba(255,120,50,0.25)',
+                    '--clock-bg': 'linear-gradient(135deg, #fff3e6, #ffe8cc)', '--clock-text': '#555', '--clock-date': '#999',
+                    '--footer-color': '#ccc', '--nav-bg': 'rgba(255,255,255,0.75)', '--nav-border': 'rgba(200,100,20,0.15)',
+                    '--input-bg': '#fffaf0', '--input-border': '#f0c080', '--input-color': '#c05600'
+                }
+            },
+            ocean: {
+                vars: {
+                    '--primary': '#1565c0', '--primary-bg': 'linear-gradient(135deg, #0d1b2a 0%, #1b3a5c 40%, #4fc3f7 100%)',
+                    '--card-bg': 'rgba(255, 255, 255, 0.92)', '--card-shadow': '0 20px 60px rgba(13,27,42,0.28), 0 4px 16px rgba(0,0,0,0.1)',
+                    '--text-main': '#0d1b2a', '--text-muted': '#78909c', '--text-sub': '#1565c0',
+                    '--time-bg': 'linear-gradient(180deg, #fff 0%, #e3f2fd 100%)',
+                    '--time-shadow': '0 4px 14px rgba(21,101,192,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
+                    '--time-color': '#1565c0', '--colon-color': '#1565c0', '--label-color': '#64b5f6',
+                    '--progress-track': '#e3f2fd', '--progress-fill': 'linear-gradient(90deg, #42a5f5, #1565c0)',
+                    '--btn-start': 'linear-gradient(135deg, #42a5f5, #1565c0)', '--btn-start-shadow': '0 4px 14px rgba(21,101,192,0.35)', '--btn-start-hover': '0 6px 20px rgba(21,101,192,0.45)',
+                    '--btn-reset-bg': '#e3f2fd', '--btn-reset-hover': '#bbdefb', '--btn-reset-color': '#546e7a',
+                    '--preset-border': '#90caf9', '--preset-bg': '#f0f8ff', '--preset-active-bg': '#1565c0', '--preset-active-color': '#fff', '--preset-active-border': '#1565c0',
+                    '--status-color': '#64b5f6', '--glow1': 'rgba(79,195,247,0.2)', '--glow2': 'rgba(13,27,42,0.4)',
+                    '--clock-bg': 'linear-gradient(135deg, #e3f2fd, #bbdefb)', '--clock-text': '#1565c0', '--clock-date': '#78909c',
+                    '--footer-color': '#90a4ae', '--nav-bg': 'rgba(255,255,255,0.78)', '--nav-border': 'rgba(21,101,192,0.15)',
+                    '--input-bg': '#e3f2fd', '--input-border': '#90caf9', '--input-color': '#1565c0'
+                }
+            },
+            forest: {
+                vars: {
+                    '--primary': '#2d6a4f', '--primary-bg': 'linear-gradient(135deg, #1b4332 0%, #40916c 50%, #95d5b2 100%)',
+                    '--card-bg': 'rgba(255, 255, 255, 0.93)', '--card-shadow': '0 20px 60px rgba(27,67,50,0.22), 0 4px 16px rgba(0,0,0,0.08)',
+                    '--text-main': '#1b4332', '--text-muted': '#74c69d', '--text-sub': '#2d6a4f',
+                    '--time-bg': 'linear-gradient(180deg, #fff 0%, #d8f3dc 100%)',
+                    '--time-shadow': '0 4px 14px rgba(45,106,79,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
+                    '--time-color': '#2d6a4f', '--colon-color': '#2d6a4f', '--label-color': '#74c69d',
+                    '--progress-track': '#d8f3dc', '--progress-fill': 'linear-gradient(90deg, #52b788, #2d6a4f)',
+                    '--btn-start': 'linear-gradient(135deg, #52b788, #2d6a4f)', '--btn-start-shadow': '0 4px 14px rgba(45,106,79,0.35)', '--btn-start-hover': '0 6px 20px rgba(45,106,79,0.45)',
+                    '--btn-reset-bg': '#d8f3dc', '--btn-reset-hover': '#b7e4c7', '--btn-reset-color': '#52796f',
+                    '--preset-border': '#95d5b2', '--preset-bg': '#f0fdf4', '--preset-active-bg': '#2d6a4f', '--preset-active-color': '#fff', '--preset-active-border': '#2d6a4f',
+                    '--status-color': '#74c69d', '--glow1': 'rgba(149,213,178,0.25)', '--glow2': 'rgba(27,67,50,0.35)',
+                    '--clock-bg': 'linear-gradient(135deg, #d8f3dc, #b7e4c7)', '--clock-text': '#2d6a4f', '--clock-date': '#74c69d',
+                    '--footer-color': '#95d5b2', '--nav-bg': 'rgba(255,255,255,0.78)', '--nav-border': 'rgba(45,106,79,0.15)',
+                    '--input-bg': '#d8f3dc', '--input-border': '#95d5b2', '--input-color': '#2d6a4f'
+                }
+            },
+            sakura: {
+                vars: {
+                    '--primary': '#ad1457', '--primary-bg': 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%)',
+                    '--card-bg': 'rgba(255, 255, 255, 0.9)', '--card-shadow': '0 20px 60px rgba(244,143,177,0.25), 0 4px 16px rgba(0,0,0,0.06)',
+                    '--text-main': '#880e4f', '--text-muted': '#f06292', '--text-sub': '#ad1457',
+                    '--time-bg': 'linear-gradient(180deg, #fff 0%, #fce4ec 100%)',
+                    '--time-shadow': '0 4px 14px rgba(244,143,177,0.15), inset 0 1px 0 rgba(255,255,255,0.9)',
+                    '--time-color': '#ad1457', '--colon-color': '#ad1457', '--label-color': '#f06292',
+                    '--progress-track': '#fce4ec', '--progress-fill': 'linear-gradient(90deg, #f48fb1, #ad1457)',
+                    '--btn-start': 'linear-gradient(135deg, #f48fb1, #ad1457)', '--btn-start-shadow': '0 4px 14px rgba(173,20,87,0.3)', '--btn-start-hover': '0 6px 20px rgba(173,20,87,0.4)',
+                    '--btn-reset-bg': '#fce4ec', '--btn-reset-hover': '#f8bbd0', '--btn-reset-color': '#ad1457',
+                    '--preset-border': '#f48fb1', '--preset-bg': '#fdf2f8', '--preset-active-bg': '#ad1457', '--preset-active-color': '#fff', '--preset-active-border': '#ad1457',
+                    '--status-color': '#f06292', '--glow1': 'rgba(255,255,255,0.5)', '--glow2': 'rgba(248,187,208,0.4)',
+                    '--clock-bg': 'linear-gradient(135deg, #fce4ec, #f8bbd0)', '--clock-text': '#ad1457', '--clock-date': '#f06292',
+                    '--footer-color': '#f48fb1', '--nav-bg': 'rgba(255,255,255,0.72)', '--nav-border': 'rgba(173,20,87,0.12)',
+                    '--input-bg': '#fce4ec', '--input-border': '#f48fb1', '--input-color': '#ad1457'
+                }
+            },
+            dark: {
+                vars: {
+                    '--primary': '#00ff88', '--primary-bg': 'linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #1a1a2e 100%)',
+                    '--card-bg': 'rgba(20, 20, 30, 0.93)', '--card-shadow': '0 20px 60px rgba(0,255,136,0.1), 0 4px 16px rgba(0,0,0,0.38)',
+                    '--text-main': '#e0e0e0', '--text-muted': '#555', '--text-sub': '#00ff88',
+                    '--time-bg': 'linear-gradient(180deg, #1a1a2e 0%, #12121a 100%)',
+                    '--time-shadow': '0 4px 14px rgba(0,255,136,0.1), inset 0 1px 0 rgba(255,255,255,0.05)',
+                    '--time-color': '#00ff88', '--colon-color': '#00ff88', '--label-color': '#00cc6a',
+                    '--progress-track': '#1a1a2e', '--progress-fill': 'linear-gradient(90deg, #00ff88, #00cc6a)',
+                    '--btn-start': 'linear-gradient(135deg, #00ff88, #00cc6a)', '--btn-start-shadow': '0 4px 14px rgba(0,255,136,0.28)', '--btn-start-hover': '0 6px 20px rgba(0,255,136,0.38)',
+                    '--btn-reset-bg': '#1a1a2e', '--btn-reset-hover': '#252540', '--btn-reset-color': '#888',
+                    '--preset-border': '#00cc6a', '--preset-bg': '#12121a', '--preset-active-bg': '#00ff88', '--preset-active-color': '#0a0a0f', '--preset-active-border': '#00ff88',
+                    '--status-color': '#00cc6a', '--glow1': 'rgba(0,255,136,0.08)', '--glow2': 'rgba(0,204,106,0.12)',
+                    '--clock-bg': 'linear-gradient(135deg, #1a1a2e, #12121a)', '--clock-text': '#00ff88', '--clock-date': '#555',
+                    '--footer-color': '#444', '--nav-bg': 'rgba(20,20,30,0.85)', '--nav-border': 'rgba(0,255,136,0.2)',
+                    '--input-bg': '#1a1a2e', '--input-border': '#00cc6a', '--input-color': '#00ff88'
+                }
+            }
+        };
+
+        function toggleThemePanel() {
+            document.getElementById('themePanel').classList.toggle('open');
+        }
+        function selectTheme(name, el) {
+            const t = themes[name]; if (!t) return;
+            for (const [k, v] of Object.entries(t.vars)) document.documentElement.style.setProperty(k, v);
+            document.querySelectorAll('.theme-item').forEach(i => i.classList.remove('active'));
+            if (el) el.classList.add('active');
+            document.getElementById('themePanel').classList.remove('open');
+            localStorage.setItem('timer-theme', name);
+            updateFavicon('default');
+        }
+        document.addEventListener('click', e => {
+            const btn = document.getElementById('themeToggleBtn');
+            const panel = document.getElementById('themePanel');
+            if (!btn.contains(e.target) && !panel.contains(e.target)) panel.classList.remove('open');
+        });
+        (function() {
+            const s = localStorage.getItem('timer-theme') || 'sun';
+            const item = document.querySelector(`.theme-item[data-theme="${s}"]`);
+            if (item) selectTheme(s, item);
+        })();
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {
+                    document.body.webkitRequestFullscreen?.();
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        document.addEventListener('fullscreenchange', () => {
+            const fs = !!document.fullscreenElement;
+            document.body.classList.toggle('fullscreen-mode', fs);
+            document.getElementById('fsNavBtn').textContent = fs ? '⮻' : '⛶';
+        });
+
+        function showShortcuts() {
+            alert('⌨️ 键盘快捷键\n\n空格键 — 开始 / 暂停\nR 键 — 重置\nF11 — 全屏切换');
+        }
+
+        // ===== 自定义时长 =====
+        function applyCustomTime() {
+            const h = parseInt(document.getElementById('customHours').value) || 0;
+            const m = parseInt(document.getElementById('customMinutes').value) || 0;
+            if (h === 0 && m === 0) { statusEl.textContent = '⚠ 请输入有效时长'; return; }
+            if (h > 23) { statusEl.textContent = '⚠ 小时数不能超过23'; return; }
+            if (m > 59) { statusEl.textContent = '⚠ 分钟数不能超过59'; return; }
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            if (running) return;
+            totalSeconds = h * 3600 + m * 60;
+            remainingMs = totalSeconds * 1000;
+            updateDisplayFromMs(remainingMs);
+            progressFill.style.width = '100%';
+            progressText.textContent = `已设定 ${h > 0 ? h + '小时' : ''}${m > 0 ? m + '分钟' : h === 0 ? '0分钟' : ''} · 点击开始`;
+            statusEl.textContent = '';
+            timerDisplay.classList.remove('warning');
+            warningTriggered.clear();
+        }
+        document.addEventListener('keydown', e => {
+            if (e.target.id === 'customHours' || e.target.id === 'customMinutes') {
+                if (e.key === 'Enter') { e.preventDefault(); applyCustomTime(); }
+            }
+        });
+
+        // ===== 音效 =====
+        function playAlarm() {
+            const sound = document.getElementById('soundSelect').value;
+            if (sound === 'silent') return;
+            if (sound === 'vibrate') {
+                if (navigator.vibrate) navigator.vibrate([400, 100, 400, 100, 400]);
+                return;
+            }
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (sound === 'beep') {
+                    [0, 200, 400, 600].forEach(offset => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain); gain.connect(ctx.destination);
+                        osc.frequency.value = 880;
+                        osc.start(ctx.currentTime + offset/1000);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + offset/1000 + 0.35);
+                        osc.stop(ctx.currentTime + offset/1000 + 0.35);
+                    });
+                } else if (sound === 'bell') {
+                    const freqs = [523.25, 659.25, 783.99, 1046.50];
+                    freqs.forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain); gain.connect(ctx.destination);
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        const startTime = ctx.currentTime + i * 0.12;
+                        osc.start(startTime);
+                        gain.gain.setValueAtTime(0.3, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.8);
+                        osc.stop(startTime + 0.8);
+                    });
+                }
+            } catch(e) {}
+        }
+
+        // ===== 计时器 =====
+        let totalSeconds = 0, remainingMs = 0, endTime = 0;
+        let timer = null, running = false;
+        let warningTriggered = new Set();
+
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const startBtn = document.getElementById('startBtn');
+        const statusEl = document.getElementById('status');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const timerDisplay = document.getElementById('timerDisplay');
+
+        const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2,'0');
+            const m = String(now.getMinutes()).padStart(2,'0');
+            const s = String(now.getSeconds()).padStart(2,'0');
+            document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+            const y = now.getFullYear(), mo = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+            document.getElementById('date').textContent = `${y}年${mo}月${d}日  ${weekdays[now.getDay()]}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        function setPreset(h, m, btn) {
+            if (running) return;
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            totalSeconds = h * 3600 + m * 60;
+            remainingMs = totalSeconds * 1000;
+            updateDisplayFromMs(remainingMs);
+            progressFill.style.width = '100%';
+            progressText.textContent = `已设定 ${h > 0 ? h + '小时' : ''}${m > 0 ? m + '分钟' : h === 0 ? '0分钟' : ''} · 点击开始`;
+            statusEl.textContent = '';
+            timerDisplay.classList.remove('warning');
+            warningTriggered.clear();
+        }
+
+        function toggleTimer() {
+            if (totalSeconds === 0) { statusEl.textContent = '⚠ 请先选择考试时长'; return; }
+            if (!running) {
+                running = true;
+                startBtn.textContent = '⏸ 暂停';
+                startBtn.classList.add('running');
+                statusEl.textContent = '🔥 计时中，专注作答！';
+                endTime = Date.now() + remainingMs;
+                timer = setInterval(tick, 200);
+                updateFavicon('running');
+            } else {
+                running = false;
+                clearInterval(timer);
+                remainingMs = endTime - Date.now();
+                startBtn.textContent = '▶ 继续';
+                startBtn.classList.remove('running');
+                statusEl.textContent = '⏸ 已暂停';
+                updateFavicon('default');
+            }
+        }
+
+        function tick() {
+            remainingMs = endTime - Date.now();
+            if (remainingMs <= 0) {
+                remainingMs = 0;
+                clearInterval(timer);
+                running = false;
+                startBtn.textContent = '▶ 开始';
+                startBtn.classList.remove('running');
+                statusEl.textContent = '🚨 时间到！请停止作答';
+                statusEl.className = 'status warning';
+                progressText.textContent = '考试时间结束';
+                timerDisplay.classList.add('warning');
+                progressFill.style.width = '0%';
+                document.title = '🚨 时间到！';
+                updateFavicon('danger');
+                playAlarm();
+                setTimeout(() => alert('⏰ 考试时间到！请停止作答，核对答案。'), 100);
+                if (Notification && Notification.permission === 'granted') {
+                    new Notification('模拟考试', { body: '⏰ 时间到！请停止作答' });
+                }
+                return;
+            }
+
+            updateDisplayFromMs(remainingMs);
+            const pct = (remainingMs / (totalSeconds * 1000)) * 100;
+            progressFill.style.width = pct + '%';
+
+            const secsLeft = Math.ceil(remainingMs / 1000);
+            if (secsLeft <= 300) {
+                timerDisplay.classList.add('warning');
+                progressFill.style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+                if (secsLeft % 60 === 0 && !warningTriggered.has(secsLeft)) {
+                    warningTriggered.add(secsLeft);
+                    statusEl.textContent = `⚠ 还剩 ${Math.ceil(secsLeft/60)} 分钟，注意分配时间！`;
+                    statusEl.className = 'status warning';
+                }
+            }
+
+            const h = Math.floor(secsLeft / 3600);
+            const m = Math.floor((secsLeft % 3600) / 60);
+            const s = secsLeft % 60;
+            progressText.textContent = `剩余 ${h > 0 ? h + ':' : ''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            statusEl.className = 'status';
+        }
+
+        function updateDisplayFromMs(ms) {
+            const secs = Math.max(0, Math.ceil(ms / 1000));
+            const h = Math.floor(secs / 3600);
+            const m = Math.floor((secs % 3600) / 60);
+            const s = secs % 60;
+            hoursEl.textContent = String(h).padStart(2,'0');
+            minutesEl.textContent = String(m).padStart(2,'0');
+            secondsEl.textContent = String(s).padStart(2,'0');
+            if (running) document.title = `${h > 0 ? h + ':' : ''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} - 模拟考试`;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            running = false;
+            remainingMs = totalSeconds * 1000;
+            updateDisplayFromMs(remainingMs);
+            startBtn.textContent = '▶ 开始';
+            startBtn.classList.remove('running');
+            statusEl.textContent = '';
+            statusEl.className = 'status';
+            timerDisplay.classList.remove('warning');
+            progressFill.style.width = totalSeconds > 0 ? '100%' : '0%';
+            progressFill.style.background = '';
+            progressText.textContent = totalSeconds > 0
+                ? `已设定 ${Math.floor(totalSeconds/3600)>0?Math.floor(totalSeconds/3600)+'小时':''}${Math.floor((totalSeconds%3600)/60)>0?Math.floor((totalSeconds%3600)/60)+'分钟':''} · 点击开始`
+                : '选择时长后点击开始';
+            document.title = '模拟考试计时器';
+            updateFavicon('default');
+            warningTriggered.clear();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+            if (e.code === 'Space') { e.preventDefault(); toggleTimer(); }
+            if (e.code === 'KeyR' || e.key === 'r' || e.key === 'R') { e.preventDefault(); resetTimer(); }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (running && !document.hidden) {
+                endTime = Date.now() + remainingMs;
+            }
+        });
+
+        if (Notification && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    </script>
+</body>
+</html>

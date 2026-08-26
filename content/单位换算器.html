@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<title>单位换算器</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%232980b9'/%3E%3Cstop offset='100%25' style='stop-color:%231a5276'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3E%F0%9F%A7%AE%3C/text%3E%3C/svg%3E">
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #2980b9;
+    --primary-light: #eaf6ff;
+    --primary-focus: rgba(52,152,219,0.18);
+    --text: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --bg: #f0f4f8;
+    --card-bg: #ffffff;
+    --border: #dce4ec;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.11);
+    --radius: 12px;
+    --transition: 0.2s ease;
+  }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* ===== Navbar ===== */
+  .navbar {
+    background: linear-gradient(135deg, #1a5276, #2980b9);
+    color: #fff;
+    padding: clamp(14px, 3.5vw, 20px) clamp(16px, 4vw, 32px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 16px rgba(26,82,118,0.25);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .navbar-icon {
+    font-size: clamp(22px, 5vw, 28px);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .navbar-text h1 {
+    font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .navbar-text p {
+    font-size: clamp(11px, 2.5vw, 13px);
+    opacity: 0.8;
+    margin-top: 1px;
+  }
+
+  /* ===== Main Container ===== */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(12px, 3vw, 24px);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: clamp(12px, 2.5vw, 18px);
+  }
+
+  /* ===== Card ===== */
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: clamp(14px, 3vw, 20px);
+    box-shadow: var(--shadow);
+    transition: box-shadow var(--transition), transform var(--transition);
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover { box-shadow: var(--shadow-hover); }
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover { transform: translateY(-2px); }
+  }
+  .card h2 {
+    font-size: clamp(14px, 3.2vw, 15px);
+    color: var(--primary);
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card h2 .icon { font-size: 1.1em; flex-shrink: 0; }
+
+  /* ===== Form Rows ===== */
+  .row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .row label {
+    font-size: 13px;
+    min-width: 44px;
+    color: #555;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  input, select {
+    flex: 1;
+    min-width: 0;
+    padding: clamp(8px, 2vw, 10px) clamp(8px, 2vw, 12px);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: clamp(14px, 3.2vw, 15px);
+    background: #fafbfc;
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-focus);
+    background: #fff;
+  }
+
+  /* ===== Result Area ===== */
+  .result-wrapper {
+    position: relative;
+    margin-top: 12px;
+  }
+  .result {
+    padding: 10px 36px 10px 12px;
+    background: linear-gradient(135deg, #eaf6ff, #f0f9ff);
+    border-radius: 8px;
+    font-size: clamp(13px, 3.2vw, 14px);
+    color: #1a5276;
+    min-height: 44px;
+    word-break: break-word;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    border: 1px solid #d4eaf7;
+    transition: background var(--transition);
+  }
+  .result.placeholder { color: #aab7c4; font-weight: 400; }
+  .result.error { background: linear-gradient(135deg, #fdecea, #fef0ef); border-color: #f5c6c2; color: #c0392b; }
+  .copy-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.45;
+    transition: opacity 0.15s;
+    border-radius: 4px;
+    line-height: 1;
+  }
+  .copy-btn:hover, .copy-btn:focus { opacity: 0.85; }
+  .copy-btn:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+  .hint {
+    font-size: clamp(10px, 2.3vw, 11px);
+    color: var(--text-secondary);
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+
+  /* ===== Footer ===== */
+  footer {
+    text-align: center;
+    padding: 16px 12px 24px;
+    color: #b0bec5;
+    font-size: 12px;
+  }
+
+  /* ===== Responsive Breakpoints ===== */
+  @media (max-width: 360px) {
+    .container { grid-template-columns: 1fr; gap: 10px; padding: 10px; }
+    .row { gap: 6px; }
+    .row label { min-width: 38px; font-size: 12px; }
+    .navbar { padding: 12px 14px; }
+  }
+  @media (min-width: 600px) and (max-width: 959px) {
+    .container { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 960px) {
+    .container { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 1280px) {
+    .container { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-height: 480px) and (orientation: landscape) {
+    .container { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
+    .hint { display: none; }
+    .navbar { padding: 8px 16px; }
+    .navbar-text p { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Navbar ===== -->
+<nav class="navbar" role="banner">
+  <span class="navbar-icon" aria-hidden="true">🧮</span>
+  <div class="navbar-text">
+    <h1>单位换算器</h1>
+    <p><a href="./Ultimate.html" target="_blank" rel="noopener noreferrer">生物学专业单位换算</a></p>
+  </div>
+</nav>
+
+<!-- ===== Main ===== -->
+<main class="container" role="main">
+
+  <!-- 1. 长度 -->
+  <section class="card" aria-label="长度换算">
+    <h2><span class="icon">📏</span> 长度换算</h2>
+    <div class="row">
+      <label for="lenVal">数值</label>
+      <input type="number" id="lenVal" placeholder="输入数值" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="lenFrom">从</label>
+      <select id="lenFrom">
+        <option value="1">m（米）</option>
+        <option value="0.01">cm（厘米）</option>
+        <option value="0.001">mm（毫米）</option>
+        <option value="1e-6">μm（微米）</option>
+        <option value="1e-9" selected>nm（纳米）</option>
+        <option value="1e-10">Å（埃）</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="lenTo">到</label>
+      <select id="lenTo">
+        <option value="1e-9">nm（纳米）</option>
+        <option value="1e-6" selected>μm（微米）</option>
+        <option value="1e-10">Å（埃）</option>
+        <option value="1">m（米）</option>
+      </select>
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="lenResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="lenResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+
+  </section>
+
+  <!-- 2. 体积 -->
+  <section class="card" aria-label="体积换算">
+    <h2><span class="icon">🧪</span> 体积换算</h2>
+    <div class="row">
+      <label for="volVal">数值</label>
+      <input type="number" id="volVal" placeholder="输入数值" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="volFrom">从</label>
+      <select id="volFrom">
+        <option value="1" selected>L（升）</option>
+        <option value="0.001">mL（毫升）</option>
+        <option value="1e-6">μL（微升）</option>
+        <option value="1e-9">nL（纳升）</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="volTo">到</label>
+      <select id="volTo">
+        <option value="0.001" selected>mL（毫升）</option>
+        <option value="1e-6">μL（微升）</option>
+        <option value="1">L（升）</option>
+      </select>
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="volResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="volResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+ 
+  </section>
+
+  <!-- 3. 质量 -->
+  <section class="card" aria-label="质量换算">
+    <h2><span class="icon">⚖️</span> 质量换算</h2>
+    <div class="row">
+      <label for="massVal">数值</label>
+      <input type="number" id="massVal" placeholder="输入数值" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="massFrom">从</label>
+      <select id="massFrom">
+        <option value="1" selected>g（克）</option>
+        <option value="0.001">mg（毫克）</option>
+        <option value="1e-6">μg（微克）</option>
+        <option value="1e-9">ng（纳克）</option>
+        <option value="1e-12">pg（皮克）</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="massTo">到</label>
+      <select id="massTo">
+        <option value="1e-6" selected>μg（微克）</option>
+        <option value="0.001">mg（毫克）</option>
+        <option value="1e-9">ng（纳克）</option>
+      </select>
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="massResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="massResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+
+  </section>
+
+  <!-- 4. 摩尔浓度 -->
+  <section class="card" aria-label="摩尔浓度换算">
+    <h2><span class="icon">🧫</span> 摩尔浓度</h2>
+    <div class="row">
+      <label for="molarVal">数值</label>
+      <input type="number" id="molarVal" placeholder="输入数值" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="molarFrom">从</label>
+      <select id="molarFrom">
+        <option value="1" selected>M（mol/L）</option>
+        <option value="0.001">mM（毫摩尔/L）</option>
+        <option value="1e-6">μM（微摩尔/L）</option>
+        <option value="1e-9">nM（纳摩尔/L）</option>
+        <option value="1e-12">pM（皮摩尔/L）</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="molarTo">到</label>
+      <select id="molarTo">
+        <option value="1e-6" selected>μM（微摩尔/L）</option>
+        <option value="0.001">mM（毫摩尔/L）</option>
+        <option value="1e-9">nM（纳摩尔/L）</option>
+      </select>
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="molarResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="molarResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+  
+  </section>
+
+  <!-- 5. 质量体积浓度 -->
+  <section class="card" aria-label="质量体积浓度换算">
+    <h2><span class="icon">💊</span> 质量/体积浓度</h2>
+    <div class="row">
+      <label for="massVolVal">数值</label>
+      <input type="number" id="massVolVal" placeholder="输入数值" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="massVolFrom">从</label>
+      <select id="massVolFrom">
+        <option value="1" selected>g/L</option>
+        <option value="0.001">mg/mL</option>
+        <option value="1e-6">μg/μL</option>
+        <option value="1e-6">μg/mL</option>
+        <option value="1e-9">ng/μL</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="massVolTo">到</label>
+      <select id="massVolTo">
+        <option value="0.001" selected>mg/mL</option>
+        <option value="1">g/L</option>
+        <option value="1e-9">ng/μL</option>
+      </select>
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="massVolResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="massVolResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+  
+  </section>
+
+  <!-- 6. OD → 核酸质量 -->
+  <section class="card" aria-label="OD260核酸质量换算">
+    <h2><span class="icon">🧬</span> OD₂₆₀ → 核酸质量</h2>
+    <div class="row">
+      <label for="odVal">OD₂₆₀</label>
+      <input type="number" id="odVal" placeholder="A260 读数" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="odType">类型</label>
+      <select id="odType">
+        <option value="50" selected>dsDNA（50 μg/mL/OD）</option>
+        <option value="33">ssDNA（33 μg/mL/OD）</option>
+        <option value="40">RNA（40 μg/mL/OD）</option>
+        <option value="20">寡核苷酸（20 μg/mL/OD）</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="odVol">体积</label>
+      <input type="number" id="odVol" placeholder="样品体积" value="50" step="any" inputmode="decimal">
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="odResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="odResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+  </section>
+
+  <!-- 7. 分子量 → 质量/摩尔互算 -->
+  <section class="card" aria-label="质量摩尔互算">
+    <h2><span class="icon">🧮</span> 质量 ⇄ 摩尔</h2>
+    <div class="row">
+      <label for="mwVal">分子量</label>
+      <input type="number" id="mwVal" placeholder="g/mol（如 660×bp）" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="massIn">质量</label>
+      <input type="number" id="massIn" placeholder="质量值" step="any" inputmode="decimal">
+    </div>
+    <div class="row">
+      <label for="massInUnit">单位</label>
+      <select id="massInUnit">
+        <option value="1e-6" selected>μg</option>
+        <option value="0.001">mg</option>
+        <option value="1">g</option>
+        <option value="1e-9">ng</option>
+      </select>
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="massMoleResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="massMoleResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+
+  </section>
+
+  <!-- 8. 温度 -->
+  <section class="card" aria-label="温度换算">
+    <h2><span class="icon">🌡️</span> 温度换算</h2>
+    <div class="row">
+      <label for="cVal">°C</label>
+      <input type="number" id="cVal" placeholder="摄氏度" step="any" inputmode="decimal">
+    </div>
+    <div class="result-wrapper">
+      <div class="result placeholder" id="tempResult" data-default="—">—</div>
+      <button class="copy-btn" data-target="tempResult" aria-label="复制结果" title="复制" style="display:none">📋</button>
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+  单位换算器 · 纯前端本地计算
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  function safeParse(val) {
+    if (val === '' || val === null || val === undefined) return NaN;
+    const n = parseFloat(val);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function formatNum(n) {
+    if (!Number.isFinite(n)) return '—';
+    if (Math.abs(n) === 0) return '0';
+    if (Math.abs(n) >= 1e6 || Math.abs(n) < 1e-4) return n.toExponential(4);
+    const decimals = Math.abs(n) < 0.01 ? 6 : Math.abs(n) < 1 ? 4 : 3;
+    return n.toFixed(decimals).replace(/\.?0+$/, '');
+  }
+
+  function getUnitName(selectEl) {
+    return selectEl.selectedOptions[0].text.split('（')[0];
+  }
+
+  function setResult(id, text, isError) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.classList.remove('placeholder', 'error');
+    if (isError) el.classList.add('error');
+    else if (text === '—') el.classList.add('placeholder');
+    const btn = document.querySelector(`.copy-btn[data-target="${id}"]`);
+    if (btn) btn.style.display = (text && text !== '—' && !isError) ? '' : 'none';
+  }
+
+  // Copy to Clipboard
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const text = document.getElementById(targetId).textContent;
+      if (!text || text === '—') return;
+      navigator.clipboard?.writeText(text).then(() => {
+        const original = this.textContent;
+        this.textContent = '✅';
+        setTimeout(() => { this.textContent = original; }, 1200);
+      }).catch(() => {
+        const el = document.getElementById(targetId);
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        window.getSelection()?.removeAllRanges();
+        window.getSelection()?.addRange(range);
+      });
+    });
+  });
+
+  // Calculators
+  function calcLength() {
+    try {
+      const v = safeParse(document.getElementById('lenVal').value);
+      if (isNaN(v)) { setResult('lenResult', '—'); return; }
+      const from = safeParse(document.getElementById('lenFrom').value);
+      const to = safeParse(document.getElementById('lenTo').value);
+      if (to === 0) { setResult('lenResult', '目标单位无效', true); return; }
+      setResult('lenResult', `${v} ${getUnitName(document.getElementById('lenFrom'))} = ${formatNum(v * from / to)} ${getUnitName(document.getElementById('lenTo'))}`);
+    } catch(e) { setResult('lenResult', '计算出错', true); }
+  }
+  function calcVol() {
+    try {
+      const v = safeParse(document.getElementById('volVal').value);
+      if (isNaN(v)) { setResult('volResult', '—'); return; }
+      const from = safeParse(document.getElementById('volFrom').value);
+      const to = safeParse(document.getElementById('volTo').value);
+      if (to === 0) { setResult('volResult', '目标单位无效', true); return; }
+      setResult('volResult', `${v} ${getUnitName(document.getElementById('volFrom'))} = ${formatNum(v * from / to)} ${getUnitName(document.getElementById('volTo'))}`);
+    } catch(e) { setResult('volResult', '计算出错', true); }
+  }
+  function calcMass() {
+    try {
+      const v = safeParse(document.getElementById('massVal').value);
+      if (isNaN(v)) { setResult('massResult', '—'); return; }
+      const from = safeParse(document.getElementById('massFrom').value);
+      const to = safeParse(document.getElementById('massTo').value);
+      if (to === 0) { setResult('massResult', '目标单位无效', true); return; }
+      setResult('massResult', `${v} ${getUnitName(document.getElementById('massFrom'))} = ${formatNum(v * from / to)} ${getUnitName(document.getElementById('massTo'))}`);
+    } catch(e) { setResult('massResult', '计算出错', true); }
+  }
+  function calcMolar() {
+    try {
+      const v = safeParse(document.getElementById('molarVal').value);
+      if (isNaN(v)) { setResult('molarResult', '—'); return; }
+      const from = safeParse(document.getElementById('molarFrom').value);
+      const to = safeParse(document.getElementById('molarTo').value);
+      if (to === 0) { setResult('molarResult', '目标单位无效', true); return; }
+      setResult('molarResult', `${v} ${getUnitName(document.getElementById('molarFrom'))} = ${formatNum(v * from / to)} ${getUnitName(document.getElementById('molarTo'))}`);
+    } catch(e) { setResult('molarResult', '计算出错', true); }
+  }
+  function calcMassVol() {
+    try {
+      const v = safeParse(document.getElementById('massVolVal').value);
+      if (isNaN(v)) { setResult('massVolResult', '—'); return; }
+      const from = safeParse(document.getElementById('massVolFrom').value);
+      const to = safeParse(document.getElementById('massVolTo').value);
+      if (to === 0) { setResult('massVolResult', '目标单位无效', true); return; }
+      setResult('massVolResult', `${v} ${getUnitName(document.getElementById('massVolFrom'))} = ${formatNum(v * from / to)} ${getUnitName(document.getElementById('massVolTo'))}`);
+    } catch(e) { setResult('massVolResult', '计算出错', true); }
+  }
+  function calcOD() {
+    try {
+      const od = safeParse(document.getElementById('odVal').value);
+      const vol = safeParse(document.getElementById('odVol').value);
+      if (isNaN(od) || isNaN(vol)) { setResult('odResult', '—'); return; }
+      if (vol < 0) { setResult('odResult', '体积不能为负', true); return; }
+      const factor = safeParse(document.getElementById('odType').value);
+      if (!factor || factor <= 0) { setResult('odResult', '因子无效', true); return; }
+      const conc = od * factor;
+      const total = conc * vol / 1000;
+      setResult('odResult', `浓度 ≈ ${conc.toFixed(1)} μg/mL，总量 ≈ ${total.toFixed(2)} μg`);
+    } catch(e) { setResult('odResult', '计算出错', true); }
+  }
+  function calcMassMole() {
+    try {
+      const mw = safeParse(document.getElementById('mwVal').value);
+      const m = safeParse(document.getElementById('massIn').value);
+      if (isNaN(mw) || isNaN(m)) { setResult('massMoleResult', '—'); return; }
+      if (mw <= 0) { setResult('massMoleResult', '分子量需大于 0', true); return; }
+      const unitMul = safeParse(document.getElementById('massInUnit').value);
+      const massInGrams = m * unitMul;
+      const moles = massInGrams / mw;
+      const pmol = moles * 1e12;
+      setResult('massMoleResult', `${m} ${getUnitName(document.getElementById('massInUnit'))} → ${formatNum(moles)} mol（≈ ${formatNum(pmol)} pmol）`);
+    } catch(e) { setResult('massMoleResult', '计算出错', true); }
+  }
+  function calcTemp() {
+    try {
+      const c = safeParse(document.getElementById('cVal').value);
+      if (isNaN(c)) { setResult('tempResult', '—'); return; }
+      const f = c * 9/5 + 32;
+      const k = c + 273.15;
+      setResult('tempResult', `${c}°C = ${f.toFixed(1)}°F = ${k.toFixed(2)} K`);
+    } catch(e) { setResult('tempResult', '计算出错', true); }
+  }
+
+  // Event Binding
+  const bindings = [
+    [['lenVal','lenFrom','lenTo'], calcLength],
+    [['volVal','volFrom','volTo'], calcVol],
+    [['massVal','massFrom','massTo'], calcMass],
+    [['molarVal','molarFrom','molarTo'], calcMolar],
+    [['massVolVal','massVolFrom','massVolTo'], calcMassVol],
+    [['odVal','odType','odVol'], calcOD],
+    [['mwVal','massIn','massInUnit'], calcMassMole],
+    [['cVal'], calcTemp],
+  ];
+  bindings.forEach(([ids, fn]) => {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', fn);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
