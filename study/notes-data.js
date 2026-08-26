@@ -22,7 +22,7 @@ const noteData = [
     // ---- 生物信息 (info) ----
     { title: 'R语言基础', url: 'https://MesvndNV.html2.link', tag: 'R语言基础教程', category: 'info' },
     { title: 'Python 数据分析与可视化', url: ' info/Python 数据分析与可视化.html', tag: 'Python 数据分析与可视化', category: 'info' },
-    { title: 'git教程', url: 'info/生物信息学git基础教程.html', tag: 'git教程', category: 'info' },
+    { title: 'git教程', url: 'info/生物信息学Git基础教程.html', tag: 'git教程', category: 'info' },
     { title: 'R_ggplot2教程', url: 'info/ggplot2_tutorial.html', tag: 'ggplot2教程', category: 'info' },   // ← 示例占位，可删除
     { title: 'Biopython教程', url: 'info/Biopython零基础实战教程.html', tag: 'Biopython零基础实战教程', category: 'info' },
     { title: '生信基础知识教程', url: 'info/生信基础知识教程.html', tag: '配套biopython', category: 'info' },
