@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提取文字 — PDF 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="extract-text">
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-mark">P</span>
+        <span>PDF 工具箱</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" data-page="home">首页</a>
+        <a href="merge.html" data-page="merge">合并</a>
+        <a href="split.html" data-page="split">拆分</a>
+        <a href="extract-pages.html" data-page="extract-pages">提取页面</a>
+        <a href="extract-text.html" data-page="extract-text">提取文字</a>
+        <a href="ocr.html" data-page="ocr">OCR 识别</a>
+        <a href="extract-images.html" data-page="extract-images">提取图片</a>
+        <a href="compress.html" data-page="compress">压缩</a>
+        <a href="convert.html" data-page="convert">转 Word/Excel</a>
+        <a href="about.html" data-page="about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="index.html">首页</a> / 提取文字</div>
+        <h1>📝 提取文字</h1>
+        <p>逐页提取 PDF 中的文本内容，支持预览、复制与导出 TXT 文件。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div id="dropzone" class="dropzone">
+            <div class="dz-icon">📥</div>
+            <div class="dz-main">点击选择 或 拖拽 PDF 文件到这里</div>
+            <div class="dz-sub">每次处理 1 个 PDF 文件</div>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf" class="hidden" />
+          </div>
+
+          <div id="configBox" class="hidden" style="margin-top: 20px;">
+            <div style="margin-bottom: 14px;">
+              <span class="badge-pill" id="fileBadge">📄 文件名</span>
+              <span class="muted small" id="fileMeta" style="margin-left: 10px;"></span>
+            </div>
+            <button id="extractBtn" class="btn btn-primary">📝 提取全部文字</button>
+            <div class="hint" style="margin-top: 8px;">扫描版 / 图片型 PDF 没有文字层，提取结果可能为空</div>
+            <div id="progressBox"></div>
+          </div>
+
+          <div id="resultBox" class="hidden" style="margin-top: 20px;">
+            <div class="result-toolbar">
+              <div class="info" id="resultInfo"></div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button id="copyBtn" class="btn btn-secondary btn-sm">📋 复制</button>
+                <button id="dlTxtBtn" class="btn btn-success btn-sm">⬇️ 下载 TXT</button>
+              </div>
+            </div>
+            <div id="outputBox" class="output-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>PDF 工具箱 · 纯前端本地处理</div>
+      <span class="privacy-badge">🔒 本地处理，文件不上传</span>
+    </div>
+  </footer>
+
+  <script src="vendor/pdf.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/pdf-utils.js"></script>
+  <script>
+    PDFTools.initNav("extract-text");
+
+    const fileInput = document.getElementById("fileInput");
+    const dropzone = document.getElementById("dropzone");
+    const configBox = document.getElementById("configBox");
+    const fileBadge = document.getElementById("fileBadge");
+    const fileMeta = document.getElementById("fileMeta");
+    const extractBtn = document.getElementById("extractBtn");
+    const progressBox = document.getElementById("progressBox");
+    const resultBox = document.getElementById("resultBox");
+    const resultInfo = document.getElementById("resultInfo");
+    const outputBox = document.getElementById("outputBox");
+    const copyBtn = document.getElementById("copyBtn");
+    const dlTxtBtn = document.getElementById("dlTxtBtn");
+
+    let currentFile = null;
+    let baseName = "output";
+    let pagesText = [];
+    let fullText = "";
+
+    PDFTools.setupDropzone(dropzone, fileInput, (list) => {
+      const f = list[0];
+      if (!f) return;
+      if (!PDFTools.isPdf(f)) { PDFTools.toast("请选择 PDF 文件", "warning"); return; }
+      currentFile = f;
+      baseName = PDFTools.safeName(f.name.replace(/\.pdf$/i, ""));
+      fileBadge.textContent = "📄 " + f.name;
+      fileMeta.textContent = PDFTools.formatBytes(f.size);
+      configBox.classList.remove("hidden");
+      resultBox.classList.add("hidden");
+      pagesText = [];
+      fullText = "";
+      PDFTools.toast("已加载：" + f.name, "success");
+    });
+
+    extractBtn.addEventListener("click", async () => {
+      if (!currentFile) { PDFTools.toast("请先选择 PDF 文件", "warning"); return; }
+      extractBtn.disabled = true;
+      resultBox.classList.add("hidden");
+      const prog = PDFTools.showProgress(progressBox, "正在解析…");
+
+      try {
+        const pdf = await PdfUtils.openPdf(currentFile);
+        const perPage = await PdfUtils.extractTextByPage(pdf);
+        try { await pdf.destroy(); } catch (_) { /* ignore */ }
+        pagesText = perPage;
+        fullText = perPage
+          .map((t, i) => "========== 第 " + (i + 1) + " 页 ==========\n" + (t || "（本页无文本）"))
+          .join("\n\n");
+
+        outputBox.textContent = fullText;
+        const charCount = perPage.reduce((s, t) => s + t.length, 0);
+        resultInfo.textContent = "共 " + perPage.length + " 页 · 提取到 " + charCount + " 个字符" +
+          (charCount === 0 ? "（该 PDF 可能为扫描件，无文字层）" : "");
+        resultBox.classList.remove("hidden");
+        prog.done("提取完成");
+        PDFTools.toast("提取完成，共 " + charCount + " 字符", "success");
+      } catch (err) {
+        prog.fail();
+        PDFTools.toast("提取失败：" + (err.message || err), "error", 5000);
+        console.error(err);
+      } finally {
+        extractBtn.disabled = false;
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!fullText) return;
+      try {
+        await navigator.clipboard.writeText(fullText);
+        PDFTools.toast("已复制到剪贴板", "success");
+      } catch (_) {
+        // 降级：选择文本
+        const range = document.createRange();
+        range.selectNodeContents(outputBox);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand("copy");
+        sel.removeAllRanges();
+        PDFTools.toast("已复制（旧版方式）", "success");
+      }
+    });
+
+    dlTxtBtn.addEventListener("click", () => {
+      if (!fullText) return;
+      // 加 BOM 避免 Windows 记事本乱码
+      const blob = new Blob(["\ufeff" + fullText], { type: "text/plain;charset=utf-8" });
+      PDFTools.downloadBlob(blob, baseName + "_text_" + PDFTools.timestamp() + ".txt");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提取图片 — PDF 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="extract-images">
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-mark">P</span>
+        <span>PDF 工具箱</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" data-page="home">首页</a>
+        <a href="merge.html" data-page="merge">合并</a>
+        <a href="split.html" data-page="split">拆分</a>
+        <a href="extract-pages.html" data-page="extract-pages">提取页面</a>
+        <a href="extract-text.html" data-page="extract-text">提取文字</a>
+        <a href="ocr.html" data-page="ocr">OCR 识别</a>
+        <a href="extract-images.html" data-page="extract-images">提取图片</a>
+        <a href="compress.html" data-page="compress">压缩</a>
+        <a href="convert.html" data-page="convert">转 Word/Excel</a>
+        <a href="about.html" data-page="about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="index.html">首页</a> / 提取图片</div>
+        <h1>🖼️ 提取图片</h1>
+        <p>提取 PDF 内嵌的图片对象，支持预览、逐个下载或一键打包为 ZIP。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div id="dropzone" class="dropzone">
+            <div class="dz-icon">📥</div>
+            <div class="dz-main">点击选择 或 拖拽 PDF 文件到这里</div>
+            <div class="dz-sub">每次处理 1 个 PDF 文件</div>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf" class="hidden" />
+          </div>
+
+          <div id="configBox" class="hidden" style="margin-top: 20px;">
+            <div style="margin-bottom: 14px;">
+              <span class="badge-pill" id="fileBadge">📄 文件名</span>
+              <span class="muted small" id="fileMeta" style="margin-left: 10px;"></span>
+            </div>
+            <button id="extractBtn" class="btn btn-primary">🖼️ 提取全部图片</button>
+            <div id="progressBox"></div>
+          </div>
+
+          <div id="resultBox" class="hidden" style="margin-top: 20px;">
+            <div class="result-toolbar">
+              <div class="info" id="resultInfo"></div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button id="zipBtn" class="btn btn-success btn-sm">📦 打包全部 (ZIP)</button>
+                <button id="dlAllBtn" class="btn btn-secondary btn-sm">⬇️ 逐个下载全部</button>
+              </div>
+            </div>
+            <div id="imgGrid" class="img-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>PDF 工具箱 · 纯前端本地处理</div>
+      <span class="privacy-badge">🔒 本地处理，文件不上传</span>
+    </div>
+  </footer>
+
+  <script src="vendor/pdf.min.js"></script>
+  <script src="vendor/jszip.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/pdf-utils.js"></script>
+  <script>
+    PDFTools.initNav("extract-images");
+
+    const fileInput = document.getElementById("fileInput");
+    const dropzone = document.getElementById("dropzone");
+    const configBox = document.getElementById("configBox");
+    const fileBadge = document.getElementById("fileBadge");
+    const fileMeta = document.getElementById("fileMeta");
+    const extractBtn = document.getElementById("extractBtn");
+    const progressBox = document.getElementById("progressBox");
+    const resultBox = document.getElementById("resultBox");
+    const resultInfo = document.getElementById("resultInfo");
+    const imgGrid = document.getElementById("imgGrid");
+    const zipBtn = document.getElementById("zipBtn");
+    const dlAllBtn = document.getElementById("dlAllBtn");
+
+    let currentFile = null;
+    let baseName = "output";
+    let imageItems = []; // { name, blob, size, page, width, height, url }
+
+    PDFTools.setupDropzone(dropzone, fileInput, (list) => {
+      const f = list[0];
+      if (!f) return;
+      if (!PDFTools.isPdf(f)) { PDFTools.toast("请选择 PDF 文件", "warning"); return; }
+      currentFile = f;
+      baseName = PDFTools.safeName(f.name.replace(/\.pdf$/i, ""));
+      fileBadge.textContent = "📄 " + f.name;
+      fileMeta.textContent = PDFTools.formatBytes(f.size);
+      configBox.classList.remove("hidden");
+      resultBox.classList.add("hidden");
+      imageItems = [];
+      PDFTools.toast("已加载：" + f.name, "success");
+    });
+
+    extractBtn.addEventListener("click", async () => {
+      if (!currentFile) { PDFTools.toast("请先选择 PDF 文件", "warning"); return; }
+      extractBtn.disabled = true;
+      resultBox.classList.add("hidden");
+      imageItems = [];
+      const prog = PDFTools.showProgress(progressBox, "正在解析 PDF 结构…");
+
+      try {
+        const pdf = await PdfUtils.openPdf(currentFile);
+        const found = await PdfUtils.extractImages(pdf, (p, total) => {
+          prog.set(p / total * 60, "扫描第 " + p + "/" + total + " 页…");
+        });
+
+        // 转换为 PNG Blob
+        let converted = 0;
+        for (const it of found) {
+          converted++;
+          prog.set(60 + converted / Math.max(found.length, 1) * 35, "转换图片 " + converted + "/" + found.length + "…");
+          try {
+            const canvas = PdfUtils.imageToCanvas(it.img);
+            const blob = await PdfUtils.canvasToBlob(canvas, "image/png");
+            imageItems.push({
+              key: it.key,
+              name: baseName + "_img" + (imageItems.length + 1) + "_p" + it.page + ".png",
+              blob,
+              size: blob.size,
+              page: it.page,
+              width: it.width,
+              height: it.height,
+            });
+          } catch (e) {
+            console.warn("跳过无法转换的图片（第 " + it.page + " 页）:", e.message);
+          }
+        }
+        try { await pdf.destroy(); } catch (_) { /* ignore */ }
+
+        renderGrid();
+        prog.done("提取完成，共 " + imageItems.length + " 张图片");
+        if (!imageItems.length) {
+          PDFTools.toast("未找到可提取的内嵌图片", "warning");
+        } else {
+          PDFTools.toast("提取完成！共 " + imageItems.length + " 张图片", "success");
+        }
+      } catch (err) {
+        prog.fail();
+        PDFTools.toast("提取失败：" + (err.message || err), "error", 5000);
+        console.error(err);
+      } finally {
+        extractBtn.disabled = false;
+      }
+    });
+
+    function renderGrid() {
+      const totalSize = imageItems.reduce((s, it) => s + it.size, 0);
+      resultInfo.textContent = "共 " + imageItems.length + " 张图片 · " + PDFTools.formatBytes(totalSize);
+      imgGrid.innerHTML = "";
+      if (!imageItems.length) {
+        imgGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="es-icon">🔍</div><p>未找到可提取的内嵌图片（背景图 / 矢量图形不会被提取）</p></div>';
+        resultBox.classList.remove("hidden");
+        return;
+      }
+      imageItems.forEach((it, idx) => {
+        const card = document.createElement("div");
+        card.className = "img-card";
+        card.innerHTML = `
+          <div class="img-wrap"><img data-lz="${idx}" alt="图片 ${idx + 1}" /></div>
+          <div class="img-meta">
+            <span class="nm" title="${it.name}">${it.name}</span>
+            <button class="mini-btn" data-dl="${idx}" title="下载">⬇</button>
+          </div>
+        `;
+        const imgEl = card.querySelector("img");
+        const url = URL.createObjectURL(it.blob);
+        it.url = url;
+        imgEl.src = url;
+        card.querySelector('[data-dl]').addEventListener("click", () => PDFTools.downloadBlob(it.blob, it.name));
+        // 标题里带上尺寸信息
+        card.querySelector(".img-meta").title = `来自第 ${it.page} 页 · ${it.width}×${it.height}px · ${PDFTools.formatBytes(it.size)}`;
+        imgGrid.appendChild(card);
+      });
+      resultBox.classList.remove("hidden");
+    }
+
+    zipBtn.addEventListener("click", async () => {
+      if (!imageItems.length) return;
+      zipBtn.disabled = true;
+      try {
+        await PDFTools.zipDownload(imageItems, baseName + "_images_" + PDFTools.timestamp() + ".zip");
+        PDFTools.toast("ZIP 已开始下载", "success");
+      } catch (err) {
+        PDFTools.toast("打包失败：" + err.message, "error");
+      } finally {
+        zipBtn.disabled = false;
+      }
+    });
+
+    dlAllBtn.addEventListener("click", () => {
+      if (!imageItems.length) return;
+      imageItems.forEach((it) => PDFTools.downloadBlob(it.blob, it.name));
+      PDFTools.toast("已开始逐个下载 " + imageItems.length + " 张图片", "success");
+    });
+  </script>
+</body>
+</html>

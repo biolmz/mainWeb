@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF 工具箱 — 合并 / 拆分 / 提取页面 / 提取文字 / 提取图片</title>
+  <meta name="description" content="纯前端 PDF 工具箱：PDF 合并、拆分、提取页面、提取文字、提取图片。所有处理均在本地浏览器完成，文件不上传。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-mark">P</span>
+        <span>PDF 工具箱</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" data-page="home">首页</a>
+        <a href="merge.html" data-page="merge">合并</a>
+        <a href="split.html" data-page="split">拆分</a>
+        <a href="extract-pages.html" data-page="extract-pages">提取页面</a>
+        <a href="extract-text.html" data-page="extract-text">提取文字</a>
+        <a href="ocr.html" data-page="ocr">OCR 识别</a>
+        <a href="extract-images.html" data-page="extract-images">提取图片</a>
+        <a href="compress.html" data-page="compress">压缩</a>
+        <a href="convert.html" data-page="convert">转 Word/Excel</a>
+        <a href="about.html" data-page="about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">🔒 全程本地处理 · 文件绝不上传</span>
+      <h1>PDF 工具<span class="grad"> 一站式工具箱</span></h1>
+      <p class="sub">合并、拆分、提取页面、提取文字、提取图片——无需安装任何软件，打开浏览器即可使用。</p>
+    </section>
+
+    <div class="container">
+      <!-- 功能入口卡片 -->
+      <section aria-label="功能入口">
+        <div class="feature-grid">
+          <a class="feature-card" href="merge.html">
+            <span class="go">→</span>
+            <div class="icon">🔗</div>
+            <h3>PDF 合并</h3>
+            <p>将多个 PDF 文件按顺序合并为一个文件，支持拖拽排序。</p>
+          </a>
+          <a class="feature-card" href="split.html">
+            <span class="go">→</span>
+            <div class="icon">✂️</div>
+            <h3>PDF 拆分</h3>
+            <p>按每 N 页一份，或按自定义页码范围，拆分成多个 PDF。</p>
+          </a>
+          <a class="feature-card" href="extract-pages.html">
+            <span class="go">→</span>
+            <div class="icon">📑</div>
+            <h3>提取页面</h3>
+            <p>从 PDF 中提取指定页面组成新文件，支持可视化勾选页面。</p>
+          </a>
+          <a class="feature-card" href="extract-text.html">
+            <span class="go">→</span>
+            <div class="icon">📝</div>
+            <h3>提取文字</h3>
+            <p>逐页提取 PDF 中的文本内容，支持预览、复制与导出 TXT。</p>
+          </a>
+          <a class="feature-card" href="extract-images.html">
+            <span class="go">→</span>
+            <div class="icon">🖼️</div>
+            <h3>提取图片</h3>
+            <p>提取 PDF 内嵌图片，可预览、逐个下载或打包为 ZIP。</p>
+          </a>
+          <a class="feature-card" href="ocr.html">
+            <span class="go">→</span>
+            <div class="icon">🔍</div>
+            <h3>OCR 扫描件识别</h3>
+            <p>识别扫描版 / 图片型 PDF 的文字，支持中文与英文。</p>
+          </a>
+          <a class="feature-card" href="compress.html">
+            <span class="go">→</span>
+            <div class="icon">🗜️</div>
+            <h3>PDF 压缩</h3>
+            <p>重新编码页面为 JPEG，显著减小扫描件文件体积。</p>
+          </a>
+          <a class="feature-card" href="convert.html">
+            <span class="go">→</span>
+            <div class="icon">🔄</div>
+            <h3>转 Word / Excel</h3>
+            <p>将 PDF 文本转换为可编辑的 Word 文档或 Excel 表格。</p>
+          </a>
+          <a class="feature-card" href="about.html">
+            <span class="go">→</span>
+            <div class="icon">ℹ️</div>
+            <h3>关于</h3>
+            <p>了解技术实现、隐私策略与使用限制。</p>
+          </a>
+        </div>
+      </section>
+
+      <!-- 使用说明 -->
+      <section style="margin-top: 44px;">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="section-title">📖 使用说明</h2>
+            <div class="guide-list">
+              <div class="guide-item">
+                <div class="num">1</div>
+                <div class="txt">
+                  <b>选择文件</b>
+                  <span>点击上传区域或直接拖拽 PDF 文件到页面中，支持批量选择。</span>
+                </div>
+              </div>
+              <div class="guide-item">
+                <div class="num">2</div>
+                <div class="txt">
+                  <b>设置参数</b>
+                  <span>按需调整合并顺序、拆分份数、提取范围等选项。</span>
+                </div>
+              </div>
+              <div class="guide-item">
+                <div class="num">3</div>
+                <div class="txt">
+                  <b>处理并下载</b>
+                  <span>点击处理按钮，稍等片刻即可下载结果文件。大文件处理时间会稍长。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-body">
+            <h2 class="section-title">🛡️ 隐私与安全</h2>
+            <p style="color: var(--text-secondary); font-size: 14.5px; margin: 0;">
+              本站所有功能均基于 <b>pdf-lib</b> 与 <b>pdf.js</b> 在浏览器本地执行，
+              您的文件不会被上传到任何服务器，关闭页面后不留任何痕迹，适合处理敏感文档。
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>PDF 工具箱 · 纯前端本地处理</div>
+      <span class="privacy-badge">🔒 本地处理，文件不上传</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+  <script>PDFTools.initNav("home");</script>
+</body>
+</html>

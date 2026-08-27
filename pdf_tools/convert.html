@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF 转 Word / Excel — PDF 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="convert">
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-mark">P</span>
+        <span>PDF 工具箱</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" data-page="home">首页</a>
+        <a href="merge.html" data-page="merge">合并</a>
+        <a href="split.html" data-page="split">拆分</a>
+        <a href="extract-pages.html" data-page="extract-pages">提取页面</a>
+        <a href="extract-text.html" data-page="extract-text">提取文字</a>
+        <a href="ocr.html" data-page="ocr">OCR 识别</a>
+        <a href="extract-images.html" data-page="extract-images">提取图片</a>
+        <a href="compress.html" data-page="compress">压缩</a>
+        <a href="convert.html" data-page="convert">转 Word/Excel</a>
+        <a href="about.html" data-page="about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="index.html">首页</a> / 转 Word / Excel</div>
+        <h1>🔄 PDF 转 Word / Excel</h1>
+        <p>将 PDF 文本转换为可编辑的 Word 文档或 Excel 表格，适合 PDF 中的文本与规整表格数据。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div id="dropzone" class="dropzone">
+            <div class="dz-icon">📥</div>
+            <div class="dz-main">点击选择 或 拖拽 PDF 文件到这里</div>
+            <div class="dz-sub">每次处理 1 个 PDF 文件</div>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf" class="hidden" />
+          </div>
+
+          <div id="configBox" class="hidden" style="margin-top: 20px;">
+            <div style="margin-bottom: 14px;">
+              <span class="badge-pill" id="fileBadge">📄 文件名</span>
+              <span class="muted small" id="fileMeta" style="margin-left: 10px;"></span>
+            </div>
+
+            <div class="tabs">
+              <button class="tab-btn active" data-tab="docx">转 Word (.docx)</button>
+              <button class="tab-btn" data-tab="xlsx">转 Excel (.xlsx)</button>
+            </div>
+
+            <div id="panel-docx" class="tab-panel active">
+              <button id="toDocxBtn" class="btn btn-primary">📝 转换为 Word</button>
+              <div class="hint" style="margin-top: 8px;">提取每页文本为段落（按页分节），纯文本转换，不保留原排版样式</div>
+            </div>
+
+            <div id="panel-xlsx" class="tab-panel">
+              <div class="field" style="max-width: 360px;">
+                <label for="xlsxMode">表格识别模式</label>
+                <select id="xlsxMode">
+                  <option value="table" selected>智能分列（按坐标聚类成表格）</option>
+                  <option value="text">每行一段（整页文本写入首列）</option>
+                </select>
+                <div class="hint">智能分列适合规整表格；复杂排版建议选「每行一段」</div>
+              </div>
+              <button id="toXlsxBtn" class="btn btn-primary">📊 转换为 Excel</button>
+            </div>
+
+            <div id="progressBox"></div>
+          </div>
+
+          <div id="resultBox" class="hidden" style="margin-top: 20px;">
+            <div class="result-toolbar">
+              <div class="info" id="resultInfo"></div>
+              <button id="dlBtn" class="btn btn-success btn-sm">⬇️ 下载文件</button>
+            </div>
+            <div class="alert alert-info" style="margin-bottom: 0;">
+              💡 转换基于文本提取实现：扫描版 / 图片型 PDF 没有文字层，请先使用「OCR 识别」后再转换；
+              转换结果不含原排版样式，Excel 表格为坐标近似识别，复杂版式可能有偏差。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>PDF 工具箱 · 纯前端本地处理</div>
+      <span class="privacy-badge">🔒 本地处理，文件不上传</span>
+    </div>
+  </footer>
+
+  <script src="vendor/pdf.min.js"></script>
+  <script src="vendor/jszip.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/pdf-utils.js"></script>
+  <script src="assets/js/converters.js"></script>
+  <script>
+    PDFTools.initNav("convert");
+
+    const fileInput = document.getElementById("fileInput");
+    const dropzone = document.getElementById("dropzone");
+    const configBox = document.getElementById("configBox");
+    const fileBadge = document.getElementById("fileBadge");
+    const fileMeta = document.getElementById("fileMeta");
+    const progressBox = document.getElementById("progressBox");
+    const resultBox = document.getElementById("resultBox");
+    const resultInfo = document.getElementById("resultInfo");
+    const dlBtn = document.getElementById("dlBtn");
+    const toDocxBtn = document.getElementById("toDocxBtn");
+    const toXlsxBtn = document.getElementById("toXlsxBtn");
+    const xlsxMode = document.getElementById("xlsxMode");
+
+    let currentFile = null;
+    let baseName = "output";
+    let lastResult = null; // { blob, name }
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    PDFTools.setupDropzone(dropzone, fileInput, (list) => {
+      const f = list[0];
+      if (!f) return;
+      if (!PDFTools.isPdf(f)) { PDFTools.toast("请选择 PDF 文件", "warning"); return; }
+      currentFile = f;
+      baseName = PDFTools.safeName(f.name.replace(/\.pdf$/i, ""));
+      fileBadge.textContent = "📄 " + f.name;
+      fileMeta.textContent = PDFTools.formatBytes(f.size);
+      configBox.classList.remove("hidden");
+      resultBox.classList.add("hidden");
+      lastResult = null;
+      PDFTools.toast("已加载：" + f.name, "success");
+    });
+
+    async function convertDocx() {
+      if (!currentFile) { PDFTools.toast("请先选择 PDF 文件", "warning"); return; }
+      toDocxBtn.disabled = true;
+      resultBox.classList.add("hidden");
+      const prog = PDFTools.showProgress(progressBox, "正在提取文字…");
+      try {
+        const pdf = await PdfUtils.openPdf(currentFile);
+        const pages = await PdfUtils.extractTextByPage(pdf);
+        try { await pdf.destroy(); } catch (_) { /* ignore */ }
+
+        prog.set(70, "生成 Word 文档…");
+        const zip = Converters.buildDocxZip(pages);
+        const blob = await zip.generateAsync({ type: "blob" });
+        lastResult = {
+          blob,
+          name: baseName + "_converted_" + PDFTools.timestamp() + ".docx",
+        };
+        const chars = pages.reduce((s, t) => s + t.length, 0);
+        resultInfo.textContent = "共 " + pages.length + " 页 · " + chars + " 字符 · " + PDFTools.formatBytes(blob.size);
+        resultBox.classList.remove("hidden");
+        prog.done("转换完成");
+        PDFTools.toast("Word 转换完成", "success");
+      } catch (err) {
+        prog.fail();
+        PDFTools.toast("转换失败：" + (err.message || err), "error", 5000);
+        console.error(err);
+      } finally {
+        toDocxBtn.disabled = false;
+      }
+    }
+
+    async function convertXlsx() {
+      if (!currentFile) { PDFTools.toast("请先选择 PDF 文件", "warning"); return; }
+      toXlsxBtn.disabled = true;
+      resultBox.classList.add("hidden");
+      const mode = xlsxMode.value;
+      const prog = PDFTools.showProgress(progressBox, "正在提取文字与坐标…");
+      try {
+        const pdf = await PdfUtils.openPdf(currentFile);
+        const sheets = [];
+        for (let p = 1; p <= pdf.numPages; p++) {
+          prog.set((p - 1) / pdf.numPages * 60, "处理第 " + p + "/" + pdf.numPages + " 页…");
+          const page = await pdf.getPage(p);
+          const content = await page.getTextContent();
+
+          if (mode === "text") {
+            // 每行一段：按 y 分行
+            let text = "";
+            let prevY = null;
+            for (const item of content.items) {
+              if (item.str == null) continue;
+              if (prevY !== null && Math.abs(item.transform[5] - prevY) > 2) text += "\n";
+              text += item.str;
+              prevY = item.transform[5];
+            }
+            const lines = text.replace(/[ \t]+\n/g, "\n").split("\n").filter(Boolean);
+            sheets.push({ name: "第" + p + "页", table: lines.map((l) => [l]) });
+          } else {
+            // 智能分列：按坐标聚类
+            const items = [];
+            for (const item of content.items) {
+              if (item.str == null || !item.str.trim()) continue;
+              items.push({ str: item.str, x: item.transform[4], y: item.transform[5] });
+            }
+            const table = Converters.clusterToTable(items);
+            sheets.push({ name: "第" + p + "页", table });
+          }
+        }
+        try { await pdf.destroy(); } catch (_) { /* ignore */ }
+
+        prog.set(80, "生成 Excel 文档…");
+        const zip = Converters.buildXlsxZip(sheets);
+        const blob = await zip.generateAsync({ type: "blob" });
+        lastResult = {
+          blob,
+          name: baseName + "_tables_" + PDFTools.timestamp() + ".xlsx",
+        };
+        const cellCount = sheets.reduce((s, sh) => s + sh.table.reduce((a, r) => a + r.length, 0), 0);
+        resultInfo.textContent = "共 " + sheets.length + " 个工作表 · " + cellCount + " 个单元格 · " + PDFTools.formatBytes(blob.size);
+        resultBox.classList.remove("hidden");
+        prog.done("转换完成");
+        PDFTools.toast("Excel 转换完成", "success");
+      } catch (err) {
+        prog.fail();
+        PDFTools.toast("转换失败：" + (err.message || err), "error", 5000);
+        console.error(err);
+      } finally {
+        toXlsxBtn.disabled = false;
+      }
+    }
+
+    toDocxBtn.addEventListener("click", convertDocx);
+    toXlsxBtn.addEventListener("click", convertXlsx);
+
+    dlBtn.addEventListener("click", () => {
+      if (lastResult) PDFTools.downloadBlob(lastResult.blob, lastResult.name);
+    });
+  </script>
+</body>
+</html>

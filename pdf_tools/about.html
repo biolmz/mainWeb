@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>关于 — PDF 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="about">
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-mark">P</span>
+        <span>PDF 工具箱</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" data-page="home">首页</a>
+        <a href="merge.html" data-page="merge">合并</a>
+        <a href="split.html" data-page="split">拆分</a>
+        <a href="extract-pages.html" data-page="extract-pages">提取页面</a>
+        <a href="extract-text.html" data-page="extract-text">提取文字</a>
+        <a href="ocr.html" data-page="ocr">OCR 识别</a>
+        <a href="extract-images.html" data-page="extract-images">提取图片</a>
+        <a href="compress.html" data-page="compress">压缩</a>
+        <a href="convert.html" data-page="convert">转 Word/Excel</a>
+        <a href="about.html" data-page="about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="index.html">首页</a> / 关于</div>
+        <h1>关于本项目</h1>
+        <p>一个纯前端实现的 PDF 处理工具箱，覆盖日常最常见的五种 PDF 操作。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body about-section">
+          <h2>💡 项目介绍</h2>
+          <p>
+            本项目提供 <b>PDF 合并</b>、<b>PDF 拆分</b>、<b>提取页面</b>、<b>提取文字</b>、<b>提取图片</b>、
+            <b>OCR 扫描件识别</b>、<b>PDF 压缩</b>、<b>转 Word / Excel</b> 八项核心能力。所有处理都在浏览器本地完成：
+            打开页面 → 选择文件 → 处理 → 下载，全程无需联网上传，也没有文件大小、数量上的服务器限制。
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body about-section">
+          <h2>⚙️ 技术实现</h2>
+          <ul class="tech-list">
+            <li>
+              <span class="t-icon">📚</span>
+              <span><b>pdf-lib</b><span>合并、拆分、提取页面、压缩重建（创建/拷贝页面与保存 PDF）</span></span>
+            </li>
+            <li>
+              <span class="t-icon">🖨️</span>
+              <span><b>pdf.js（Mozilla）</b><span>解析 PDF 结构、渲染页面、提取文本、内嵌图片与页面坐标</span></span>
+            </li>
+            <li>
+              <span class="t-icon">🔍</span>
+              <span><b>Tesseract.js</b><span>OCR 扫描件识别（chi_sim / eng 语言包本地化，含 SIMD 加速）</span></span>
+            </li>
+            <li>
+              <span class="t-icon">📦</span>
+              <span><b>JSZip</b><span>多文件打包 ZIP；并用于生成 docx / xlsx（Office Open XML）文件</span></span>
+            </li>
+            <li>
+              <span class="t-icon">🧱</span>
+              <span><b>原生 HTML / CSS / JavaScript</b><span>无构建工具、无后端依赖，静态托管即可运行</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body about-section">
+          <h2>🛡️ 隐私与安全</h2>
+          <p>
+            您的文件始终停留在本地设备中，浏览器负责全部计算，不会发生任何上传行为。
+            关闭页面后，文件数据即从内存中释放，适合处理合同、证件等敏感材料。
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body about-section">
+          <h2>⚠️ 使用限制与提示</h2>
+          <ul class="feature-checklist">
+            <li><span class="ok">✔</span> 受密码保护（加密）的 PDF 无法处理，请先解除密码。</li>
+            <li><span class="ok">✔</span> 扫描版 / 图片型 PDF 没有文字层，提取文字为空属正常；请使用「OCR 识别」功能。</li>
+            <li><span class="ok">✔</span> OCR 首次使用需下载语言包（约 2-5 MB），识别速度取决于页数与精度设置。</li>
+            <li><span class="ok">✔</span> PDF 压缩会将页面栅格化为图片：文字型 PDF 压缩后将不可复制、不可搜索。</li>
+            <li><span class="ok">✔</span> 转 Word / Excel 基于文本提取：不含原排版样式，Excel 表格为坐标近似识别。</li>
+            <li><span class="ok">✔</span> 超大文件（数百 MB）建议使用现代浏览器（Chrome / Edge / Firefox 最新版）。</li>
+            <li><span class="ok">✔</span> 提取图片仅针对 PDF 内嵌的图像对象；背景图、矢量图形不会被提取。</li>
+            <li><span class="ok">✔</span> 为避免重复工作，页面刷新后已选择文件会清空，属预期行为。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>PDF 工具箱 · 纯前端本地处理</div>
+      <span class="privacy-badge">🔒 本地处理，文件不上传</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+  <script>PDFTools.initNav("about");</script>
+</body>
+</html>

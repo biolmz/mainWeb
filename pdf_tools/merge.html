@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF 合并 — PDF 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="merge">
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-mark">P</span>
+        <span>PDF 工具箱</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" data-page="home">首页</a>
+        <a href="merge.html" data-page="merge">合并</a>
+        <a href="split.html" data-page="split">拆分</a>
+        <a href="extract-pages.html" data-page="extract-pages">提取页面</a>
+        <a href="extract-text.html" data-page="extract-text">提取文字</a>
+        <a href="ocr.html" data-page="ocr">OCR 识别</a>
+        <a href="extract-images.html" data-page="extract-images">提取图片</a>
+        <a href="compress.html" data-page="compress">压缩</a>
+        <a href="convert.html" data-page="convert">转 Word/Excel</a>
+        <a href="about.html" data-page="about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="index.html">首页</a> / PDF 合并</div>
+        <h1>🔗 PDF 合并</h1>
+        <p>将多个 PDF 文件按顺序合并成一个文件，支持拖拽排序与调整顺序。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div id="dropzone" class="dropzone">
+            <div class="dz-icon">📥</div>
+            <div class="dz-main">点击选择 或 拖拽 PDF 文件到这里</div>
+            <div class="dz-sub">支持多选，最多建议不超过 20 个文件</div>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf" multiple class="hidden" />
+          </div>
+
+          <div id="fileList" class="file-list hidden"></div>
+          <div id="emptyHint" class="empty-state hidden">
+            <div class="es-icon">🗂️</div>
+            <p>尚未添加文件</p>
+          </div>
+
+          <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <button id="mergeBtn" class="btn btn-primary" disabled>🔗 合并 PDF</button>
+            <span id="mergeInfo" class="muted small"></span>
+          </div>
+          <div id="progressBox"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>PDF 工具箱 · 纯前端本地处理</div>
+      <span class="privacy-badge">🔒 本地处理，文件不上传</span>
+    </div>
+  </footer>
+
+  <script src="vendor/pdf-lib.min.js"></script>
+  <script src="vendor/pdf.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/pdf-utils.js"></script>
+  <script>
+    PDFTools.initNav("merge");
+
+    const fileInput = document.getElementById("fileInput");
+    const dropzone = document.getElementById("dropzone");
+    const listEl = document.getElementById("fileList");
+    const emptyHint = document.getElementById("emptyHint");
+    const mergeBtn = document.getElementById("mergeBtn");
+    const mergeInfo = document.getElementById("mergeInfo");
+    const progressBox = document.getElementById("progressBox");
+
+    let items = []; // { file, pages }
+
+    PDFTools.setupDropzone(dropzone, fileInput, (list) => {
+      let added = 0;
+      for (const f of list) {
+        if (!PDFTools.isPdf(f)) {
+          PDFTools.toast("「" + f.name + "」不是 PDF 文件，已跳过", "warning");
+          continue;
+        }
+        if (items.some((it) => it.file === f)) continue;
+        items.push({ file: f, pages: null });
+        added++;
+      }
+      if (added === 0 && list.length) return;
+      renderList();
+      loadPageCounts();
+      if (added) PDFTools.toast("已添加 " + added + " 个文件", "success");
+    });
+
+    function renderList() {
+      listEl.classList.remove("hidden");
+      emptyHint.classList.add("hidden");
+      listEl.innerHTML = "";
+      items.forEach((item, idx) => {
+        const el = document.createElement("div");
+        el.className = "file-item";
+        el.innerHTML = `
+          <span class="f-icon">📄</span>
+          <span class="f-order">
+            <button class="mini-btn" data-act="up" title="上移" ${idx === 0 ? "disabled" : ""}>▲</button>
+            <button class="mini-btn" data-act="down" title="下移" ${idx === items.length - 1 ? "disabled" : ""}>▼</button>
+          </span>
+          <span class="f-info">
+            <div class="f-name">${escapeHtml(item.file.name)}</div>
+            <div class="f-meta" data-meta="${idx}">${PDFTools.formatBytes(item.file.size)}${item.pages != null ? " · " + item.pages + " 页" : ""}</div>
+          </span>
+          <span class="f-actions">
+            <button class="mini-btn danger" data-act="remove" title="移除">✕</button>
+          </span>
+        `;
+        el.querySelector('[data-act="up"]').addEventListener("click", () => move(idx, -1));
+        el.querySelector('[data-act="down"]').addEventListener("click", () => move(idx, 1));
+        el.querySelector('[data-act="remove"]').addEventListener("click", () => removeAt(idx));
+        listEl.appendChild(el);
+      });
+      updateState();
+    }
+
+    function move(idx, dir) {
+      const j = idx + dir;
+      if (j < 0 || j >= items.length) return;
+      [items[idx], items[j]] = [items[j], items[idx]];
+      renderList();
+    }
+
+    function removeAt(idx) {
+      items.splice(idx, 1);
+      renderList();
+      if (!items.length) {
+        listEl.classList.add("hidden");
+        emptyHint.classList.remove("hidden");
+      }
+    }
+
+    function updateState() {
+      mergeBtn.disabled = items.length < 2;
+      if (items.length >= 2) {
+        const total = items.reduce((s, it) => s + (it.pages || 0), 0);
+        mergeInfo.textContent = `共 ${items.length} 个文件，${items.length ? "合并后约 " + total + " 页" : ""}`;
+      } else {
+        mergeInfo.textContent = items.length ? "至少需要 2 个文件才能合并" : "";
+      }
+    }
+
+    async function loadPageCounts() {
+      for (const item of items) {
+        if (item.pages != null) continue;
+        try {
+          item.pages = await PdfUtils.getPageCount(item.file);
+        } catch (e) {
+          item.pages = 0;
+        }
+        const idx = items.indexOf(item);
+        const el = listEl.querySelector('[data-meta="' + idx + '"]');
+        if (el) el.textContent = PDFTools.formatBytes(item.file.size) + " · " + (item.pages || "?") + " 页";
+      }
+      updateState();
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+
+    mergeBtn.addEventListener("click", async () => {
+      if (items.length < 2) return;
+      mergeBtn.disabled = true;
+      const prog = PDFTools.showProgress(progressBox, "准备合并…");
+
+      try {
+        const merged = await PDFLib.PDFDocument.create();
+        let done = 0;
+        let totalPages = 0;
+        for (const item of items) {
+          prog.set(done / items.length * 90, "正在处理：" + item.file.name);
+          const src = await PDFLib.PDFDocument.load(await item.file.arrayBuffer(), { ignoreEncryption: true });
+          const pages = await merged.copyPages(src, src.getPageIndices());
+          pages.forEach((p) => merged.addPage(p));
+          totalPages += pages.length;
+          done++;
+        }
+        prog.set(95, "保存文件…");
+        const bytes = await merged.save();
+        PDFTools.downloadBlob(new Blob([bytes], { type: "application/pdf" }),
+          "merged_" + PDFTools.timestamp() + ".pdf");
+        prog.done("合并完成，共 " + totalPages + " 页");
+        PDFTools.toast("合并成功！共 " + totalPages + " 页", "success");
+      } catch (err) {
+        prog.fail();
+        PDFTools.toast("合并失败：" + (err.message || err), "error", 5000);
+        console.error(err);
+      } finally {
+        mergeBtn.disabled = items.length < 2;
+      }
+    });
+  </script>
+</body>
+</html>

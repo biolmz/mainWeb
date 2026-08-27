@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF 压缩 — PDF 工具箱</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="compress">
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav-logo" href="index.html">
+        <span class="logo-mark">P</span>
+        <span>PDF 工具箱</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" data-page="home">首页</a>
+        <a href="merge.html" data-page="merge">合并</a>
+        <a href="split.html" data-page="split">拆分</a>
+        <a href="extract-pages.html" data-page="extract-pages">提取页面</a>
+        <a href="extract-text.html" data-page="extract-text">提取文字</a>
+        <a href="ocr.html" data-page="ocr">OCR 识别</a>
+        <a href="extract-images.html" data-page="extract-images">提取图片</a>
+        <a href="compress.html" data-page="compress">压缩</a>
+        <a href="convert.html" data-page="convert">转 Word/Excel</a>
+        <a href="about.html" data-page="about">关于</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="page-head">
+        <div class="breadcrumb"><a href="index.html">首页</a> / PDF 压缩</div>
+        <h1>🗜️ PDF 压缩</h1>
+        <p>通过重新编码页面为 JPEG 来显著减小文件体积，非常适合扫描件与图片型 PDF。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div id="dropzone" class="dropzone">
+            <div class="dz-icon">📥</div>
+            <div class="dz-main">点击选择 或 拖拽 PDF 文件到这里</div>
+            <div class="dz-sub">每次处理 1 个 PDF 文件</div>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf" class="hidden" />
+          </div>
+
+          <div id="configBox" class="hidden" style="margin-top: 20px;">
+            <div style="margin-bottom: 14px;">
+              <span class="badge-pill" id="fileBadge">📄 文件名</span>
+              <span class="muted small" id="fileMeta" style="margin-left: 10px;"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="field" style="flex: 1; min-width: 260px;">
+                <label for="qualityRange">JPEG 质量：<b id="qualityVal">75</b>%</label>
+                <input type="range" id="qualityRange" min="20" max="95" step="5" value="75" style="width: 100%;" />
+                <div class="hint">质量越低文件越小，但画面越模糊；建议 60-80</div>
+              </div>
+              <div class="field" style="flex: 1; min-width: 180px;">
+                <label for="dpiSelect">页面渲染分辨率</label>
+                <select id="dpiSelect">
+                  <option value="0.5">0.5x（最小体积）</option>
+                  <option value="0.75">0.75x（推荐）</option>
+                  <option value="1" selected>1x（原始尺寸）</option>
+                  <option value="1.5">1.5x（更清晰，体积大）</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="compressBtn" class="btn btn-primary">🗜️ 开始压缩</button>
+            <div id="progressBox"></div>
+          </div>
+
+          <div id="resultBox" class="hidden" style="margin-top: 20px;">
+            <div class="result-toolbar">
+              <div class="info" id="resultInfo"></div>
+              <button id="dlBtn" class="btn btn-success btn-sm">⬇️ 下载压缩后的 PDF</button>
+            </div>
+            <div class="alert alert-warn" style="margin-bottom: 0;">
+              ⚠️ 压缩会将页面栅格化为图片：文字型 PDF 压缩后文字将不可复制、不可搜索；图片型 / 扫描件 PDF 效果最佳。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>PDF 工具箱 · 纯前端本地处理</div>
+      <span class="privacy-badge">🔒 本地处理，文件不上传</span>
+    </div>
+  </footer>
+
+  <script src="vendor/pdf.min.js"></script>
+  <script src="vendor/pdf-lib.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/pdf-utils.js"></script>
+  <script>
+    PDFTools.initNav("compress");
+
+    const fileInput = document.getElementById("fileInput");
+    const dropzone = document.getElementById("dropzone");
+    const configBox = document.getElementById("configBox");
+    const fileBadge = document.getElementById("fileBadge");
+    const fileMeta = document.getElementById("fileMeta");
+    const compressBtn = document.getElementById("compressBtn");
+    const qualityRange = document.getElementById("qualityRange");
+    const qualityVal = document.getElementById("qualityVal");
+    const dpiSelect = document.getElementById("dpiSelect");
+    const progressBox = document.getElementById("progressBox");
+    const resultBox = document.getElementById("resultBox");
+    const resultInfo = document.getElementById("resultInfo");
+    const dlBtn = document.getElementById("dlBtn");
+
+    let currentFile = null;
+    let baseName = "output";
+    let originalSize = 0;
+    let lastResult = null;
+
+    qualityRange.addEventListener("input", () => {
+      qualityVal.textContent = qualityRange.value;
+    });
+
+    PDFTools.setupDropzone(dropzone, fileInput, (list) => {
+      const f = list[0];
+      if (!f) return;
+      if (!PDFTools.isPdf(f)) { PDFTools.toast("请选择 PDF 文件", "warning"); return; }
+      currentFile = f;
+      baseName = PDFTools.safeName(f.name.replace(/\.pdf$/i, ""));
+      originalSize = f.size;
+      fileBadge.textContent = "📄 " + f.name;
+      fileMeta.textContent = PDFTools.formatBytes(f.size);
+      configBox.classList.remove("hidden");
+      resultBox.classList.add("hidden");
+      lastResult = null;
+      PDFTools.toast("已加载：" + f.name, "success");
+    });
+
+    compressBtn.addEventListener("click", async () => {
+      if (!currentFile) { PDFTools.toast("请先选择 PDF 文件", "warning"); return; }
+      compressBtn.disabled = true;
+      resultBox.classList.add("hidden");
+      const quality = parseInt(qualityRange.value, 10) / 100;
+      const scale = parseFloat(dpiSelect.value);
+      const prog = PDFTools.showProgress(progressBox, "正在解析 PDF…");
+
+      try {
+        const pdf = await PdfUtils.openPdf(currentFile);
+        const total = pdf.numPages;
+
+        // 预取每页原始 pt 尺寸（scale=1 的 viewport）
+        const sizes = [];
+        for (let p = 1; p <= total; p++) {
+          const page = await pdf.getPage(p);
+          const vp = page.getViewport({ scale: 1 });
+          sizes.push({ w: Math.round(vp.width), h: Math.round(vp.height) });
+        }
+
+        const out = await PDFLib.PDFDocument.create();
+        for (let p = 1; p <= total; p++) {
+          prog.set((p - 1) / total * 85, "第 " + p + "/" + total + " 页：渲染并压缩…");
+          const { canvas } = await PdfUtils.renderPageToCanvas(pdf, p, scale);
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+          const jpgBytes = new Uint8Array(await blob.arrayBuffer());
+          const img = await out.embedJpg(jpgBytes);
+          const page = out.addPage([sizes[p - 1].w, sizes[p - 1].h]);
+          page.drawImage(img, {
+            x: 0,
+            y: 0,
+            width: sizes[p - 1].w,
+            height: sizes[p - 1].h,
+          });
+        }
+        try { await pdf.destroy(); } catch (_) { /* ignore */ }
+
+        prog.set(95, "保存文件…");
+        const bytes = await out.save({ useObjectStreams: true });
+        lastResult = {
+          blob: new Blob([bytes], { type: "application/pdf" }),
+          name: baseName + "_compressed_" + PDFTools.timestamp() + ".pdf",
+        };
+
+        const newSize = lastResult.blob.size;
+        const saved = originalSize - newSize;
+        const pct = originalSize > 0 ? Math.round((saved / originalSize) * 100) : 0;
+        const ratioText = pct >= 0 ? "减小 " + pct + "%" : "增大 " + Math.abs(pct) + "%";
+
+        resultInfo.innerHTML = `原大小 <b>${PDFTools.formatBytes(originalSize)}</b> → 压缩后 <b>${PDFTools.formatBytes(newSize)}</b>（${ratioText}，共 ${total} 页）`;
+        resultBox.classList.remove("hidden");
+        prog.done("压缩完成");
+        if (pct <= 0) {
+          PDFTools.toast("压缩后反而更大，建议降低质量或分辨率再试", "warning", 5000);
+        } else {
+          PDFTools.toast("压缩完成！" + ratioText, "success");
+        }
+      } catch (err) {
+        prog.fail();
+        PDFTools.toast("压缩失败：" + (err.message || err), "error", 5000);
+        console.error(err);
+      } finally {
+        compressBtn.disabled = false;
+      }
+    });
+
+    dlBtn.addEventListener("click", () => {
+      if (lastResult) PDFTools.downloadBlob(lastResult.blob, lastResult.name);
+    });
+  </script>
+</body>
+</html>
