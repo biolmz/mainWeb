@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HashCheck</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d3d;
+    --text: #e8edf2;
+    --muted: #5a7a8c;
+    --accent: #00d4ff;
+    --accent-dim: #00d4ff22;
+    --success: #00ff88;
+    --success-dim: #00ff8818;
+    --danger: #ff4466;
+    --danger-dim: #ff446618;
+    --warning: #ffaa00;
+    --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --radius: 10px;
+    --gap: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 顶部栏 */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  header .brand {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  header .brand span { color: var(--muted); }
+  .theme-switch {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 2px;
+    border: 1px solid var(--border);
+  }
+  .theme-switch button {
+    width: 28px; height: 28px;
+    border: none; border-radius: 6px;
+    background: transparent; color: var(--muted);
+    cursor: pointer; font-size: 0.85rem;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .theme-switch button.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  /* ====== 文件选择区 ====== */
+  .drop {
+    position: relative;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: clamp(32px, 8vw, 56px) 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-bottom: var(--gap);
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--surface), var(--surface2));
+  }
+
+  /* 扫描线动画 */
+  .drop::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+    animation: scan 2.5s linear infinite;
+  }
+  @keyframes scan {
+    0% { top: -10%; }
+    100% { top: 110%; }
+  }
+
+  .drop:hover {
+    border-color: var(--accent);
+    border-style: solid;
+    box-shadow: 0 0 0 1px var(--accent), 0 0 24px var(--accent-dim);
+  }
+  .drop:hover::after { opacity: 0.6; }
+
+  .drop.dragover {
+    border-color: var(--accent);
+    border-style: solid;
+    border-width: 2px;
+    background: var(--accent-dim);
+    transform: scale(1.02);
+    box-shadow: 0 0 30px var(--accent-dim);
+  }
+  .drop.dragover::after { opacity: 1; }
+
+  /* 文件图标 */
+  .drop-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--accent-dim);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    transition: all 0.25s;
+  }
+  .drop:hover .drop-icon {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    transform: translateY(-1px);
+  }
+  .drop.dragover .drop-icon {
+    transform: scale(1.1);
+    border-color: var(--accent);
+  }
+  .drop-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .drop-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .drop-sub {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* 选中文件后的状态 */
+  .drop.has-file {
+    padding: 14px 16px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-style: solid;
+    background: var(--surface);
+  }
+  .drop.has-file:hover {
+    border-style: solid;
+  }
+  .drop.has-file .drop-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: transparent;
+  }
+  .drop.has-file:hover .drop-icon {
+    background: transparent;
+    border-color: var(--border);
+    transform: none;
+  }
+  .drop.has-file .drop-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+  .drop.has-file .file-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .drop.has-file .drop-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .drop.has-file .drop-sub {
+    font-size: 0.7rem;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  .drop.has-file .drop-sub .file-type {
+    display: inline-flex;
+    align-items: center;
+    height: 16px;
+    padding: 0 6px;
+    border-radius: 3px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 1px solid;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .drop.has-file .file-actions {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+  }
+  .drop.has-file .file-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--mono);
+    white-space: nowrap;
+  }
+  .drop.has-file .file-actions button svg {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .drop.has-file .file-actions .change-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .drop.has-file .file-actions .remove-btn:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: var(--danger-dim);
+  }
+
+  input[type="file"] { display: none; }
+
+  /* 工具栏 */
+  .toolbar {
+    display: flex;
+    gap: var(--gap);
+    margin-bottom: var(--gap);
+    flex-wrap: wrap;
+  }
+  .seg {
+    display: flex;
+    flex: 1;
+    min-width: 140px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 3px;
+  }
+  .seg button {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .seg button.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+  .btn-clear {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-clear:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: var(--danger-dim);
+  }
+
+  /* 校验输入 */
+  .field {
+    margin-bottom: var(--gap);
+  }
+  .field label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 5px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    transition: border-color 0.15s;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field input::placeholder { color: #2a3a4a; }
+
+  /* 进度 */
+  .progress {
+    margin-bottom: var(--gap);
+    display: none;
+  }
+  .progress-bar {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.25s ease;
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* 结果 */
+  .result {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: var(--gap);
+    display: none;
+  }
+  .result .label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .result .hash-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .result .hash {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    word-break: break-all;
+    padding: 8px 10px;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  .result .copy {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .result .copy:hover { border-color: var(--accent); color: var(--accent); }
+  .result .copy.done { color: var(--success); border-color: var(--success); }
+  .result .meta {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* 状态横幅 */
+  .banner {
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: var(--gap);
+    display: none;
+  }
+  .banner.ok { background: var(--success-dim); color: var(--success); border: 1px solid #00ff8840; display: block; }
+  .banner.bad { background: var(--danger-dim); color: var(--danger); border: 1px solid #ff446640; display: block; }
+
+  /* 历史 */
+  .history { margin-top: 24px; }
+  .history h3 {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .record {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+  }
+  .record .r-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .record .r-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .record .r-hash {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    opacity: 0.8;
+    word-break: break-all;
+    margin-bottom: 4px;
+  }
+  .record .r-meta {
+    display: flex;
+    gap: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    flex-wrap: wrap;
+  }
+  .tag {
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.65rem;
+  }
+  .tag.ok { background: var(--success-dim); color: var(--success); }
+  .tag.bad { background: var(--danger-dim); color: var(--danger); }
+
+  .export {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .export:hover { background: var(--accent-dim); }
+
+  /* 全屏拖拽遮罩 */
+  .mask {
+    position: fixed; inset: 0;
+    background: #00d4ff10;
+    border: 3px solid var(--accent);
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .mask.show { display: flex; }
+  .mask div { font-family: var(--mono); color: var(--accent); font-size: 1.2rem; }
+
+  @media (max-width: 480px) {
+    header { padding: 12px 14px; }
+    main { padding: 16px 12px 32px; }
+    .toolbar { flex-direction: column; }
+    .seg { min-width: 100%; }
+    .btn-clear { width: 100%; }
+    .drop.has-file { flex-direction: column; text-align: center; gap: 10px; }
+    .drop.has-file .drop-icon { margin: 0; }
+    .drop.has-file .file-info { flex: none; width: 100%; }
+    .drop.has-file .drop-sub { justify-content: center; }
+    .drop.has-file .file-actions { margin-left: 0; }
+    .result .hash-row { flex-direction: column; align-items: stretch; }
+    .result .copy { text-align: center; }
+  }
+  @media (min-width: 768px) {
+    main { padding: 32px 24px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mask" id="mask"><div>↓ DROP FILE</div></div>
+
+<header>
+  <div class="brand">Hash<span>Check</span></div>
+  <div class="theme-switch">
+    <button class="active" data-t="auto" title="Auto">⚙</button>
+    <button data-t="light" title="Light">☀</button>
+    <button data-t="dark" title="Dark">☾</button>
+    <button data-t="hc" title="High Contrast">◈</button>
+  </div>
+</header>
+
+<main>
+  <label class="drop" id="drop">
+    <div class="drop-icon">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+    </div>
+    <div>
+      <div class="drop-title">选择文件或拖拽到此处</div>
+      <div class="drop-sub">纯前端计算 · 文件不离开设备</div>
+    </div>
+    <input type="file" id="file">
+  </label>
+
+  <div class="toolbar">
+    <div class="seg">
+      <button class="active" data-a="SHA-256">SHA-256</button>
+      <button data-a="MD5">MD5</button>
+    </div>
+    <button class="btn-clear" onclick="resetAll()">清除</button>
+  </div>
+
+  <div class="field">
+    <label>Expected Hash</label>
+    <input type="text" id="expect" placeholder="粘贴预期哈希值进行校验" spellcheck="false">
+  </div>
+
+  <div class="progress" id="prog">
+    <div class="progress-bar"><div class="fill" id="bar"></div></div>
+    <div class="progress-labels"><span id="pct">0%</span><span id="speed"></span></div>
+  </div>
+
+  <div class="result" id="res">
+    <div class="label">Hash Output</div>
+    <div class="hash-row">
+      <div class="hash" id="out"></div>
+      <button class="copy" id="copyBtn" onclick="copy()">COPY</button>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="history" id="hist" style="display:none">
+    <h3>History</h3>
+    <div id="list"></div>
+    <button class="export" onclick="exportTxt()">EXPORT REPORT</button>
+  </div>
+</main>
+
+<script>
+// ========== Theme ==========
+const root = document.documentElement;
+const tBtns = document.querySelectorAll('.theme-switch button');
+const saved = localStorage.getItem('hc-theme') || 'auto';
+
+function setTheme(t) {
+  tBtns.forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  if (t === 'auto') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', t);
+  localStorage.setItem('hc-theme', t);
+}
+tBtns.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.t)));
+setTheme(saved);
+
+const extra = document.createElement('style');
+extra.textContent = `
+  [data-theme="light"] {
+    --bg: #f0f4f8; --surface: #ffffff; --surface2: #e8eef4;
+    --border: #d0d8e0; --text: #0a1628; --muted: #6a8294;
+    --accent: #0066cc; --accent-dim: #0066cc15;
+  }
+  [data-theme="hc"] {
+    --bg: #000; --surface: #000; --surface2: #111;
+    --border: #ff0; --text: #fff; --muted: #ff0;
+    --accent: #ff0; --accent-dim: #ff01; --success: #0f0; --danger: #f00; --warning: #ff0;
+  }
+`;
+document.head.appendChild(extra);
+
+// ========== Worker ==========
+const workerBlob = new Blob([`
+  function md5inc() {
+    let b=[],l=0;
+    return {
+      up: function(i){const u=new Uint8Array(i);b.push(u);l+=u.length;},
+      fin: function(){
+        const a=new Uint8Array(l);let p=0;for(const c of b){a.set(c,p);p+=c.length;}
+        function F(q,a,b,x,s,t){a=(((a+q)|0)+((x+t)|0))|0;return(((a<<s)|(a>>>(32-s)))+b)|0;}
+        function f(a,b,c,d,x,s,t){return F((b&c)|((~b)&d),a,b,x,s,t);}
+        function g(a,b,c,d,x,s,t){return F((b&d)|(c&(~d)),a,b,x,s,t);}
+        function h(a,b,c,d,x,s,t){return F(b^c^d,a,b,x,s,t);}
+        function i(a,b,c,d,x,s,t){return F(c^(b|(~d)),a,b,x,s,t);}
+        const tl=l%64,pl=tl<56?(56-tl):(120-tl);
+        const tw=new Uint32Array((l+pl+8)/4);
+        for(let j=0;j<l;j++) tw[j>>2]|=a[j]<<((j%4)*8);
+        tw[l>>2]|=0x80<<((l%4)*8); tw[tw.length-2]=l*8;
+        let A=1732584193,B=-271733879,C=-1732584194,D=271733878;
+        for(let j=0;j<tw.length;j+=16){
+          const a=A,b=B,c=C,d=D;
+          A=f(A,B,C,D,tw[j],7,-680876936);D=f(D,A,B,C,tw[j+1],12,-389564586);
+          C=f(C,D,A,B,tw[j+2],17,606105819);B=f(B,C,D,A,tw[j+3],22,-1044525330);
+          A=f(A,B,C,D,tw[j+4],7,-176418897);D=f(D,A,B,C,tw[j+5],12,1200080426);
+          C=f(C,D,A,B,tw[j+6],17,-1473231341);B=f(B,C,D,A,tw[j+7],22,-45705983);
+          A=f(A,B,C,D,tw[j+8],7,1770035416);D=f(D,A,B,C,tw[j+9],12,-1958414417);
+          C=f(C,D,A,B,tw[j+10],17,-42063);B=f(B,C,D,A,tw[j+11],22,-1990404162);
+          A=f(A,B,C,D,tw[j+12],7,1804603682);D=f(D,A,B,C,tw[j+13],12,-40341101);
+          C=f(C,D,A,B,tw[j+14],17,-1502002290);B=f(B,C,D,A,tw[j+15],22,1236535329);
+          A=g(A,B,C,D,tw[j+1],5,-165796510);D=g(D,A,B,C,tw[j+6],9,-1069501632);
+          C=g(C,D,A,B,tw[j+11],14,643717713);B=g(B,C,D,A,tw[j],20,-373897302);
+          A=g(A,B,C,D,tw[j+5],5,-701558691);D=g(D,A,B,C,tw[j+10],9,38016083);
+          C=g(C,D,A,B,tw[j+15],14,-660478335);B=g(B,C,D,A,tw[j+4],20,-405537848);
+          A=g(A,B,C,D,tw[j+9],5,568446438);D=g(D,A,B,C,tw[j+14],9,-1019803690);
+          C=g(C,D,A,B,tw[j+3],14,-187363961);B=g(B,C,D,A,tw[j+8],20,1163531501);
+          A=g(A,B,C,D,tw[j+13],5,-1444681467);D=g(D,A,B,C,tw[j+2],9,-51403784);
+          C=g(C,D,A,B,tw[j+7],14,1735328473);B=g(B,C,D,A,tw[j+12],20,-1926607734);
+          A=h(A,B,C,D,tw[j+5],4,-378558);D=h(D,A,B,C,tw[j+8],11,-2022574463);
+          C=h(C,D,A,B,tw[j+11],16,1839030562);B=h(B,C,D,A,tw[j+14],23,-35309556);
+          A=h(A,B,C,D,tw[j+1],4,-1530992060);D=h(D,A,B,C,tw[j+4],11,1272893353);
+          C=h(C,D,A,B,tw[j+7],16,-155497632);B=h(B,C,D,A,tw[j+10],23,-1094730640);
+          A=h(A,B,C,D,tw[j+13],4,681279174);D=h(D,A,B,C,tw[j],11,-358537222);
+          C=h(C,D,A,B,tw[j+3],16,-722521979);B=h(B,C,D,A,tw[j+6],23,76029189);
+          A=h(A,B,C,D,tw[j+9],4,-640364487);D=h(D,A,B,C,tw[j+12],11,-421815835);
+          C=h(C,D,A,B,tw[j+15],16,530742520);B=h(B,C,D,A,tw[j+2],23,-995338651);
+          A=i(A,B,C,D,tw[j],6,-198630844);D=i(D,A,B,C,tw[j+7],10,1126891415);
+          C=i(C,D,A,B,tw[j+14],15,-1416354905);B=i(B,C,D,A,tw[j+5],21,-57434055);
+          A=i(A,B,C,D,tw[j+12],6,1700485571);D=i(D,A,B,C,tw[j+3],10,-1894986606);
+          C=i(C,D,A,B,tw[j+10],15,-1051523);B=i(B,C,D,A,tw[j+1],21,-2054922799);
+          A=i(A,B,C,D,tw[j+8],6,1873313359);D=i(D,A,B,C,tw[j+15],10,-30611744);
+          C=i(C,D,A,B,tw[j+6],15,-1560198380);B=i(B,C,D,A,tw[j+13],21,1309151649);
+          A=i(A,B,C,D,tw[j+4],6,-145523070);D=i(D,A,B,C,tw[j+11],10,-1120210379);
+          C=i(C,D,A,B,tw[j+2],15,718787259);B=i(B,C,D,A,tw[j+9],21,-343485551);
+          A=(A+a)|0;B=(B+b)|0;C=(C+c)|0;D=(D+d)|0;
+        }
+        function H(x){return[x&0xff,(x>>8)&0xff,(x>>16)&0xff,(x>>24)&0xff].map(b=>('00'+b.toString(16)).slice(-2)).join('');}
+        return H(A)+H(B)+H(C)+H(D);
+      }
+    };
+  }
+  self.onmessage = async e => {
+    const {file, algo} = e.data;
+    const SZ = 4<<20, sz = file.size; let off = 0, t0 = performance.now();
+    if (algo === 'SHA-256') {
+      const cs = []; let tl = 0;
+      while (off < sz) {
+        const s = file.slice(off, Math.min(off+SZ, sz));
+        const buf = await s.arrayBuffer();
+        cs.push(buf); tl += buf.byteLength; off += SZ;
+        self.postMessage({p: off/sz*100, t: performance.now()-t0});
+      }
+      const m = new Uint8Array(tl); let p = 0;
+      for (const c of cs) { m.set(new Uint8Array(c), p); p += c.byteLength; }
+      const hb = await crypto.subtle.digest('SHA-256', m);
+      const hex = [...new Uint8Array(hb)].map(b=>b.toString(16).padStart(2,'0')).join('');
+      self.postMessage({r: hex});
+    } else {
+      const md5 = md5inc();
+      while (off < sz) {
+        const s = file.slice(off, Math.min(off+SZ, sz));
+        const buf = await s.arrayBuffer();
+        md5.up(buf); off += SZ;
+        self.postMessage({p: off/sz*100, t: performance.now()-t0});
+      }
+      self.postMessage({r: md5.fin()});
+    }
+  };
+`], { type: 'application/javascript' });
+
+let worker = null;
+function spawn() {
+  if (worker) worker.terminate();
+  worker = new Worker(URL.createObjectURL(workerBlob));
+  return worker;
+}
+
+// ========== State ==========
+let algo = 'SHA-256';
+const fmt = b => b < 1024 ? b+'B' : b < 1048576 ? (b/1024).toFixed(1)+'K' : b < 1073741824 ? (b/1048576).toFixed(2)+'M' : (b/1073741824).toFixed(2)+'G';
+
+// ========== 文件类型识别 ==========
+const FILE_TYPES = [
+  { label: 'IMG',  color: '#00c896', exts: ['png','jpg','jpeg','gif','webp','svg','bmp','ico','avif','heic','tiff'] },
+  { label: 'VID',  color: '#b477ff', exts: ['mp4','mkv','avi','mov','wmv','flv','webm','m4v'] },
+  { label: 'AUD',  color: '#ff8a3d', exts: ['mp3','wav','flac','aac','ogg','m4a','wma'] },
+  { label: 'ZIP',  color: '#ffcc33', exts: ['zip','rar','7z','tar','gz','bz2','xz','tgz'] },
+  { label: 'CODE', color: '#4dd0ff', exts: ['js','ts','html','css','json','py','java','c','cpp','h','go','rs','sh','md','xml','yml','yaml','php','rb','sql'] },
+  { label: 'PDF',  color: '#ff5d5d', exts: ['pdf'] },
+  { label: 'DOC',  color: '#6aa6ff', exts: ['doc','docx','xls','xlsx','ppt','pptx','txt','csv','rtf','odt'] },
+];
+const TYPE_ICONS = {
+  IMG:  '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',
+  VID:  '<rect x="2" y="5" width="14" height="14" rx="2"/><path d="M16 10l6-3v10l-6-3"/>',
+  AUD:  '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  ZIP:  '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
+  CODE: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  PDF:  '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6M9 11h4"/>',
+  DOC:  '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+  FILE: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+};
+function fileMeta(file) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  const t = FILE_TYPES.find(x => x.exts.includes(ext));
+  if (t) return { label: t.label, color: t.color, icon: TYPE_ICONS[t.label] };
+  return { label: (ext || 'FILE').slice(0, 4).toUpperCase(), color: '#9aa7b8', icon: TYPE_ICONS.FILE };
+}
+
+// ========== Algo switch ==========
+document.querySelectorAll('.seg button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.seg button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    algo = b.dataset.a;
+    const f = document.getElementById('file').files[0];
+    if (f) run(f);
+  });
+});
+
+// ========== Drag & Drop ==========
+const drop = document.getElementById('drop');
+const mask = document.getElementById('mask');
+const fileEl = document.getElementById('file');
+
+['dragenter', 'dragover'].forEach(e => document.addEventListener(e, ev => { ev.preventDefault(); mask.classList.add('show'); }));
+['dragleave', 'drop'].forEach(e => document.addEventListener(e, ev => { ev.preventDefault(); mask.classList.remove('show'); }));
+document.addEventListener('drop', ev => {
+  if (ev.dataTransfer.files[0]) { fileEl.files = ev.dataTransfer.files; handleFile(ev.dataTransfer.files[0]); }
+});
+drop.addEventListener('click', e => {
+  // 如果点在按钮上，不要触发文件选择
+  if (e.target.closest('.file-actions')) return;
+  fileEl.click();
+});
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) { fileEl.files = e.dataTransfer.files; handleFile(e.dataTransfer.files[0]); }
+});
+fileEl.addEventListener('change', () => { if (fileEl.files[0]) handleFile(fileEl.files[0]); });
+
+// ========== 选中文件后的 UI 切换 ==========
+function handleFile(file) {
+  drop.classList.add('has-file');
+  const m = fileMeta(file);
+  const safeName = file.name.replace(/"/g, '&quot;');
+  drop.innerHTML = `
+    <div class="drop-icon">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:${m.color}">${m.icon}</svg>
+    </div>
+    <div class="file-info">
+      <div class="drop-title" title="${safeName}">${file.name}</div>
+      <div class="drop-sub">
+        <span>${fmt(file.size)}</span>
+        <span class="file-type" style="color:${m.color};border-color:${m.color}40;background:${m.color}18">${m.label}</span>
+        <span>点击更换</span>
+      </div>
+    </div>
+    <div class="file-actions">
+      <button class="change-btn" onclick="document.getElementById('file').click();event.stopPropagation()">
+        <svg viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>更换
+      </button>
+      <button class="remove-btn" onclick="removeFile(event)">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>移除
+      </button>
+    </div>
+    <input type="file" id="file">
+  `;
+  // 重新绑定 input
+  document.getElementById('file').addEventListener('change', () => {
+    if (document.getElementById('file').files[0]) handleFile(document.getElementById('file').files[0]);
+  });
+  run(file);
+}
+
+function removeFile(e) {
+  e.stopPropagation();
+  drop.classList.remove('has-file');
+  drop.innerHTML = `
+    <div class="drop-icon">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+    </div>
+    <div>
+      <div class="drop-title">选择文件或拖拽到此处</div>
+      <div class="drop-sub">纯前端计算 · 文件不离开设备</div>
+    </div>
+    <input type="file" id="file">
+  `;
+  document.getElementById('file').value = '';
+  document.getElementById('file').addEventListener('change', () => {
+    if (document.getElementById('file').files[0]) handleFile(document.getElementById('file').files[0]);
+  });
+  resetAll();
+}
+
+// ========== Copy ==========
+function copy() {
+  const txt = document.getElementById('out').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'DONE'; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('done'); }, 1500);
+  });
+}
+
+// ========== Reset ==========
+function resetAll() {
+  document.getElementById('expect').value = '';
+  document.getElementById('res').style.display = 'none';
+  document.getElementById('prog').style.display = 'none';
+  document.getElementById('banner').className = 'banner';
+  document.getElementById('banner').style.display = 'none';
+}
+
+// ========== Run ==========
+function run(file) {
+  resetAll();
+  document.getElementById('prog').style.display = 'block';
+
+  const t0 = performance.now();
+  const w = spawn();
+  w.onmessage = e => {
+    if (e.data.p !== undefined) {
+      const pct = e.data.p.toFixed(1);
+      document.getElementById('bar').style.width = pct + '%';
+      document.getElementById('pct').textContent = pct + '%';
+      const elapsed = (e.data.t / 1000).toFixed(1);
+      document.getElementById('speed').textContent = elapsed + 's';
+    } else if (e.data.r) {
+      const hash = e.data.r;
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+      document.getElementById('out').textContent = hash;
+      document.getElementById('meta').textContent = `${algo} · ${elapsed}s`;
+      document.getElementById('res').style.display = 'block';
+      document.getElementById('bar').style.width = '100%';
+      document.getElementById('pct').textContent = '100%';
+
+      const exp = document.getElementById('expect').value.trim().toLowerCase();
+      const bn = document.getElementById('banner');
+      if (exp) {
+        const ok = exp === hash.toLowerCase();
+        bn.textContent = ok ? '✓ VERIFIED' : '✗ MISMATCH';
+        bn.className = 'banner ' + (ok ? 'ok' : 'bad');
+        bn.style.display = 'block';
+      }
+      addRecord(file.name, algo, hash, fmt(file.size), elapsed + 's', exp ? exp === hash.toLowerCase() : null);
+    }
+  };
+  w.postMessage({ file, algo });
+}
+
+// ========== Live verify ==========
+document.getElementById('expect').addEventListener('input', () => {
+  const hash = document.getElementById('out').textContent;
+  const bn = document.getElementById('banner');
+  const exp = document.getElementById('expect').value.trim().toLowerCase();
+  if (!hash || !exp) { bn.style.display = 'none'; return; }
+  const ok = exp === hash.toLowerCase();
+  bn.textContent = ok ? '✓ VERIFIED' : '✗ MISMATCH';
+  bn.className = 'banner ' + (ok ? 'ok' : 'bad');
+  bn.style.display = 'block';
+});
+
+// ========== History ==========
+const records = [];
+function addRecord(name, algo, hash, size, time, match) {
+  records.push({ name, algo, hash, size, time, match });
+  document.getElementById('hist').style.display = 'block';
+  const div = document.createElement('div');
+  div.className = 'record';
+  const tag = match === true ? '<span class="tag ok">OK</span>' : match === false ? '<span class="tag bad">FAIL</span>' : '';
+  div.innerHTML = `<div class="r-top"><div class="r-name">${name}</div>${tag}</div>
+    <div class="r-hash">${hash}</div>
+    <div class="r-meta"><span>${algo}</span><span>${size}</span><span>${time}</span></div>`;
+  document.getElementById('list').prepend(div);
+}
+
+// ========== Export ==========
+function exportTxt() {
+  if (!records.length) return;
+  const d = new Date();
+  let s = `HashCheck Report - ${d.toLocaleString()}\n${'='.repeat(50)}\n\n`;
+  records.forEach((r, i) => {
+    s += `#${i+1} ${r.name}\n  Algo: ${r.algo}\n  Hash: ${r.hash}\n  Size: ${r.size}\n  Time: ${r.time}\n  Status: ${r.match ? 'VERIFIED' : r.match===false ? 'FAILED' : 'N/A'}\n\n`;
+  });
+  s += `${'='.repeat(50)}\nTotal: ${records.length} record(s)`;
+  const blob = new Blob([s], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `hash-report-${Date.now()}.txt`;
+  a.click(); URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
