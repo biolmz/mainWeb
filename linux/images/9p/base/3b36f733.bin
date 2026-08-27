@@ -1,0 +1,6 @@
+/* 来自宿主(浏览器)的 C 源码 - 通过 9P 挂载进客户机 */
+#include <stdio.h>
+int main(void) {
+    printf("Hello from HOST via 9P filesystem!\n");
+    return 0;
+}

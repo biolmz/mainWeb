@@ -1,0 +1,1 @@
+# 该文件用于禁用 GitHub Pages 的 Jekyll 处理，确保 v86 的 .wasm/.gz/.bin 等二进制资源原样托管。

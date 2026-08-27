@@ -1,0 +1,15 @@
+/* 9P 挂载目录中的进程实验代码 */
+#include <stdio.h>
+#include <dirent.h>
+#include <stdlib.h>
+int main(void) {
+    DIR *d = opendir("/proc");
+    struct dirent *e;
+    int n = 0;
+    while ((e = readdir(d)) != NULL) {
+        if (e->d_name[0] >= '0' && e->d_name[0] <= '9') n++;
+    }
+    closedir(d);
+    printf("当前系统共有 %d 个进程 (PID 目录)\n", n);
+    return 0;
+}

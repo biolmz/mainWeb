@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux in Browser · TinyCore on v86</title>
+<link rel="stylesheet" href="vendor/xterm.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">🐧</span>
+    <div class="brand-text">
+      <h1>Linux in Browser</h1>
+      <p>TinyCore Linux · WASM x86 模拟 (v86) · 9P 文件系统 · xterm.js 终端</p>
+    </div>
+  </div>
+  <div class="mode-switch">
+    <button id="btn-tinycore" class="mode-btn active" data-mode="tinycore">TinyCore + gcc</button>
+    <button id="btn-9p" class="mode-btn" data-mode="9p">9P 文件系统实验</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="terminal-pane">
+    <div class="pane-header">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="pane-title" id="term-title">终端 (serial console → xterm.js)</span>
+      <span class="status-badge" id="vm-status">初始化…</span>
+    </div>
+    <div id="terminal" class="terminal-box"></div>
+    <div class="boot-msg" id="boot-msg">
+      <div class="spinner"></div>
+      <div>正在加载镜像并启动 TinyCore Linux（约 20~60 秒，镜像较大请耐心等待）…</div>
+      <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+      <div class="progress-text" id="progress-text"></div>
+    </div>
+  </section>
+
+  <aside class="side-pane">
+    <div class="panel">
+      <h3>⚙️ 控制</h3>
+      <div class="btn-row">
+        <button id="btn-start" class="btn primary">启动 / 重启</button>
+        <button id="btn-clear" class="btn">清屏</button>
+      </div>
+      <div class="btn-row">
+        <button id="btn-reboot" class="btn">Guest 内 reboot</button>
+      </div>
+      <p class="hint">点击终端后即可输入，使用 Ctrl+Shift+空格 切换键盘布局（中文/英文）。</p>
+    </div>
+
+    <div class="panel">
+      <h3>🧪 操作系统实验 (C 语言)</h3>
+      <p class="hint">一键在系统内生成源码 → gcc 编译 → 运行。也可以手动 <code>cd /opt/labs</code> 查看预置源码。</p>
+      <div id="lab-buttons" class="lab-list"></div>
+    </div>
+
+    <div class="panel">
+      <h3>📜 内核日志</h3>
+      <p class="hint">启动串口输出即内核启动日志（dmesg）。运行中可输入 <code>dmesg | tail</code> 查看。</p>
+      <div class="btn-row">
+        <button id="btn-save-log" class="btn">保存启动日志</button>
+        <button id="btn-dmesg" class="btn">dmesg | tail -20</button>
+      </div>
+    </div>
+
+    <div class="panel" id="p9panel" style="display:none">
+      <h3>🔗 9P 宿主文件系统</h3>
+      <p class="hint">9P 模式：把网站目录中的文件通过 virtio-9p 挂载到客户机。</p>
+      <div class="btn-row">
+        <button id="btn-9p-mount" class="btn primary">mount -t 9p host9p /mnt/9p</button>
+        <button id="btn-9p-ls" class="btn">ls /mnt/9p</button>
+      </div>
+      <p class="hint">挂载后，浏览器端目录 <code>images/9p/base</code> 的内容会出现在 <code>/mnt/9p</code>。可读写实验。</p>
+    </div>
+
+    <div class="panel">
+      <h3>💡 使用说明</h3>
+      <ul class="help-list">
+        <li>内核：Linux 5.15 (TinyCore 13.1 x86)</li>
+        <li>工具链：gcc 11.2 / g++ / make / binutils（已预装进 initramfs）</li>
+        <li>登录：<code>root</code>（自动登录）</li>
+        <li>实验代码位于 <code>/opt/labs/*.c</code></li>
+      </ul>
+    </div>
+  </aside>
+</main>
+
+<footer class="footer">
+  <span>纯前端 · 全部镜像本地加载 · v86 (WASM) + xterm.js + 9P virtio</span>
+</footer>
+
+<script src="vendor/xterm.js"></script>
+<script src="vendor/xterm-addon-fit.js"></script>
+<script src="vendor/libv86.js"></script>
+<script src="js/labs.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
