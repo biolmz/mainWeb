@@ -2061,6 +2061,124 @@
             border-top: 1px solid var(--border);
             background: var(--bg);
         }
+
+        /* ============================================================
+           跨终端响应式增强（手机 / 平板 / 电脑 · 多浏览器 · 多系统）
+           ============================================================ */
+
+        /* —— 预设卡片容器 —— */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        /* —— 周次快捷按钮容器 —— */
+        .week-quick-btns {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* —— 兼容层：浏览器前缀 / 横向溢出控制 —— */
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        .nav-tabs, .theme-menu, .export-menu, .modal-overlay {
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .schedule-grid {
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+        .schedule-grid .cell.time-slot,
+        .schedule-grid .cell.header:first-child {
+            -webkit-position: sticky;
+        }
+        /* 下拉菜单防小屏溢出 */
+        .export-menu, .theme-menu {
+            max-width: min(320px, calc(100vw - 24px));
+        }
+
+        /* —— 触屏设备：去除悬浮上浮残留，优化点击反馈 —— */
+        @media (hover: none) and (pointer: coarse) {
+            .card:hover, .course-item:hover { transform: none; }
+            .btn, .nav-tabs button, .theme-item, .todo-filters button, .modal-close {
+                -webkit-tap-highlight-color: transparent;
+            }
+            .btn:active, .nav-tabs button:active, .theme-item:active { transform: scale(.95); }
+        }
+
+        /* —— iOS 安全区（刘海屏 / 底部横条） —— */
+        @supports (padding: max(0px)) {
+            .app-header {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+            }
+            .main-content { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+            .modal-overlay { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+        }
+
+        /* —— 平板中段（861–1100px） —— */
+        @media (min-width: 861px) and (max-width: 1100px) {
+            body { padding: 20px 16px; }
+            .app-header { padding: 16px 26px; }
+            .main-content { padding: 20px 24px 28px; }
+            .notes-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+        }
+
+        /* —— 手机（≤860px）增强 —— */
+        @media (max-width: 860px) {
+            .preset-grid { grid-template-columns: 1fr; }
+            .schedule-controls .week-nav { flex: 1 1 auto; }
+            .week-quick-btns { width: 100%; }
+            .week-quick-btns .btn { flex: 1; justify-content: center; }
+        }
+
+        /* —— 手机中屏（≤640px） —— */
+        @media (max-width: 640px) {
+            .tab-content h2 { font-size: 18px; }
+            .card { padding: 16px 18px; }
+            .schedule-controls .week-nav { width: 100%; justify-content: space-between; }
+            .schedule-controls .week-nav .week-label { flex: 1; }
+            .schedule-controls .btn-sm { flex: 1 1 auto; justify-content: center; }
+            /* 编辑时段行：节次下拉占满整行，便于触控选择 */
+            .time-row .tr-sp, .time-row .tr-ep {
+                flex: 1 1 100% !important;
+                min-width: 0 !important;
+            }
+            .time-row { padding-bottom: 10px; margin-bottom: 2px; border-bottom: 1px dashed var(--border); }
+            .time-row:last-child { border-bottom: none; }
+            .modal .actions { flex-wrap: wrap; }
+            .modal .actions .btn { flex: 1 1 auto; justify-content: center; }
+        }
+
+        /* —— 手机小屏（≤480px 增强） —— */
+        @media (max-width: 480px) {
+            .app-header .subtitle { display: none; }
+            .app-header { padding: 12px 14px; gap: 8px; }
+            .app-header .logo { font-size: 17px; }
+            .modal { padding: 16px 14px; }
+            .modal .form-group label { font-size: 12px; }
+            .pomo-clock { padding: 12px; }
+            .todo-filters { flex-wrap: wrap; }
+            .import-panel textarea { font-size: 12px; }
+        }
+
+        /* —— 超宽屏（≥1600px） —— */
+        @media (min-width: 1600px) {
+            body { padding: 36px 28px; }
+        }
+
+        /* —— 减弱动态效果偏好（系统级无障碍） —— */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2356,7 +2474,7 @@
                     <div class="full form-group">
                         <label>周次 (支持 1-16、1,3,5、1-9,14-18，或 全 / 单 / 双)</label>
                         <input type="text" id="manualWeeks" placeholder="如 1-16 或 单 / 双 / 全" value="1-16" />
-                        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+                        <div class="week-quick-btns">
                             <button type="button" class="btn btn-outline btn-sm" onclick="weekQuickFill('manualWeeks','all')">🟢 全周</button>
                             <button type="button" class="btn btn-outline btn-sm" onclick="weekQuickFill('manualWeeks','odd')">🔵 单周</button>
                             <button type="button" class="btn btn-outline btn-sm" onclick="weekQuickFill('manualWeeks','even')">🟣 双周</button>
@@ -2403,7 +2521,7 @@
             <!-- 预设课表 -->
             <div class="import-panel" id="panelPreset">
                 <p class="text-muted mb-8">当前仅保留一份默认预设课表，一键导入全部课程。导入后可在课表中继续编辑。</p>
-                <div style="display:grid;grid-template-columns:1fr;gap:14px;">
+                <div class="preset-grid">
                     <button class="btn btn-outline preset-card" onclick="importPreset('default')" style="padding:20px 16px;text-align:left;flex-direction:column;gap:8px;border-radius:var(--radius-sm);">
                         <div style="font-size:18px;font-weight:700;color:var(--primary);">📋 我的课表（默认预设）</div>
                         <div style="font-size:12px;color:var(--text-light);line-height:1.6;">
@@ -2476,7 +2594,7 @@
                 <div class="full form-group">
                     <label>周次 (支持 1-16、1,3,5、1-9,14-18，或 全 / 单 / 双)</label>
                     <input type="text" id="editWeeks" placeholder="如 1-16 或 单 / 双 / 全" />
-                    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+                    <div class="week-quick-btns">
                         <button type="button" class="btn btn-outline btn-sm" onclick="weekQuickFill('editWeeks','all')">🟢 全周</button>
                         <button type="button" class="btn btn-outline btn-sm" onclick="weekQuickFill('editWeeks','odd')">🔵 单周</button>
                         <button type="button" class="btn btn-outline btn-sm" onclick="weekQuickFill('editWeeks','even')">🟣 双周</button>
