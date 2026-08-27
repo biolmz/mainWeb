@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Text Diff Pro</title>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FF6B6B'/%3E%3Cstop offset='100%25' stop-color='%234ECDC4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='white' font-family='Arial'%3ED%3C/text%3E%3C/svg%3E">
+
+<style>
+:root {
+    --bg: #f0f2f5;
+    --header-bg: #1a1d23;
+    --header-text: #e8eaed;
+    --panel-bg: #ffffff;
+    --text: #24292f;
+    --border: #d0d7de;
+    --add-bg: #e6ffec;
+    --add-text: #1a7f37;
+    --del-bg: #ffebe9;
+    --del-text: #cf222e;
+    --mod-bg: #fff8c5;
+    --mod-text: #9a6700;
+    --same-text: #57606a;
+    --btn-bg: #238636;
+    --btn-hover: #2ea043;
+    --toolbar-bg: #f6f8fa;
+    --char-add-bg: #abf2bc;
+    --char-del-bg: #ffc4c4;
+    --resize-bar: #d0d7de;
+    --resize-bar-hover: #8c959f;
+}
+
+[data-theme="dark"] {
+    --bg: #0d1117;
+    --header-bg: #161b22;
+    --header-text: #c9d1d9;
+    --panel-bg: #0d1117;
+    --text: #c9d1d9;
+    --border: #30363d;
+    --add-bg: #0d2818;
+    --add-text: #3fb950;
+    --del-bg: #2d0a0e;
+    --del-text: #f85149;
+    --mod-bg: #2d2300;
+    --mod-text: #d29922;
+    --same-text: #8b949e;
+    --btn-bg: #238636;
+    --btn-hover: #2ea043;
+    --toolbar-bg: #161b22;
+    --char-add-bg: #1a5e2f;
+    --char-del-bg: #5e1a1f;
+    --resize-bar: #30363d;
+    --resize-bar-hover: #58a6ff;
+}
+
+[data-theme="hc"] {
+    --bg: #000000;
+    --header-bg: #000000;
+    --header-text: #ffff00;
+    --panel-bg: #000000;
+    --text: #ffffff;
+    --border: #ffff00;
+    --add-bg: #004400;
+    --add-text: #00ff00;
+    --del-bg: #440000;
+    --del-text: #ff4444;
+    --mod-bg: #444400;
+    --mod-text: #ffff00;
+    --same-text: #cccccc;
+    --btn-bg: #ffff00;
+    --btn-hover: #ffffff;
+    --toolbar-bg: #000000;
+    --char-add-bg: #00ff00;
+    --char-del-bg: #ff0000;
+    --resize-bar: #ffff00;
+    --resize-bar-hover: #ffffff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: "JetBrains Mono", Consolas, monospace;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s, color 0.3s;
+}
+
+.header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.header h1 { font-size: 16px; font-weight: 600; }
+
+.header button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 13px;
+    background: var(--toolbar-bg);
+    color: var(--text);
+    transition: all 0.2s;
+}
+.header button.primary {
+    background: var(--btn-bg);
+    color: #fff;
+    border-color: var(--btn-bg);
+    font-weight: 600;
+}
+.header button.primary:hover { background: var(--btn-hover); }
+.header button:hover { opacity: 0.85; }
+
+.toolbar {
+    padding: 8px 20px;
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    align-items: center;
+    flex-shrink: 0;
+}
+.toolbar label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.toolbar select {
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--panel-bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.v-resizer {
+    width: 6px;
+    background: var(--resize-bar);
+    cursor: col-resize;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.v-resizer:hover, .v-resizer.dragging { background: var(--resize-bar-hover); }
+
+.h-resizer {
+    height: 6px;
+    background: var(--resize-bar);
+    cursor: row-resize;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.h-resizer:hover, .h-resizer.dragging { background: var(--resize-bar-hover); }
+
+.app-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.input-section {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.result-section {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+.panel-header {
+    padding: 6px 12px;
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+textarea, .editor {
+    flex: 1;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    outline: none;
+    background: var(--panel-bg);
+    color: var(--text);
+    font-family: inherit;
+    line-height: 1.6;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: inherit;
+}
+
+textarea { resize: none; }
+
+.editor { cursor: text; }
+.editor[contenteditable="true"]:focus {
+    box-shadow: inset 0 0 0 2px var(--btn-bg);
+}
+.editor[contenteditable="false"] {
+    opacity: 0.85;
+}
+
+.line { padding: 1px 6px; border-radius: 2px; }
+.line.add { background: var(--add-bg); color: var(--add-text); }
+.line.del { background: var(--del-bg); color: var(--del-text); }
+.line.mod { background: var(--mod-bg); color: var(--mod-text); }
+.line.same { color: var(--same-text); }
+
+.char-add { background: var(--char-add-bg); border-radius: 2px; padding: 0 1px; }
+.char-del { background: var(--char-del-bg); border-radius: 2px; padding: 0 1px; text-decoration: line-through; }
+
+.badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background: var(--btn-bg);
+    color: white;
+}
+
+.statusbar {
+    padding: 4px 20px;
+    font-size: 11px;
+    background: var(--toolbar-bg);
+    border-top: 1px solid var(--border);
+    opacity: 0.7;
+    display: flex;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+input[type="file"] { display: none; }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>⚡ Text Diff Pro</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="loadFile('left')">📂 左文件</button>
+        <button onclick="loadFile('right')">📂 右文件</button>
+        <button class="primary" onclick="runDiff()">▶ 对比 (Ctrl+Enter)</button>
+        <button onclick="exportHTML()">📄 导出 HTML</button>
+        <button onclick="exportFile('left')">⬇ 导出左</button>
+        <button onclick="exportFile('right')">⬇ 导出右</button>
+        <button onclick="cycleTheme()">🌙</button>
+    </div>
+</div>
+
+<div class="toolbar">
+    <label><input type="checkbox" id="charDiff" checked> 字符级</label>
+    <label><input type="checkbox" id="ignoreWS"> 忽略空格</label>
+    <label><input type="checkbox" id="ignoreCase"> 忽略大小写</label>
+    <span>| 主编辑区：</span>
+    <label><input type="radio" name="main" value="left" onchange="setMain('left')"> 左侧</label>
+    <label><input type="radio" name="main" value="right" checked onchange="setMain('right')"> 右侧</label>
+    <span>| 字号：</span>
+    <select id="fontSize" onchange="changeFontSize(this.value)">
+        <option value="11">11px</option>
+        <option value="12">12px</option>
+        <option value="13" selected>13px</option>
+        <option value="14">14px</option>
+        <option value="16">16px</option>
+        <option value="18">18px</option>
+        <option value="20">20px</option>
+    </select>
+    <span>| 主题：</span>
+    <select id="themeSelect" onchange="applyTheme(this.value)">
+        <option value="auto" selected>跟随系统</option>
+        <option value="light">浅色</option>
+        <option value="dark">暗色</option>
+        <option value="hc">高对比度</option>
+    </select>
+</div>
+
+<div class="app-body">
+    <div class="input-section" id="inputSection" style="flex:1;">
+        <div class="panel" id="inputPanelA" style="flex:1;">
+            <div class="panel-header">
+                <span>📄 文本 A（旧版本）</span>
+                <span class="badge" id="badgeLeft" style="display:none;">主区</span>
+            </div>
+            <textarea id="left" placeholder="粘贴文本 A...&#10;或点击上方「加载左文件」"></textarea>
+        </div>
+        <div class="h-resizer" id="hResizer1"></div>
+        <div class="panel" id="inputPanelB" style="flex:1;">
+            <div class="panel-header">
+                <span>📄 文本 B（新版本）</span>
+                <span class="badge" id="badgeRight">主区</span>
+            </div>
+            <textarea id="right" placeholder="粘贴文本 B...&#10;或点击上方「加载右文件」"></textarea>
+        </div>
+    </div>
+
+    <div class="v-resizer" id="vResizer"></div>
+
+    <div class="result-section" id="resultSection" style="flex:1;">
+        <div class="panel" id="resultPanelA" style="flex:1;">
+            <div class="panel-header"><span>📝 结果 A</span></div>
+            <div class="editor" id="editLeft" contenteditable="false"></div>
+        </div>
+        <div class="h-resizer" id="hResizer2"></div>
+        <div class="panel" id="resultPanelB" style="flex:1;">
+            <div class="panel-header"><span>📝 结果 B</span></div>
+            <div class="editor" id="editRight" contenteditable="true"></div>
+        </div>
+    </div>
+</div>
+
+<div class="statusbar" id="status">
+    <span>就绪</span>
+</div>
+
+<input type="file" id="fileInput">
+
+<script>
+// ============ 主题 ============
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+function getSystemTheme() { return mediaQuery.matches ? 'dark' : 'light'; }
+
+function applyTheme(value) {
+    if (value === 'auto') {
+        document.documentElement.setAttribute('data-theme', getSystemTheme());
+    } else {
+        document.documentElement.setAttribute('data-theme', value);
+    }
+    localStorage.setItem('diff-theme', value);
+}
+
+function cycleTheme() {
+    const select = document.getElementById('themeSelect');
+    const order = ['auto', 'light', 'dark', 'hc'];
+    const next = order[(order.indexOf(select.value) + 1) % order.length];
+    select.value = next;
+    applyTheme(next);
+}
+
+(function() {
+    const saved = localStorage.getItem('diff-theme') || 'auto';
+    document.getElementById('themeSelect').value = saved;
+    applyTheme(saved);
+})();
+
+mediaQuery.addEventListener('change', () => {
+    if (document.getElementById('themeSelect').value === 'auto') {
+        document.documentElement.setAttribute('data-theme', getSystemTheme());
+    }
+});
+
+// ============ 字号 ============
+function changeFontSize(size) {
+    document.querySelectorAll('textarea, .editor').forEach(el => {
+        el.style.fontSize = size + 'px';
+    });
+    localStorage.setItem('diff-fontsize', size);
+}
+(function() {
+    const saved = localStorage.getItem('diff-fontsize') || '13';
+    document.getElementById('fontSize').value = saved;
+    changeFontSize(saved);
+})();
+
+// ============ 拖拽 ============
+(function() {
+    const vResizer = document.getElementById('vResizer');
+    const inputSection = document.getElementById('inputSection');
+    let vDragging = false;
+
+    vResizer.addEventListener('mousedown', () => {
+        vDragging = true;
+        vResizer.classList.add('dragging');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    });
+
+    const hResizer1 = document.getElementById('hResizer1');
+    const inputPanelA = document.getElementById('inputPanelA');
+    let h1Dragging = false;
+
+    hResizer1.addEventListener('mousedown', () => {
+        h1Dragging = true;
+        hResizer1.classList.add('dragging');
+        document.body.style.cursor = 'row-resize';
+        document.body.style.userSelect = 'none';
+    });
+
+    const hResizer2 = document.getElementById('hResizer2');
+    const resultPanelA = document.getElementById('resultPanelA');
+    let h2Dragging = false;
+
+    hResizer2.addEventListener('mousedown', () => {
+        h2Dragging = true;
+        hResizer2.classList.add('dragging');
+        document.body.style.cursor = 'row-resize';
+        document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', e => {
+        if (vDragging) {
+            const containerWidth = document.querySelector('.app-body').offsetWidth;
+            const newWidth = (e.clientX / containerWidth) * 100;
+            if (newWidth > 15 && newWidth < 85) {
+                inputSection.style.flex = `0 0 ${newWidth}%`;
+            }
+        }
+        if (h1Dragging) {
+            const parent = inputSection.getBoundingClientRect();
+            const offset = e.clientY - parent.top;
+            if (offset > 40 && offset < parent.height - 40) {
+                inputPanelA.style.flex = `0 0 ${offset}px`;
+            }
+        }
+        if (h2Dragging) {
+            const parent = document.getElementById('resultSection').getBoundingClientRect();
+            const offset = e.clientY - parent.top;
+            if (offset > 40 && offset < parent.height - 40) {
+                resultPanelA.style.flex = `0 0 ${offset}px`;
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        vDragging = false;
+        h1Dragging = false;
+        h2Dragging = false;
+        vResizer.classList.remove('dragging');
+        hResizer1.classList.remove('dragging');
+        hResizer2.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+    });
+})();
+
+// ============ 主区 ============
+let mainSide = 'right';
+function setMain(side) {
+    mainSide = side;
+    document.getElementById('editLeft').contentEditable = side === 'left';
+    document.getElementById('editRight').contentEditable = side === 'right';
+    document.getElementById('badgeLeft').style.display = side === 'left' ? '' : 'none';
+    document.getElementById('badgeRight').style.display = side === 'right' ? '' : 'none';
+}
+
+// ============ 文件 ============
+let currentTarget = 'left';
+function loadFile(target) {
+    currentTarget = target;
+    document.getElementById('fileInput').click();
+}
+document.getElementById('fileInput').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => { document.getElementById(currentTarget).value = ev.target.result; };
+    r.readAsText(f);
+});
+
+// ============ LCS ============
+function escapeHTML(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function lcs(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length: m+1}, () => new Uint32Array(n+1));
+    for (let i = 1; i <= m; i++)
+        for (let j = 1; j <= n; j++)
+            dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+    return dp;
+}
+
+function backtrack(dp, a, b) {
+    let i = a.length, j = b.length, ops = [];
+    while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && a[i-1] === b[j-1]) {
+            ops.push({t:'=', a:a[i-1], b:b[j-1]});
+            i--; j--;
+        } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
+            ops.push({t:'+', b:b[j-1]});
+            j--;
+        } else {
+            ops.push({t:'-', a:a[i-1]});
+            i--;
+        }
+    }
+    // 关键：reverse 把从末尾回溯的结果翻转为正序
+    return ops.reverse();
+}
+
+// ============ 字符级 Diff（修复：正序构建） ============
+function charDiff(a, b) {
+    const ca = a.split('');
+    const cb = b.split('');
+    const dp = lcs(ca, cb);
+
+    // 从 dp 表正序追踪（从左上到右下），保证输出顺序正确
+    let i = 0, j = 0;
+    let resA = '', resB = '';
+
+    // 用 dp 值做正序追踪
+    while (i < ca.length && j < cb.length) {
+        if (ca[i] === cb[j]) {
+            resA += escapeHTML(ca[i]);
+            resB += escapeHTML(cb[j]);
+            i++; j++;
+        } else if (dp[i+1][j] >= dp[i][j+1]) {
+            // 字符级删除：ca[i] 在 a 中但不在 b 中
+            resA += '<span class="char-del">' + escapeHTML(ca[i]) + '</span>';
+            i++;
+        } else {
+            // 字符级新增：cb[j] 在 b 中但不在 a 中
+            resB += '<span class="char-add">' + escapeHTML(cb[j]) + '</span>';
+            j++;
+        }
+    }
+
+    // 处理剩余字符
+    while (i < ca.length) {
+        resA += '<span class="char-del">' + escapeHTML(ca[i]) + '</span>';
+        i++;
+    }
+    while (j < cb.length) {
+        resB += '<span class="char-add">' + escapeHTML(cb[j]) + '</span>';
+        j++;
+    }
+
+    return {htmlA: resA, htmlB: resB};
+}
+
+// ============ 主对比 ============
+function runDiff() {
+    const linesA = document.getElementById('left').value.split('\n');
+    const linesB = document.getElementById('right').value.split('\n');
+    const charLevel = document.getElementById('charDiff').checked;
+    const ignoreWS = document.getElementById('ignoreWS').checked;
+    const ignoreCase = document.getElementById('ignoreCase').checked;
+
+    function norm(s) {
+        if (ignoreWS) s = s.replace(/\s+/g, '');
+        if (ignoreCase) s = s.toLowerCase();
+        return s;
+    }
+
+    const normA = linesA.map(norm);
+    const normB = linesB.map(norm);
+
+    const dp = lcs(normA, normB);
+    const ops = backtrack(dp, normA, normB);
+
+    let ai = 0, bi = 0;
+    let htmlL = '', htmlR = '';
+    let addCount = 0, delCount = 0;
+
+    for (const op of ops) {
+        if (op.t === '=') {
+            const a = linesA[ai++], b = linesB[bi++];
+            htmlL += `<div class="line same">${escapeHTML(a)}</div>`;
+            htmlR += `<div class="line same">${escapeHTML(b)}</div>`;
+        } else if (op.t === '+') {
+            const b = linesB[bi++];
+            if (charLevel) {
+                const {htmlA, htmlB} = charDiff('', b);
+                htmlL += `<div class="line same"></div>`;
+                htmlR += `<div class="line add">+ ${htmlB}</div>`;
+            } else {
+                htmlL += `<div class="line same"></div>`;
+                htmlR += `<div class="line add">+ ${escapeHTML(b)}</div>`;
+            }
+            addCount++;
+        } else {
+            const a = linesA[ai++];
+            if (charLevel) {
+                const {htmlA, htmlB} = charDiff(a, '');
+                htmlL += `<div class="line del">- ${htmlA}</div>`;
+                htmlR += `<div class="line same"></div>`;
+            } else {
+                htmlL += `<div class="line del">- ${escapeHTML(a)}</div>`;
+                htmlR += `<div class="line same"></div>`;
+            }
+            delCount++;
+        }
+    }
+
+    document.getElementById('editLeft').innerHTML = htmlL;
+    document.getElementById('editRight').innerHTML = htmlR;
+    document.getElementById('status').innerHTML =
+        `<span>对比完成 | ${linesA.length} → ${linesB.length} 行 | 删除 ${delCount} | 新增 ${addCount}</span>`;
+}
+
+// ============ 同步 ============
+document.getElementById('editLeft').addEventListener('input', function(){
+    if (mainSide === 'left') document.getElementById('left').value = this.innerText;
+});
+document.getElementById('editRight').addEventListener('input', function(){
+    if (mainSide === 'right') document.getElementById('right').value = this.innerText;
+});
+
+// ============ 导出 ============
+function exportFile(side) {
+    const text = document.getElementById('edit' + (side === 'left' ? 'Left' : 'Right')).innerText;
+    download(text, `diff-${side}.txt`);
+}
+
+function exportHTML() {
+    const leftContent = document.getElementById('editLeft').innerHTML;
+    const rightContent = document.getElementById('editRight').innerHTML;
+    const css = `
+body{font-family:monospace;padding:20px;background:#fff;color:#24292f;}
+.line{padding:1px 6px;border-radius:2px;}
+.line.add{background:#e6ffec;color:#1a7f37;}
+.line.del{background:#ffebe9;color:#cf222e;}
+.line.same{color:#57606a;}
+.char-add{background:#abf2bc;border-radius:2px;}
+.char-del{background:#ffc4c4;border-radius:2px;text-decoration:line-through;}
+.container{display:flex;}
+.panel{width:50%;padding:10px;}
+`;
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Diff Result</title><style>${css}</style></head><body><h2>Diff Result</h2><div class="container"><div class="panel">${leftContent}</div><div class="panel">${rightContent}</div></div></body></html>`;
+    download(html, 'diff-result.html', 'text/html');
+}
+
+function download(content, name, type='text/plain') {
+    const blob = new Blob([content], {type});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+}
+
+// ============ 快捷键 ============
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runDiff();
+    }
+});
+</script>
+
+</body>
+</html>
