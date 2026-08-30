@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#faf5ec">
+<meta name="color-scheme" content="light">
+<meta name="format-detection" content="telephone=no">
+<title>麦糟奇旅 · 啤酒麦糟无糖饼干科普 | 变废为宝的健康密码</title>
+<meta name="description" content="当啤酒遇上饼干：一部关于麦糟的科普故事。了解啤酒麦糟的营养价值、降血糖机制，以及人工智能如何帮我们烘焙出更健康的无糖饼干。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍪</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= 顶部导航 ================= -->
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a class="brand" href="#hero">
+      <span class="brand-icon" aria-hidden="true">🍪</span>
+      <span class="brand-text">麦糟<em>奇旅</em></span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="主导航">
+      <a href="#background" data-nav="background">麦糟是谁</a>
+      <a href="#nutrition" data-nav="nutrition">营养宝库</a>
+      <a href="#mechanism" data-nav="mechanism">降糖四重奏</a>
+      <a href="#journey" data-nav="journey">研发之旅</a>
+      <a href="#ai" data-nav="ai">AI烘焙师</a>
+      <a href="#product" data-nav="product">成品亮相</a>
+      <a href="#faq" data-nav="faq">常见问答</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="打开菜单" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ================= 首屏 ================= -->
+<section class="hero" id="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="hero-eyebrow">食品科学 × 人工智能 · 科普</p>
+      <h1 class="hero-title">
+        当啤酒遇上饼干<br>
+        <span class="hero-accent">"酿酒剩饭"的华丽变身</span>
+      </h1>
+      <p class="hero-sub">
+        每喝掉 100 升啤酒，酒厂就会留下约 20 千克麦糟。
+        这些曾被当作饲料甚至废弃物的"啤酒渣"，其实是一座被低估的
+        <strong>膳食纤维宝库</strong> —— 我们把它做成了
+        <strong>有助于平稳血糖的无糖饼干</strong>，还请来 AI 当"烘焙学徒"。
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#background">开始这趟旅程 ↓</a>
+        <a class="btn btn-ghost" href="#ai">先看 AI 怎么做饼干 🤖</a>
+      </div>
+      <ul class="hero-stats">
+        <li><b data-count="700" data-suffix=" 万吨">0</b><span>中国每年产生的湿麦糟（估算）</span></li>
+        <li><b data-count="70" data-suffix="%">0</b><span>麦糟干物质中膳食纤维最高占比</span></li>
+        <li><b data-count="5.37" data-decimal="2" data-suffix=" 亿">0</b><span>2021 年全球糖尿病患者（IDF）</span></li>
+        <li><b data-count="6.6" data-decimal="1" data-suffix="%">0</b><span>试食实验观察到的血糖下降幅度</span></li>
+      </ul>
+    </div>
+    <figure class="hero-figure" data-reveal>
+      <img src="assets/images/hero-biscuit.png" alt="木板上金黄的麦糟无糖饼干、啤酒与麦芽" loading="eager">
+      <figcaption>麦糟 + 无糖配方 + AI 优化 = 一块有故事的小饼干</figcaption>
+    </figure>
+  </div>
+  <a class="scroll-hint" href="#background" aria-label="向下滚动">⌄</a>
+</section>
+
+<main>
+<!-- ================= 第一章：麦糟是谁 ================= -->
+<section class="section" id="background">
+  <div class="container">
+    <p class="section-tag" data-reveal>第一章 · 课题背景</p>
+    <h2 class="section-title" data-reveal>麦糟是谁？啤酒旅程的"剩余章节"</h2>
+    <p class="section-lead" data-reveal>
+      酿啤酒就像煮一锅麦子粥：大麦芽先泡热水"糖化"，泡出甜甜的麦汁去发酵成酒，
+      而捞出来的那堆湿漉漉的麦壳与残渣，就是<b>麦糟</b>（Brewers' Spent Grain，简称 BSG）。
+      它相当于"榨完豆浆剩下的豆渣"——精华进了酒里，营养却大多留在了渣里。
+    </p>
+
+    <!-- 啤酒酿造流程 -->
+    <div class="brew-flow" data-reveal>
+      <div class="flow-step">
+        <span class="flow-emoji">🌾</span>
+        <h4>麦芽</h4>
+        <p>大麦发芽后烘干，满是淀粉与营养</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="flow-emoji">♨️</span>
+        <h4>糖化</h4>
+        <p>热水浸泡，把淀粉泡成甜甜的麦汁</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-step-yes">
+        <span class="flow-emoji">🍺</span>
+        <h4>啤酒</h4>
+        <p>麦汁发酵，成为杯中金波</p>
+      </div>
+      <div class="flow-arrow flow-arrow-split">＋</div>
+      <div class="flow-step flow-step-star">
+        <span class="flow-emoji">✨</span>
+        <h4>麦糟</h4>
+        <p>被留下的麦壳与残渣——本课题的主角</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- 数据卡片 -->
+      <div class="card card-warm" data-reveal>
+        <h3 class="card-title">📊 一组令人心动的数字</h3>
+        <ul class="fact-list">
+          <li><b>85%</b>——麦糟占啤酒酿造副产物总重量的比例，是产量最大的酿造"剩余物"。</li>
+          <li><b>20 kg / 100 L</b>——每酿造 100 升啤酒，约产生 20 千克湿麦糟。</li>
+          <li><b>3521.3 万千升</b>——2024 年我国规模以上啤酒企业产量（国家统计局），据此测算每年产生的湿麦糟约 <b>700 万吨</b>。</li>
+          <li><b>数千万吨/年</b>——全球麦糟年产量量级，大多仍以每吨数百元的低价卖作饲料，甚至被直接丢弃。</li>
+        </ul>
+      </div>
+      <!-- 变废为宝 -->
+      <div class="card card-green" data-reveal>
+        <h3 class="card-title">♻️ 变废为宝，不只是情怀</h3>
+        <p>
+          巨大的麦糟体量若只作饲料或废弃，既浪费资源，又带来脱水、储运与污染难题。
+          而它恰恰保留了谷粒中最有价值的部分——<b>蛋白质、膳食纤维、矿物质与酚类物质在糖化后大量留存于渣中，含量甚至高于原麦芽</b>。
+        </p>
+        <p>
+          《中华人民共和国反食品浪费法》第十五条明确要求食品生产经营者"提高食品加工利用率"。
+          把麦糟做成饼干，正是把啤酒行业的"负资产"转化为高纤维、高蛋白的功能性食品——
+          一次既合政策、又合健康、还合"双碳"目标的资源逆袭。
+        </p>
+      </div>
+    </div>
+
+    <!-- 糖尿病背景 -->
+    <div class="split-band" data-reveal>
+      <div class="split-band-text">
+        <h3>🩺 为什么盯着"血糖"做文章？</h3>
+        <p>
+          据国际糖尿病联盟（IDF）《糖尿病地图》第 10 版：2021 年全球 20–79 岁人群糖尿病患者已达
+          <b>5.37 亿</b>（患病率 10.5%），若不加干预，2045 年将攀升至 <b>7.83 亿</b>。
+          与药物相比，膳食调整成本低、可及性高，被各国指南置于 2 型糖尿病防治的基础位置。
+        </p>
+        <p>
+          大规模研究显示：膳食纤维摄入达到 <b>25–29 g/天</b>，全因死亡、冠心病、脑卒中与 2 型糖尿病风险可降低
+          <b>15%–30%</b>；每日纤维每增加 10 g，2 型糖尿病风险约再降 <b>9%</b>。
+          而麦糟，正是把"每天 25 克纤维"装进一块饼干的理想原料。
+        </p>
+      </div>
+      <div class="split-band-chart">
+        <canvas id="diabetesChart" aria-label="全球糖尿病患者人数增长趋势图" role="img"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第二章：营养宝库 ================= -->
+<section class="section section-alt" id="nutrition">
+  <div class="container">
+    <p class="section-tag" data-reveal>第二章 · 营养宝库</p>
+    <h2 class="section-title" data-reveal>打开麦糟的"营养盲盒"</h2>
+    <p class="section-lead" data-reveal>
+      麦糟的干物质里，超过一半是膳食纤维，还有约四分之一的优质植物蛋白，
+      以及一整个"酚类小分队"。下面这张图，是科学家们反复化验后总结出的"营养成分地图"——
+      拖动或悬停可以查看细节。
+    </p>
+
+    <div class="nutrition-layout">
+      <div class="chart-box" data-reveal>
+        <h4 class="chart-title">麦糟干物质主要成分（典型范围）</h4>
+        <canvas id="nutritionChart" aria-label="麦糟成分条形图" role="img"></canvas>
+        <p class="chart-note">* 组成因大麦品种、制麦与糖化工艺不同而波动</p>
+      </div>
+      <div class="nutrition-cards">
+        <article class="mini-card" data-reveal>
+          <span class="mini-emoji">🧽</span>
+          <h4>膳食纤维 · 占 50%–70%</h4>
+          <p>主力是<b>阿拉伯木聚糖（15%–25%）</b>与纤维素（15%–25%），像一块吸水的"海绵骨架"，是平稳血糖的第一功臣。</p>
+        </article>
+        <article class="mini-card" data-reveal>
+          <span class="mini-emoji">🥚</span>
+          <h4>蛋白质 · 占 20%–30%</h4>
+          <p>以醇溶谷蛋白与谷蛋白为主，赖氨酸含量高于原大麦，氨基酸组成接近 FAO 推荐模式——酿酒"剩"下的意外之喜。</p>
+        </article>
+        <article class="mini-card" data-reveal>
+          <span class="mini-emoji">🍇</span>
+          <h4>酚类物质 · 阿魏酸领衔</h4>
+          <p>阿魏酸占酚酸总量一半以上（典型值约 <b>336 mg/100 g</b>），还有对香豆酸、大麦特有的 hordatine 等，天然的"抗氧化小卫士"。</p>
+        </article>
+        <article class="mini-card" data-reveal>
+          <span class="mini-emoji">⚖️</span>
+          <h4>一个诚实的提醒</h4>
+          <p>麦糟几乎不含面筋（面筋蛋白在糖化中被利用了），直接拿它替代面粉，饼干会又硬又散——这正是后面"配方优化"要解决的难题。</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第三章：降糖机制 ================= -->
+<section class="section" id="mechanism">
+  <div class="container">
+    <p class="section-tag" data-reveal>第三章 · 降糖机制</p>
+    <h2 class="section-title" data-reveal>麦糟降血糖的"四重奏"</h2>
+    <p class="section-lead" data-reveal>
+      血糖像一场演唱会：淀粉是"音响"，葡萄糖是"跳到台上的观众"，胰岛素是"保安"。
+      麦糟的四类活性成分会从四个不同环节登场，把这场演出安排得平稳有序。
+      点击每个乐章，看看它们如何各显神通。
+    </p>
+
+    <div class="mech-tabs" data-reveal>
+      <div class="mech-tab-list" role="tablist" aria-label="降糖机制四重奏">
+        <button class="mech-tab is-active" role="tab" aria-selected="true" data-mech="1">第一重<br><small>物理屏障</small></button>
+        <button class="mech-tab" role="tab" aria-selected="false" data-mech="2">第二重<br><small>酶抑制</small></button>
+        <button class="mech-tab" role="tab" aria-selected="false" data-mech="3">第三重<br><small>蛋白肽信使</small></button>
+        <button class="mech-tab" role="tab" aria-selected="false" data-mech="4">第四重<br><small>菌群助攻</small></button>
+      </div>
+
+      <div class="mech-panel is-active" data-mech-panel="1" role="tabpanel">
+        <div class="mech-panel-grid">
+          <div>
+            <h3>🧽 膳食纤维：肠道里的"海绵 + 减速带"</h3>
+            <p>
+              麦糟纤维对血糖的<b>第一重影响</b>，从食物进入口腔和小肠那一刻就开始了。
+              纤维像海绵一样吸水膨胀、把淀粉颗粒"包"进纤维网络里，让消化酶不容易碰到淀粉；
+              同时形成凝胶样网络，<b>延缓胃排空</b>、拖慢小肠对葡萄糖的吸收。
+            </p>
+            <p>
+              结果就是：餐后血糖<b>峰值后移、整条曲线变平缓</b>（医学上叫"曲线下面积缩小"）。
+              实验发现，随着麦糟添加量增加，饼干中"快速消化淀粉"比例下降、"慢速消化淀粉"与抗性淀粉比例上升——
+              淀粉从"冲刺跑"变成了"马拉松"。流行病学研究也表明，全谷物摄入每增加 90 g/天，2 型糖尿病风险约降低 20%。
+            </p>
+          </div>
+          <div class="mech-visual">
+            <canvas id="mechChart1" aria-label="普通饼干与麦糟饼干餐后血糖曲线对比示意" role="img"></canvas>
+            <p class="chart-note">餐后血糖曲线示意：加了麦糟后峰值更低、更平缓</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mech-panel" data-mech-panel="2" role="tabpanel" hidden>
+        <div class="mech-panel-grid">
+          <div>
+            <h3>🛑 酚类物质：给消化酶"踩刹车"</h3>
+            <p>
+              淀粉变成葡萄糖，需要"剪刀手"酶来剪：α-淀粉酶先把大淀粉剪成小段，α-葡萄糖苷酶再把小段剪成葡萄糖。
+              一些降糖药（如阿卡波糖）的原理，正是抢在酶前面"占住剪刀"。
+            </p>
+            <p>
+              麦糟中的酚类物质——<b>阿魏酸、对香豆酸，以及大麦特有的 hordatine</b>——天然就有"占剪刀"的本事：
+              研究显示总酚含量越高的麦糟提取物，对两种消化酶的抑制越强；hordatine 还能抑制肝脏里负责"放糖入库"的糖原磷酸化酶，
+              相当于同时管住了"肠道进糖"和"肝脏出糖"两道闸门。
+            </p>
+          </div>
+          <div class="mech-visual mech-visual-svg">
+            <svg viewBox="0 0 320 220" role="img" aria-label="酚类物质抑制消化酶示意图">
+              <rect x="20" y="80" width="80" height="46" rx="10" fill="#e8b45a"/>
+              <text x="60" y="108" text-anchor="middle" font-size="15">淀粉 🍞</text>
+              <path d="M105 103 h40" stroke="#8a5a24" stroke-width="4" stroke-dasharray="6 5"/>
+              <rect x="150" y="80" width="90" height="46" rx="23" fill="#c0605a"/>
+              <text x="195" y="108" text-anchor="middle" font-size="13" fill="#fff">消化酶 ✂️</text>
+              <path d="M195 60 q0 -26 40 -18" stroke="#7a9a4e" stroke-width="3" fill="none"/>
+              <circle cx="240" cy="40" r="16" fill="#7a9a4e"/>
+              <text x="240" y="45" text-anchor="middle" font-size="14">🛑</text>
+              <text x="240" y="20" text-anchor="middle" font-size="11" fill="#5b7439">阿魏酸等酚类</text>
+              <path d="M105 130 h40" stroke="#bbb" stroke-width="3"/>
+              <text x="195" y="135" text-anchor="middle" font-size="11" fill="#a4682a">葡萄糖释放 ⇒ 变慢</text>
+              <text x="160" y="180" text-anchor="middle" font-size="12" fill="#7c5b3a">剪刀被"占住"，淀粉变成葡萄糖的速度放缓</text>
+              <text x="160" y="200" text-anchor="middle" font-size="12" fill="#7c5b3a">餐后血糖不再一飞冲天</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="mech-panel" data-mech-panel="3" role="tabpanel" hidden>
+        <div class="mech-panel-grid">
+          <div>
+            <h3>📮 蛋白肽：穿越肠道送信的"小信使"</h3>
+            <p>
+              麦糟蛋白被酶解后会产生一些小片段——<b>生物活性肽</b>。它们有两手绝活：
+            </p>
+            <p>
+              其一，抑制 <b>DPP-IV</b> 酶。我们肠子里有种天然降糖激素 GLP-1（"饱腹信号兵"），可惜刚出场就会被 DPP-IV 降解；
+              抑制 DPP-IV 就能让 GLP-1 多工作一会儿，帮身体分泌胰岛素——这正是很多降糖药的思路。
+            </p>
+            <p>
+              其二，2025 年的研究在肠道模型里证实，麦糟蛋白水解物中的 <b>IPVP、LPIA 两个肽段</b>能穿过肠上皮屏障，
+              直接刺激胰岛 β 细胞分泌胰岛素。相当于从肠道到胰腺发了一封"请分泌胰岛素"的加急信。
+            </p>
+          </div>
+          <div class="mech-visual mech-visual-svg">
+            <svg viewBox="0 0 320 220" role="img" aria-label="麦糟肽段跨肠上皮刺激胰岛素分泌示意图">
+              <rect x="15" y="60" width="70" height="40" rx="10" fill="#e8b45a"/>
+              <text x="50" y="85" text-anchor="middle" font-size="13">麦糟肽</text>
+              <path d="M88 80 h30" stroke="#8a5a24" stroke-width="4" stroke-dasharray="5 4"/>
+              <rect x="120" y="35" width="60" height="110" rx="8" fill="#f3e2c0" stroke="#d9bc8a"/>
+              <text x="150" y="70" text-anchor="middle" font-size="12">肠道</text>
+              <text x="150" y="90" text-anchor="middle" font-size="12">屏障</text>
+              <path d="M182 80 h30" stroke="#8a5a24" stroke-width="4" stroke-dasharray="5 4"/>
+              <circle cx="245" cy="80" r="26" fill="#c0605a"/>
+              <text x="245" y="76" text-anchor="middle" font-size="11" fill="#fff">胰岛 β</text>
+              <text x="245" y="92" text-anchor="middle" font-size="11" fill="#fff">细胞</text>
+              <path d="M245 54 q0 -18 0 -26" stroke="#c0605a" stroke-width="3" marker-end="url(#arrowR)"/>
+              <text x="245" y="22" text-anchor="middle" font-size="12" fill="#c0605a">胰岛素 ↑</text>
+              <text x="160" y="185" text-anchor="middle" font-size="12" fill="#7c5b3a">小肽穿过肠道、直达胰岛，"点名"分泌胰岛素</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="mech-panel" data-mech-panel="4" role="tabpanel" hidden>
+        <div class="mech-panel-grid">
+          <div>
+            <h3>🌱 肠道菌群：住在结肠里的"助攻军团"</h3>
+            <p>
+              小肠没消化的麦糟纤维来到结肠，被这里的数万亿细菌"开饭"。有益菌（如双歧杆菌）吃完纤维，
+              会生产<b>短链脂肪酸（SCFA）</b>——这是它们的"代谢礼物"。
+            </p>
+            <p>
+              SCFA 能激活肠道 L 细胞上的感受器，促进 <b>GLP-1</b> 分泌，进而改善胰岛素敏感性、延缓胃排空、带来饱腹感。
+              标志性的临床研究显示：高纤维饮食干预后糖尿病患者的糖化血红蛋白显著下降，且改善程度与产 SCFA 菌群的丰度正相关——
+              把菌群移植给无菌小鼠，健康收益也能跟着"打包转让"。
+            </p>
+            <p>
+              更妙的是，麦糟中结合在细胞壁上的酚酸，也会在发酵中被菌群逐步"解锁"释放。
+              这种<b>"纤维 + 酚类"双重释放</b>的特性，让麦糟区别于普通纤维补充剂。
+            </p>
+          </div>
+          <div class="mech-visual mech-visual-svg">
+            <svg viewBox="0 0 320 220" role="img" aria-label="麦糟纤维经菌群发酵产生短链脂肪酸促进GLP-1分泌示意图">
+              <rect x="18" y="70" width="90" height="44" rx="10" fill="#e8b45a"/>
+              <text x="63" y="97" text-anchor="middle" font-size="13">麦糟纤维 🧵</text>
+              <path d="M112 92 h26" stroke="#8a5a24" stroke-width="4" stroke-dasharray="5 4"/>
+              <circle cx="185" cy="92" r="34" fill="#7a9a4e" opacity="0.92"/>
+              <text x="185" y="88" text-anchor="middle" font-size="12" fill="#fff">肠道菌群</text>
+              <text x="185" y="104" text-anchor="middle" font-size="11" fill="#fff">🦠🦠🦠</text>
+              <path d="M221 92 h24" stroke="#5b7439" stroke-width="4" stroke-dasharray="5 4"/>
+              <rect x="246" y="72" width="60" height="40" rx="8" fill="#3e8f8a"/>
+              <text x="276" y="97" text-anchor="middle" font-size="11" fill="#fff">SCFA</text>
+              <text x="160" y="40" text-anchor="middle" font-size="12" fill="#3e8f8a">↓ 促进 GLP-1 分泌 → 胰岛素敏感性 ↑</text>
+              <text x="160" y="165" text-anchor="middle" font-size="12" fill="#7c5b3a">纤维喂饱好菌，好菌产出 SCFA，</text>
+              <text x="160" y="185" text-anchor="middle" font-size="12" fill="#7c5b3a">SCFA 再替你跟身体"谈血糖"</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 证据天平 -->
+    <div class="evidence-band" data-reveal>
+      <h3>⚖️ 科学的诚实：证据到哪一步了？</h3>
+      <div class="evidence-track">
+        <div class="evidence-step done"><b>体外实验</b><span>充分 · 四重机制均有证据</span></div>
+        <div class="evidence-step done"><b>动物实验</b><span>初步 · 代谢指标向好</span></div>
+        <div class="evidence-step doing"><b>人体试验</b><span>起步 · 餐后血糖改善呈阳性</span></div>
+        <div class="evidence-step todo"><b>长期研究</b><span>空白 · 正在积累</span></div>
+      </div>
+      <p class="evidence-note">
+        已有的人体证据：2022 年一项双盲交叉试验显示，糖耐量受损人群服用麦糟提取物后餐后血糖与胰岛素反应均低于安慰剂组；
+        2024 年新加坡团队在代谢综合征人群中发现，含麦糟饼干显著降低餐后血糖反应；国内团队的无糖麦糟饼干也观察到 21 天试食的降血糖、降血脂趋势。
+        所以严谨的说法是：<b>初步证据支持其餐后血糖调节作用，长期获益仍待高质量研究确认。</b>本网站内容为科普介绍，不构成医疗建议。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第四章：研发之旅 ================= -->
+<section class="section section-alt" id="journey">
+  <div class="container">
+    <p class="section-tag" data-reveal>第四章 · 研发之旅</p>
+    <h2 class="section-title" data-reveal>从啤酒厂到烤箱：一块饼干的诞生</h2>
+    <p class="section-lead" data-reveal>
+      好配方不是拍脑袋想出来的。为了找到"好吃"与"健康"的最佳平衡点，课题组走了一条
+      <b>传统食品科学 + 人工智能</b>的双引擎路线。
+    </p>
+
+    <ol class="timeline">
+      <li class="tl-item" data-reveal>
+        <div class="tl-marker">1</div>
+        <div class="tl-body">
+          <h3>原料改造：湿麦糟变麦糟粉</h3>
+          <span class="tl-meta">预处理 · 95℃热风干燥 → 粉碎 → 80 目筛</span>
+          <p>
+            当天从合作啤酒厂拉回的湿麦糟水分极高、极易变质。摊薄后 95℃ 热风干燥至水分 ≤10%，
+            锤片式粉碎机粉碎、过 80 目筛——细到像面粉，才不会让饼干吃起来像"木屑"。
+            再按国标方法测定水分、蛋白、脂肪、灰分与总膳食纤维，摸清家底。
+          </p>
+        </div>
+      </li>
+      <li class="tl-item" data-reveal>
+        <div class="tl-marker">2</div>
+        <div class="tl-body">
+          <h3>单因素实验：先摸清麦糟的"脾气"</h3>
+          <span class="tl-meta">麦糟添加量 0% → 30% 扫描 · 焙烤 160℃ × 16 min</span>
+          <p>
+            以 100 g 低筋面粉为基准，把麦糟添加量从 0% 一路加到 30%，观察感官评分、硬度、色泽与水分的变化。
+            结论很有意思：<b>麦糟对感官评分呈"倒 U 型"</b>——加太少没有功能意义，加太多饼干又硬又糙；
+            前人研究也证实 15%–20% 附近是个"甜点区"。同时用木糖醇替代蔗糖，从源头去掉"升糖的甜"。
+          </p>
+        </div>
+      </li>
+      <li class="tl-item" data-reveal>
+        <div class="tl-marker">3</div>
+        <div class="tl-body">
+          <h3>响应面优化：三因素的"团体操"</h3>
+          <span class="tl-meta">Box-Behnken 设计 · 17 组试验（含 5 个中心点）</span>
+          <p>
+            麦糟（A：10–20%）、油脂（B：15–35%）、木糖醇（C：8–16%）三个因素会互相牵制：
+            纤维吸水会跟油脂"抢地盘"，甜味又能中和麦糟的粗粝感。Box-Behnken 设计只需 17 组试验，
+            就能拟合出一个描述"配方 → 感官评分"关系的二次多项式曲面，找出曲面的最高点。
+          </p>
+        </div>
+      </li>
+      <li class="tl-item" data-reveal>
+        <div class="tl-marker">4</div>
+        <div class="tl-body">
+          <h3>BP 神经网络登场：请 AI 当"烘焙学徒"</h3>
+          <span class="tl-meta">3-12-1 三层网络 · GA/PSO 全局寻优 · 详见下一章</span>
+          <p>
+            二次多项式是"经验公式"，遇到复杂的非线性关系会失手。于是课题组引入 BP 神经网络学习配方与品质之间的真实规律，
+            再用遗传算法、粒子群算法在配方空间里"全球搜宝"，与响应面结果交叉验证。
+          </p>
+        </div>
+      </li>
+      <li class="tl-item" data-reveal>
+        <div class="tl-marker">5</div>
+        <div class="tl-body">
+          <h3>全面体检：既要好吃，也要有用</h3>
+          <span class="tl-meta">质构 TPA · 色差 · 感官评定 · 总酚 · 抗氧化 · eGI</span>
+          <p>
+            最优配方饼干要过"六边形战士"考核：质构仪测硬度与酥脆度，色差计量 L*a*b*，
+            10 名培训评审员按色泽、香气、酥脆度、风味等加权打分；功能层面测总酚含量、DPPH/ABTS 抗氧化能力，
+            并用体外淀粉消化法估算<b>血糖生成指数（eGI = 39.71 + 0.549 × 水解指数）</b>——数字越小，餐后血糖越平稳。
+          </p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= 第五章：AI 烘焙师 ================= -->
+<section class="section" id="ai">
+  <div class="container">
+    <p class="section-tag" data-reveal>第五章 · 智能优化</p>
+    <h2 class="section-title" data-reveal>AI 烘焙师上岗记：BP 神经网络与它的"寻宝小队"</h2>
+    <p class="section-lead" data-reveal>
+      这是本课题最"赛博"的部分——用人工智能替配方师反复试错。别担心，我们用大白话讲清楚。
+    </p>
+
+    <div class="grid-2">
+      <div class="card" data-reveal>
+        <h3 class="card-title">🏫 传统师傅：响应面法（RSM）</h3>
+        <p>
+          响应面法像一位经验老到的师傅：他假设"配方与口感"之间的关系大致是一口<b>光滑的抛物面</b>（二次多项式），
+          只需 17 组试验就能画出整座山的形状，然后站在山顶宣布"最优配方在此"。
+        </p>
+        <p class="card-punch">软肋：如果真实地形不是抛物面，而是有山脊、悬崖和"隐藏峡谷"的复杂山地，师傅的地图就会失真。</p>
+      </div>
+      <div class="card card-teal" data-reveal>
+        <h3 class="card-title">🤖 新学徒：BP 神经网络</h3>
+        <p>
+          BP（Back-Propagation，误差反向传播）神经网络不预设任何公式。它像一名勤奋的学徒：
+          拿配方去"猜"评分，猜错了就把误差<b>从输出层往回传</b>，一层层微调内部的连接权重——错了就改，改完再猜，直到猜得足够准。
+        </p>
+        <p>
+          数学上有个漂亮的保证：只要网络足够大，它可以逼近<b>任意连续的复杂关系</b>——山脊、悬崖、隐藏峡谷，统统都能学进去。
+        </p>
+      </div>
+    </div>
+
+    <!-- 网络结构可视化 -->
+    <div class="ai-net-wrap" data-reveal>
+      <h4 class="chart-title">课题使用的 3-12-1 网络：读入配方 → 输出预测</h4>
+      <svg id="bpNetSvg" viewBox="0 0 640 320" role="img" aria-label="BP神经网络结构示意图：输入层3个神经元，隐藏层12个神经元，输出层1个神经元">
+        <g id="bpNetEdges"></g>
+        <g id="bpNetNodes"></g>
+      </svg>
+      <p class="chart-note">输入层 3 个神经元（麦糟、油脂、木糖醇）→ 隐层 12 个（tanh 激活）→ 输出层 1 个（预测感官评分）。后来升级版还用 64-32-16 的多层网络同时预测六项指标。</p>
+    </div>
+
+    <!-- GA / PSO -->
+    <div class="grid-2">
+      <div class="card card-purple" data-reveal>
+        <h3 class="card-title">🧬 遗传算法（GA）：让配方"进化"</h3>
+        <p>
+          网络训练好后，要让它反过来告诉我们"哪个配方最好"。遗传算法模仿达尔文进化：
+          随机生成一群候选配方（种群），用网络打分当"适应度"，得分高的才有资格"繁殖"——
+          两个好配方交叉互换"基因"（参数），偶尔再来点随机变异。一代代迭代，配方越"进化"越优秀。
+        </p>
+      </div>
+      <div class="card card-purple" data-reveal>
+        <h3 class="card-title">🐦 粒子群优化（PSO）：像鸟群找食</h3>
+        <p>
+          PSO 则模仿鸟群觅食：一群"粒子"在配方空间里飞行，每只记住自己飞过的最好位置，
+          也参考全群发现的最好位置，动态调整方向与速度。双算法互相印证，避免在"局部最优的山头"上误判。
+        </p>
+      </div>
+    </div>
+
+    <!-- 六指标权重 -->
+    <div class="score-band" data-reveal>
+      <div class="score-band-chart">
+        <canvas id="weightChart" aria-label="六项指标综合评分权重环形图" role="img"></canvas>
+      </div>
+      <div class="score-band-text">
+        <h3>🎯 什么是"最优"？六个愿望的加权平衡</h3>
+        <p>
+          好饼干不能只讨好舌头。课题组为寻优设定了六项指标：<b>感官评分（权重 0.30）、eGI（0.20，越低越好）、
+          膳食纤维（0.15）、总酚（0.15）、硬度（0.10，越低越好）、蛋白质（0.10）</b>。
+          智能算法会给出一条"Pareto 前沿"——上面每个配方都是"无法在不牺牲某项的前提下让另一项更好"的精英解，
+          把最终取舍权留给人类决策。
+        </p>
+      </div>
+    </div>
+
+    <!-- 交互式配方实验室 -->
+    <div class="lab" id="lab" data-reveal>
+      <h3 class="lab-title">🧪 动手试试：配方实验室</h3>
+      <p class="lab-sub">
+        拖动滑块，模拟"网络"为你预测这块麦糟饼干的关键指标；也可以点「让 AI 寻优」，看看算法找到的甜点区。
+        （演示模型基于课题先验规律简化构建，仅供理解原理）
+      </p>
+      <div class="lab-grid">
+        <div class="lab-controls">
+          <label class="lab-slider">
+            <span class="lab-slider-head"><b>麦糟添加量</b><output id="labAOut">15%</output></span>
+            <input type="range" id="labA" min="0" max="30" step="1" value="15">
+          </label>
+          <label class="lab-slider">
+            <span class="lab-slider-head"><b>油脂添加量</b><output id="labBOut">25%</output></span>
+            <input type="range" id="labB" min="15" max="35" step="1" value="25">
+          </label>
+          <label class="lab-slider">
+            <span class="lab-slider-head"><b>木糖醇添加量</b><output id="labCOut">12%</output></span>
+            <input type="range" id="labC" min="8" max="16" step="0.5" value="12">
+          </label>
+          <div class="lab-buttons">
+            <button class="btn btn-primary" id="labOptimize">🤖 让 AI 寻优</button>
+            <button class="btn btn-ghost" id="labReset">↺ 重置</button>
+          </div>
+          <p class="lab-hint" id="labHint">提示：试试把麦糟加到 30%，看看口感评分会发生什么。</p>
+        </div>
+        <div class="lab-results">
+          <div class="lab-gauge">
+            <svg viewBox="0 0 200 130" role="img" aria-label="综合感官评分仪表盘">
+              <path d="M20 115 A 80 80 0 0 1 180 115" fill="none" stroke="#eee3cf" stroke-width="16" stroke-linecap="round"/>
+              <path id="gaugeArc" d="M20 115 A 80 80 0 0 1 180 115" fill="none" stroke="#a4682a" stroke-width="16" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
+              <text id="gaugeNum" x="100" y="95" text-anchor="middle" font-size="30" font-weight="700" fill="#3f2d20">0</text>
+              <text class="gauge-caption" x="100" y="118" text-anchor="middle" font-size="12" fill="#8a6f52">综合感官评分（满分 100）</text>
+            </svg>
+          </div>
+          <div class="lab-bars">
+            <div class="lab-bar-row">
+              <span>🧽 膳食纤维</span>
+              <div class="lab-bar"><i id="barFiber"></i></div>
+              <output id="outFiber">–</output>
+            </div>
+            <div class="lab-bar-row">
+              <span>🥚 蛋白质</span>
+              <div class="lab-bar"><i id="barProtein"></i></div>
+              <output id="outProtein">–</output>
+            </div>
+            <div class="lab-bar-row lab-bar-rev">
+              <span>📉 eGI（越低越好）</span>
+              <div class="lab-bar"><i id="barEgi"></i></div>
+              <output id="outEgi">–</output>
+            </div>
+          </div>
+          <p class="lab-verdict" id="labVerdict"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第六章：成品亮相 ================= -->
+<section class="section section-alt" id="product">
+  <div class="container">
+    <p class="section-tag" data-reveal>第六章 · 产品与应用</p>
+    <h2 class="section-title" data-reveal>成品亮相：一块小饼干的大理想</h2>
+
+    <div class="product-layout">
+      <figure class="product-figure" data-reveal>
+        <img src="assets/images/product-biscuit.png" alt="一块金黄酥脆的麦糟无糖饼干特写" loading="lazy">
+        <figcaption>高纤 · 无蔗糖 · 低 GI 方向的麦糟饼干</figcaption>
+      </figure>
+      <div class="product-info">
+        <div class="feature-grid">
+          <div class="feature" data-reveal><span>🚫🍬</span><h4>无蔗糖</h4><p>以<b>木糖醇</b>提供甜味——不参与升糖的"甜味替身"，甜度相近但几乎不引起血糖波动。</p></div>
+          <div class="feature" data-reveal><span>🧽</span><h4>高纤维</h4><p>麦糟把饼干变成"纤维浓缩载体"，同样的体积装进更多膳食纤维，助力每天 25 g 的小目标。</p></div>
+          <div class="feature" data-reveal><span>📉</span><h4>温和血糖反应</h4><p>研究显示麦糟添加量上升时，饼干的<b>估计血糖生成指数（eGI）随之下降</b>——餐后曲线更平缓。</p></div>
+          <div class="feature" data-reveal><span>💪</span><h4>加蛋白</h4><p>麦糟自带 20%–30% 的植物蛋白，氨基酸组成接近推荐模式，饱腹感更持久。</p></div>
+          <div class="feature" data-reveal><span>🍇</span><h4>自带抗氧化</h4><p>阿魏酸等酚类物质带来 DPPH/ABTS 自由基清除能力，饼干也带"防御属性"。</p></div>
+          <div class="feature" data-reveal><span>🌍</span><h4>低碳足迹</h4><p>原料来自本要废弃的副产物，每一块饼干都是一次"舌尖上的循环经济"。</p></div>
+        </div>
+        <div class="result-band" data-reveal>
+          <h4>📈 同类研究交出的成绩单</h4>
+          <p>
+            国内团队（金钰博等，2026）开发的无糖麦糟饼干，成品感官评分达 <b>95.02 ± 1.12</b>；
+            21 天人体试食中观察到<b>血糖下降 6.60%、总胆固醇下降超过 10%</b> 的积极趋势
+            （小样本试食研究，结论有待更大规模临床验证）。国际上也不断有阳性结果：
+            新加坡团队在代谢综合征人群中证实含麦糟饼干显著降低餐后血糖反应。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 前景 -->
+    <div class="future-grid">
+      <article class="future-card" data-reveal>
+        <span class="future-emoji">🏭</span>
+        <h4>啤酒厂的"第二曲线"</h4>
+        <p>年产量数千万吨的麦糟一旦进入食品原料赛道，啤酒厂从"卖废料"变成"卖营养"，脱水储运难题也随之一并化解。</p>
+      </article>
+      <article class="future-card" data-reveal>
+        <span class="future-emoji">🛒</span>
+        <h4>功能食品货架新面孔</h4>
+        <p>面向控糖人群、健身人群与银发族的"清洁标签"高纤零食需求旺盛，麦糟饼干恰好踩中无糖、高纤、全谷物三条消费主线。</p>
+      </article>
+      <article class="future-card" data-reveal>
+        <span class="future-emoji">📜</span>
+        <h4>政策东风</h4>
+        <p>《反食品浪费法》要求提高食品加工利用率，"双碳"目标与循环经济政策为副产物高值化提供了制度土壤。</p>
+      </article>
+      <article class="future-card" data-reveal>
+        <span class="future-emoji">🔬</span>
+        <h4>下一步研究</h4>
+        <p>建立麦糟原料标准化规格、开展以 GLP-1 与短链脂肪酸为中介指标的临床试验、用发酵/酶解提升活性成分释放——让证据链更硬。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="section" id="faq">
+  <div class="container container-narrow">
+    <p class="section-tag" data-reveal>常见问答</p>
+    <h2 class="section-title" data-reveal>你可能想问</h2>
+
+    <div class="faq-list" data-reveal>
+      <details class="faq-item">
+        <summary>饼干里加了啤酒麦糟，吃了会不会"等于喝酒"？<span class="faq-plus" aria-hidden="true"></span></summary>
+        <div class="faq-body"><p>完全不会。麦糟是糖化过滤后剩下的<b>固体残渣</b>，酒精早已随麦汁走完发酵旅程，麦糟本身不含酒精。它更接近"煮麦子剩下的渣"，而不是"液体酒"。</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>"无糖饼干"为什么还是甜的？糖尿病人能吃吗？</summary>
+        <div class="faq-body"><p>本产品的甜味来自<b>木糖醇</b>——一种几乎不升高血糖的甜味剂。需要强调：麦糟饼干属于<b>有助于平稳餐后血糖的功能性食品研究方向</b>，不能替代药物治疗；糖尿病患者食用任何食品前都建议咨询医生或营养师。</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>麦糟饼干听起来很健康，会不会很难吃？</summary>
+        <div class="faq-body"><p>这正是课题花大力气做"配方优化"的原因。麦糟加太多确实又硬又糙，所以课题组用单因素实验 + 响应面 + BP 神经网络寻找平衡点：同类研究中成品感官评分可达 95 分以上，麦香浓郁、微甜酥脆，甚至比普通饼干多一层"谷物焦香"。</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>BP 神经网络是不是很玄？它到底做了什么？</summary>
+        <div class="faq-body"><p>可以把它理解成一个<b>"猜评分—对答案—改参数"循环学习的学徒</b>：输入配方，输出对口感和健康指标的预测；预测错了就把误差往回传、微调内部权重。学会之后，再让遗传算法/粒子群算法拿着这个"电子舌头"在海量配方组合里快速筛选，代替人工成百上千次试烤。</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>麦糟的降血糖效果有几分把握？</summary>
+        <div class="faq-body"><p>目前的证据格局是"体外充分、动物初步、临床起步"：四重机制在实验室层面证据扎实，已有多项人体试验显示餐后血糖改善；但长期、大样本的临床研究仍在积累。科学的表述是——<b>初步证据支持，长期获益待验证</b>。</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>为什么说这是"环保饼干"？</summary>
+        <div class="faq-body"><p>每 100 L 啤酒产生约 20 kg 湿麦糟，中国一年约 700 万吨。把它们从"低价饲料/废弃物"升级为食品原料，既减少资源浪费和污染压力，也契合《反食品浪费法》与"双碳"目标——每吃一块，都是一次微型循环经济。</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>普通人日常能从中学到什么"控糖小知识"？</summary>
+        <div class="faq-body"><p>三句话：① 膳食纤维是天然的"血糖稳定器"，全谷物、豆类、蔬果都值得多吃；② WHO 建议每天膳食纤维不低于 25 g，而多数人摄入不足；③ 关注食品的血糖生成指数（GI），低 GI 主食与零食有助于平缓餐后血糖。</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>这个课题是谁做的？用了哪些资料？</summary>
+        <div class="faq-body"><p>本网站内容改编自本科生创新科研训练计划课题《啤酒麦糟饼干的工艺优化及其品质特性与体外功能评价——基于响应面与 BP 神经网络的协同优化》及其配套的《麦糟饼干配方 BP 神经网络优化实验验证方案》，并系统参考了麦糟降血糖作用机制的国内外研究综述。文中部分数据为课题模拟数据或文献报告值，仅供科普。</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= 页脚 ================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand"><span class="brand-icon">🍪</span><span class="brand-text">麦糟<em>奇旅</em></span></div>
+        <p>关于啤酒麦糟无糖饼干的科普网站：变废为宝的营养智慧 × 平稳血糖的科学机制 × 人工智能的配方魔法。</p>
+      </div>
+      <div class="footer-col">
+        <h5>本站导航</h5>
+        <a href="#background">麦糟是谁</a>
+        <a href="#nutrition">营养宝库</a>
+        <a href="#mechanism">降糖四重奏</a>
+        <a href="#journey">研发之旅</a>
+      </div>
+      <div class="footer-col">
+        <h5>更多内容</h5>
+        <a href="#ai">AI 烘焙师</a>
+        <a href="#product">成品与应用</a>
+        <a href="#faq">常见问答</a>
+		<a href="https://bio2025.site">LMZ个人网站</a>
+        <a href="#hero">回到顶部 ↑</a>
+      </div>
+      <div class="footer-col footer-disclaimer">
+        <h5>声明</h5>
+        <p>本站为科研科普用途，内容不构成医疗建议；数据引自公开文献与课题资料，效果表述以原文证据等级为准。糖尿病患者请遵医嘱。</p>
+      </div>
+    </div>
+    <p class="footer-copy">© 2026 麦糟奇旅 · 啤酒麦糟无糖饼干课题组</p>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" aria-label="返回顶部">↑</button>
+
+<script src="js/main.js"></script>
+</body>
+</html>
