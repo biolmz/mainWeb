@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三年作战图 2026–2029 · 考研路线（独立学院版）</title>
+<style>
+:root{
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+  --mono: "JetBrains Mono", "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
+
+  --bg:#f6f7f9; --bg-soft:#eef1f4; --card:#ffffff; --card-2:#fbfcfd;
+  --line:#e3e7ec; --line-2:#d3d9e0;
+  --tx:#1b2027; --tx-2:#4a5360; --tx-3:#7d8794;
+
+  --teal:#0f766e; --teal-bg:#e6f4f1; --teal-line:#a9d8d1;
+  --violet:#6d28d9; --violet-bg:#f0ebfe; --violet-line:#c9b8f5;
+  --amber:#b45309; --amber-bg:#fdf3e3; --amber-line:#f0d2a0;
+  --red:#b91c1c; --red-bg:#fdecec; --red-line:#f2c2c2;
+  --blue:#1d4ed8; --blue-bg:#eaf0fe; --blue-line:#bfd0f8;
+  --green:#15803d; --green-bg:#e9f7ee; --green-line:#b3e0c2;
+
+  --shadow: 0 1px 2px rgba(20,28,40,.05), 0 6px 20px -8px rgba(20,28,40,.10);
+  --shadow-2: 0 2px 4px rgba(20,28,40,.06), 0 12px 32px -12px rgba(20,28,40,.16);
+  --r:12px; --r-s:8px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:78px}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:15.5px;line-height:1.76;-webkit-font-smoothing:antialiased}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+p{margin:0 0 13px}
+strong{font-weight:650;color:#0d1218}
+code{font-family:var(--mono);font-size:.88em;background:var(--bg-soft);border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#0b4f47}
+
+.topbar{position:sticky;top:0;z-index:60;height:56px;background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 20px}
+.tb-brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14.5px;white-space:nowrap}
+.tb-dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--violet));box-shadow:0 0 0 3px var(--teal-bg)}
+.tb-sub{font-weight:500;color:var(--tx-3);font-size:12.5px;border-left:1px solid var(--line-2);padding-left:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-spacer{flex:1}
+.tb-btn{display:none;border:1px solid var(--line-2);background:var(--card);color:var(--tx-2);border-radius:8px;padding:6px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+#progress{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:linear-gradient(90deg,var(--teal),var(--violet))}
+
+.layout{display:flex;gap:34px;max-width:1180px;margin:0 auto;padding:26px 22px 90px;align-items:flex-start}
+.sidebar{position:sticky;top:78px;width:236px;flex:0 0 236px;max-height:calc(100vh - 100px);overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 10px 16px;box-shadow:var(--shadow)}
+.sb-title{font-size:11px;font-weight:700;letter-spacing:.13em;color:var(--tx-3);padding:0 10px 9px}
+.toc{list-style:none;margin:0;padding:0}
+.toc a{display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;color:var(--tx-2);font-size:13.3px;line-height:1.45;text-decoration:none;border-left:2px solid transparent}
+.toc a:hover{background:var(--bg-soft);color:var(--tx);text-decoration:none}
+.toc a.active{background:var(--teal-bg);color:#0b5c55;font-weight:600;border-left-color:var(--teal)}
+.toc .n{font-family:var(--mono);font-size:10.5px;color:var(--tx-3);flex:0 0 18px;padding-top:1px}
+.toc a.active .n{color:var(--teal)}
+.sb-foot{margin-top:12px;padding:10px;border-top:1px dashed var(--line-2);font-size:11.5px;color:var(--tx-3);line-height:1.6}
+main{flex:1;min-width:0;max-width:800px}
+
+.hero{background:linear-gradient(140deg,#ffffff 0%,#f4fbf9 46%,#f5f2fe 100%);border:1px solid var(--line);border-radius:16px;padding:30px 32px 26px;box-shadow:var(--shadow);margin-bottom:30px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-70px;top:-70px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(109,40,217,.10),transparent 68%)}
+.kicker{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-line);padding:4px 11px;border-radius:99px;margin-bottom:14px}
+.hero h1{margin:0 0 8px;font-size:30px;line-height:1.28;letter-spacing:-.5px;font-weight:750}
+.hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--teal),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lead{margin:0;color:var(--tx-2);font-size:15px;max-width:66ch}
+.badges{display:flex;flex-wrap:wrap;gap:9px;margin-top:19px;position:relative;z-index:2}
+.badge{background:var(--card);border:1px solid var(--line-2);border-radius:9px;padding:7px 12px;font-size:12.4px;color:var(--tx-2);display:flex;align-items:center;gap:7px}
+.badge b{color:var(--tx);font-weight:650}
+.badge .bd{width:7px;height:7px;border-radius:2px}
+
+main h2{display:flex;align-items:center;gap:12px;font-size:21.5px;font-weight:720;letter-spacing:-.2px;margin:44px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line);scroll-margin-top:78px}
+main h2 .num{font-family:var(--mono);font-size:11.5px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--teal),#12867c);border-radius:6px;padding:3px 7px;flex:0 0 auto}
+main h3{font-size:16.5px;font-weight:680;margin:28px 0 10px;color:#12181f;scroll-margin-top:78px}
+main h3 .tick{color:var(--teal);font-weight:800;margin-right:2px}
+main h4{font-size:14.6px;font-weight:660;margin:20px 0 8px}
+main ul,main ol{margin:0 0 13px;padding-left:22px}
+main li{margin:5px 0}
+main li::marker{color:var(--teal)}
+
+.grid{display:grid;gap:13px;margin:18px 0}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;box-shadow:0 1px 2px rgba(20,28,40,.04)}
+.card h5{margin:0 0 7px;font-size:14px;font-weight:670;display:flex;align-items:center;gap:8px}
+.card p{margin:0;font-size:13.4px;color:var(--tx-2);line-height:1.65}
+.card.t{border-top:3px solid var(--teal)} .card.v{border-top:3px solid var(--violet)}
+.card.a{border-top:3px solid var(--amber)} .card.r{border-top:3px solid var(--red)}
+.card.b{border-top:3px solid var(--blue)} .card.gr{border-top:3px solid var(--green)}
+.ico{width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;flex:0 0 auto;font-family:var(--mono)}
+.ico.t{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-line)}
+.ico.v{background:var(--violet-bg);color:var(--violet);border:1px solid var(--violet-line)}
+.ico.a{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line)}
+.ico.r{background:var(--red-bg);color:var(--red);border:1px solid var(--red-line)}
+.ico.b{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-line)}
+.ico.gr{background:var(--green-bg);color:var(--green);border:1px solid var(--green-line)}
+
+.box{border-radius:var(--r-s);padding:13px 16px;margin:16px 0;font-size:13.9px;border:1px solid;border-left-width:4px;line-height:1.72}
+.box p:last-child{margin-bottom:0}
+.box .bt{font-weight:700;display:block;margin-bottom:3px;font-size:13.6px}
+.box-tip{background:var(--teal-bg);border-color:var(--teal-line);border-left-color:var(--teal)} .box-tip .bt{color:#0b5c55}
+.box-warn{background:var(--amber-bg);border-color:var(--amber-line);border-left-color:var(--amber)} .box-warn .bt{color:#8a4108}
+.box-danger{background:var(--red-bg);border-color:var(--red-line);border-left-color:var(--red)} .box-danger .bt{color:#96201c}
+.box-info{background:var(--blue-bg);border-color:var(--blue-line);border-left-color:var(--blue)} .box-info .bt{color:#1a41ad}
+.box-note{background:var(--bg-soft);border-color:var(--line-2);border-left-color:var(--tx-3)} .box-note .bt{color:var(--tx-2)}
+.box.violet{background:var(--violet-bg);border-color:var(--violet-line);border-left-color:var(--violet)} .box.violet .bt{color:#5b21b6}
+.box.green{background:var(--green-bg);border-color:var(--green-line);border-left-color:var(--green)} .box.green .bt{color:#12602f}
+
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:var(--r);background:var(--card);box-shadow:0 1px 2px rgba(20,28,40,.04)}
+table{border-collapse:collapse;width:100%;font-size:13.2px;min-width:520px}
+thead th{background:var(--bg-soft);text-align:left;font-weight:680;color:var(--tx);padding:10px 13px;border-bottom:1px solid var(--line-2);white-space:nowrap;font-size:12.6px}
+tbody td{padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--tx-2);line-height:1.62}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--card-2)}
+td strong{color:#0d1218}
+.tag{display:inline-block;font-size:11px;font-weight:650;padding:1.5px 7px;border-radius:5px;white-space:nowrap;font-family:var(--mono)}
+.tag.t{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-line)}
+.tag.v{background:var(--violet-bg);color:var(--violet);border:1px solid var(--violet-line)}
+.tag.a{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line)}
+.tag.r{background:var(--red-bg);color:var(--red);border:1px solid var(--red-line)}
+.tag.g{background:var(--bg-soft);color:var(--tx-3);border:1px solid var(--line-2)}
+.tag.gr{background:var(--green-bg);color:var(--green);border:1px solid var(--green-line)}
+
+.plays{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin:18px 0}
+.play{border-radius:var(--r);border:1px solid;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.play .ph{padding:11px 15px;font-size:13.2px;font-weight:730;display:flex;align-items:center;gap:8px}
+.play .pb{padding:13px 15px;font-size:13.1px;color:var(--tx-2);line-height:1.68}
+.play .pb ul{margin:0;padding-left:17px}
+.play .pb li{margin:4px 0}
+.play.g1{border-color:var(--teal-line)} .play.g1 .ph{background:var(--teal-bg);color:#0b5c55}
+.play.g2{border-color:var(--violet-line)} .play.g2 .ph{background:var(--violet-bg);color:#5b21b6}
+.play.g3{border-color:var(--blue-line)} .play.g3 .ph{background:var(--blue-bg);color:#1a41ad}
+.play.g4{border-color:var(--green-line)} .play.g4 .ph{background:var(--green-bg);color:#12602f}
+.play .lvl{font-family:var(--mono);font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,.72);border:1px solid rgba(0,0,0,.06)}
+
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:18px 0}
+.flow .fs{flex:1 1 118px;background:var(--card);border:1px solid var(--line-2);border-radius:9px;padding:10px 12px;font-size:12.6px;line-height:1.55;color:var(--tx-2);box-shadow:0 1px 2px rgba(20,28,40,.04)}
+.flow .fs b{display:block;font-size:12.8px;color:var(--tx);margin-bottom:2px;font-weight:680}
+.flow .fs.t{border-top:3px solid var(--teal)} .flow .fs.v{border-top:3px solid var(--violet)}
+.flow .fs.a{border-top:3px solid var(--amber)} .flow .fs.b{border-top:3px solid var(--blue)}
+.flow .fs.gr{border-top:3px solid var(--green)} .flow .fs.r{border-top:3px solid var(--red)}
+
+.routes{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:18px 0}
+.route{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.route .rh{padding:12px 15px 11px;border-bottom:1px solid var(--line);background:var(--card-2)}
+.route .rh .rc{font-family:var(--mono);font-size:10.5px;color:var(--tx-3);font-weight:700;letter-spacing:.04em}
+.route .rh .rn{font-size:15px;font-weight:730;margin-top:2px}
+.route .rb{padding:13px 15px;font-size:12.9px;color:var(--tx-2);line-height:1.66;flex:1}
+.route .rb dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px}
+.route .rb dt{color:var(--tx-3);font-size:12px;white-space:nowrap}
+.route .rb dd{margin:0;font-size:12.9px;color:var(--tx)}
+.route .rf{padding:11px 15px;border-top:1px dashed var(--line-2);background:var(--card-2);font-size:12.4px}
+.route.r1{border-top:4px solid var(--teal)} .route.r2{border-top:4px solid var(--amber)} .route.r3{border-top:4px solid var(--green)}
+.route.rec{box-shadow:0 0 0 2px var(--green-line),var(--shadow)}
+
+.scbar{margin:18px 0;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:16px 18px;box-shadow:var(--shadow)}
+.scrow{display:flex;align-items:center;gap:11px;margin:9px 0}
+.scrow .sl{flex:0 0 124px;font-size:12.5px;color:var(--tx-2);text-align:right;font-weight:600}
+.scrow .st{flex:1;height:22px;background:var(--bg-soft);border-radius:6px;overflow:hidden}
+.scrow .sf{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:11.5px;font-weight:700;font-family:var(--mono)}
+.sf.a{background:linear-gradient(90deg,#b45309,#d97706)}
+.sf.t{background:linear-gradient(90deg,#0f766e,#14a396)}
+.sf.g{background:linear-gradient(90deg,#15803d,#22c55e)}
+.sf.r{background:linear-gradient(90deg,#b91c1c,#ef4444)}
+
+.nodes{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:16px 0}
+.node{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:11px 13px;box-shadow:0 1px 2px rgba(20,28,40,.04)}
+.node .nw{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.03em}
+.node .nt{font-size:13px;font-weight:660;margin:3px 0;color:var(--tx)}
+.node .nd{font-size:12.2px;color:var(--tx-3);line-height:1.55}
+.node.hot{border-color:var(--red-line);background:var(--red-bg)}
+.node.hot .nw{color:var(--red)}
+
+ol.steps{list-style:none;counter-reset:s;padding-left:0;margin:16px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:0 0 16px 40px;border-left:1.5px solid var(--line-2);margin-left:12px}
+ol.steps>li:last-child{border-left-color:transparent;padding-bottom:0}
+ol.steps>li::before{content:counter(s);position:absolute;left:-13px;top:-1px;width:24px;height:24px;border-radius:50%;background:var(--card);border:1.5px solid var(--teal-line);color:var(--teal);font-family:var(--mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+ol.steps>li>.st{font-weight:670;color:var(--tx);display:block;margin-bottom:3px;font-size:14.4px}
+ol.steps>li>p{margin:0;font-size:13.6px;color:var(--tx-2)}
+
+.codewrap{margin:16px 0;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:#fbfcfd;box-shadow:0 1px 2px rgba(20,28,40,.04)}
+.codehead{display:flex;align-items:center;gap:9px;background:var(--bg-soft);border-bottom:1px solid var(--line);padding:7px 12px}
+.codehead .fname{font-family:var(--mono);font-size:11.8px;color:var(--tx-2);font-weight:600}
+.codehead .lang{font-size:10.5px;font-family:var(--mono);color:var(--tx-3);border:1px solid var(--line-2);border-radius:4px;padding:1px 6px;background:var(--card)}
+.codehead .sp{flex:1}
+.cbtn{font-family:inherit;font-size:11.5px;color:var(--tx-2);background:var(--card);border:1px solid var(--line-2);border-radius:6px;padding:3px 10px;cursor:pointer}
+.cbtn:hover{border-color:var(--teal);color:var(--teal)}
+pre{margin:0;padding:14px 16px;overflow-x:auto;background:#fbfcfd}
+pre code{font-family:var(--mono);font-size:12.7px;line-height:1.72;background:none;border:0;padding:0;color:#242c36;display:block;white-space:pre;tab-size:4}
+.k{color:#9333ea;font-weight:600} .s{color:#0f766e} .c{color:#8b95a3;font-style:italic} .n{color:#c2410c} .f{color:#1d4ed8}
+
+.chk{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;box-shadow:var(--shadow);margin:16px 0}
+.chk-bar{display:flex;align-items:center;gap:11px;padding:12px 12px 10px;border-bottom:1px solid var(--line)}
+.chk-bar .pbar{flex:1;height:8px;border-radius:99px;background:var(--bg-soft);overflow:hidden}
+.chk-bar .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--violet));border-radius:99px;transition:width .25s}
+.chk-bar .ptxt{font-family:var(--mono);font-size:12px;color:var(--tx-2);font-weight:600;white-space:nowrap}
+.chk-reset{font-family:inherit;font-size:11.5px;color:var(--tx-3);background:var(--card);border:1px solid var(--line-2);border-radius:6px;padding:4px 10px;cursor:pointer}
+.chk-reset:hover{border-color:var(--red);color:var(--red)}
+.chk-group{border-bottom:1px dashed var(--line);padding:10px 6px 12px}
+.chk-group:last-child{border-bottom:0}
+.chk-gt{font-size:11.6px;font-weight:700;letter-spacing:.08em;color:var(--violet);margin:0 0 6px;padding-left:6px}
+.chk label{display:flex;gap:10px;align-items:flex-start;padding:5px 8px;border-radius:7px;cursor:pointer;font-size:13.6px;color:var(--tx-2)}
+.chk label:hover{background:var(--bg-soft)}
+.chk input{appearance:none;-webkit-appearance:none;width:17px;height:17px;flex:0 0 auto;margin-top:3px;border:1.6px solid var(--line-2);border-radius:5px;background:var(--card);cursor:pointer;position:relative}
+.chk input:checked{background:var(--teal);border-color:var(--teal)}
+.chk input:checked::after{content:"";position:absolute;left:5px;top:1.5px;width:4px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(43deg)}
+.chk input:checked+span{color:var(--tx-3);text-decoration:line-through;text-decoration-color:var(--teal-line)}
+
+.chapnav{display:flex;gap:12px;margin:38px 0 0;padding-top:20px;border-top:1px solid var(--line)}
+.chapnav a{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:11px 15px;text-decoration:none}
+.chapnav a:hover{border-color:var(--teal-line);text-decoration:none}
+.chapnav .cn-l{font-size:11px;color:var(--tx-3);font-family:var(--mono)}
+.chapnav .cn-t{font-size:13.6px;color:var(--tx);font-weight:640;margin-top:2px}
+.chapnav a.next{text-align:right}
+.footer{max-width:1180px;margin:0 auto;padding:26px 22px 60px;color:var(--tx-3);font-size:12.4px;line-height:1.8;border-top:1px solid var(--line)}
+.footer b{color:var(--tx-2)}
+#totop{position:fixed;right:26px;bottom:26px;z-index:70;width:42px;height:42px;border-radius:50%;background:var(--card);border:1px solid var(--line-2);box-shadow:var(--shadow-2);cursor:pointer;color:var(--tx-2);font-size:16px;display:none;align-items:center;justify-content:center}
+.mask{display:none;position:fixed;inset:0;background:rgba(20,28,40,.35);z-index:55}
+.mask.on{display:block}
+
+@media (max-width:1080px){
+  .sidebar{position:fixed;top:56px;left:0;bottom:0;max-height:none;border-radius:0;border-left:0;border-top:0;transform:translateX(-102%);transition:transform .22s ease;z-index:58}
+  .sidebar.open{transform:none}
+  .tb-btn{display:inline-flex}
+  .layout{gap:0;padding:20px 16px 80px}
+  main{max-width:none}
+  .g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .plays,.routes{grid-template-columns:1fr}
+}
+@media (max-width:660px){
+  .hero{padding:24px 20px 20px} .hero h1{font-size:24px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .layout{padding:16px 13px 70px}
+  .tb-sub{display:none}
+  main h2{font-size:19px}
+  .scrow .sl{flex:0 0 88px;font-size:11.6px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-brand"><span class="tb-dot"></span>三年作战图</div>
+  <div class="tb-sub">2026 秋 → 2029 夏 · 考研路线 · 独立学院版</div>
+  <div class="tb-spacer"></div>
+  <button class="tb-btn" id="menuBtn">目录</button>
+  <div id="progress"></div>
+</div>
+<div class="mask" id="mask"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-title">目 录</div>
+    <ul class="toc" id="toc">
+      <li><a href="#ch0"><span class="n">00</span><span>三年全景图（一张图看完）</span></a></li>
+      <li><a href="#ch1"><span class="n">01</span><span>先看清现实：四条前提</span></a></li>
+      <li><a href="#ch2"><span class="n">02</span><span>你手上的四张牌</span></a></li>
+      <li><a href="#ch3"><span class="n">03</span><span>核心策略：计算当主力</span></a></li>
+      <li><a href="#ch4"><span class="n">04</span><span>第一个决策：考哪个门类</span></a></li>
+      <li><a href="#ch5"><span class="n">05</span><span>大二：把可控的事做完</span></a></li>
+      <li><a href="#ch6"><span class="n">06</span><span>大三：一轮复习 + 出成果</span></a></li>
+      <li><a href="#ch7"><span class="n">07</span><span>大四：考研全流程</span></a></li>
+      <li><a href="#ch8"><span class="n">08</span><span>实验室受限，怎么补</span></a></li>
+      <li><a href="#ch9"><span class="n">09</span><span>麦糟课题：四个步骤</span></a></li>
+      <li><a href="#ch10"><span class="n">10</span><span>一台电脑能练的技能</span></a></li>
+      <li><a href="#ch11"><span class="n">11</span><span>院校选择：分层地图</span></a></li>
+      <li><a href="#ch12"><span class="n">12</span><span>英语与专业课</span></a></li>
+      <li><a href="#ch13"><span class="n">13</span><span>里程碑清单（可勾选）</span></a></li>
+      <li><a href="#ch14"><span class="n">14</span><span>踩坑排查对照表</span></a></li>
+      <li><a href="#ch15"><span class="n">15</span><span>结语</span></a></li>
+    </ul>
+    <div class="sb-foot">先看 <b>00–04</b> 建立全局，再按学年照做。<br>清单可勾选，进度自动保存在本机浏览器。</div>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <span class="kicker">◆ 个人三年作战图 · 修订版</span>
+      <h1>三年只做两件事：<br>把<em>初试考出来</em>，把<em>本事练出来</em></h1>
+      <p class="lead">你所在的独立学院无推免资格、实验室条件有限。这不是坏消息——它把一条模糊的路线，变成了一条清晰得多的路线：<b>考研 + 计算技能</b>。这两件事都不依赖学校给你什么资源。</p>
+      <div class="badges">
+        <span class="badge"><span class="bd" style="background:var(--teal)"></span>路径 <b>统考考研</b></span>
+        <span class="badge"><span class="bd" style="background:var(--violet)"></span>主战场 <b>生信 / 计算</b></span>
+        <span class="badge"><span class="bd" style="background:var(--amber)"></span>课题 <b>麦糟饼干 · 计算为主</b></span>
+        <span class="badge"><span class="bd" style="background:var(--green)"></span>目标 <b>细胞生物学</b></span>
+        <span class="badge"><span class="bd" style="background:var(--blue)"></span>本学期 <b>人工智能+X 微专业 · 12 月四级</b></span>
+      </div>
+    </section>
+
+    <h2 id="ch0"><span class="num">00</span>三年全景图：先看这一张</h2>
+
+    <p>横轴六个学期，纵轴五条并行主线。<b>看图的重点不是"什么时候做什么"，而是"哪几条线必须同时跑"。</b>灰色虚线块是可以弹性调整的。</p>
+
+    <div class="tw" style="padding:12px 8px">
+      <svg viewBox="0 0 680 392" width="100%" style="max-width:680px;display:block;margin:0 auto;font-family:var(--sans)" role="img" aria-label="三年五条主线泳道图">
+        <g font-size="11.5" font-weight="700" fill="#7d8794" font-family="var(--mono)" text-anchor="middle">
+          <text x="155" y="26">大二上 26秋</text>
+          <text x="249" y="26">大二下 27春</text>
+          <text x="343" y="26">大三上 27秋</text>
+          <text x="437" y="26">大三下 28春</text>
+          <text x="531" y="26">大四上 28秋</text>
+          <text x="625" y="26">大四下 29春</text>
+        </g>
+        <line x1="108" y1="36" x2="672" y2="36" stroke="#d3d9e0" stroke-width="1"/>
+        <g stroke="#eef1f4" stroke-width="1">
+          <line x1="202" y1="36" x2="202" y2="382"/>
+          <line x1="296" y1="36" x2="296" y2="382"/>
+          <line x1="390" y1="36" x2="390" y2="382"/>
+          <line x1="484" y1="36" x2="484" y2="382"/>
+          <line x1="578" y1="36" x2="578" y2="382"/>
+        </g>
+        <g fill="#fafbfc">
+          <rect x="0" y="60" width="680" height="54" rx="8"/>
+          <rect x="0" y="124" width="680" height="54" rx="8"/>
+          <rect x="0" y="188" width="680" height="54" rx="8"/>
+          <rect x="0" y="252" width="680" height="54" rx="8"/>
+          <rect x="0" y="316" width="680" height="54" rx="8"/>
+        </g>
+        <g font-size="12.2" font-weight="700" fill="#4a5360">
+          <text x="6" y="92">考研</text>
+          <text x="6" y="156">计算技能</text>
+          <text x="6" y="220">麦糟课题</text>
+          <text x="6" y="284">英语</text>
+          <text x="6" y="348">借外力</text>
+        </g>
+        <rect x="108" y="70" width="182" height="34" rx="6" fill="#0f766e"/>
+        <text x="118" y="92" font-size="11.5" font-weight="700" fill="#fff">英语打底 · 定门类</text>
+        <rect x="296" y="70" width="182" height="34" rx="6" fill="#0f766e"/>
+        <text x="306" y="92" font-size="11.5" font-weight="700" fill="#fff">一轮：政治 英语 专业课</text>
+        <rect x="484" y="70" width="88" height="34" rx="6" fill="#b91c1c"/>
+        <text x="494" y="92" font-size="11.5" font-weight="700" fill="#fff">报名 初试</text>
+        <rect x="578" y="70" width="88" height="34" rx="6" fill="#b91c1c"/>
+        <text x="588" y="92" font-size="11.5" font-weight="700" fill="#fff">复试 调剂</text>
+
+        <rect x="108" y="134" width="182" height="34" rx="6" fill="#6d28d9"/>
+        <text x="118" y="156" font-size="11.5" font-weight="700" fill="#fff">微专业 · Python 基础</text>
+        <rect x="296" y="134" width="88" height="34" rx="6" fill="#6d28d9"/>
+        <text x="306" y="156" font-size="11.5" font-weight="700" fill="#fff">R + 统计</text>
+        <rect x="390" y="134" width="88" height="34" rx="6" fill="#7c3aed"/>
+        <text x="400" y="156" font-size="11.5" font-weight="700" fill="#fff">网络药理</text>
+        <rect x="484" y="134" width="88" height="34" rx="6" fill="#7c3aed"/>
+        <text x="494" y="156" font-size="11.5" font-weight="700" fill="#fff">组学分析</text>
+        <rect x="578" y="134" width="88" height="34" rx="6" fill="#8b5cf6"/>
+        <text x="588" y="156" font-size="11.5" font-weight="700" fill="#fff">作品集</text>
+
+        <rect x="108" y="198" width="88" height="34" rx="6" fill="#b45309"/>
+        <text x="117" y="220" font-size="11.5" font-weight="700" fill="#fff">工艺优化</text>
+        <rect x="202" y="198" width="88" height="34" rx="6" fill="#b45309"/>
+        <text x="211" y="220" font-size="11.5" font-weight="700" fill="#fff">体外化学法</text>
+        <rect x="296" y="198" width="88" height="34" rx="6" fill="#c2710c"/>
+        <text x="305" y="220" font-size="11.5" font-weight="700" fill="#fff">模拟消化</text>
+        <rect x="390" y="198" width="88" height="34" rx="6" fill="#d97706"/>
+        <text x="399" y="220" font-size="11.5" font-weight="700" fill="#fff">计算机制</text>
+        <rect x="484" y="198" width="88" height="34" rx="6" fill="#d97706"/>
+        <text x="493" y="220" font-size="11.5" font-weight="700" fill="#fff">写论文</text>
+        <rect x="578" y="198" width="88" height="34" rx="6" fill="#ea9c2f"/>
+        <text x="587" y="220" font-size="11.5" font-weight="700" fill="#fff">返修 毕设</text>
+
+        <rect x="108" y="262" width="182" height="34" rx="6" fill="#15803d"/>
+        <text x="118" y="284" font-size="11.5" font-weight="700" fill="#fff">12月 四级</text>
+        <rect x="296" y="262" width="182" height="34" rx="6" fill="#15803d"/>
+        <text x="306" y="284" font-size="11.5" font-weight="700" fill="#fff">6月 六级 + 背单词</text>
+        <rect x="484" y="262" width="182" height="34" rx="6" fill="#22c55e"/>
+        <text x="494" y="284" font-size="11.5" font-weight="700" fill="#fff">英语一真题 + 复试口语</text>
+
+        <rect x="108" y="326" width="88" height="34" rx="6" fill="#1d4ed8"/>
+        <text x="116" y="348" font-size="11.5" font-weight="700" fill="#fff">摸清条件</text>
+        <rect x="202" y="326" width="182" height="34" rx="6" fill="#1d4ed8"/>
+        <text x="212" y="348" font-size="11.5" font-weight="700" fill="#fff">申请暑期科研 / 科创计划</text>
+        <rect x="390" y="326" width="88" height="34" rx="6" fill="#3b82f6"/>
+        <text x="398" y="348" font-size="11.5" font-weight="700" fill="#fff">样品外送</text>
+        <rect x="484" y="326" width="88" height="34" rx="6" fill="#eef2f6" stroke="#d3d9e0" stroke-dasharray="4 3"/>
+        <text x="494" y="348" font-size="11" font-weight="600" fill="#7d8794">暂停</text>
+        <rect x="578" y="326" width="88" height="34" rx="6" fill="#3b82f6"/>
+        <text x="588" y="348" font-size="11.5" font-weight="700" fill="#fff">实习</text>
+      </svg>
+    </div>
+
+    <h3><span class="tick">▍</span>这张图里，只有三句话最重要</h3>
+
+    <div class="grid g3">
+      <div class="card t">
+        <h5><span class="ico t">1</span>考研是唯一的硬指标</h5>
+        <p>没有推免，就没有"综合素质加分"这回事。初试分数 + 复试表现决定一切，<b>而这两件事 100% 由你个人控制</b>。</p>
+      </div>
+      <div class="card v">
+        <h5><span class="ico v">2</span>计算是你最大的杠杆</h5>
+        <p>生信、网络药理学、分子对接、数据分析——<b>只需要一台笔记本</b>。学校有没有细胞房，不影响你学这些。</p>
+      </div>
+      <div class="card a">
+        <h5><span class="ico a">3</span>课题改打法，不放弃</h5>
+        <p>麦糟饼干照做，但主线从"细胞实验"换成"体外化学法 + 计算机制预测"。<b>这样反而更好发论文。</b></p>
+      </div>
+    </div>
+
+    <div class="box box-info">
+      <span class="bt">📌 本学期（2026 秋）你新添的两件事，直接进主图</span>
+      <b>① 人工智能 + X 微专业</b>——它落在第 2 条泳道"计算技能"上，是你三年里<b>唯一有正式学分与证书的编程训练</b>。务必把课程作业绑到麦糟课题上做，一份时间两份产出（详见第 02、10 章）。<br>
+      <b>② 12 月四级</b>——落在第 4 条泳道"英语"上。四级只是起点：<b>2027 年 6 月接六级，2027 年 9 月接考研英语一</b>，三场考试共用同一套单词功底，越早开始越省力。
+    </div>
+
+    <div class="box box-warn">
+      <span class="bt">⚠️ 一句话定调</span>
+      你的三年只有两个目标：<b>① 2028 年 12 月把初试考出来；② 在此之前攒够一套"我做过科研"的证据。</b>其他都是可选项。
+    </div>
+
+    <h2 id="ch1"><span class="num">01</span>先看清现实：四条既定前提</h2>
+
+    <p>先说清楚你的真实处境——这些不是打击，是把变量钉死，好让方案能落地。</p>
+
+    <div class="grid g4">
+      <div class="card r">
+        <h5><span class="ico r">✕</span>无推免资格</h5>
+        <p>独立学院不在推免名单内，升学只能走统考这一条路。<b>路径因此变得单一而明确：一次考试，公平计分。</b></p>
+      </div>
+      <div class="card a">
+        <h5><span class="ico a">△</span>无细胞房</h5>
+        <p>细胞培养、流式、WB、共聚焦基本做不了。涉及"活细胞"的实验要另想办法。</p>
+      </div>
+      <div class="card t">
+        <h5><span class="ico t">✓</span>有食品/理化实验室</h5>
+        <p>工艺、质构、色差、分光光度计/酶标仪、微生物培养——这些支撑你课题的<b>前半段</b>。</p>
+      </div>
+      <div class="card gr">
+        <h5><span class="ico gr">✓</span>路是通的</h5>
+        <p>统考全国统一命题、统一阅卷、按分数录取。<b>独立学院学生考进省属重点甚至更好学校的例子每年都有，这不是小概率事件。</b></p>
+      </div>
+    </div>
+
+    <div class="box box-info">
+      <span class="bt">📌 独立学院的学历，考研究竟受不受影响？</span>
+      <b>不受影响。</b>教育部认可的本科学历（含独立学院、民办本科）均可正常报考硕士研究生，报名、初试、复试与本一学生用同一套规则，不存在"没资格报"这回事。<br>
+      但有三个务实提醒：<b>① 部分院校在复试中会对本科背景有隐性偏好</b>——应对方式是让初试分数高出复试线越多越好，并用实际成果说话；<b>② 报考前务必查该校是否保护一志愿</b>；<b>③ 若你的学校正处于转设或更名过程中，报名系统里的院校名称可能变化，以学信网学籍信息为准，必要时咨询报考点。</b><br>
+      另外值得做一件事：去教务处或学工处问一句"有没有考研支持政策（自习室、辅导、报考指导）"。很多院校有，只是不主动宣传。
+    </div>
+
+    <h3><span class="tick">▍</span>由这四条前提推出的三个结论</h3>
+
+    <div class="grid g3">
+      <div class="card t">
+        <h5><span class="ico t">1</span>门票在考场，不在实验室</h5>
+        <p>统考体系里，科研与竞赛<b>只在复试环节加分</b>，权重远低于初试分数。把大二大三全押在实验室，是最容易走偏的一步。</p>
+      </div>
+      <div class="card v">
+        <h5><span class="ico v">2</span>重心从"仪器"移到"电脑"</h5>
+        <p>仪器要靠学校给，电脑不用。课题主线定为<b>体外化学法 + 计算机制预测</b>，后一半完全由你掌控。</p>
+      </div>
+      <div class="card a">
+        <h5><span class="ico a">3</span>英语要提前一年半动</h5>
+        <p>四级（2026.12）→ 六级（2027.06）→ 考研英语一（2027.09 起），三场考试共用同一套底子。<b>越往后拖，成本越高。</b></p>
+      </div>
+    </div>
+
+    <div class="box box-danger">
+      <span class="bt">🔴 时间怎么分配（这一句最重要）</span>
+      <b>课程与考研科目 ≈ 50%，计算技能（含微专业）≈ 25%，课题 ≈ 20%，其他 ≈ 5%。</b><br>
+      注意这里的"课程"不是为刷排名，而是为两件事：<b>不挂科</b>，以及把生物化学、细胞生物学、分子生物学这几门<b>直接当考研专业课第一轮来学</b>——一举两得。
+    </div>
+
+    <h2 id="ch2"><span class="num">02</span>你手上的四张牌</h2>
+
+    <p>把资源盘一遍。关键觉悟是：<b>第二、第三张牌（一台电脑 + 微专业）比第一张牌（实验室）强得多，而大部分人没意识到这一点。</b></p>
+
+    <div class="plays">
+      <div class="play g1">
+        <div class="ph"><span class="lvl">牌 1</span>本校实验室</div>
+        <div class="pb">
+          <b>能做：</b>
+          <ul>
+            <li>配方工艺优化、响应面设计</li>
+            <li>质检类指标：感官、质构（TPA）、色差、水分活度</li>
+            <li>理化检测：总酚、总黄酮、膳食纤维、还原糖</li>
+            <li>化学功能法：DPPH / ABTS / FRAP、α-葡萄糖苷酶抑制、α-淀粉酶抑制、胰脂肪酶抑制</li>
+            <li>体外模拟消化（INFOGEST，需要酶与恒温摇床）</li>
+            <li>微生物培养与计数</li>
+          </ul>
+          <p style="margin-top:8px"><b>做不了：</b>任何需要活细胞、流式、抗体的实验。</p>
+        </div>
+      </div>
+      <div class="play g2">
+        <div class="ph"><span class="lvl">牌 2</span>一台电脑</div>
+        <div class="pb">
+          <b>能做，而且做得越多越好：</b>
+          <ul>
+            <li>Python / R 数据处理与出版级作图</li>
+            <li>响应面建模与最优解求解</li>
+            <li><b>网络药理学</b>：麦糟多酚 → 靶点 → 通路 → 疾病关联</li>
+            <li><b>分子对接</b>（AutoDock Vina）：分子与靶蛋白结合能</li>
+            <li>GEO / TCGA 公开数据挖掘：差异表达、富集、单细胞</li>
+            <li>机器学习：分类、聚类、特征筛选、QSAR</li>
+            <li>文献计量与可视化（CiteSpace / VOSviewer）</li>
+          </ul>
+        </div>
+      </div>
+      <div class="play g4">
+        <div class="ph"><span class="lvl">牌 3</span>人工智能 + X 微专业</div>
+        <div class="pb">
+          <b>本学期新报的这张牌，是三年里性价比最高的投入：</b>
+          <ul>
+            <li>有<b>正式学分与结业证书</b>——简历上能写，复试时能讲</li>
+            <li>系统补齐机器学习、数据处理、编程的底子，比自学有结构</li>
+            <li>课程作业可以<b>直接拿麦糟课题的数据来做</b></li>
+            <li>计算是唯一不依赖学校设备的能力，学会了不会因为条件差而失效</li>
+          </ul>
+          <p style="margin-top:8px"><b>唯一要防的坑：</b>别把它当成"考研之外的第二条主线"。作业尽量绑到课题上，不额外出新题；大三上复习启动后，只要把课修完拿证即可，不再投入额外精力。</p>
+        </div>
+      </div>
+      <div class="play g3">
+        <div class="ph"><span class="lvl">牌 4</span>借外力</div>
+        <div class="pb">
+          <b>四条可操作的路径：</b>
+          <ul>
+            <li><b>暑期科研实习</b>：中科院部分院所面向全国本科生开放暑期科研实践/科创类项目，普通本科学生可申请，通常 3–6 月报名</li>
+            <li><b>样品外送检测</b>：通过导师人脉或商业检测机构，把样品送有细胞房的单位测（花钱买数据）</li>
+            <li><b>大四实习</b>：找生物医药企业/CRO/高校实验室实习，用实习身份进细胞房</li>
+            <li><b>线上资源</b>：公开数据集 + 公开课程 + 开源代码，等于半个实验室</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 一个反直觉但正确的判断</span>
+      你的目标是<b>细胞生物学</b>，但你<b>不需要在自己的学校做细胞实验</b>。复试时老师问的是"你想研究什么、你怎么想问题、你会什么方法"，而不是"你养过几瓶细胞"。<br>
+      一个能自己跑完 GEO 数据挖掘 + 网络药理学 + 分子对接、并说清楚某条细胞信号通路怎么被调控的学生，<b>比一个只会跟着师兄传代的学生更让导师心动</b>——尤其当后者的实验还说不清对照组设计的时候。
+    </div>
+
+    <h2 id="ch3"><span class="num">03</span>核心策略：让计算当主力</h2>
+
+    <p>这套打法的名字叫<b>"干湿结合"</b>，但你要把它反过来用——<b>用计算提出假设，用你够得着的湿实验做验证</b>，而不是用湿实验去碰运气。</p>
+
+    <div class="flow">
+      <div class="fs v"><b>① 数据库挖靶点</b>SwissTargetPrediction / STITCH 预测麦糟酚酸的潜在靶点</div>
+      <div class="fs v"><b>② 建网络</b>STRING + Cytoscape 构建"成分–靶点–通路"网络</div>
+      <div class="fs v"><b>③ 富集定位</b>GO / KEGG 富集，落到具体通路（如 Nrf2、AMPK、NF-κB）</div>
+      <div class="fs v"><b>④ 分子对接</b>AutoDock Vina 算结合能，挑出最可能的靶点</div>
+      <div class="fs a"><b>⑤ 湿实验验证</b>用本校能做的酶抑制实验 / 抗氧化实验做印证</div>
+      <div class="fs t"><b>⑥ 成文</b>写成论文：计算预测 + 实验验证的完整链条</div>
+    </div>
+
+    <h3><span class="tick">▍</span>为什么这条路特别适合你</h3>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>优势</th><th>具体说明</th></tr></thead>
+        <tbody>
+          <tr><td><strong>零设备依赖</strong></td><td>全部在一台笔记本上完成，不需要细胞房、流式、抗体。学校条件差不再是障碍。</td></tr>
+          <tr><td><strong>成本近乎为零</strong></td><td>软件全部开源免费（Cytoscape、AutoDock Vina、PyMOL、R、Python），数据库公开可访问。</td></tr>
+          <tr><td><strong>正好服务你的兴趣</strong></td><td>你说对计算机、AI、生信感兴趣——这条路让兴趣直接变成科研产出，而不是"业余爱好"。</td></tr>
+          <tr><td><strong>复试时最能讲</strong></td><td>导师会追问"你怎么确定这个靶点是相关的"——你有完整的计算 + 实验证据链可答。</td></tr>
+          <tr><td><strong>论文好发</strong></td><td>食品/天然产物领域非常接受"网络药理学 + 分子对接 + 体外验证"的范式，中文核心与低分区 SCI 都常见。</td></tr>
+          <tr><td><strong>和细胞生物学不矛盾</strong></td><td>通路的落点就是细胞生物学（信号转导、氧化应激、细胞代谢）。你不是绕开目标方向，是换一种方式接近它。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-warn">
+      <span class="bt">⚠️ 必须诚实的一条边界</span>
+      计算预测<b>不能替代实验证据</b>。审稿人和面试老师都很清楚网络药理学容易"做得漂亮但站不住"。所以：<br>
+      <b>① 对接结果必须用你们能做的湿实验（酶抑制、抗氧化）做至少一个方向的验证；</b><br>
+      <b>② 不要宣称"证明了机制"，只能说"提示了可能的机制"；</b><br>
+      <b>③ 分子对接的结论要以结合能数值 + 结合位点图呈现，不要只贴一张彩色卡通图。</b>
+    </div>
+
+    <h2 id="ch4"><span class="num">04</span>第一个决策：考研考哪个门类</h2>
+
+    <p>这是整个三年里最重要的一个决定，因为它直接决定考不考数学、考几门专业课、以及分数线高低。我查了教育部公布的 <b>2026 年国家线原始数据</b>，先看这张图——同样是"生物类"方向，分数线差了 35 分。</p>
+
+    <div class="scbar">
+      <div style="font-size:12.5px;color:var(--tx-3);margin-bottom:10px">2026 年考研国家线（A 区 · 总分）· 数据来源：教育部</div>
+      <div class="scrow">
+        <div class="sl">农学门类</div>
+        <div class="st"><div class="sf g" style="width:80%">240</div></div>
+      </div>
+      <div class="scrow">
+        <div class="sl">工学门类</div>
+        <div class="st"><div class="sf a" style="width:88%">264</div></div>
+      </div>
+      <div class="scrow">
+        <div class="sl">理学门类</div>
+        <div class="st"><div class="sf t" style="width:91.7%">275</div></div>
+      </div>
+      <div class="scrow">
+        <div class="sl">生物与医药 专硕</div>
+        <div class="st"><div class="sf t" style="width:91.7%">275</div></div>
+      </div>
+      <div style="font-size:12.2px;color:var(--tx-3);margin-top:10px;line-height:1.6">注：B 区（内蒙古、广西、海南、贵州、云南、西藏、甘肃、青海、宁夏、新疆）总分线普遍低 10 分。国家线只是<b>最低门槛</b>，热门院校实际录取分通常高出 40–80 分，必须查目标院校的复试线与拟录取名单。</div>
+    </div>
+
+    <h3><span class="tick">▍</span>三条路线摆在桌上</h3>
+
+    <div class="routes">
+      <div class="route r1 rec">
+        <div class="rh">
+          <div class="rc">0710 生物学 · 学硕</div>
+          <div class="rn">理学门类</div>
+        </div>
+        <div class="rb">
+          <dl>
+            <dt>初试科目</dt><dd>政治 + 英语一 + 两门专业课</dd>
+            <dt>是否考数学</dt><dd><b>通常不考</b></dd>
+            <dt>常见专业课</dt><dd>生物化学与分子生物学、细胞生物学 / 遗传学</dd>
+            <dt>国家线</dt><dd>275（A 区）</dd>
+            <dt>与目标契合</dt><dd>★★★★★ 细胞生物学正是它的二级方向</dd>
+          </dl>
+        </div>
+        <div class="rf">✅ <b>推荐主攻。</b>不考数学，专业课就是你正在学的生化/细胞/分子，与你的兴趣和目标完全一致。</div>
+      </div>
+
+      <div class="route r2">
+        <div class="rh">
+          <div class="rc">0860 生物与医药 · 专硕</div>
+          <div class="rn">专业学位</div>
+        </div>
+        <div class="rb">
+          <dl>
+            <dt>初试科目</dt><dd>政治 + 英语二 + 数学二 + 专业课</dd>
+            <dt>是否考数学</dt><dd><b>多数院校考数学二</b></dd>
+            <dt>国家线</dt><dd>275（A 区）</dd>
+            <dt>优势</dt><dd>招生量大、培养偏应用、与企业对接好</dd>
+            <dt>风险</dt><dd>数学二是最大门槛；英语二比英语一略简单</dd>
+          </dl>
+        </div>
+        <div class="rf">⚠️ 若你数学基础不错、且想走生物医药产业方向，可以考虑。但<b>大二下就必须开始补数学</b>。</div>
+      </div>
+
+      <div class="route r3">
+        <div class="rh">
+          <div class="rc">0972 食品科学与工程 · 学硕</div>
+          <div class="rn">农学门类</div>
+        </div>
+        <div class="rb">
+          <dl>
+            <dt>初试科目</dt><dd>政治 + 英语一 + 数学(农) 或 化学(农) + 专业课</dd>
+            <dt>国家线</dt><dd><b>240（A 区）· 最低</b></dd>
+            <dt>优势</dt><dd>分数线低、招生院校多、与你现有课题完全对口</dd>
+            <dt>代价</dt><dd>学科归属偏食品/农业，不是细胞生物学</dd>
+            <dt>代表院校</dt><dd>中国农大、南京农大、华中农大、山东农大、青岛农大</dd>
+          </dl>
+        </div>
+        <div class="rf">🛟 <b>建议作为调剂阶段的兜底。</b>若初试分数不上不下，农学门类的调剂名额明显更多。</div>
+      </div>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 最实用的一个动作：去下载"拟录取名单"</span>
+      大二下就把这件事做完：打开 3–5 所目标院校的研究生院官网 → 找"招生信息/录取公示" → 下载近三年<b>拟录取名单</b>（通常会列初试分数）→ 算最低分、平均分。<br>
+      <b>这比任何考研机构的数据都准，也比任何人的经验都可靠。</b>你会立刻知道：这所学校要考多少分、专业课给分松不松、以及你这个层次的本科生有没有被录取过（有的名单会标本科院校）。
+    </div>
+
+    <div class="box box-info">
+      <span class="bt">📌 关于"本科出身"这件事，我不哄你</span>
+      部分院校在复试中确实存在对本科背景的隐性偏好。这不是你能改变的，你能改变的是两件事：<br>
+      <b>① 初试分数高出复试线越多越好。</b>高 30 分和压线过，在复试里的处境完全不同。<br>
+      <b>② 用"我做的东西"抵消"我来自哪里"。</b>一份能演示的网络药理学+分子对接分析、一篇挂了名的论文、一段暑期科研经历——这些是实打实的证据。<br>
+      另外：<b>报考前一定去查该校是否保护一志愿</b>（看近三年一志愿录取比例）。对独立学院学生来说，这一条比学校排名重要得多。
+    </div>
+
+    <h2 id="ch5"><span class="num">05</span>大二：把"完全可控的事"全部做完</h2>
+
+    <p>大二这一年的定位很明确——<b>不碰考研知识点，但把所有前期准备做干净</b>。具体说就五件事：定门类、考四级、修微专业、推课题、学编程。这几件事做好了，大三可以心无旁骛地复习。</p>
+
+    <div class="nodes">
+      <div class="node hot"><div class="nw">2026.09 – 10</div><div class="nt">定考研门类</div><div class="nd">去目标院校官网查招生目录，确认考不考数学</div></div>
+      <div class="node"><div class="nw">2026.09 – 2027.06</div><div class="nt">人工智能 + X 微专业</div><div class="nd">作业绑课题，一份时间两份产出</div></div>
+      <div class="node hot"><div class="nw">2026.12</div><div class="nt">四级考试</div><div class="nd">目标 500+，为 6 月六级铺路</div></div>
+      <div class="node"><div class="nw">2026.10 – 2027.01</div><div class="nt">课题：工艺优化</div><div class="nd">把响应面做完，拿到第一批数据</div></div>
+      <div class="node"><div class="nw">2027 寒假</div><div class="nt">Python 集训</div><div class="nd">2 周集中突破，别分散</div></div>
+      <div class="node hot"><div class="nw">2027.03 – 05</div><div class="nt">大创申报</div><div class="nd">一年一次，错过等一年</div></div>
+      <div class="node"><div class="nw">2027.03 – 07</div><div class="nt">体外化学功能检测</div><div class="nd">DPPH / ABTS / 酶抑制</div></div>
+      <div class="node"><div class="nw">2027.06</div><div class="nt">六级考试</div><div class="nd">四级过线后紧接着考</div></div>
+      <div class="node"><div class="nw">2027.07 – 08</div><div class="nt">暑期科研 或 计算集训</div><div class="nd">3–6 月就要报名</div></div>
+    </div>
+
+    <h3><span class="tick">▍</span>大二上（2026.09 – 2027.01）：五个动作</h3>
+
+    <ol class="steps">
+      <li>
+        <span class="st">确定考研门类，并把考试科目抄下来贴在书桌前</span>
+        <p>建议主攻 <b>0710 生物学（理学，通常不考数学）</b>。动作是：打开 3–5 所目标院校研究生院官网 → 找"硕士研究生招生专业目录" → 记下初试四门科目的<b>代码与名称</b>（例如 101 思想政治理论 / 201 英语一 / 701 生物化学 / 801 细胞生物学）。<b>科目名称各校不同，必须逐个查，不要听人转述。</b></p>
+      </li>
+      <li>
+        <span class="st">把英语提到战略高度：12 月四级 → 明年 6 月六级 → 大三上接英语一</span>
+        <p>这是你三年里唯一一条"越早开始越省力"的线。四级、六级、考研英语一考的都是词汇与阅读，后者只是前两者的加强版——<b>三场考试共用同一套底子，今天背的单词三年后还在用。</b><br>
+        2026 年理学门类单科线是 35 分（满分 100），看着很低，但英语一难度大，很多独立学院学生总分够却卡在单科上。<br>
+        <b>具体做法：</b>每天 20 分钟单词不能断（用 App 记连续天数）；四级目标不是压线过而是 <b>500+</b>，因为多数学校要求四级过线才能报六级；12 月考完当月就开始六级词汇，不要等成绩出来再动。</p>
+      </li>
+      <li>
+        <span class="st">把人工智能 + X 微专业当成"有学分的编程课"来修</span>
+        <p>这张牌的价值在第 02 章讲过，这里说的是<b>怎么修才不亏</b>：全程只守一条原则——<b>所有课程作业都用你麦糟课题的数据来做</b>。需要做回归，就用工艺参数预测感官评分；需要做分类，就用体外活性数据分成高/中/低活性组；需要做可视化，就画你论文里那些图。<br>
+        这样一来，一次作业同时满足三件事：交差、练技能、产出论文素材。<b>唯一禁止的是"为了作业另外找一份数据"</b>——那等于凭空多出一门课的工作量。</p>
+      </li>
+      <li>
+        <span class="st">找一位本学院做食品或生物的老师，把课题挂到他名下</span>
+        <p>你需要一个"科研经历"的载体。校级的科研立项、大创、学科竞赛都行，关键是<b>有指导老师、有立项号、有结题</b>。跟老师说清楚：你有完整的数据与方案，需要的是挂靠和指导。这对老师也是成果，通常不会被拒绝。</p>
+      </li>
+      <li>
+        <span class="st">建立实验记录本（电子 + 云端 + 每周备份）</span>
+        <p>记录要素：日期、试剂批号、仪器、参数、原始数据、异常现象。<b>这条现在看不出价值，但它决定你的数据能不能变成论文。</b>独立学院实验室常见的问题是仪器状态不稳定、试剂批次杂，记录越细，后面能排除的干扰越多。</p>
+      </li>
+    </ol>
+
+    <div class="box box-warn">
+      <span class="bt">⚠️ GPA 该怎么对待：不刷排名，但不许挂科</span>
+      统考不看排名，所以你不需要为"进前 10%"去重修刷分。但成绩单仍有两个作用：<b>① 挂科会影响毕业与复试资格审查；② 复试时老师会看成绩单</b>，低空飞过和扎实过关给人的印象不同。<br>
+      所以策略是：<b>把与考研专业课重合的课程（生物化学、分子生物学、细胞生物学、微生物学）学到 85+，其余课程保证不挂科即可。</b>省下来的时间给微专业、编程和课题。
+    </div>
+
+    <h3><span class="tick">▍</span>寒假（2027.01 – 02）：唯一适合集中学编程的整块时间</h3>
+
+    <div class="grid g2">
+      <div class="card v">
+        <h5><span class="ico v">2w</span>Python + Linux 集训</h5>
+        <p>目标不是"学完 Python"，而是：能用 pandas 读写清洗表格、能用 matplotlib 画带误差棒的图、能在命令行里跑脚本和看日志、能 git commit。</p>
+      </div>
+      <div class="card t">
+        <h5><span class="ico t">1w</span>文献与数据整理</h5>
+        <p>精读 8–10 篇麦糟（BSG）/膳食纤维/酚酸功能的英文文献；把上学期所有工艺数据整理成一张干净的 CSV。<b>这张表就是你后面所有分析的起点。</b></p>
+      </div>
+    </div>
+
+    <h3><span class="tick">▍</span>大二下（2027.02 – 2027.07）：申报 + 出数据</h3>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>月份</th><th>重点动作</th><th>验收标准</th></tr></thead>
+        <tbody>
+          <tr><td><strong>3 月</strong></td><td>盯紧大创申报通知（一般 3 月发、4–5 月截止），题名落到"副产物高值化 + 功能评价"</td><td>提交立项申请书</td></tr>
+          <tr><td><strong>4 月</strong></td><td>完成工艺优化的单因素试验；开始学 R + ggplot2</td><td>拿到单因素数据，能画出第一张 ggplot 图</td></tr>
+          <tr><td><strong>5 月</strong></td><td>响应面设计（Box-Behnken）与实验；学网络药理学入门</td><td>响应面模型 R² &gt; 0.9，完成验证实验</td></tr>
+          <tr><td><strong>6 月</strong></td><td>第一批体外化学功能检测（DPPH / ABTS / FRAP / α-葡萄糖苷酶抑制）；参加六级考试</td><td>拿到 IC₅₀ 或抑制率数据，重复 3 次；六级已考</td></tr>
+          <tr><td><strong>7 月</strong></td><td>整理工艺与功能数据；微专业课程收尾；申请暑期科研项目</td><td>微专业学分修满；提交至少 1 个暑期科研申请</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 独立学院学生必做的一件事：申请暑期科研</span>
+      中科院部分研究所、以及一些高校，面向全国本科生开放<b>暑期科研实践/科创类项目</b>（通常 3–6 月发通知、7–8 月进组）。这类项目<b>不要求推免资格，普通本科学生可以申请</b>，是双非/独立学院学生接触高水平平台最现实的通道。<br>
+      申请材料通常要：成绩单、个人陈述、一封推荐信。<b>你手上有一个真实课题 + 一份数据分析报告，这在申请里是非常有说服力的材料。</b>哪怕只去 4 周，你收获的是：见识真实实验室怎么运转、一封来自高水平单位的推荐信、以及复试时一段能讲的经历。
+    </div>
+
+    <h3><span class="tick">▍</span>大二的验收标准</h3>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>维度</th><th>及格线</th><th>良好线</th></tr></thead>
+        <tbody>
+          <tr><td><strong>考研准备</strong></td><td>已确定门类与 2–3 所目标院校，抄下初试科目</td><td>已下载目标院校近三年拟录取名单并算过分数</td></tr>
+          <tr><td><strong>英语</strong></td><td>四级 425+（12 月已考）</td><td>四级 500+，六级已考或已报名</td></tr>
+          <tr><td><strong>微专业</strong></td><td>按期完成课程，不欠作业</td><td>用麦糟课题数据完成至少 1 份课程项目</td></tr>
+          <tr><td><strong>课题</strong></td><td>响应面完成，第一批体外功能数据到手</td><td>大创立项成功，数据量够写论文主体</td></tr>
+          <tr><td><strong>编程</strong></td><td>Python 能读写表格画图；Linux 会基本命令</td><td>能独立完成一次响应面分析或公开数据复现</td></tr>
+          <tr><td><strong>计算科研</strong></td><td>知道网络药理学是干什么的</td><td>跑通一次"靶点预测 → STRING 网络 → KEGG 富集"</td></tr>
+          <tr><td><strong>外援</strong></td><td>知道有哪些暑期科研项目可申请</td><td>已提交至少 1 个暑期科研申请</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="ch6"><span class="num">06</span>大三：一轮复习 + 出成果</h2>
+
+    <p>大三是最累的一年——你要同时推进复习、课题、技能。所以必须排优先级。</p>
+
+    <div class="box box-danger">
+      <span class="bt">🔴 大三的优先级：复习 &gt; 课题 &gt; 技能</span>
+      <b>门票在初试考场上，所以复习第一。</b>课题和技能的作用是让你在复试时不被问倒、以及有一份像样的材料。<br>
+      如果时间冲突到必须取舍：<b>先保复习进度，课题可以放缓但不能断线，技能学习挤碎片时间；微专业这一阶段只要把课修完拿证，不再额外投入精力。</b>
+    </div>
+
+    <h3><span class="tick">▍</span>大三上（2027.09 – 2028.01）：复习启动 + 课题进计算阶段</h3>
+
+    <div class="grid g3">
+      <div class="card t">
+        <h5><span class="ico t">线1</span>考研一轮</h5>
+        <p>正式启动。英语（单词+长难句+早年真题）每天 2 小时不间断；专业课（生物化学）通读教材 + 做课后题；政治可以等到 2028 年暑假再开始。</p>
+      </div>
+      <div class="card v">
+        <h5><span class="ico v">线2</span>课题转计算</h5>
+        <p>做体外模拟消化数据 + 启动网络药理学与分子对接。这部分不占实验室资源，可以在宿舍/图书馆完成。</p>
+      </div>
+      <div class="card b">
+        <h5><span class="ico b">线3</span>专业课成绩</h5>
+        <p>把生物化学、分子生物学、细胞生物学这几门课学到 85+。<b>一举两得：既提 GPA，又是考研专业课的第一轮复习。</b></p>
+      </div>
+    </div>
+
+    <h3><span class="tick">▍</span>大三下（2028.02 – 2028.07）：一轮收尾 + 论文投稿</h3>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>时间</th><th>考研</th><th>课题</th></tr></thead>
+        <tbody>
+          <tr><td><strong>2028.02–03</strong></td><td>英语一真题（近十年）系统刷；生化第一轮结束</td><td>网络药理学完整闭环跑完，出图</td></tr>
+          <tr><td><strong>2028.04</strong></td><td>专业课第二轮（细胞生物学/分子生物学）</td><td>论文初稿完成（含计算 + 实验两部分）</td></tr>
+          <tr><td><strong>2028.05</strong></td><td>政治开始（马原+史纲）；英语保持</td><td>论文投稿（先投中文核心或低分区 SCI）</td></tr>
+          <tr><td><strong>2028.06</strong></td><td>期末 + 复习并行，注意别掉课</td><td>按审稿意见补实验或补充分析</td></tr>
+          <tr><td><strong>2028.07</strong></td><td><b>进入暑期强化（全年最关键的两个月）</b></td><td>暑期科研（若申请到）或继续修改论文</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-danger">
+      <span class="bt">🔴 考研成败的一个隐藏分水岭：大三暑假</span>
+      2028 年 7–8 月是唯一能"全天候复习"的完整时段，它决定了你后面四个月是从容还是慌乱。<b>这两个月的标准配置是每天有效学习 8 小时以上：政治过一遍、英语真题精读、专业课二轮 + 背诵框架。</b><br>
+      如果你能申请到暑期科研，请评估清楚：4 周的科研经历 vs 8 周的复习时间，哪个对上岸更重要？<b>我的建议是：如果大二暑假已经有过科研经历，大三暑假就以复习为主。</b>
+    </div>
+
+    <h2 id="ch7"><span class="num">07</span>大四：考研全流程（照着走）</h2>
+
+    <p>大四上学期只有一件事：把初试考出来。下学期只有一件事：把复试和毕设做完。下面这条时间线请打印出来。</p>
+
+    <div class="nodes">
+      <div class="node"><div class="nw">2028.09</div><div class="nt">招生简章 / 专业目录发布</div><div class="nd">核对科目是否变动，确认参考书</div></div>
+      <div class="node hot"><div class="nw">2028.10</div><div class="nt">网上报名</div><div class="nd">应届生选就读学校所在地报考点</div></div>
+      <div class="node"><div class="nw">2028.11</div><div class="nt">网上确认</div><div class="nd">上传照片与学籍材料，别错过</div></div>
+      <div class="node"><div class="nw">2028.11 – 12</div><div class="nt">冲刺</div><div class="nd">政治背诵 + 英语作文 + 专业课默写</div></div>
+      <div class="node hot"><div class="nw">2028.12</div><div class="nt">初试</div><div class="nd">通常在 12 月中下旬的周末，连考两天</div></div>
+      <div class="node"><div class="nw">2029.02</div><div class="nt">出成绩</div><div class="nd">对照去年国家线与目标院校复试线</div></div>
+      <div class="node hot"><div class="nw">2029.03</div><div class="nt">国家线 + 复试名单</div><div class="nd">同时开始准备调剂信息</div></div>
+      <div class="node"><div class="nw">2029.03 – 04</div><div class="nt">复试 / 调剂</div><div class="nd">复试含笔试+面试+英语口语</div></div>
+      <div class="node"><div class="nw">2029.05 – 06</div><div class="nt">毕设答辩 + 毕业</div><div class="nd">别让毕设拖住毕业</div></div>
+    </div>
+
+    <h3><span class="tick">▍</span>初试四门，怎么分配分数</h3>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>科目</th><th>满分</th><th>目标分</th><th>策略要点</th></tr></thead>
+        <tbody>
+          <tr><td><strong>思想政治理论</strong></td><td>100</td><td>65–70</td><td>暑假开始，最后两个月背肖四。性价比高，别开始太晚也别投入过多。</td></tr>
+          <tr><td><strong>英语一</strong></td><td>100</td><td>55–65</td><td><b>最大的风险点</b>。真题至少刷 3 遍，近十年真题研读透彻。作文提前背模板 + 自己改写。</td></tr>
+          <tr><td><strong>专业课一</strong>（常为生物化学）</td><td>150</td><td>100–120</td><td>拉分主力。教材读三遍，整理自己的框架笔记，默写通路图。</td></tr>
+          <tr><td><strong>专业课二</strong>（常为细胞生物学/分子生物学）</td><td>150</td><td>100–120</td><td>按目标院校真题抓重点，不同学校出题风格差异极大，<b>必须拿到真题</b>。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-info">
+      <span class="bt">📌 总分 500 分：一个现实的分数参考</span>
+      理学门类国家线 275（A 区）对应大约 "政 50 / 英 40 / 专业一 90 / 专业二 95"。<b>但这只是门槛，热门院校实际录取常在 320–370。</b>所以目标定在 <b>340 分左右</b>比较稳妥：政治 68 + 英语 60 + 专业一 105 + 专业二 110 ≈ 343。<br>
+      <b>这个分数对独立学院学生完全可达</b>——它不需要天赋，只需要 14 个月不间断的执行。
+    </div>
+
+    <h3><span class="tick">▍</span>复试：你的计算技能在这里兑现</h3>
+
+    <p>复试通常包括专业课笔试、综合面试、英语口语。综合面试里最常被问的就是"你做过什么科研"。<b>这是你三年里唯一能主动准备的加分环节</b>，按下面五段结构讲，几乎不会失手：</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>段落</th><th>时长</th><th>内容</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1. 问题</strong></td><td>1 分钟</td><td>啤酒麦糟是啤酒工业最大的副产物，大部分当饲料或废弃。我的问题：它里面的酚酸类成分有没有可验证的功能活性？</td></tr>
+          <tr><td><strong>2. 设计</strong></td><td>2 分钟</td><td>我分两步：先用响应面把饼干工艺优化到最优，再用体外化学法测抗氧化与降糖活性；然后<b>用网络药理学和分子对接预测可能的靶点与通路</b>，反过来指导体外验证方向。</td></tr>
+          <tr><td><strong>3. 结果</strong></td><td>3 分钟</td><td>只讲 2–3 张关键图：工艺最优条件、IC₅₀ 数值、以及"成分–靶点–通路"网络图。讲到通路时明确提到细胞层面的意义（如 Nrf2 抗氧化响应、AMPK 代谢调控）。</td></tr>
+          <tr><td><strong>4. 困难与局限</strong></td><td>2 分钟</td><td><b>这段最能加分。</b>例如："我们学校没有细胞房，所以细胞水平的验证我暂时做不了，这是本研究最大的局限。我用公开数据集做了初步的转录组分析作为替代，计划在研究生阶段补上细胞实验。"——<b>诚实说明条件限制，同时展示你已经在想办法，比硬吹要强得多。</b></td></tr>
+          <tr><td><strong>5. 下一步</strong></td><td>2 分钟</td><td>我想研究膳食成分如何通过信号通路调节肠道上皮细胞功能。这也是我报考贵校的原因。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 面试前必做的三件事</span>
+      <b>① 找同学模拟面试至少 3 次</b>，用手机录像回看，你会发现自己语速、口头禅、"嗯啊"的问题。<br>
+      <b>② 准备一个能当场打开的作品</b>：一个 GitHub 仓库、一份 PDF 分析报告、或几张关键图。能"拿出来看"和只能"嘴上说"，可信度差一个量级。<br>
+      <b>③ 提前了解报考导师的 3 篇代表论文</b>，面试时能说出"我读过您关于 XX 的工作"，比任何套话都有用。
+    </div>
+
+    <div class="box box-warn">
+      <span class="bt">⚠️ 调剂：对你来说这不是可选项，是必须提前准备的 Plan B</span>
+      独立学院学生在调剂市场处于劣势，所以策略要反过来：<b>① 初试成绩一出（2 月）就立刻开始整理调剂信息</b>，不要等国家线；<b>② 重点盯 B 区院校与农学门类</b>（国家线低、缺额多）；<b>③ 提前准备好调剂用的简历与材料包</b>，调剂窗口通常只开几天，临时准备来不及；<b>④ 若一志愿复试被刷，第一时间联系有缺额的导师</b>，直接发邮件，别只等系统。
+    </div>
+
+    <h2 id="ch8"><span class="num">08</span>实验室受限：逐项拆解怎么补</h2>
+
+    <p>把"我想做但做不了"逐条列出来，对着表找替代方案。<b>这张表是整份规划里最实用的一页。</b></p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>你想做</th><th>本校能做？</th><th>替代方案</th><th>替代后的成果形态</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>工艺优化</strong></td>
+            <td><span class="tag gr">能</span> 食品工艺室</td>
+            <td>—</td>
+            <td>响应面论文主体（这部分完全自主）</td>
+          </tr>
+          <tr>
+            <td><strong>理化与质构检测</strong></td>
+            <td><span class="tag gr">大概率能</span></td>
+            <td>质构仪若没有，用感官评价 + 简易质构（穿刺/压缩）替代</td>
+            <td>品质评价章节</td>
+          </tr>
+          <tr>
+            <td><strong>抗氧化活性</strong></td>
+            <td><span class="tag gr">能</span> 分光光度计/酶标仪</td>
+            <td>—</td>
+            <td>IC₅₀ 数据 + 曲线图，论文核心数据之一</td>
+          </tr>
+          <tr>
+            <td><strong>体外降糖/降脂</strong></td>
+            <td><span class="tag gr">能</span> 酶抑制法</td>
+            <td>α-葡萄糖苷酶、α-淀粉酶、胰脂肪酶抑制试剂盒即可</td>
+            <td>功能评价章节</td>
+          </tr>
+          <tr>
+            <td><strong>体外模拟消化</strong></td>
+            <td><span class="tag a">看条件</span></td>
+            <td>INFOGEST 标准流程需要胃蛋白酶、胰酶、胆盐、恒温摇床。若缺酶或摇床，改为"模拟胃液/肠液浸泡 + 定时取样"的简化版，并在论文中说明局限</td>
+            <td>释放曲线，或作为方法学说明</td>
+          </tr>
+          <tr>
+            <td><strong>细胞活力 / ROS / WB</strong></td>
+            <td><span class="tag r">不能</span></td>
+            <td><b>① 样品外送</b>：把提取物寄给有细胞房的单位或第三方检测机构代测；<br><b>② 暑期科研</b>：去外单位做 4–6 周；<br><b>③ 大四实习</b>：找有细胞房的企业/实验室</td>
+            <td>若能拿到，是论文的加分章节；拿不到，用计算替代</td>
+          </tr>
+          <tr>
+            <td><strong>机制验证（通路）</strong></td>
+            <td><span class="tag r">不能</span></td>
+            <td><b>网络药理学 + 分子对接</b>：成分→靶点→通路预测；<br><b>GEO 公开数据挖掘</b>：用别人已发表的细胞转录组数据做分析，作为机制假设的证据</td>
+            <td>"计算预测 + 体外验证"的完整机制章节</td>
+          </tr>
+          <tr>
+            <td><strong>肠道菌群</strong></td>
+            <td><span class="tag a">部分</span></td>
+            <td>体外厌氧发酵可做；16S 测序需外包（几百元/样，可走大创经费）</td>
+            <td>菌群章节（若经费允许）</td>
+          </tr>
+          <tr>
+            <td><strong>分子生物学操作</strong></td>
+            <td><span class="tag a">看条件</span></td>
+            <td>PCR、电泳、凝胶成像若具备，可做微生物方向的分子实验</td>
+            <td>补充实验</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3><span class="tick">▍</span>三条外援路径的操作细节</h3>
+
+    <div class="grid g3">
+      <div class="card b">
+        <h5><span class="ico b">A</span>暑期科研实习</h5>
+        <p><b>时间：</b>一般 3–6 月发通知、7–8 月进组，周期 3–6 周。<br>
+        <b>渠道：</b>中科院部分研究所面向全国高校本科生设有暑期科研实践/科创类项目；部分高校的实验室也接受自荐。<br>
+        <b>材料：</b>成绩单、个人陈述、推荐信，<b>外加你的课题数据与分析报告</b>。<br>
+        <b>怎么提高命中率：</b>不要只投最热门的所。挑一位研究方向与你课题沾边的课题组，直接发邮件问"能否来做 4 周暑期科研，我可以自带课题和数据"。</p>
+      </div>
+      <div class="card b">
+        <h5><span class="ico b">B</span>样品外送检测</h5>
+        <p><b>适用：</b>你需要某个自己测不了的指标，但不需要长期使用设备。<br>
+        <b>做法：</b>把提取物/样品按规范冻干、包装、寄给有资质的检测机构或高校实验室，付费代测。<br>
+        <b>注意：</b>① 提前问清<b>样品量、保存条件、交付周期、价格</b>；② 结果要索取原始数据而不只是报告；③ 论文中需如实说明检测单位。<br>
+        <b>成本：</b>单个细胞实验项目通常几百到几千元，可以写进大创经费预算。</p>
+      </div>
+      <div class="card b">
+        <h5><span class="ico b">C</span>用公开数据替代</h5>
+        <p><b>核心思路：</b>你不需要自己养细胞，也能做细胞层面的研究——<b>用公开数据回答自己的问题</b>。<br>
+        <b>怎么做：</b>在 GEO 上找与之相关的细胞转录组数据集（如"某酚酸处理 Caco-2/HepG2 后的表达谱"）→ 差异表达分析 → GO/KEGG 富集 → 看是否落在你预测的通路上。<br>
+        <b>价值：</b>这构成了"计算预测 + 独立数据验证"的双重证据，比单纯的分子对接更有说服力。</p>
+      </div>
+    </div>
+
+    <div class="box box-danger">
+      <span class="bt">🔴 一条要接受的现实：放弃一部分，才能拿到另一部分</span>
+      不要幻想"三年后我既养过细胞、又发了 SCI、还考了 350 分"。以你所在的平台与推免关闭这个前提，<b>最理性的组合是：初试 340+ / 一篇中文核心或低分区 SCI / 一套能演示的计算分析能力 / 一段暑期科研经历。</b><br>
+      如果你把力气花在"想尽办法在本校做细胞实验"上，很可能三件事都做不成。<b>把细胞实验留给研究生阶段——反正你还有三年。</b>
+    </div>
+
+    <h2 id="ch9"><span class="num">09</span>麦糟课题：四个步骤，一条走得通的链</h2>
+
+    <p>题目不用改，要改的只是<b>第三步的形态</b>——把原以为必须做的"细胞实验"，换成"计算机制预测"。下面这条链的每一步都落在你的能力范围内，蓝色那两步只需要一台电脑。</p>
+
+    <div class="flow">
+      <div class="fs a"><b>① 工艺优化</b>响应面 + 品质评价 · 本校实验室</div>
+      <div class="fs a"><b>② 体外化学功能</b>抗氧化 + 酶抑制 · 本校实验室</div>
+      <div class="fs v"><b>③ 计算机制预测</b>网络药理学 + 分子对接 · 一台电脑</div>
+      <div class="fs v"><b>④ 数据验证 + 成文</b>GEO 数据挖掘 · 一台电脑</div>
+    </div>
+
+    <h3><span class="tick">▍</span>四步走（前两步你已经在做）</h3>
+
+    <ol class="steps">
+      <li>
+        <span class="st">第一步：工艺优化（你已经在做）</span>
+        <p>单因素 → Plackett-Burman 筛选 → Box-Behnken 响应面 → 验证实验。<b>关键提醒：无糖配方一定要有实测的糖含量数据。</b>GB 28050 规定固体食品糖 ≤ 0.5 g/100 g 才能标"无糖"，而麦糟携带残留可发酵糖、面粉焙烤也会产生还原糖——这段"如何让它真正达标"的过程，本身就是论文的创新点。</p>
+      </li>
+      <li>
+        <span class="st">第二步：体外化学功能评价（本校可完成）</span>
+        <p>抗氧化：DPPH、ABTS、FRAP、羟自由基清除；降糖：α-葡萄糖苷酶、α-淀粉酶抑制；降脂：胰脂肪酶抑制、胆汁酸结合。<b>每个指标都要做浓度梯度、算 IC₅₀、至少 3 次独立重复</b>。这一步是你论文里唯一"自己的实验数据"，务必做扎实。</p>
+      </li>
+      <li>
+        <span class="st">第三步：计算机制预测（你的主战场）</span>
+        <p>这是替换"细胞实验"的关键一步，具体做法：<br>
+        <b>① 成分准备</b>：从文献确定麦糟中的主要酚酸（阿魏酸、对香豆酸、香草酸等）与膳食纤维降解产物；<br>
+        <b>② 靶点预测</b>：用 SwissTargetPrediction、STITCH 等公开数据库预测各成分的潜在靶点；<br>
+        <b>③ 建网络</b>：STRING 数据库获取蛋白互作关系，导入 Cytoscape 构建"成分–靶点–通路"网络，按连接度筛选核心靶点；<br>
+        <b>④ 富集分析</b>：对核心靶点做 GO 与 KEGG 富集，你会看到通路落在哪里——<b>抗氧化多半指向 Nrf2/Keap1、谷胱甘肽代谢；降糖多半指向 AMPK、PI3K-Akt、胰岛素信号</b>；<br>
+        <b>⑤ 分子对接</b>：用 AutoDock Vina 把关键成分与核心靶蛋白进行对接，算结合能（一般 &lt; −5.0 kcal/mol 认为结合较好），输出结合位点图。</p>
+      </li>
+      <li>
+        <span class="st">第四步：公开数据验证 + 成文</span>
+        <p>在 GEO 找相关细胞转录组数据集，做差异表达与富集，<b>看独立数据里是否也出现你预测的通路</b>。若一致，你的结论就有两层证据支撑。然后把工艺、功能、计算、数据验证四部分组织成论文。</p>
+      </li>
+    </ol>
+
+    <div class="box box-tip">
+      <span class="bt">💡 这条路线为什么"更好发论文"</span>
+      食品与天然产物领域的期刊，对"网络药理学 + 分子对接 + 体外活性验证"这个范式非常熟悉，审稿人一眼能看懂你的逻辑链。<br>
+      而且<b>它对数据量的要求比纯细胞实验低</b>——你不需要 western blot 那一整套图，只需要：网络图 + 富集气泡图 + 对接结合能表 + 体外活性数据。<b>这四组图，一个人一台电脑加一间常规实验室就能凑齐。</b>
+    </div>
+
+    <h3><span class="tick">▍</span>论文怎么投</h3>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>档次</th><th>可选刊物</th><th>难度</th><th>建议</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag t">首选</span>中文核心 / 科技核心</td><td>《食品科学》《食品工业科技》《食品与发酵工业》《粮食与油脂》等</td><td>中等，周期 3–8 个月</td><td><b>独立学院学生的现实选择。</b>先拿到一篇，比投三次失败重要得多。</td></tr>
+          <tr><td><span class="tag a">进阶</span>SCI 四区 / 三区</td><td>Foods、Molecules、LWT、Journal of Food Measurement and Characterization 等</td><td>需要英文写作与更完整的机制链条</td><td>若你做到计算 + 实验 + 数据验证三件套，可以一试。</td></tr>
+          <tr><td><span class="tag g">备选</span>本校学报 / 会议论文</td><td>校内学报、大学生学术会议</td><td>低</td><td>用于大创结题、复试材料，保底不空手。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-note">
+      <span class="bt">关于署名</span>
+      独立学院里，老师通常也需要成果，署名安排往往比重点高校更灵活。<b>开工前就和指导老师谈清楚</b>：你希望是第一作者，老师任通讯作者。如果老师坚持一作，也接受，但要在面试材料里如实写清你承担的具体工作（"独立完成配方设计与全部体外活性检测，独立完成网络药理学与分子对接分析"）。<b>面试老师看的是你能讲清自己做了什么。</b>
+    </div>
+
+    <h2 id="ch10"><span class="num">10</span>一台电脑能练的全部技能（附可直接跑的代码）</h2>
+
+    <p>这一章是你的主力章节。下面四个阶段按顺序走，<b>全部不需要任何实验室设备</b>。每阶段的验收标准都写在后面——不要用"学过"定义自己，用"能跑通"定义自己。</p>
+
+    <div class="nodes">
+      <div class="node"><div class="nw">阶段 1 · 大二上 + 寒假</div><div class="nt">工具熟练</div><div class="nd">Python 基础、pandas、matplotlib、Linux 命令、Git</div></div>
+      <div class="node"><div class="nw">阶段 2 · 大二下</div><div class="nt">统计与作图</div><div class="nd">R + tidyverse + ggplot2、实验设计与假设检验</div></div>
+      <div class="node hot"><div class="nw">阶段 3 · 大三上</div><div class="nt">计算科研（关键）</div><div class="nd">网络药理学、分子对接、Cytoscape、GEO 数据挖掘</div></div>
+      <div class="node"><div class="nw">阶段 4 · 大三下</div><div class="nt">组学与机器学习</div><div class="nd">差异表达、富集、单细胞、scikit-learn 入门</div></div>
+      <div class="node"><div class="nw">阶段 5 · 大四</div><div class="nt">作品集整合</div><div class="nd">一个能打开、能演示的 GitHub 仓库</div></div>
+    </div>
+
+    <h4>① 工艺优化：响应面建模（Python）</h4>
+
+    <p>你课题第一部分的数据处理。把 Box-Behnken 设计的结果拟合出二次模型，再求最优配方。</p>
+
+    <div class="codewrap">
+      <div class="codehead">
+        <span class="fname">01_rsm.py</span>
+        <span class="lang">python</span>
+        <span class="sp"></span>
+        <button class="cbtn" data-copy>复制</button>
+      </div>
+      <pre><code># Box-Behnken 响应面：拟合二次模型、算方差分析、求最优配方
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+
+# 三因素示例：麦糟粉添加量(A)、赤藓糖醇用量(B)、焙烤温度(C)，编码值 -1 / 0 / +1
+df = pd.read_csv("data/bbd_design.csv")   # 需含 A B C 与响应值列
+
+X = df[["A", "B", "C"]]
+y = df["感官评分"]
+
+# 构造二次响应面模型：一次项 + 交互项 + 平方项
+design = pd.DataFrame({
+    "A": X.A, "B": X.B, "C": X.C,
+    "AB": X.A * X.B, "AC": X.A * X.C, "BC": X.B * X.C,
+    "A2": X.A ** 2, "B2": X.B ** 2, "C2": X.C ** 2,
+})
+design = sm.add_constant(design)
+
+model = sm.OLS(y, design).fit()
+print(model.summary())        # 重点看 R2、调整 R2、各项 p 值是否显著
+
+# 在网格上预测，找响应最大值对应的条件
+A, B = np.meshgrid(np.linspace(-1, 1, 60), np.linspace(-1, 1, 60))
+Af, Bf = A.ravel(), B.ravel()
+p = model.params
+pred = (p["const"] + p["A"] * Af + p["B"] * Bf
+        + p["A2"] * Af ** 2 + p["B2"] * Bf ** 2 + p["AB"] * Af * Bf)
+best = int(np.argmax(pred))
+print(f"最优条件（编码值）：A={Af[best]:.2f}  B={Bf[best]:.2f}  预测响应={pred[best]:.2f}")
+
+# 画出响应面图，直接可以放进论文
+import matplotlib.pyplot as plt
+fig = plt.figure(figsize=(5, 4), dpi=300)
+ax = fig.add_subplot(111, projection="3d")
+ax.plot_surface(A, B, pred.reshape(A.shape), cmap="YlGnBu", alpha=0.9)
+ax.set_xlabel("麦糟粉添加量"); ax.set_ylabel("赤藓糖醇用量"); ax.set_zlabel("感官评分")
+fig.tight_layout(); fig.savefig("figs/response_surface.png")</code></pre>
+    </div>
+
+    <div class="box box-note">
+      <span class="bt">这段解决了什么</span>
+      很多本科生论文的响应面分析是软件点出来的，图能用但说不清原理。你自己写一遍，就能回答答辩时的追问："这个二次项系数为什么是负的""失拟项不显著说明什么"。<b>这是面试和答辩里最容易被问倒、也最容易加分的部分。</b>
+    </div>
+
+    <h4>② 网络药理学：靶点富集（R）</h4>
+
+    <p>把你的成分靶点列表变成"成分–靶点–通路"的证据。这一步的产出直接决定你论文的机制部分。</p>
+
+    <div class="codewrap">
+      <div class="codehead">
+        <span class="fname">02_enrich.R</span>
+        <span class="lang">r</span>
+        <span class="sp"></span>
+        <button class="cbtn" data-copy>复制</button>
+      </div>
+      <pre><code># 麦糟酚酸靶点的 KEGG 富集与可视化
+library(clusterProfiler)
+library(org.Hs.eg.db)      # 人源靶点库；做小鼠相关换成 org.Mm.eg.db
+library(enrichplot)
+
+# 靶点基因名列表：从 SwissTargetPrediction / STITCH 结果整理而来
+targets &lt;- read.csv("data/phenolic_targets.csv")$gene
+
+entrez &lt;- bitr(targets, fromType = "SYMBOL", toType = "ENTREZID",
+               OrgDb = org.Hs.eg.db)
+
+ekegg &lt;- enrichKEGG(entrez$ENTREZID, organism = "hsa",
+                    pvalueCutoff = 0.05, qvalueCutoff = 0.2)
+
+# 气泡图：横轴富集因子，点大小是基因数，颜色是校正后 p 值
+dotplot(ekegg, showCategory = 20) + ggtitle("麦糟酚酸靶点 KEGG 富集")
+
+# GO 富集（生物过程），机制叙述时更常用
+ego &lt;- enrichGO(entrez$ENTREZID, OrgDb = org.Hs.eg.db, ont = "BP",
+                pAdjustMethod = "BH", pvalueCutoff = 0.05, readable = TRUE)
+write.csv(as.data.frame(ego), "out/go_result.csv", row.names = FALSE)
+write.csv(as.data.frame(ekegg), "out/kegg_result.csv", row.names = FALSE)</code></pre>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 什么时候要警惕自己的结果</span>
+      如果富集出来的通路全是"癌症通路""代谢通路"这类过于宽泛的条目，或者富集到几十上百条通路，说明你的靶点列表太杂、缺乏筛选。<b>正确做法是：先用 STRING + Cytoscape 按连接度（degree）筛出前 20–30 个核心靶点，再做富集。</b>这样出来的结果集中、可解释、能讲成故事。
+    </div>
+
+    <h4>③ 分子对接：从结构到结合能（命令行）</h4>
+
+    <p>这是你"没有细胞房也能讲机制"的关键一步——<b>用计算回答"这个分子会不会和这个蛋白结合"。</b></p>
+
+    <div class="codewrap">
+      <div class="codehead">
+        <span class="fname">03_dock.sh</span>
+        <span class="lang">bash</span>
+        <span class="sp"></span>
+        <button class="cbtn" data-copy>复制</button>
+      </div>
+      <pre><code># 分子对接最小流程：以阿魏酸 vs 某个靶蛋白为例
+# 依赖：AutoDock Vina + Open Babel（均可 conda 安装，免费）
+conda install -c conda-forge -c bioconda vina openbabel -y
+
+mkdir -p dock && cd dock
+
+# 1) 下载受体蛋白结构（把 1X2J 换成你要研究的靶蛋白 PDB 编号）
+wget "https://files.rcsb.org/download/1X2J.pdb"
+
+# 2) 受体预处理：去水、加氢、转 pdbqt 格式
+obabel 1X2J.pdb -O receptor.pdbqt -xr --partialcharge gasteiger
+
+# 3) 下载配体三维结构（此处为阿魏酸 PubChem CID 445858）
+curl -s "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/445858/SDF?record_type=3d" -o ferulic.sdf
+obabel ferulic.sdf -O ligand.pdbqt --partialcharge gasteiger
+
+# 4) 运行对接：盒子中心与尺寸要按靶蛋白活性位点调整
+vina --receptor receptor.pdbqt --ligand ligand.pdbqt \
+     --center_x 10.0 --center_y 12.0 --center_z 8.0 \
+     --size_x 24 --size_y 24 --size_z 24 \
+     --exhaustiveness 16 --out result.pdbqt
+
+# 5) 看结果：第一列是结合能（kcal/mol），越负说明结合越牢
+head -5 result.pdbqt</code></pre>
+    </div>
+
+    <div class="box box-warn">
+      <span class="bt">⚠️ 分子对接必须守的三条规范</span>
+      <b>① 先做阳性对照。</b>用已知能结合该靶蛋白的天然配体（或原配体）跑一遍，如果它都跑不出好结果，说明你的盒子参数不对，结论不可信。<br>
+      <b>② 结合能阈值要谨慎表述。</b>一般 &lt; −7.0 kcal/mol 认为结合较强，但不同蛋白差异大。<b>不要写成"证明了抑制活性"，只能写"提示可能具有结合能力"。</b><br>
+      <b>③ 报告要给出：结合能数值表 + 结合位点残基 + 相互作用类型（氢键/疏水/π-π）+ 结合模式图。</b>只贴一张彩色卡通图会被审稿人直接质疑。
+    </div>
+
+    <h4>④ 公开数据挖掘：用别人的细胞数据验证你的假设（R）</h4>
+
+    <p><b>这一段是你替代"细胞实验"的核心动作。</b>从 GEO 下载已发表的细胞转录组数据，看你的预测通路上是否也出现变化。</p>
+
+    <div class="codewrap">
+      <div class="codehead">
+        <span class="fname">04_geo.R</span>
+        <span class="lang">r</span>
+        <span class="sp"></span>
+        <button class="cbtn" data-copy>复制</button>
+      </div>
+      <pre><code># 从 GEO 下载一套相关细胞转录组数据，做差异表达分析
+library(GEOquery)
+library(limma)
+
+# 1) 下载数据集（GSExxxxxx 换成与你方向相关的编号）
+gse   &lt;- getGEO("GSE123456", GSEMatrix = TRUE, getGPL = TRUE)
+expr  &lt;- exprs(gse[[1]])
+pdata &lt;- pData(gse[[1]])
+
+# 2) 按样本标题构造分组：先 print(pdata$title) 看清楚命名再写规则
+print(pdata$title)
+group &lt;- factor(ifelse(grepl("control|ctrl|untreated", pdata$title, ignore.case = TRUE),
+                       "CTRL", "TREAT"))
+design &lt;- model.matrix(~ 0 + group)
+colnames(design) &lt;- levels(group)
+
+# 3) 线性模型 + 经验贝叶斯，得到差异表达表
+fit  &lt;- lmFit(expr, design)
+cont &lt;- makeContrasts(TREAT - CTRL, levels = design)
+fit2 &lt;- eBayes(contrasts.fit(fit, cont))
+deg  &lt;- topTable(fit2, number = Inf, adjust.method = "BH", sort.by = "P")
+
+# 4) 筛选显著差异基因并导出
+sig &lt;- subset(deg, adj.P.Val &lt; 0.05 &amp; abs(logFC) &gt; 1)
+write.csv(sig, "out/DEG.csv")
+
+# 5) 关键一步：检查你预测的核心通路基因是否在其中
+watch &lt;- c("NFE2L2", "HMOX1", "NQO1", "GCLC", "PRKAA1", "SLC2A2")
+sig[intersect(watch, rownames(sig)), c("logFC", "adj.P.Val")]</code></pre>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 为什么这一步的价值被严重低估</span>
+      如果你在分子对接里预测"阿魏酸可能通过 Nrf2 通路起抗氧化作用"，然后<b>在一套独立的公开细胞数据里发现 NFE2L2、HMOX1、NQO1 这些 Nrf2 下游基因确实发生了显著变化</b>——那么你的结论就有了两层独立证据。<br>
+      面试时你可以说："我们学校没有细胞房，所以我用公开的细胞转录组数据对计算预测做了独立验证。"<b>这一句话同时展示了三件事：诚实、方法意识、以及会做数据分析。</b>
+    </div>
+
+    <h4>⑤ 一次性配好环境（命令行）</h4>
+
+    <div class="codewrap">
+      <div class="codehead">
+        <span class="fname">05_setup.sh</span>
+        <span class="lang">bash</span>
+        <span class="sp"></span>
+        <button class="cbtn" data-copy>复制</button>
+      </div>
+      <pre><code># 建独立环境，避免把系统 Python 搞乱（Windows 建议用 Anaconda Prompt 执行）
+conda create -n bioinfo python=3.11 -y
+conda activate bioinfo
+
+# R 与生物信息学包
+conda install -c conda-forge -c bioconda \
+  r-base=4.3 r-essentials \
+  bioconductor-clusterprofiler bioconductor-org.hs.eg.db \
+  bioconductor-geoquery bioconductor-limma \
+  vina openbabel -y
+
+# Python 侧
+pip install pandas numpy matplotlib seaborn statsmodels scikit-learn
+
+# 网络药理学用的 Cytoscape 是图形界面软件，去官网下载安装即可（免费）
+echo "环境配置完成"</code></pre>
+    </div>
+
+    <div class="box box-danger">
+      <span class="bt">🔴 学编程最容易死在的三个地方</span>
+      <b>① 只看教程不动手。</b>看十小时视频不如用自己课题的数据跑通一次。<b>直接拿你的麦糟数据当练习素材</b>——既有动力又能顺便产出。<br>
+      <b>② 一次开始学五样东西。</b>Python、R、Cytoscape、机器学习、英语一起上，结果全停在第一章。<b>一次一个，跑通再换。</b><br>
+      <b>③ 环境装不上就放弃。</b>这是新手最大的门槛，但它只是门槛不是墙。解决办法：用 conda 建独立环境（上面第 ⑤ 段），并把每次成功的命令记进一个 <code>setup.md</code>。<br>
+      另外提醒：<b>独立学院的电脑可能配置一般，但跑上面这些分析完全够用。</b>GEO 数据集通常几十到几百 MB，笔记本能处理。<b>真跑不动就租云服务器，按小时计费，一小时几块钱。</b>
+    </div>
+
+    <h2 id="ch11"><span class="num">11</span>院校选择：分层地图</h2>
+
+    <p>对你来说，选校的排序标准应该是：<b>① 保护一志愿 &gt; ② 专业课给分宽松 &gt; ③ 招生人数多 &gt; ④ 学校层次 &gt; ⑤ 地域。</b>前三条直接决定你上岸概率，而很多人只看第四条。</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>层次</th><th>代表院校（生物学 / 食品方向）</th><th>现实难度</th><th>建议</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>冲刺</strong><br><span class="tag r">1–2 所</span></td>
+            <td>中国海洋大学、山东大学、南京农业大学、华中农业大学、西北农林科技大学等生物/食品强校</td>
+            <td>实际录取分常在 330–370，对本科背景更敏感</td>
+            <td>分数要高出复试线 30 分以上才有底气。可以报，但要有一志愿被刷的心理准备。</td>
+          </tr>
+          <tr>
+            <td><strong>主攻</strong><br><span class="tag a">2–3 所</span></td>
+            <td>省属重点院校（示例）：山东师范大学、青岛大学、济南大学、山东理工大学、烟台大学、青岛农业大学、曲阜师范大学、鲁东大学等 —— <b>按你所在省份替换成对应院校</b></td>
+            <td>实际录取分常接近国家线，部分院校一志愿常年缺额</td>
+            <td><b>这是你的主战场。</b>这些学校招生量大、专业课参考书明确、对一志愿保护较好。</td>
+          </tr>
+          <tr>
+            <td><strong>保底</strong><br><span class="tag t">1–2 所</span></td>
+            <td>B 区院校（广西大学、贵州大学、云南大学、内蒙古大学、宁夏大学、新疆大学等）或本校相近专业</td>
+            <td>国家线低 10 分，缺额多</td>
+            <td>不要觉得"去 B 区丢人"。<b>先上岸，再谈其他。</b>B 区也有不错的生物学平台。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-warn">
+      <span class="bt">⚠️ 选校必须自己查的三个数据（不要听机构说）</span>
+      <b>① 近三年复试线与拟录取名单的最低分/平均分。</b>研究生院官网"招生信息/录取公示"栏，通常能下载到带初试分数的名单。<br>
+      <b>② 一志愿录取比例。</b>如果某校某专业录取名单里绝大多数是调剂生，说明它不保护一志愿，报它等于给自己挖坑。<br>
+      <b>③ 专业课参考书与真题。</b>有的学校指定参考书明确、真题好找；有的学校不指定、题风飘忽。<b>对你来说，专业课可预测性比学校名气重要得多。</b>
+    </div>
+
+    <h2 id="ch12"><span class="num">12</span>英语与专业课：两门决定生死的科目</h2>
+
+    <div class="grid g2">
+      <div class="card gr">
+        <h5><span class="ico gr">英</span>英语一：你的最大风险</h5>
+        <p>比六级难一个量级，考长难句、翻译、大小作文。<b>很多独立学院学生总分够，却卡在英语单科上。</b><br>
+        路线是：<b>2026.12 四级 → 2027.06 六级 → 2027.09 起英语一</b>。每天 20 分钟单词从今天起不能断；四级不要压线过，冲 500+；英语一近十年真题至少研读三遍；作文提前 3 个月准备，先背模板再自己改写。</p>
+      </div>
+      <div class="card t">
+        <h5><span class="ico t">专</span>专业课：你的拉分主力</h5>
+        <p>两门专业课共 300 分，是总分的大头，也是最公平的部分——<b>它只考你背没背、理解没理解，跟你来自哪所学校无关。</b>策略：教材读三遍，第二遍开始整理自己的框架笔记和通路图，真题按考点分类反复默写。</p>
+      </div>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>科目</th><th>大二</th><th>大三上</th><th>大三下</th><th>大四上</th></tr></thead>
+        <tbody>
+          <tr><td><strong>英语</strong></td><td>12 月四级（目标 500+）；每天背词</td><td>6 月六级；长难句起步</td><td>英语一真题精读</td><td>真题第二三遍 + 作文模板</td></tr>
+          <tr><td><strong>专业课一</strong>（生化）</td><td>把在校课程学到 85+</td><td>教材通读 + 课后题</td><td>二轮 + 框架笔记</td><td>默写 + 真题</td></tr>
+          <tr><td><strong>专业课二</strong>（细胞/分子）</td><td>把在校课程学到 85+</td><td>教材通读</td><td>二轮 + 真题分类</td><td>默写 + 真题</td></tr>
+          <tr><td><strong>政治</strong></td><td>—</td><td>—</td><td>马原 + 史纲（5 月起）</td><td>背诵 + 时政 + 大题</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 一个可以让专业课加分的习惯</span>
+      准备一个笔记本，专门画通路图：糖酵解、三羧酸循环、氧化磷酸化、中心法则、细胞周期调控、细胞信号转导（GPCR/RTK/cAMP/钙信号）、细胞凋亡通路、Nrf2 抗氧化通路、AMPK 代谢通路。<br>
+      <b>考前做到能白纸默画。这比背文字效率高十倍，而且复试面试时你会发现自己能脱口而出。</b>同时，这些通路正好是你课题计算部分的落点——学习和科研在这里合成了一件事。
+    </div>
+
+    <h2 id="ch13"><span class="num">13</span>里程碑清单（可勾选，进度自动保存）</h2>
+
+    <p>整份规划压缩成 49 个动作。建议每月打开一次勾进度。<b>勾选状态只保存在你自己的浏览器里，不上传。</b></p>
+
+    <div class="chk" id="chk">
+      <div class="chk-bar">
+        <span class="ptxt" id="chkTxt">0 / 0</span>
+        <span class="pbar"><span class="pfill" id="chkFill"></span></span>
+        <button class="chk-reset" id="chkReset">重置</button>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大二上 · 2026.09 – 2027.01</p>
+        <label><input type="checkbox"><span>确定考研门类（建议 0710 生物学），抄下目标院校初试四门科目</span></label>
+        <label><input type="checkbox"><span>下载 3–5 所目标院校近三年拟录取名单，算出最低分与平均分</span></label>
+        <label><input type="checkbox"><span>与本学院一位老师谈妥课题挂靠、指导关系与署名约定</span></label>
+        <label><input type="checkbox"><span>建立实验记录本（电子 + 云端 + 每周导出备份）</span></label>
+        <label><input type="checkbox"><span>确认人工智能 + X 微专业的课程表，想好每门课怎么绑到麦糟课题上</span></label>
+        <label><input type="checkbox"><span>报考四级，12 月参加考试（目标 500+，不要压线）</span></label>
+        <label><input type="checkbox"><span>建立每日背单词习惯，开始记录连续天数</span></label>
+        <label><input type="checkbox"><span>Python 基础：能读写 CSV、用 matplotlib 画误差棒图</span></label>
+        <label><input type="checkbox"><span>Linux 基本命令与 Git 提交会用</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">寒假 · 2027.01 – 02</p>
+        <label><input type="checkbox"><span>Python + Linux 集中集训 2 周（别分散到整个假期）</span></label>
+        <label><input type="checkbox"><span>精读 8–10 篇麦糟/膳食纤维/酚酸方向英文文献</span></label>
+        <label><input type="checkbox"><span>把上学期工艺数据整理成一张干净的 CSV 表</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大二下 · 2027.02 – 2027.07</p>
+        <label><input type="checkbox"><span>3–5 月完成大创申报（或校级科研立项）</span></label>
+        <label><input type="checkbox"><span>完成单因素试验、响应面设计与验证实验（模型 R² 达标）</span></label>
+        <label><input type="checkbox"><span>完成第一批体外化学功能检测，每个指标 3 次独立重复</span></label>
+        <label><input type="checkbox"><span>学会 R + tidyverse + ggplot2，能出论文级图表</span></label>
+        <label><input type="checkbox"><span>跑通一次网络药理学入门：靶点预测 → STRING → KEGG 富集</span></label>
+        <label><input type="checkbox"><span>微专业至少用麦糟课题数据完成 1 份课程项目（不要另外找数据）</span></label>
+        <label><input type="checkbox"><span>四级通过（425+，最好 500+）</span></label>
+        <label><input type="checkbox"><span>6 月接着参加六级考试</span></label>
+        <label><input type="checkbox"><span>3–6 月关注并提交至少 1 个暑期科研项目申请</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大二暑假 · 2027.07 – 08</p>
+        <label><input type="checkbox"><span>微专业全部课程修完，取得结业证书</span></label>
+        <label><input type="checkbox"><span>完成暑期科研（若申请到）或计算集训</span></label>
+        <label><input type="checkbox"><span>把麦糟课题数据做成一份完整的数据分析报告</span></label>
+        <label><input type="checkbox"><span>把分析脚本整理成 GitHub 仓库，附 README 与示例数据</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大三上 · 2027.09 – 2028.01</p>
+        <label><input type="checkbox"><span>考研英语一正式启动：每天 2 小时，单词 + 长难句 + 早年真题</span></label>
+        <label><input type="checkbox"><span>生物化学、细胞生物学等专业课学到 85+（同时是专业课一轮）</span></label>
+        <label><input type="checkbox"><span>完成体外模拟消化实验（能做多少做多少，如实记录局限）</span></label>
+        <label><input type="checkbox"><span>网络药理学完整闭环跑完，产出"成分–靶点–通路"网络图</span></label>
+        <label><input type="checkbox"><span>完成至少 3 个靶点的分子对接，且做了阳性对照</span></label>
+        <label><input type="checkbox"><span>跑通一次 GEO 数据挖掘（下载→差异表达→富集）</span></label>
+        <label><input type="checkbox"><span>论文 Introduction 与 Materials &amp; Methods 完成初稿</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大三下 · 2028.02 – 2028.07</p>
+        <label><input type="checkbox"><span>英语一近十年真题精读完成第一遍</span></label>
+        <label><input type="checkbox"><span>论文初稿完成（含计算部分与实验部分）</span></label>
+        <label><input type="checkbox"><span>论文投出并拿到稿号</span></label>
+        <label><input type="checkbox"><span>政治开始复习（马原 + 史纲）</span></label>
+        <label><input type="checkbox"><span>建立调剂信息渠道：B 区院校清单、农学门类备选、缺额信息源</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大三暑假 · 2028.07 – 08（全年最关键）</p>
+        <label><input type="checkbox"><span>暑期强化：每天有效学习 8 小时以上，政治过一遍、专业课二轮</span></label>
+        <label><input type="checkbox"><span>确定最终报考院校与专业，核对科目与参考书</span></label>
+        <label><input type="checkbox"><span>准备好复试材料包（简历、成绩单、作品报告、推荐信）</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大四上 · 2028.09 – 2029.01</p>
+        <label><input type="checkbox"><span>9 月核对招生简章与专业目录，确认科目无变动</span></label>
+        <label><input type="checkbox"><span>10 月完成网上报名，11 月完成网上确认</span></label>
+        <label><input type="checkbox"><span>11–12 月冲刺：政治背诵 + 英语作文 + 专业课默写</span></label>
+        <label><input type="checkbox"><span>12 月参加初试</span></label>
+      </div>
+
+      <div class="chk-group">
+        <p class="chk-gt">大四下 · 2029.02 – 06</p>
+        <label><input type="checkbox"><span>2 月出分后立刻启动调剂准备（不等国家线）</span></label>
+        <label><input type="checkbox"><span>3–4 月参加复试 / 走调剂流程</span></label>
+        <label><input type="checkbox"><span>完成毕设实验与论文，通过答辩</span></label>
+        <label><input type="checkbox"><span>整理作品集：论文 + 分析仓库 + 通路默画笔记</span></label>
+        <label><input type="checkbox"><span>6 月毕业</span></label>
+      </div>
+    </div>
+
+    <h2 id="ch14"><span class="num">14</span>踩坑排查对照表：现象 → 原因 → 对策</h2>
+
+    <p>这张表专门为你这个处境写的——左边是现象，右边是处理方式。遇到问题时回来查。</p>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>现象</th><th>最可能的原因</th><th>对策</th></tr></thead>
+        <tbody>
+          <tr><td><strong>想做机制，但学校没有细胞房</strong></td><td>把"机制研究"等同于"必须做细胞实验"</td><td>改用"网络药理学 + 分子对接 + GEO 公开数据"构建机制链条，用本校能做的酶抑制/抗氧化实验做验证。<b>计算提假设，实验做印证。</b></td></tr>
+          <tr><td><strong>一志愿复试被刷，调剂也没人要</strong></td><td>报考了不保护一志愿的院校，或初试分数压线</td><td>报考前查近三年拟录取名单里调剂生占比；分数目标定在复试线之上 30 分；2 月出分就启动调剂准备，不要等国家线。</td></tr>
+          <tr><td><strong>英语单科卡线，总分够了也没用</strong></td><td>英语一是独立学院学生最常见的失分点</td><td>从大二开始每天 20 分钟单词不断；四级（2026.12）→ 六级（2027.06）→ 英语一（2027.09 起）逐段推进，不要拖到大四。</td></tr>
+          <tr><td><strong>微专业课程挤占复习时间</strong></td><td>把它当成了考研之外的第二条主线</td><td>所有课程作业一律绑到麦糟课题上做，不额外出新题；大三上复习启动后，微专业只求修完拿证，不再追加投入。</td></tr>
+          <tr><td><strong>复习到 9 月发现参考书变了</strong></td><td>没看当年招生简章与专业目录</td><td>每年 9 月必须去目标院校研究生院官网核对科目与参考书，并对照去年做差异检查。</td></tr>
+          <tr><td><strong>大创没申报上</strong></td><td>错过窗口或选题太虚</td><td>校级科研立项、院级项目、学科竞赛同样可作科研经历载体。<b>关键是"有立项、有指导老师、有结题"。</b>申报窗口一年一次，务必设日历提醒。</td></tr>
+          <tr><td><strong>分子对接被质疑不可信</strong></td><td>没有阳性对照、只贴卡通图、结论说得太满</td><td>必须做阳性对照（已知配体）；报告要给出结合能数值、结合位点残基、相互作用类型；表述用"提示可能"，不要写"证明"。</td></tr>
+          <tr><td><strong>富集出来几十条通路，讲不成故事</strong></td><td>靶点列表太杂，没有筛选</td><td>先用 STRING + Cytoscape 按连接度（degree）筛出前 20–30 个核心靶点，再做富集。结果要集中、可解释。</td></tr>
+          <tr><td><strong>被质疑"网络药理学是灌水"</strong></td><td>只有计算、没有任何实验验证</td><td>必须至少有体外活性实验做印证；并补上 GEO 独立数据验证。<b>纯计算的论文越来越难发，混合的才站得住。</b></td></tr>
+          <tr><td><strong>环境装了三天还是报错</strong></td><td>依赖冲突、系统 Python 被污染</td><td>用 conda 建独立环境；优先 conda-forge 与 bioconda 渠道；把成功的命令记进 <code>setup.md</code>，换电脑直接复用。</td></tr>
+          <tr><td><strong>编程学不下去</strong></td><td>只看教程不动手、脱离真实场景</td><td>直接用自己课题的数据当练习素材；每次只学一个"能立刻用上"的功能。不要追求学完。</td></tr>
+          <tr><td><strong>笔记本跑不动分析</strong></td><td>内存不足、数据集过大</td><td>先做基因/样本筛选再分析；或租按小时计费的云服务器，几块钱跑一次。不必为此买新电脑。</td></tr>
+          <tr><td><strong>实验结果重复不出来</strong></td><td>试剂批号、仪器状态、操作手法不固定</td><td>写 SOP 并固定条件；每次记录试剂批号；同批完成所有重复。<b>独立学院仪器状态不稳是常见问题，记录越细越能排除干扰。</b></td></tr>
+          <tr><td><strong>毕设和考研复习严重冲突</strong></td><td>毕设选题与课题脱节，要从零开始</td><td>毕设直接延续麦糟课题，用已有数据 + 少量补充实验，一份工作做两件事。开题时就定好。</td></tr>
+          <tr><td><strong>担心学校更名 / 转设影响报考</strong></td><td>对政策不了解</td><td>考研报名与复试按教育部认可的本科学历处理，学校更名不影响报考资格。<b>若报名系统里院校名称有变化，以学信网学籍信息为准，必要时咨询报考点。</b></td></tr>
+          <tr><td><strong>整年一个人在扛，状态越来越差</strong></td><td>缺少同伴与反馈</td><td>找一个考研搭子（同专业最好），互相监督、互相讲题、互相模拟面试；每周固定时间互相汇报进度。<b>这件事对续航的作用被严重低估。</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="ch15"><span class="num">15</span>结语：这条路比你以为的更直</h2>
+
+    <p>统考这条路的规则简单到近乎冷酷，但对你有利：<b>初试是闭卷考试</b>，专业课只考你背没背、懂没懂，改卷老师不知道你来自哪所学校。</p>
+
+    <div class="grid g3">
+      <div class="card t">
+        <h5><span class="ico t">1</span>你的目标分数是可达的</h5>
+        <p>340 分左右＝政治 68 + 英语 60 + 专业课 105 + 110。这不需要天赋，只需要 14 个月不间断的执行。</p>
+      </div>
+      <div class="card v">
+        <h5><span class="ico v">2</span>你的计算技能是稀缺的</h5>
+        <p>会跑网络药理学、分子对接、GEO 挖掘的本科生不多，会这些还能把它讲成机制故事的更少。</p>
+      </div>
+      <div class="card a">
+        <h5><span class="ico a">3</span>你的课题是真的</h5>
+        <p>麦糟饼干是真实存在的问题、真实的产业场景。它不华丽，但它经得起追问——<b>而复试时老师最想追问的，恰恰是"你到底做了什么"。</b></p>
+      </div>
+    </div>
+
+    <div class="box box-tip">
+      <span class="bt">💡 最后一句</span>
+      你的处境是：学校不给你资源，但也没给你设限——<b>考研不看出身，代码不看学校。</b>这两件事恰好是你未来两年要做的全部事情。<br><br>
+      从清单里的第一项开始：<b>今晚就去查一所目标院校的招生专业目录，把四门初试科目抄下来。</b>做完这一件事，你的三年就已经启动了。
+    </div>
+
+    <div class="chapnav">
+      <a href="#ch0" class="prev">
+        <div class="cn-l">返回开头</div>
+        <div class="cn-t">00 · 三年全景图</div>
+      </a>
+      <a href="#ch13" class="next">
+        <div class="cn-l">展开行动</div>
+        <div class="cn-t">13 · 里程碑清单</div>
+      </a>
+    </div>
+  </main>
+</div>
+
+<div class="footer" id="footer">
+  <p><b>三年作战图 · 2026.09 – 2029.06 · 考研路线（独立学院版）</b></p>
+  <p>适用对象：普通本科（独立学院 / 民办本科）生物工程专业本科生，2025 级 / 大二起点；无推免资格、实验室条件有限、细胞实验受限；兴趣方向为计算机、人工智能、生物信息学；研究生目标方向为细胞生物学；本学期修读<b>人工智能 + X 微专业</b>，2026 年 12 月参加<b>四级考试</b>；在研课题为无糖啤酒麦糟饼干的工艺优化与体外功能评估。</p>
+  <p><b>数据来源：</b>2026 年全国硕士研究生招生考试考生进入复试的初试成绩基本要求（教育部公布）。</p>
+  <p><b>重要说明：</b>文中所有时间节点（报名、确认、初试、复试、调剂、竞赛与科研项目申报）均按往年普遍规律整理，仅用于提前准备；<b>具体日期、科目、参考书与招生政策请以你所在学校教务处、目标院校研究生院及中国研究生招生信息网的当年官方公告为准。</b>国家线为最低门槛，各校实际录取分数差异极大，务必自行核查目标院校近三年复试线与拟录取名单。文中提及的院校、期刊、数据库与工具为方向性参考，不构成对录取结果或发表结果的承诺。</p>
+  <p>清单勾选状态仅保存在本机浏览器的本地存储中，不会上传到任何服务器；清除浏览器数据会一并清除。</p>
+  <p style="margin-top:14px;color:#9aa4b0">建议每月打开一次，更新进度，并按实际情况修改内容。</p>
+</div>
+<button id="totop" title="回到顶部">↑</button>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- 1. 阅读进度条 ---------- */
+  var progress = document.getElementById('progress');
+  function updateProgress() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var p = max > 0 ? (h.scrollTop || document.body.scrollTop) / max : 0;
+    progress.style.width = Math.min(100, Math.max(0, p * 100)) + '%';
+    var btn = document.getElementById('totop');
+    btn.style.display = (h.scrollTop || document.body.scrollTop) > 520 ? 'flex' : 'none';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+
+  /* ---------- 2. 目录 scrollspy ---------- */
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  function spy() {
+    var y = (window.pageYOffset || document.documentElement.scrollTop) + 120;
+    var idx = -1;
+    for (var i = 0; i < targets.length; i++) { if (targets[i].offsetTop <= y) idx = i; }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+
+  /* ---------- 3. 移动端目录抽屉 ---------- */
+  var sidebar = document.getElementById('sidebar');
+  var mask = document.getElementById('mask');
+  var menuBtn = document.getElementById('menuBtn');
+  function closeMenu() { sidebar.classList.remove('open'); mask.classList.remove('on'); }
+  menuBtn.addEventListener('click', function () {
+    sidebar.classList.toggle('open');
+    mask.classList.toggle('on', sidebar.classList.contains('open'));
+  });
+  mask.addEventListener('click', closeMenu);
+  links.forEach(function (a) { a.addEventListener('click', closeMenu); });
+
+  /* ---------- 4. 回到顶部 ---------- */
+  document.getElementById('totop').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---------- 5. 语法高亮（单趟扫描，不产生嵌套标签） ---------- */
+  var KW = /^(?:import|from|as|def|return|if|else|elif|for|while|in|not|and|or|is|None|True|False|class|with|try|except|finally|lambda|print|pass|break|continue|yield|assert|raise|global|del|library|require|function|repeat|next|TRUE|FALSE|NULL|NA|Inf|cd|mkdir|conda|pip|wget|curl|export|echo|source|cat|head|echo|obabel|vina)$/;
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function highlight(src, lang) {
+    if (!lang || lang === 'text') return esc(src);
+    var re = /(#[^\n]*)|('[^'\n]*'|"[^"\n]*")|(\d+\.?\d*)|([A-Za-z_][A-Za-z0-9_.]*)/g;
+    var out = '', last = 0, m;
+    while ((m = re.exec(src)) !== null) {
+      out += esc(src.slice(last, m.index));
+      var raw = m[0];
+      if (m[1]) {
+        out += '<span class="c">' + esc(raw) + '</span>';
+      } else if (m[2]) {
+        out += '<span class="s">' + esc(raw) + '</span>';
+      } else if (m[3]) {
+        out += '<span class="n">' + esc(raw) + '</span>';
+      } else {
+        var tail = src.slice(re.lastIndex);
+        if (KW.test(raw)) {
+          out += '<span class="k">' + esc(raw) + '</span>';
+        } else if (/^\s*\(/.test(tail)) {
+          out += '<span class="f">' + esc(raw) + '</span>';
+        } else {
+          out += esc(raw);
+        }
+      }
+      last = re.lastIndex;
+    }
+    out += esc(src.slice(last));
+    return out;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.codewrap'), function (wrap) {
+    var code = wrap.querySelector('code');
+    if (!code) return;
+    var badge = wrap.querySelector('.lang');
+    var lang = badge ? badge.textContent.trim().toLowerCase() : '';
+    if (wrap.hasAttribute('data-nohl')) lang = 'text';
+    code.innerHTML = highlight(code.textContent, lang);
+  });
+
+  /* ---------- 6. 代码复制 ---------- */
+  function fallback(txt, cb) {
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); cb(); } catch (e) { /* 忽略 */ }
+    document.body.removeChild(ta);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.cbtn[data-copy]'), function (btn) {
+    btn.addEventListener('click', function () {
+      var txt = btn.closest('.codewrap').querySelector('code').textContent;
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = '已复制';
+        setTimeout(function () { btn.textContent = old; }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(done, function () { fallback(txt, done); });
+      } else { fallback(txt, done); }
+    });
+  });
+
+  /* ---------- 7. 里程碑清单（localStorage 持久化） ---------- */
+  var KEY = 'wbp-bioeng-kaoyan-2026-v2';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('#chk input[type="checkbox"]'));
+  var fill = document.getElementById('chkFill');
+  var txt = document.getElementById('chkTxt');
+
+  function render() {
+    var n = boxes.filter(function (b) { return b.checked; }).length;
+    var pct = boxes.length ? Math.round(n / boxes.length * 100) : 0;
+    fill.style.width = pct + '%';
+    txt.textContent = n + ' / ' + boxes.length + '　' + pct + '%';
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(boxes.map(function (b) { return b.checked ? 1 : 0; })));
+    } catch (e) { /* 隐私模式下忽略 */ }
+  }
+  function load() {
+    var raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) { raw = null; }
+    if (!raw) return;
+    try {
+      var arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return;
+      boxes.forEach(function (b, i) { if (arr[i] !== undefined) b.checked = !!arr[i]; });
+    } catch (e) { /* 数据损坏时忽略 */ }
+  }
+
+  load();
+  render();
+  boxes.forEach(function (b) { b.addEventListener('change', function () { save(); render(); }); });
+  document.getElementById('chkReset').addEventListener('click', function () {
+    boxes.forEach(function (b) { b.checked = false; });
+    save(); render();
+  });
+})();
+</script>
+</body>
+</html>
