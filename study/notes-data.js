@@ -35,7 +35,7 @@ const noteData = [
     { title: '四级作文', url: 'en/cet4-1.html', tag: '四级作文', category: 'en' },
 
     // ---- 生物学 (bio) ----
-    { title: 'example', url: '#', tag: 'example', category: 'bio' },    // ← 示例占位，可删除
+    { title: '核酸3D结构图', url: 'bio/nucleic-acid-3d.html', tag: '3D结构', category: 'bio' },  
 
     // ---- 数学 (math) ----
     { title: '8月数竞规划', url: 'math/八月数竞.html', tag: '复习重点', category: 'math' },
