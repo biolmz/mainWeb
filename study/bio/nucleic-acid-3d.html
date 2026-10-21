@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>核酸三维结构图鉴 · DNA 与 RNA</title>
+<style>
+:root{
+  --bg:#e7eaf0;
+  --panel:#ffffff;
+  --panel2:#f4f6f9;
+  --line:#d3d9e2;
+  --line2:#e6eaf1;
+  --text:#202834;
+  --dim:#5c6879;
+  --dim2:#8b97a8;
+  --accent:#1668cc;
+  --accent2:#d1801f;
+  --dna:#1668cc;
+  --rna:#c9741a;
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",serif;
+  --sans:"Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono","SF Mono","Cascadia Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--sans);
+  overflow:hidden;-webkit-font-smoothing:antialiased;
+}
+#app{
+  height:100vh;display:grid;
+  grid-template-columns:238px minmax(0,1fr) 322px;
+  grid-template-rows:66px minmax(0,1fr) 58px;
+}
+
+/* ---------- header ---------- */
+#top{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;border-bottom:1px solid var(--line);background:#fff;
+  box-shadow:0 1px 3px rgba(24,42,70,.06);
+  position:relative;z-index:5;
+}
+.brand{display:flex;align-items:center;gap:13px}
+.mark{width:36px;height:36px;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:8px;background:#f3f6fa}
+.brand h1{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:.05em;line-height:1.2;color:#16202e}
+.brand p{font-size:11.5px;color:var(--dim2);letter-spacing:.03em;margin-top:2px}
+.meta{display:flex;gap:26px;align-items:center}
+.meta div{text-align:right}
+.meta b{display:block;font-family:var(--mono);font-size:15px;color:var(--accent);font-weight:600}
+.meta span{font-size:10px;color:var(--dim2);letter-spacing:.09em}
+
+/* ---------- side list ---------- */
+#side{
+  border-right:1px solid var(--line);background:var(--panel2);
+  overflow-y:auto;padding:12px 0 24px;
+}
+#side::-webkit-scrollbar{width:7px}
+#side::-webkit-scrollbar-thumb{background:#c8d0dc;border-radius:4px}
+#side::-webkit-scrollbar-thumb:hover{background:#b4bdcc}
+.grp{
+  display:flex;align-items:center;gap:8px;padding:14px 18px 7px;
+  font-size:10px;letter-spacing:.18em;color:var(--dim2);font-family:var(--mono);
+}
+.grp i{flex:1;height:1px;background:var(--line);display:block}
+.grp em{font-style:normal;padding:2px 6px;border-radius:3px;font-size:9.5px;letter-spacing:.1em;font-weight:600}
+.grp.dna em{color:var(--dna);background:rgba(22,104,204,.09)}
+.grp.rna em{color:var(--rna);background:rgba(201,116,26,.1)}
+
+.item{
+  display:block;width:100%;text-align:left;cursor:pointer;border:0;background:none;
+  padding:9px 18px 9px 15px;border-left:3px solid transparent;
+  transition:background .14s,border-color .14s;
+}
+.item:hover{background:rgba(22,104,204,.05)}
+.item.on{background:rgba(22,104,204,.09);border-left-color:var(--accent)}
+.item .t{display:block;font-size:13px;color:#3b4757;letter-spacing:.01em}
+.item.on .t{color:#0f4c96;font-weight:600}
+.item .s{display:block;font-size:10.5px;color:var(--dim2);margin-top:2px;font-family:var(--mono)}
+.item.on .s{color:#5c88bd}
+
+/* ---------- stage ---------- */
+#stage{
+  position:relative;overflow:hidden;
+  background:radial-gradient(ellipse 76% 66% at 50% 45%,#ffffff 0%,#f5f7fa 46%,#e4e8ef 100%);
+  cursor:grab;
+}
+#stage.dragging{cursor:grabbing}
+#stage::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(60,100,150,.032) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(60,100,150,.032) 1px,transparent 1px);
+  background-size:46px 46px;
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 30%,transparent 76%);
+  mask-image:radial-gradient(circle at 50% 50%,#000 30%,transparent 76%);
+}
+#cv{position:absolute;inset:0;z-index:1;display:block}
+.stage-title{position:absolute;left:26px;top:22px;z-index:2;pointer-events:none}
+.stage-title .zh{font-family:var(--serif);font-size:25px;font-weight:700;letter-spacing:.06em;color:#1a2331;line-height:1.2}
+.stage-title .en{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:#8ea0b8;margin-top:5px;text-transform:uppercase}
+.stage-stat{
+  position:absolute;right:24px;bottom:18px;z-index:2;pointer-events:none;
+  font-family:var(--mono);font-size:10.5px;color:#8496ab;letter-spacing:.05em;text-align:right;line-height:1.7;
+}
+.stage-hint{
+  position:absolute;left:26px;bottom:18px;z-index:2;pointer-events:none;
+  font-size:10.5px;color:#9aabbd;letter-spacing:.08em;
+}
+.legend{position:absolute;left:26px;top:98px;z-index:2;pointer-events:none;
+  display:flex;flex-direction:column;gap:5px}
+.legend div{display:flex;align-items:center;gap:7px;font-size:10.5px;color:#6d7f93;font-family:var(--mono)}
+.legend i{width:8px;height:8px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.18)}
+
+/* ---------- info ---------- */
+#info{
+  border-left:1px solid var(--line);background:#fff;overflow-y:auto;padding:22px 20px 30px;
+}
+#info::-webkit-scrollbar{width:7px}
+#info::-webkit-scrollbar-thumb{background:#c8d0dc;border-radius:4px}
+.chip{
+  display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+  padding:3px 8px;border-radius:3px;margin-bottom:12px;font-weight:600;
+}
+.chip.dna{color:var(--dna);background:rgba(22,104,204,.08);border:1px solid rgba(22,104,204,.22)}
+.chip.rna{color:var(--rna);background:rgba(201,116,26,.08);border:1px solid rgba(201,116,26,.24)}
+#info h2{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:.04em;line-height:1.3;color:#16202e}
+#info .en{font-family:var(--mono);font-size:10.5px;color:var(--dim2);letter-spacing:.07em;margin-top:5px;text-transform:uppercase}
+.pv{width:100%;border-collapse:collapse;margin:20px 0 4px;font-size:12px}
+.pv th{
+  text-align:left;font-weight:400;color:var(--dim);padding:7px 0;
+  border-bottom:1px solid var(--line2);width:44%;
+}
+.pv td{
+  text-align:right;padding:7px 0;border-bottom:1px solid var(--line2);
+  font-family:var(--mono);font-size:11.5px;color:#31404f;
+}
+.pv tr:last-child th,.pv tr:last-child td{border-bottom:0}
+.desc{font-size:12.5px;line-height:1.95;color:#4c5a6b;margin-top:18px;text-align:justify}
+.fact{
+  margin-top:18px;padding:12px 13px;border-left:3px solid rgba(22,104,204,.55);
+  background:#f4f7fc;font-size:11.5px;line-height:1.85;color:#4a5a6d;
+}
+.fact b{display:block;font-size:9.5px;letter-spacing:.16em;color:var(--accent);font-family:var(--mono);margin-bottom:6px;font-weight:600}
+
+/* ---------- bottom bar ---------- */
+#bar{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;border-top:1px solid var(--line);background:#fff;
+  box-shadow:0 -1px 3px rgba(24,42,70,.04);
+}
+.toggles{display:flex;gap:6px;align-items:center}
+.tg{
+  display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:5px;cursor:pointer;
+  border:1px solid var(--line);background:#fff;
+  font-size:11.5px;color:var(--dim);letter-spacing:.02em;transition:.14s;user-select:none;
+}
+.tg:hover{border-color:#b8c4d4;color:#31404f;background:#fafbfd}
+.tg.on{border-color:rgba(22,104,204,.4);background:rgba(22,104,204,.06);color:var(--accent);font-weight:500}
+.tg i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.28;transition:.14s}
+.tg.on i{opacity:1}
+.views{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.vb{
+  padding:7px 11px;border-radius:5px;cursor:pointer;border:1px solid var(--line);
+  background:#fff;font-size:11.5px;color:var(--dim);font-family:var(--sans);
+  letter-spacing:.02em;transition:.14s;
+}
+.vb:hover{border-color:#b8c4d4;color:#31404f;background:#fafbfd}
+.vb.accent{border-color:rgba(209,128,31,.42);color:var(--accent2)}
+.vb.accent:hover{background:rgba(209,128,31,.07)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1180px){
+  #app{grid-template-columns:200px minmax(0,1fr) 280px}
+}
+@media (max-width:900px){
+  #app{
+    grid-template-columns:1fr;
+    grid-template-rows:auto 132px minmax(0,1fr) 200px 56px;
+  }
+  #top{grid-column:1;padding:0 14px;height:56px}
+  .brand h1{font-size:15px}.brand p{display:none}.meta{display:none}
+  #side{grid-row:2;display:flex;overflow-x:auto;overflow-y:hidden;padding:8px 10px;border-right:0;border-bottom:1px solid var(--line)}
+  .grp{display:none}
+  .item{width:auto;min-width:136px;border-left:0;border-bottom:3px solid transparent;padding:8px 12px}
+  .item.on{border-left:0;border-bottom-color:var(--accent);background:rgba(22,104,204,.07)}
+  #stage{grid-row:3}
+  #info{grid-row:4;border-left:0;border-top:1px solid var(--line);padding:16px}
+  #bar{grid-row:5;padding:0 8px;overflow-x:auto;gap:10px}
+  #bar::-webkit-scrollbar{height:0}
+  .toggles,.views{flex-shrink:0}
+  .tg,.vb{flex-shrink:0;white-space:nowrap;padding:6px 10px;font-size:11px}
+  .stage-title .zh{font-size:19px}
+  .stage-stat{display:none}
+  .legend{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <div class="brand">
+      <div class="mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M8 2.5c0 5.5 8 5.5 8 9.5s-8 4-8 9.5" stroke="#1668cc" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M16 2.5c0 5.5-8 5.5-8 9.5s8 4 8 9.5" stroke="#d1801f" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
+          <path d="M8.6 6.4h6.8M8.2 9.6h7.6M8.2 14.4h7.6M8.6 17.6h6.8" stroke="#2a9d8f" stroke-width="1" opacity=".55"/>
+        </svg>
+      </div>
+      <div>
+        <h1>核酸三维结构图鉴</h1>
+        <p>DNA &amp; RNA · 十二种构象的立体球棍模型</p>
+      </div>
+    </div>
+    <div class="meta">
+      <div><b id="mAtom">—</b><span>ATOMS</span></div>
+      <div><b id="mUnit">—</b><span id="mUnitL">BP</span></div>
+      <div><b id="mFps">60</b><span>FPS</span></div>
+    </div>
+  </header>
+
+  <aside id="side"></aside>
+
+  <main id="stage">
+    <canvas id="cv"></canvas>
+    <div class="stage-title">
+      <div class="zh" id="tZh">B 型 DNA</div>
+      <div class="en" id="tEn">B-DNA DOUBLE HELIX</div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="stage-hint">拖拽旋转 · 滚轮缩放 · 双击复位</div>
+    <div class="stage-stat" id="stStat"></div>
+  </main>
+
+  <aside id="info"></aside>
+
+  <footer id="bar">
+    <div class="toggles">
+      <div class="tg on" data-act="spin"><i></i>自动旋转</div>
+      <div class="tg on" data-act="bases"><i></i>显示碱基</div>
+      <div class="tg on" data-act="hb"><i></i>氢键</div>
+      <div class="tg" data-act="palette"><i></i>碱基配色</div>
+    </div>
+    <div class="views">
+      <button class="vb" data-view="side">侧视</button>
+      <button class="vb" data-view="axis">轴向</button>
+      <button class="vb" data-view="top">俯视</button>
+      <button class="vb accent" data-view="reset">复位</button>
+      <button class="vb" data-view="shot">保存图片</button>
+      <button class="vb" data-view="full">全屏</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+window.addEventListener('error',function(e){
+  var d=document.getElementById('errbox');
+  if(!d){d=document.createElement('div');d.id='errbox';
+    d.style.cssText='position:fixed;z-index:9999;left:8px;bottom:70px;color:#ff7b72;font:11px monospace;background:#000d;padding:10px;white-space:pre-wrap;max-width:78vw;border:1px solid #f66';
+    document.body.appendChild(d);}
+  d.textContent+='ERR: '+(e.message||e.error)+' @'+e.lineno+':'+e.colno+'\n'+((e.error&&e.error.stack)||'')+'\n';
+});
+/* =========================================================
+   1. 向量工具
+   ========================================================= */
+const Vadd=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const Vsub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const Vmul=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
+const Vdot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const Vcross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const Vlen=a=>Math.hypot(a[0],a[1],a[2]);
+const Vnorm=a=>{const l=Vlen(a)||1;return [a[0]/l,a[1]/l,a[2]/l]};
+const ZAX=[0,0,1];
+const D2R=Math.PI/180;
+
+/* =========================================================
+   2. 模型容器
+   ========================================================= */
+function newModel(){return {atoms:[],bonds:[],hb:[]}}
+function put(m,p,el,r,tag,base){
+  m.atoms.push({p:p.slice(),el,r,tag:tag||'base',base:base||null});
+  return m.atoms.length-1;
+}
+function link(m,i,j){m.bonds.push([i,j])}
+function hb(m,a,b){m.hb.push([a.slice(),b.slice()])}
+function mergeModel(dst,src){
+  const off=dst.atoms.length;
+  for(const a of src.atoms) dst.atoms.push(a);
+  for(const [i,j] of src.bonds) dst.bonds.push([i+off,j+off]);
+  for(const h of src.hb) dst.hb.push([h[0],h[1]]);
+  return dst;
+}
+function xform(m,fn){
+  for(const a of m.atoms) a.p=fn(a.p);
+  for(const h of m.hb){h[0]=fn(h[0]);h[1]=fn(h[1]);}
+  return m;
+}
+function makeXform(rx,ry,rz,t){
+  rx=rx||0;ry=ry||0;rz=rz||0;t=t||[0,0,0];
+  const cx=Math.cos(rx),sx=Math.sin(rx),cy=Math.cos(ry),sy=Math.sin(ry),cz=Math.cos(rz),sz=Math.sin(rz);
+  return p=>{
+    let x=p[0],y=p[1],z=p[2];
+    let y1=y*cx-z*sx, z1=y*sx+z*cx; y=y1;z=z1;
+    let x1=x*cy+z*sy, z2=-x*sy+z*cy; x=x1;z=z2;
+    let x2=x*cz-y*sz, y2=x*sz+y*cz; x=x2;y=y2;
+    return [x+t[0],y+t[1],z+t[2]];
+  };
+}
+
+/* =========================================================
+   3. 配色
+   ========================================================= */
+// Chem3D / CPK 元素配色
+const CPK={C:'#4a4e58',N:'#2f54d8',O:'#e0301e',P:'#f08010',S:'#c8b800',ION:'#7c5cd6',CAP:'#a8761a',SUG:'#3f4249'};
+// 碱基配色（教学模式）
+const BASEC={A:'#2f9e57',T:'#cf4a44',G:'#cc9412',C:'#2a72c4',U:'#c46a2a'};
+const COMP={A:'T',T:'A',G:'C',C:'G'};
+
+function randSeq(n,seed){
+  let x=seed||7,s='';
+  for(let i=0;i<n;i++){ x=(x*1103515245+12345)&0x7fffffff; s+='ATGC'[(x>>16)%4]; }
+  return s;
+}
+const isPur=b=>b==='A'||b==='G';
+
+/* =========================================================
+   4. 碱基几何
+   ========================================================= */
+const R_PUR_HEX=0.118, R_PUR_D=0.330;
+const R_PYR_HEX=0.138, R_PYR_D=0.255;
+
+function addPurine(m,center,u,v,base){
+  const r=R_PUR_HEX;
+  const hexPts=[],hexIdx=[];
+  const hexEl=['C','N','C','N','C','C'];
+  for(let k=0;k<6;k++){
+    const a=k*Math.PI/3;
+    const p=Vadd(center,Vadd(Vmul(u,r*Math.cos(a)),Vmul(v,r*Math.sin(a))));
+    hexPts.push(p);
+    hexIdx.push(put(m,p,hexEl[k],0.079,'base',base));
+  }
+  for(let k=0;k<6;k++) link(m,hexIdx[k],hexIdx[(k+1)%6]);
+  // 五元环：稠合在 hex[3]-hex[4] 边上，朝 -u 方向(接糖侧)
+  const p3=hexPts[3],p4=hexPts[4];
+  const mid=Vmul(Vadd(p3,p4),0.5);
+  const tv=Vnorm(Vsub(p4,p3));
+  const nv=Vnorm(Vsub(mid,center));
+  const Q=(a,b)=>Vadd(mid,Vadd(Vmul(tv,a*r),Vmul(nv,b*r)));
+  const pen=[Q(-0.5,0),Q(0.5,0),Q(0.809,0.263),Q(0,0.851),Q(-0.809,0.263)];
+  const penEl=['N','C','C','N','C'];
+  const penIdx=pen.map((p,i)=>put(m,p,penEl[i],0.079,'base',base));
+  for(let k=0;k<5;k++) link(m,penIdx[k],penIdx[(k+1)%5]);
+  link(m,penIdx[0],hexIdx[3]);
+  link(m,penIdx[1],hexIdx[4]);
+  return {tip:hexIdx[0],tipP:hexPts[0],anchor:penIdx[3],anchorP:pen[3]};
+}
+
+function addPyrimidine(m,center,u,v,base){
+  const r=R_PYR_HEX;
+  const pts=[],idx=[];
+  const el=['O','C','N','C','N','C'];
+  for(let k=0;k<6;k++){
+    const a=k*Math.PI/3;
+    const p=Vadd(center,Vadd(Vmul(u,r*Math.cos(a)),Vmul(v,r*Math.sin(a))));
+    pts.push(p); idx.push(put(m,p,el[k],0.079,'base',base));
+  }
+  for(let k=0;k<6;k++) link(m,idx[k],idx[(k+1)%6]);
+  return {tip:idx[0],tipP:pts[0],anchor:idx[3],anchorP:pts[3]};
+}
+
+/* =========================================================
+   5. 双螺旋构建器
+   ========================================================= */
+function buildHelix(o){
+  const {
+    bp=14, rise=0.34, twist=34.3, hand=1,
+    Rp=0.98, Rt=0.79, phase=150, tilt=0,
+    zig=0, rna=false, seq=null, seed=7, tails=0
+  }=o;
+  const m=newModel();
+  const S=seq||randSeq(bp,seed);
+
+  // 骨架
+  const frame0=[],frame1=[];
+  for(let s=0;s<2;s++){
+    const arr=[];
+    for(let i=0;i<bp;i++){
+      const ang=(i*twist+(s?phase:0))*hand*D2R;
+      const z=i*rise;
+      const rr=Rp+(zig?(i%2?zig:-zig):0);
+      const rs=Rt+(zig?(i%2?zig*0.7:-zig*0.7):0);
+      const aP=ang-0.17*hand, aS=ang+0.05*hand;
+      const pP=[rr*Math.cos(aP),rr*Math.sin(aP),z];
+      const pS=[rs*Math.cos(aS),rs*Math.sin(aS),z];
+      const iP=put(m,pP,'P',0.118,'P');
+      const iS=put(m,pS,'C',0.140,'S');
+      link(m,iP,iS);
+      if(rna){
+        const out=Vnorm([pS[0],pS[1],0]);
+        const iO=put(m,Vadd(pS,Vmul(out,0.15)),'O',0.058,'OH');
+        link(m,iS,iO);
+      }
+      arr.push({iP,iS,pP,pS});
+    }
+    (s?frame1:frame0).push(...arr);
+  }
+  // 链内磷酸二酯键
+  for(const arr of [frame0,frame1]){
+    for(let i=0;i<arr.length-1;i++) link(m,arr[i].iS,arr[i+1].iP);
+  }
+
+  // 碱基对
+  for(let i=0;i<bp;i++){
+    const A=frame0[i],B=frame1[i];
+    const u=Vnorm(Vsub(B.pS,A.pS));
+    const perp=Vnorm(Vcross(ZAX,u));
+    const ct=Math.cos(tilt*D2R),st=Math.sin(tilt*D2R);
+    const uT=Vnorm(Vadd(Vmul(u,ct),Vmul(ZAX,st)));
+    const nT=Vnorm(Vcross(uT,perp));
+    const vT=Vnorm(Vcross(nT,uT));
+
+    const c1a=Vadd(A.pS,Vmul(u,0.215));
+    const c1b=Vsub(B.pS,Vmul(u,0.215));
+
+    const b0=S[i], b1=COMP[b0];
+    const purFirst=isPur(b0);
+    const dA=purFirst?R_PUR_D:R_PYR_D, dB=purFirst?R_PYR_D:R_PUR_D;
+    const ctrA=Vadd(c1a,Vmul(uT,dA));
+    const ctrB=Vadd(c1b,Vmul(Vmul(uT,-1),dB));
+
+    const gA=purFirst?addPurine(m,ctrA,uT,vT,b0):addPyrimidine(m,ctrA,uT,vT,b0);
+    const gB=purFirst?addPyrimidine(m,ctrB,Vmul(uT,-1),vT,b1):addPurine(m,ctrB,Vmul(uT,-1),vT,b1);
+    link(m,A.iS,gA.anchor);
+    link(m,B.iS,gB.anchor);
+
+    // 氢键
+    const nh=(b0==='G'||b0==='C')?3:2;
+    const base=Vadd(c1a,Vmul(uT,0.505));
+    const end=Vadd(c1a,Vmul(uT,0.745));
+    const offs=nh===3?[-0.105,0,0.105]:[-0.075,0.075];
+    for(const o of offs){
+      hb(m,Vadd(base,Vmul(vT,o)),Vadd(end,Vmul(vT,o)));
+    }
+  }
+
+  // 3' 突出末端（siRNA）
+  if(tails){
+    for(const [arr,flip] of [[frame0,1],[frame1,-1]]){
+      const last=arr[arr.length-1], first=arr[0];
+      const anchor=flip>0?last:first;
+      const dir=flip>0?1:-1;
+      let prevI=anchor.iS;
+      const baseAng=((bp-1)*twist+(flip>0?0:phase))*hand*D2R;
+      for(let k=1;k<=tails;k++){
+        const ang=baseAng+dir*k*twist*0.62*hand*D2R;
+        const z=(flip>0?bp-1+k:-k)*rise;
+        const pS=[Rt*Math.cos(ang),Rt*Math.sin(ang),z];
+        const pP=[Rp*Math.cos(ang-0.17*hand*dir),Rp*Math.sin(ang-0.17*hand*dir),z];
+        const iS=put(m,pS,'C',0.140,'S');
+        const iP=put(m,pP,'P',0.118,'P');
+        link(m,prevI,iS);link(m,iS,iP);
+        const c1=Vadd(pS,Vmul(Vnorm([pS[0],pS[1],0]),0.2));
+        const iB=put(m,c1,'C',0.098,'base','A');
+        link(m,iS,iB);
+        prevI=iP;
+      }
+    }
+  }
+  return m;
+}
+
+/* =========================================================
+   6. 环 / 单链
+   ========================================================= */
+function addLoop(m,center,R,normal,n,count,opts){
+  opts=opts||{};
+  const rna=!!opts.rna, bBase=opts.base||'A', bEl=opts.base?'C':'C';
+  const n0=Vnorm(normal);
+  let ref=Math.abs(Vdot(n0,[1,0,0]))>0.9?[0,1,0]:[1,0,0];
+  const e1=Vnorm(Vcross(n0,ref)), e2=Vnorm(Vcross(n0,e1));
+  const start=opts.start||0, sweep=opts.sweep===undefined?Math.PI*2:opts.sweep;
+  let prev=-1;
+  for(let k=0;k<count;k++){
+    const t=start+sweep*(count>1?k/(count-1):0);
+    const p=Vadd(center,Vadd(Vmul(e1,R*Math.cos(t)),Vmul(e2,R*Math.sin(t))));
+    const iS=put(m,p,'C',0.150,'S');
+    const iP=put(m,Vadd(p,Vmul(Vnorm(Vsub(p,center)),0.13)),'P',0.10,'P');
+    link(m,iS,iP);
+    if(prev>=0) link(m,prev,iS);
+    if(opts.bases!==false){
+      const iB=put(m,Vadd(p,Vmul(Vnorm(Vcross(Vsub(p,center),n0)),0.16)),bEl,0.105,'base',bBase);
+      link(m,iS,iB);
+    }
+    prev=iS;
+  }
+  return prev;
+}
+
+/* =========================================================
+   7. 各结构
+   ========================================================= */
+function buildG4(o){
+  const rna=!!o.rna;
+  const layers=o.layers||3, spin=o.spin===undefined?5:o.spin;
+  const m=newModel();
+  const rise=0.335, Rg=0.55, Rbb=0.94;
+  const dfn=(ang,L)=>[L*spin*D2R+ang];
+
+  const pts=[];   // 每层的糖/磷酸位置，用于竖向骨架连接
+  for(let L=0;L<layers;L++){
+    const z=(L-(layers-1)/2)*rise;
+    const rot=L*spin*D2R;
+    const idxs=[]; const row=[];
+    for(let k=0;k<4;k++){
+      const ang=rot+k*Math.PI/2;
+      const dir=[Math.cos(ang),Math.sin(ang),0];
+      const tang=[-Math.sin(ang),Math.cos(ang),0];
+      const ctr=[Rg*Math.cos(ang),Rg*Math.sin(ang),z];
+      // 碱基环沿切向铺开：四个鸟嘌呤首尾相接围成方形
+      const g=addPurine(m,ctr,tang,dir,'G');
+      idxs.push(g);
+      const aS=ang-0.16;
+      const pS=[Rbb*Math.cos(aS),Rbb*Math.sin(aS),z];
+      const iS=put(m,pS,'C',0.128,'S');
+      const aP=ang-0.30;
+      const pP=[(Rbb+0.14)*Math.cos(aP),(Rbb+0.14)*Math.sin(aP),z];
+      const iP=put(m,pP,'P',0.108,'P');
+      link(m,iS,iP);link(m,iS,g.anchor);
+      if(rna){
+        const iO=put(m,Vadd(pS,Vmul([Math.cos(aS),Math.sin(aS),0],0.13)),'O',0.058,'OH');
+        link(m,iS,iO);
+      }
+      row.push({iS,iP,pS,pP});
+    }
+    pts.push(row);
+    // 同一层内相邻 G 的 Hoogsteen 氢键
+    for(let k=0;k<4;k++) hb(m,idxs[k].tipP,idxs[(k+1)%4].anchorP);
+  }
+  // 平行拓扑：同一条链沿竖直方向连接各层
+  for(let L=0;L<layers-1;L++){
+    for(let k=0;k<4;k++){
+      const a=pts[L][k], b=pts[L+1][k];
+      link(m,a.iS,b.iS);
+      // 补一条糖-磷酸连接，保证骨架连续
+      link(m,b.iP,a.iS);
+    }
+  }
+  // 中心配位离子
+  for(let L=0;L<layers-1;L++){
+    const z=(L-(layers-1)/2)*rise+rise/2;
+    put(m,[0,0,z],'ION',0.160,'ion');
+  }
+  return m;
+}
+
+function buildHolliday(){
+  const m=newModel();
+  const armBp=5, R0=1.02;
+  const tips=[];
+  for(let k=0;k<4;k++){
+    const arm=buildHelix({bp:armBp,rise:0.335,twist:34.3,Rp:0.95,Rt:0.77,phase:150,tilt:-5,seed:11+k});
+    const ang=k*Math.PI/2;
+    xform(arm,makeXform(0,Math.PI/2,ang,[Math.cos(ang)*R0,Math.sin(ang)*R0,0]));
+    mergeModel(m,arm);
+    tips.push([Math.cos(ang)*R0,Math.sin(ang)*R0,0]);
+  }
+  // 中心交换点：四条臂在此汇合
+  const hub=[0,0,0];
+  for(let k=0;k<4;k++){
+    const ang=k*Math.PI/2;
+    const d=[Math.cos(ang),Math.sin(ang),0];
+    let prev=-1;
+    for(let t=0;t<=2;t++){
+      const pp=Vadd(hub,Vmul(d,0.30+t*0.24));
+      const iS=put(m,pp,'C',0.132,'S');
+      if(prev>=0) link(m,prev,iS);
+      prev=iS;
+    }
+  }
+  // 中心交汇处的两条链交叉示意
+  hb(m,[-0.22,0,0.16],[0.22,0,-0.16]);
+  hb(m,[0,-0.22,0.16],[0,0.22,-0.16]);
+  return m;
+}
+
+function buildTRNA(){
+  const m=newModel();
+  // 长臂（竖直）：受体臂 7bp 在下，T 臂 5bp 在上
+  const acc=buildHelix({bp:7,rise:0.285,twist:32.7,Rp:1.02,Rt:0.80,phase:172,tilt:16,rna:true,seed:3});
+  xform(acc,makeXform(0,0,0,[0,0,-1.0]));
+  mergeModel(m,acc);
+  const tArm=buildHelix({bp:5,rise:0.285,twist:32.7,Rp:1.02,Rt:0.80,phase:172,tilt:16,rna:true,seed:5});
+  xform(tArm,makeXform(0,0,0,[0,0,1.25]));
+  mergeModel(m,tArm);
+
+  // 短臂（水平）：D 臂 + 反密码子臂，从长臂下段侧面伸出
+  const dArm=buildHelix({bp:4,rise:0.285,twist:32.7,Rp:1.02,Rt:0.80,phase:172,tilt:16,rna:true,seed:9});
+  xform(dArm,makeXform(0,Math.PI/2,0,[1.12,0,-0.62]));
+  mergeModel(m,dArm);
+  const anti=buildHelix({bp:5,rise:0.285,twist:32.7,Rp:1.02,Rt:0.80,phase:172,tilt:16,rna:true,seed:13});
+  xform(anti,makeXform(0,Math.PI/2,0,[2.52,0,-0.62]));
+  mergeModel(m,anti);
+
+  // D 环：垫在 L 形拐角处，把两条臂连起来
+  addLoop(m,[0.85,0,-0.90],0.52,[0,1,0],0,6,{rna:true,start:-0.6,sweep:Math.PI*1.5,base:'C'});
+  // 反密码子环（短臂末端）
+  addLoop(m,[4.22,0,-0.62],0.62,[1,0,0],0,7,{rna:true,start:0,sweep:Math.PI*2,base:'U'});
+  // T 环（长臂顶端）
+  addLoop(m,[0,0,3.02],0.60,[0,0,1],0,7,{rna:true,start:0,sweep:Math.PI*2,base:'A'});
+
+  // 3' 端 CCA
+  const cca=[[0.25,-0.35,3.30],[0.45,-0.60,3.62],[0.60,-0.80,3.92]];
+  let prev=-1;
+  for(const p of cca){
+    const iS=put(m,p,'C',0.13,'S');
+    const iB=put(m,Vadd(p,[0.10,-0.12,0.08]),'C',0.094,'base','A');
+    link(m,iS,iB);
+    if(prev>=0) link(m,prev,iS);
+    prev=iS;
+  }
+  return m;
+}
+
+function buildMRNA(){
+  const m=newModel();
+  const N=54;
+  const nts=[];
+  for(let i=0;i<N;i++){
+    const t=i/(N-1);
+    let p;
+    if(t<0.74){
+      const s=t/0.74;
+      p=[2.55*Math.sin(2.3*Math.PI*s+0.35)+0.5*Math.sin(5.1*Math.PI*s),
+         1.75*Math.sin(3.3*Math.PI*s+1.15)+0.4*Math.cos(4.2*Math.PI*s),
+         (s-0.5)*7.2];
+    }else{
+      const s=(t-0.74)/0.26;
+      const end=[2.55*Math.sin(2.3*Math.PI+0.35)+0.5*Math.sin(5.1*Math.PI),
+                 1.75*Math.sin(3.3*Math.PI+1.15)+0.4*Math.cos(4.2*Math.PI),
+                 3.6];
+      p=[end[0]+s*1.9,end[1]+s*0.9,end[2]+s*2.3];
+    }
+    nts.push(p);
+  }
+  const seq=randSeq(N,23);
+  let prev=-1;
+  for(let i=0;i<N;i++){
+    const p=nts[i];
+    const nxt=nts[Math.min(i+1,N-1)], prv=nts[Math.max(i-1,0)];
+    const tan=Vnorm(Vsub(nxt,prv));
+    const perp=Vnorm(Vcross(tan,Math.abs(Vcross(tan,ZAX))[0]>0.01?ZAX:[1,0,0]).map(v=>v||0.0001));
+    const iS=put(m,p,'C',0.185,'S');
+    const iP=put(m,Vadd(p,Vmul(tan,0.15)),'P',0.132,'P');
+    link(m,iS,iP);
+    if(prev>=0) link(m,prev,iS);
+    const b=i>N*0.86?'A':seq[i];
+    const iB=put(m,Vadd(p,Vmul(perp,0.22)),'C',0.136,'base',b);
+    link(m,iS,iB);
+    prev=iS;
+  }
+  // 5' m7G 帽
+  const p0=nts[0];
+  const cap=put(m,Vadd(p0,[-0.55,0.15,0.38]),'CAP',0.28,'cap');
+  const c1=put(m,Vadd(p0,[-0.3,0.08,0.2]),'P',0.10,'P');
+  const c2=put(m,Vadd(p0,[-0.12,0.04,0.1]),'P',0.10,'P');
+  link(m,cap,c1);link(m,c1,c2);
+  return m;
+}
+
+function buildHairpin(){
+  const m=newModel();
+  const bp=9, rise=0.285, twist=32.7, Rt=0.80, phase=172;
+  const stem=buildHelix({bp:bp,rise:rise,twist:twist,Rp:1.02,Rt:Rt,phase:phase,tilt:16,rna:true,seed:31});
+  mergeModel(m,stem);
+  // 茎顶端两条链的糖位置
+  const a0=(bp-1)*twist*D2R;
+  const A=[Rt*Math.cos(a0),Rt*Math.sin(a0),(bp-1)*rise];
+  const a1=a0+phase*D2R;
+  const B=[Rt*Math.cos(a1),Rt*Math.sin(a1),(bp-1)*rise];
+  // 顶端环：用二次贝塞尔从 A 弯到 B，两端正好落在茎上
+  const M=Vmul(Vadd(A,B),0.5);
+  const Q=[M[0],M[1],M[2]+Vlen(Vsub(B,A))*0.66];
+  const N=7;
+  let prev=-1;
+  for(let k=0;k<N;k++){
+    const t=k/(N-1);
+    const s1=(1-t)*(1-t),s2=2*(1-t)*t,s3=t*t;
+    const p=[A[0]*s1+Q[0]*s2+B[0]*s3,
+             A[1]*s1+Q[1]*s2+B[1]*s3,
+             A[2]*s1+Q[2]*s2+B[2]*s3];
+    const iS=put(m,p,'C',0.126,'S');
+    const out=Vnorm(Vsub(p,M));
+    const iB=put(m,Vadd(p,Vmul(out,0.17)),'C',0.105,'base','U');
+    link(m,iS,iB);
+    if(prev>=0) link(m,prev,iS);
+    prev=iS;
+  }
+  // 3' 端 2 nt 悬垂，自茎底末端向外伸出
+  const tail=[[0.86,-0.10,-0.24],[0.94,-0.22,-0.52]];
+  let pv=-1;
+  for(const p of tail){
+    const iS=put(m,p,'C',0.126,'S');
+    const iB=put(m,Vadd(p,[0.13,-0.10,-0.05]),'C',0.094,'base','G');
+    link(m,iS,iB);
+    if(pv>=0) link(m,pv,iS);
+    pv=iS;
+  }
+  return m;
+}
+
+function buildHammerhead(){
+  const m=newModel();
+  const arms=[
+    {bp:5,ang:Math.PI/2,len:0.80,seed:41},
+    {bp:4,ang:Math.PI/2+2.1,len:0.72,seed:43},
+    {bp:5,ang:Math.PI/2-2.1,len:0.72,seed:47}
+  ];
+  for(const a of arms){
+    const arm=buildHelix({bp:a.bp,rise:0.285,twist:32.7,Rp:1.0,Rt:0.79,phase:172,tilt:16,rna:true,seed:a.seed});
+    xform(arm,makeXform(0,Math.PI/2,a.ang,[Math.cos(a.ang)*a.len,Math.sin(a.ang)*a.len,0]));
+    mergeModel(m,arm);
+  }
+  // 催化核心：三角形单链环
+  addLoop(m,[0,0,0],0.86,[0,0,1],0,11,{rna:true,start:0.22,sweep:Math.PI*1.92,base:'A'});
+  return m;
+}
+
+/* =========================================================
+   8. 结构目录
+   ========================================================= */
+const STRUCTS=[
+  {
+    id:'bdna',count:16,unitLabel:'BP',group:'DNA',name:'B 型 DNA',en:'B-DNA double helix',sub:'右手 · 10.5 bp/圈',
+    params:[['螺旋手性','右手'],['每圈碱基对','10.5 bp'],['螺距','3.4 nm'],['螺旋直径','2.0 nm'],
+            ['碱基对上升','0.34 nm'],['碱基对倾角','−6°'],['糖环构象','C2′-endo'],['大沟 / 小沟','2.2 / 1.2 nm']],
+    desc:'生理条件下 DNA 最主要的构象。两条反向平行的多核苷酸链绕同一轴盘绕，碱基对位于螺旋内侧、几乎垂直于螺旋轴，磷酸-脱氧核糖骨架在外侧。螺旋表面交替出现的大沟与小沟宽度不同，是蛋白质识别特定碱基序列的结构基础。',
+    fact:'这是 Watson 与 Crick 在 1953 年提出的模型，也是「双螺旋」这一形象最常指代的结构。',
+    unit:'bp',
+    build(){return buildHelix({bp:16,rise:0.34,twist:34.3,Rp:0.98,Rt:0.79,phase:150,tilt:-6,seed:17})}
+  },
+  {
+    id:'adna',count:13,unitLabel:'BP',group:'DNA',name:'A 型 DNA',en:'A-DNA',sub:'右手 · 11 bp/圈 · 脱水态',
+    params:[['螺旋手性','右手'],['每圈碱基对','11 bp'],['螺距','2.8 nm'],['螺旋直径','2.6 nm'],
+            ['碱基对上升','0.26 nm'],['碱基对倾角','+20°'],['糖环构象','C3′-endo'],['中心','中空通道']],
+    desc:'相对湿度低于约 75% 时，B 型可逆转为 A 型。螺旋比 B 型更粗、更短，碱基对相对螺旋轴倾斜约 20° 并被推离轴心，于是螺旋中央出现一条中空的通道。同一段 DNA 在不同水合条件下就能在这两种构象间切换。',
+    fact:'DNA-RNA 杂合双链，以及 RNA 的双链区，都只能取 A 型——因为核糖的 2′-OH 把糖环锁死在 C3′-endo。',
+    unit:'bp',
+    build(){return buildHelix({bp:12,rise:0.26,twist:32.7,Rp:1.10,Rt:0.87,phase:168,tilt:20,seed:29})}
+  },
+  {
+    id:'zdna',count:14,unitLabel:'BP',group:'DNA',name:'Z 型 DNA',en:'Z-DNA',sub:'左手 · 12 bp/圈 · 锯齿骨架',
+    params:[['螺旋手性','左手'],['每圈碱基对','12 bp'],['螺距','4.5 nm'],['螺旋直径','1.8 nm'],
+            ['碱基对上升','0.375 nm'],['重复单元','2 bp（嘌呤-嘧啶交替）'],['糖环构象','C3′-endo / C2′-endo 交替'],['形成条件','高盐、负超螺旋']],
+    desc:'目前唯一已知的左手螺旋 DNA。需要嘌呤-嘧啶交替的序列（如 GCGCGC）与高盐环境，磷酸-糖骨架来回折返，因而呈现锯齿状（zigzag）。碱基对仍然反向平行，但整体盘绕方向与 B 型相反。',
+    fact:'Z-DNA 常出现在转录活跃基因的上游，被认为参与基因表达的调控与染色质重塑。',
+    unit:'bp',
+    build(){return buildHelix({bp:14,rise:0.375,twist:-30,Rp:1.0,Rt:0.82,phase:180,tilt:9,zig:0.13,seed:37})}
+  },
+  {
+    id:'g4',view:[-0.30,1.18],count:3,unitLabel:'LAYER',group:'DNA',name:'G-四链体',en:'G-quadruplex (DNA)',sub:'四链 · G-四联体堆叠',
+    params:[['螺旋类型','四链体'],['结构单元','G-四联体 (G-tetrad)'],['层间距','0.335 nm'],['整体直径','约 2.4 nm'],
+            ['中心离子','K⁺ / Na⁺'],['氢键类型','Hoogsteen'],['典型位置','端粒、c-MYC 启动子'],['拓扑','平行 / 反平行 / 混合']],
+    desc:'富含鸟嘌呤的序列可以形成四链结构。四个鸟嘌呤通过 Hoogsteen 氢键围成一个平面的 G-四联体，多层堆叠成柱；中心由 K⁺ 或 Na⁺ 配位稳定，图中紫色的球就是通道里的离子。',
+    fact:'端粒末端是 TTAGGG 重复序列，正好能形成 G-四链体——这被视为保护染色体末端、抑制端粒酶作用的一种机制。',
+    unit:'层',
+    build(){return buildG4({layers:3})}
+  },
+  {
+    id:'hj',view:[-0.40,1.30],count:4,unitLabel:'ARM',group:'DNA',name:'Holliday 交叉',en:'Holliday junction',sub:'四臂交叉 · 重组中间体',
+    params:[['结构类型','四臂交叉'],['臂数','4'],['每条臂','双螺旋'],['中心','链交换点'],
+            ['生物学过程','同源重组'],['分支迁移','可沿臂移动'],['切开酶','解离酶 resolvase'],['首次提出','Robin Holliday, 1964']],
+    desc:'两条双链 DNA 在同源区段配对、交换一条链后，会形成一个十字形的连接点——这就是同源重组过程中的核心中间体。四条臂可以在中心发生分支迁移，把异源片段不断「拉」进自己的双链。',
+    fact:'分支迁移结束后，交叉点必须由解离酶切开才能解开；切法不同，产物是交换型还是非交换型也就不同。',
+    unit:'臂',
+    build(){return buildHolliday()}
+  },
+  {
+    id:'dsrna',count:12,unitLabel:'BP',group:'RNA',name:'A 型双链 RNA',en:'Double-stranded RNA (A-form)',sub:'右手 · 11 bp/圈 · 2′-OH',
+    params:[['螺旋手性','右手'],['每圈碱基对','11 bp'],['螺距','3.0 nm'],['螺旋直径','2.2 nm'],
+            ['碱基对上升','0.28 nm'],['碱基对倾角','+16°'],['糖环构象','C3′-endo'],['特征基团','核糖 2′-OH']],
+    desc:'RNA 双链无法形成 B 型。核糖的 2′-OH 与相邻原子之间的空间限制，把糖环固定为 C3′-endo 构象，于是双链只能取 A 型。图中骨架上伸出的小红球就是每个核苷酸的 2′-OH——这是 RNA 与 DNA 在化学上最关键的差别。',
+    fact:'正因如此，DNA-RNA 杂合双链（比如转录过程中形成的那一段）也是 A 型，这让 RNase H 能准确识别并只切掉 RNA 那一链。',
+    unit:'bp',
+    build(){return buildHelix({bp:12,rise:0.28,twist:32.7,Rp:1.02,Rt:0.80,phase:172,tilt:16,rna:true,seed:53})}
+  },
+  {
+    id:'trna',view:[-0.70,0.30],count:21,unitLabel:'BP',group:'RNA',name:'转移 RNA',en:'tRNA',sub:'L 形三级结构 · 约 76 nt',
+    params:[['长度','约 76 nt'],['二级结构','三叶草形'],['三级结构','L 形'],['整体尺寸','约 7 × 2.5 nm'],
+            ['受体臂','7 bp'],['反密码子臂','5 bp'],['3′ 端','CCA-OH'],['修饰碱基','可达 10% 以上']],
+    desc:'把氨基酸搬运到核糖体的适配器分子。二级结构是三叶草形，但在三维空间中折叠成 L 形：一条臂由受体臂与 T 臂连续堆叠而成，另一条由 D 臂与反密码子臂堆叠而成，两条臂近乎垂直。',
+    fact:'反密码子环上的三个碱基与 mRNA 密码子配对，而 3′ 端 CCA 上连接的氨基酸决定了它「搬的是什么」。',
+    unit:'nt',
+    build(){return buildTRNA()}
+  },
+  {
+    id:'mrna',view:[-0.50,0.28],count:54,unitLabel:'NT',group:'RNA',name:'信使 RNA',en:'mRNA',sub:'单链 · 5′ 帽 → poly(A) 尾',
+    params:[['链型','单链'],['5′ 端','m⁷G 帽'],['主体','5′UTR → 编码区 → 3′UTR'],['3′ 端','poly(A) 尾'],
+            ['典型长度','数百至数千 nt'],['方向性','5′ → 3′'],['细胞内状态','与蛋白结合、有局部折叠'],['寿命','由 poly(A) 长度调控']],
+    desc:'从基因到蛋白质的中间载体。5′ 端加帽、3′ 端加 poly(A) 尾，两端共同决定它的稳定性与翻译效率。图中把它画成舒展的单链以显示走向——真实细胞里它始终被蛋白包裹，并存在大量局部二级结构。',
+    fact:'mRNA 疫苗的核心就是把一段经过修饰的 mRNA 送进细胞，让细胞自己按这张「图纸」合成抗原蛋白。',
+    unit:'nt',
+    build(){return buildMRNA()}
+  },
+  {
+    id:'hairpin',view:[-0.65,0.20],count:9,unitLabel:'BP',group:'RNA',name:'发夹 RNA',en:'Hairpin / pre-miRNA',sub:'茎环结构 · 约 70 nt',
+    params:[['结构类型','茎环 (stem-loop)'],['茎长','约 30 bp（不完全配对）'],['环','单链，约 8–10 nt'],
+            ['加工酶','Drosha → Dicer'],['产物','约 22 nt 双链 miRNA'],['配对','含错配与凸起'],['功能','miRNA 前体'],['定位','细胞核 → 细胞质']],
+    desc:'一段 RNA 自身回折、茎部互补配对，顶端留下一个单链环，就形成了发夹。细胞里的 miRNA 正是从这个结构加工出来的：Drosha 先切下茎部，Dicer 再切出约 22 nt 的双链中间体。',
+    fact:'茎部的错配和凸起并不是「缺陷」——它们决定了 Drosha 和 Dicer 在哪个位置下刀，也就决定了最终 miRNA 的序列。',
+    unit:'bp',
+    build(){return buildHairpin()}
+  },
+  {
+    id:'sirna',count:19,unitLabel:'BP',group:'RNA',name:'小干扰 RNA',en:'siRNA',sub:'21 bp 双链 · 3′ 双碱基突出',
+    params:[['双链长度','21 bp'],['3′ 突出','每条链 2 nt'],['螺旋类型','A 型'],['来源','Dicer 加工 long dsRNA'],
+            ['装载复合物','RISC'],['作用方式','靶 mRNA 切割'],['配对要求','完全互补'],['应用','基因沉默、RNAi']],
+    desc:'21 bp 的短双链 RNA，两端各有 2 个核苷酸的 3′ 突出——这是 Dicer 切割产物的标志性特征，也是被 RISC 复合物准确识别的「把手」。装载后一条链被丢弃，另一条引导复合物找到并切断互补的靶 mRNA。',
+    fact:'siRNA 与 miRNA 的区别在于配对严格程度：siRNA 要求完全互补、直接切割；miRNA 只需部分配对，主要抑制翻译。',
+    unit:'bp',
+    build(){return buildHelix({bp:19,rise:0.28,twist:32.7,Rp:1.02,Rt:0.80,phase:172,tilt:16,rna:true,seed:61,tails:2})}
+  },
+  {
+    id:'hammerhead',view:[-0.40,1.05],count:14,unitLabel:'BP',group:'RNA',name:'锤头核酶',en:'Hammerhead ribozyme',sub:'三臂 · 催化性 RNA',
+    params:[['长度','约 40 nt'],['结构','三条茎 + 催化核心'],['核心','15 nt 保守序列'],['辅因子','Mg²⁺'],
+            ['切割位点','NUX↓'],['底物','RNA'],['发现于','类病毒、卫星 RNA'],['意义','RNA 自身具催化活性']],
+    desc:'一种小型的催化性 RNA。三条茎从一个保守的催化核心向外伸展，整体形状像锤头。在 Mg²⁺ 辅助下，它能在 NUX 位点特异性地切断另一条 RNA 链。',
+    fact:'核酶的发现改写了「只有蛋白质才是酶」的教条，也为 RNA 世界假说提供了关键证据。',
+    unit:'nt',
+    build(){return buildHammerhead()}
+  },
+  {
+    id:'rnag4',view:[-0.30,1.18],count:3,unitLabel:'LAYER',group:'RNA',name:'RNA G-四链体',en:'RNA G-quadruplex',sub:'四链 · 比 DNA 版本更稳定',
+    params:[['螺旋类型','四链体'],['结构单元','G-四联体'],['层间距','0.335 nm'],['稳定性','高于 DNA G4'],
+            ['额外稳定因素','2′-OH 氢键网络'],['典型位置','mRNA 的 5′UTR'],['生物学效应','阻遏翻译'],['拓扑','多为平行型']],
+    desc:'RNA 同样能形成 G-四联体，而且通常比 DNA 版本更稳定——核糖的 2′-OH 参与了额外的氢键网络，把结构「焊」得更紧。它多出现在 mRNA 的 5′ 非翻译区。',
+    fact:'当 5′UTR 形成 G-四链体，核糖体就难以扫描到起始密码子，翻译被显著抑制——这是 RNA 层面的一个调控开关。',
+    unit:'层',
+    build(){return buildG4({layers:3,rna:true,spin:12})}
+  }
+];
+
+/* =========================================================
+   9. 渲染器（Chem3D 风格）
+   ========================================================= */
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+const stage=document.getElementById('stage');
+let W=1,H=1,DPR=1;
+
+function resize(){
+  const r=stage.getBoundingClientRect();
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  W=Math.max(1,r.width);H=Math.max(1,r.height);
+  cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
+  cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+
+/* ---------- 颜色工具 ---------- */
+function hexRGB(h){
+  h=h.replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+}
+function cb(v){return v<0?0:v>255?255:v|0}
+function rgb(r,g,b){return 'rgb('+cb(r)+','+cb(g)+','+cb(b)+')'}
+function fadeRGB(hex,level){
+  // Chem3D depth cueing：越远越向背景（白）褪去
+  const t=(1-level/7)*0.60;
+  const [r,g,b]=hexRGB(hex);
+  return [r+(255-r)*t, g+(255-g)*t, b+(255-b)*t];
+}
+function shadeRGB(c,k){return [c[0]*k,c[1]*k,c[2]*k]}
+
+/* ---------- 球体精灵：塑料球质感 ---------- */
+const sphereCache=new Map();
+function sphereSprite(color,level){
+  const key=color+'#'+level;
+  let c=sphereCache.get(key);
+  if(c) return c;
+  const S=92, R=S/2, rr=R-1.6;
+  c=document.createElement('canvas');c.width=c.height=S;
+  const g=c.getContext('2d');
+  const base=fadeRGB(color,level);
+  const hi=[base[0]+(255-base[0])*0.94, base[1]+(255-base[1])*0.94, base[2]+(255-base[2])*0.94];
+  const grd=g.createRadialGradient(R*0.36,R*0.30,R*0.02,R,R,R*1.03);
+  grd.addColorStop(0,    rgb(255,255,255));
+  grd.addColorStop(0.055,rgb(hi[0],hi[1],hi[2]));
+  grd.addColorStop(0.22, rgb(base[0]*1.14,base[1]*1.14,base[2]*1.14));
+  grd.addColorStop(0.58, rgb(base[0],base[1],base[2]));
+  grd.addColorStop(0.87, rgb(base[0]*0.66,base[1]*0.66,base[2]*0.66));
+  grd.addColorStop(1,    rgb(base[0]*0.47,base[1]*0.47,base[2]*0.47));
+  g.beginPath();g.arc(R,R,rr,0,Math.PI*2);g.fillStyle=grd;g.fill();
+  g.lineWidth=1.15;g.strokeStyle='rgba(24,30,40,0.30)';g.stroke();
+  sphereCache.set(key,c);
+  return c;
+}
+
+/* ---------- 键：两层叠出圆柱感 ---------- */
+function bondStyle(color,level){
+  const c=fadeRGB(color,level);
+  const lo=shadeRGB(c,0.55);
+  const hi=[Math.min(255,c[0]*1.52+26),Math.min(255,c[1]*1.52+26),Math.min(255,c[2]*1.52+26)];
+  return {low:rgb(lo[0],lo[1],lo[2]), high:rgb(hi[0],hi[1],hi[2])};
+}
+
+const cam={yaw:-0.55,pitch:0.30,dist:10,zoom:1,spin:true};
+const state={showBases:true,showHB:true,colorMode:'cpk'};
+let model=null,modelRadius=3,atomCount=0,unitCount=0,unitLabel='bp';
+let vYaw=0,vPitch=0;
+let cur=0,buckets=null;
+
+/* ---------- 按当前配色模式取原子颜色 ---------- */
+function colorOf(a,mode){
+  if(mode==='base'){
+    if(a.base) return BASEC[a.base]||CPK.C;
+    if(a.tag==='S') return '#a9a3c0';   // 糖环
+    if(a.tag==='P') return '#e08a2a';
+    if(a.tag==='OH') return '#d9433a';
+    if(a.tag==='ion') return '#8a6ee0';
+    if(a.tag==='cap') return '#c9a227';
+    return CPK[a.el]||CPK.C;
+  }
+  return CPK[a.el]||CPK.C;
+}
+
+function buildPalette(){
+  const mode=state.colorMode;
+  const map=new Map(), list=[];
+  for(const a of model.atoms){
+    const c=colorOf(a,mode);
+    let i=map.get(c);
+    if(i===undefined){i=list.length;map.set(c,i);list.push(c);}
+    a.ci=i;
+  }
+  model.nPal=list.length;
+  model.palette=list;
+  model.sprites=list.map(c=>{
+    const arr=[];
+    for(let l=0;l<8;l++) arr.push(sphereSprite(c,l));
+    return arr;
+  });
+  model.bondStyles=list.map(c=>{
+    const arr=[];
+    for(let l=0;l<8;l++) arr.push(bondStyle(c,l));
+    return arr;
+  });
+  buckets=null;
+}
+
+function buildModel(idx){
+  const st=STRUCTS[idx];
+  model=st.build();
+  // 轴向重定向：绕 X 轴 −90°，把模型的螺旋轴(z)立起来变成屏幕竖直方向(y)，保持手性不变
+  const ax=v=>[v[0],v[2],-v[1]];
+  for(const a of model.atoms) a.p=ax(a.p);
+  for(const h of model.hb){ h[0]=ax(h[0]); h[1]=ax(h[1]); }
+  // 居中
+  let mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];
+  for(const a of model.atoms){
+    for(let k=0;k<3;k++){ if(a.p[k]<mn[k])mn[k]=a.p[k]; if(a.p[k]>mx[k])mx[k]=a.p[k]; }
+  }
+  const c=[(mn[0]+mx[0])/2,(mn[1]+mx[1])/2,(mn[2]+mx[2])/2];
+  for(const a of model.atoms) a.p=[a.p[0]-c[0],a.p[1]-c[1],a.p[2]-c[2]];
+  for(const h of model.hb){
+    h[0]=[h[0][0]-c[0],h[0][1]-c[1],h[0][2]-c[2]];
+    h[1]=[h[1][0]-c[0],h[1][1]-c[1],h[1][2]-c[2]];
+  }
+  const ext=[mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2]];
+  modelRadius=Math.max(0.5*Math.hypot(ext[0],ext[1],ext[2])*0.94,1.0);
+
+  buildPalette();
+
+  atomCount=model.atoms.length;
+  unitCount=st.count;
+  unitLabel=st.unitLabel||'BP';
+  document.getElementById('tZh').textContent=st.name;
+  document.getElementById('tEn').textContent=st.en;
+  document.getElementById('mAtom').textContent=atomCount;
+  document.getElementById('mUnit').textContent=unitCount===null?'—':unitCount;
+  document.getElementById('mUnitL').textContent=unitLabel;
+  document.getElementById('stStat').innerHTML=
+    '原子球 '+atomCount+' · 键 '+model.bonds.length+'<br>外包尺寸 '+
+    ext[0].toFixed(1)+' × '+ext[1].toFixed(1)+' × '+ext[2].toFixed(1)+' nm';
+  cam.dist=modelRadius*4.0;
+  cam.zoom=1;
+  const vw=st.view||[-0.60,0.16];
+  cam.yaw=vw[0];cam.pitch=vw[1];
+  renderLegend();
+}
+
+function renderLegend(){
+  const el=document.getElementById('legend');
+  let items;
+  if(state.colorMode==='cpk'){
+    items=[['#f08010','P 磷酸'],['#4a4e58','C 碳 / 糖环'],['#2f54d8','N 氮'],['#e0301e','O 氧']];
+    if(cur===3||cur===11) items.push(['#7c5cd6','K⁺ 中心离子']);
+  }else{
+    items=[['#f08010','磷酸'],['#a9a3c0','糖环'],['#2f9e57','A'],['#cf4a44','T / U'],['#cc9412','G'],['#2a72c4','C']];
+  }
+  el.innerHTML=items.map(([c,n])=>
+    '<div><i style="background:'+c+'"></i>'+n+'</div>').join('');
+}
+
+let lastT=performance.now(),fpsAcc=0,fpsN=0;
+function frame(t){
+  const dt=Math.min(t-lastT,60);lastT=t;
+  fpsAcc+=1000/Math.max(dt,1);fpsN++;
+  if(fpsN>=24){document.getElementById('mFps').textContent=Math.round(fpsAcc/fpsN);fpsAcc=0;fpsN=0;}
+
+  if(cam.spin&&!dragging) cam.yaw+=0.0042*dt/16.7;
+  if(!dragging){
+    cam.yaw+=vYaw;cam.pitch+=vPitch;
+    vYaw*=0.93;vPitch*=0.93;
+    if(Math.abs(vYaw)<0.0002)vYaw=0;
+    if(Math.abs(vPitch)<0.0002)vPitch=0;
+  }
+  cam.pitch=Math.max(-1.52,Math.min(1.52,cam.pitch));
+  draw();
+  requestAnimationFrame(frame);
+}
+
+const proj={x:new Float32Array(4096),y:new Float32Array(4096),s:new Float32Array(4096),z:new Float32Array(4096)};
+function ensureBuf(n){
+  if(proj.x.length<n){
+    proj.x=new Float32Array(n*1.4|0);proj.y=new Float32Array(n*1.4|0);
+    proj.s=new Float32Array(n*1.4|0);proj.z=new Float32Array(n*1.4|0);
+  }
+}
+
+function strokeBonds(arr,w,color,off){
+  ctx.strokeStyle=color;ctx.lineWidth=w;ctx.lineCap='round';ctx.beginPath();
+  for(let q=0;q<arr.length;q+=2){
+    const i=arr[q],j=arr[q+1];
+    let x1=proj.x[i],y1=proj.y[i],x2=proj.x[j],y2=proj.y[j];
+    if(off){
+      const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1;
+      const nx=dy/L*w0Sign, ny=-dx/L*w0Sign;
+      x1+=nx*off;y1+=ny*off;x2+=nx*off;y2+=ny*off;
+    }
+    ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
+  }
+  ctx.stroke();
+}
+const w0Sign=1;
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(!model) return;
+  const atoms=model.atoms,n=atoms.length;
+  ensureBuf(n);
+  const cy=Math.cos(cam.yaw),sy=Math.sin(cam.yaw),cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch);
+  const dist=cam.dist/cam.zoom;
+  const focal=Math.min(W,H)*1.66;
+  const cxp=W/2,cyp=H*0.505;
+  const R=modelRadius;
+  const zmin=-R,zmax=R,dz=zmax-zmin||1;
+  const PPN=focal/dist;
+
+  for(let i=0;i<n;i++){
+    const p=atoms[i].p;
+    const x1=p[0]*cy+p[2]*sy;
+    const z1=-p[0]*sy+p[2]*cy;
+    const y1=p[1];
+    const y2=y1*cp-z1*sp;
+    const z2=y1*sp+z1*cp;
+    const zc=dist-z2;
+    const s=focal/(zc>0.5?zc:0.5);
+    proj.x[i]=cxp+x1*s;
+    proj.y[i]=cyp-y2*s;
+    proj.s[i]=s;
+    proj.z[i]=z2;
+  }
+
+  const lvlOf=z=>Math.max(0,Math.min(7,Math.round((z-zmin)/dz*7)));
+  const nPal=model.nPal, bst=model.bondStyles, spr=model.sprites;
+  const nb=nPal*8;
+  if(!buckets||buckets.length!==nb) buckets=Array.from({length:nb},()=>[]);
+  for(let i=0;i<nb;i++) buckets[i].length=0;
+
+  for(const bd of model.bonds){
+    const i=bd[0],j=bd[1];
+    if(!state.showBases&&atoms[i].tag==='base') continue;
+    const z=Math.min(proj.z[i],proj.z[j]);
+    buckets[atoms[i].ci*8+lvlOf(z)].push(i,j);
+  }
+
+  // 键：暗层
+  const bw0=0.040*PPN;
+  for(let bi=0;bi<nb;bi++){
+    const arr=buckets[bi];if(!arr.length)continue;
+    const bw=bw0*(0.80+0.42*((bi%8)/7));
+    strokeBonds(arr,bw,bst[(bi/8)|0][bi%8].low,bw*0.20);
+  }
+
+  // 氢键
+  if(state.showHB){
+    ctx.strokeStyle='rgba(45,60,85,0.62)';
+    ctx.lineWidth=Math.max(1,0.012*PPN);
+    ctx.setLineDash([Math.max(2,0.03*PPN),Math.max(2,0.03*PPN)]);
+    ctx.beginPath();
+    for(const h of model.hb){
+      const pr=q=>{
+        const x1=q[0]*cy+q[2]*sy, z1=-q[0]*sy+q[2]*cy, y1=q[1];
+        const y2=y1*cp-z1*sp, z2=y1*sp+z1*cp;
+        const s=focal/((dist-z2)>0.5?(dist-z2):0.5);
+        return [cxp+x1*s,cyp-y2*s];
+      };
+      const A=pr(h[0]),B=pr(h[1]);
+      ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // 键：亮层（贴向一侧，形成圆柱高光）
+  for(let bi=0;bi<nb;bi++){
+    const arr=buckets[bi];if(!arr.length)continue;
+    const bw=bw0*(0.80+0.42*((bi%8)/7));
+    strokeBonds(arr,bw*0.40,bst[(bi/8)|0][bi%8].high,bw*0.19);
+  }
+
+  // 球：按深度排序
+  const order=[];
+  for(let i=0;i<n;i++){
+    if(!state.showBases&&atoms[i].tag==='base') continue;
+    order.push(i);
+  }
+  order.sort((a,b)=>proj.z[a]-proj.z[b]);
+  for(let k=0;k<order.length;k++){
+    const i=order[k];
+    const a=atoms[i];
+    const d=Math.max(1.2,a.r*proj.s[i]*2);
+    if(proj.x[i]<-60||proj.x[i]>W+60||proj.y[i]<-60||proj.y[i]>H+60) continue;
+    const im=spr[a.ci][lvlOf(proj.z[i])];
+    ctx.drawImage(im,proj.x[i]-d/2,proj.y[i]-d/2,d,d);
+  }
+}
+
+/* =========================================================
+   10. 交互
+   ========================================================= */
+let dragging=false,lastX=0,lastY=0,downT=0,moved=0;
+stage.addEventListener('pointerdown',e=>{
+  dragging=true;lastX=e.clientX;lastY=e.clientY;downT=performance.now();moved=0;
+  stage.classList.add('dragging');
+  stage.setPointerCapture(e.pointerId);
+});
+stage.addEventListener('pointermove',e=>{
+  if(!dragging) return;
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;
+  lastX=e.clientX;lastY=e.clientY;
+  moved+=Math.abs(dx)+Math.abs(dy);
+  cam.yaw+=dx*0.0075;
+  cam.pitch+=dy*0.0075;
+  cam.pitch=Math.max(-1.52,Math.min(1.52,cam.pitch));
+  vYaw=dx*0.0016;vPitch=dy*0.0016;
+});
+stage.addEventListener('pointerup',e=>{
+  dragging=false;stage.classList.remove('dragging');
+  try{stage.releasePointerCapture(e.pointerId)}catch(_){}
+});
+stage.addEventListener('dblclick',()=>resetView());
+stage.addEventListener('wheel',e=>{
+  e.preventDefault();
+  cam.zoom*=Math.exp(-e.deltaY*0.0011);
+  cam.zoom=Math.max(0.42,Math.min(6,cam.zoom));
+},{passive:false});
+
+function resetView(){cam.yaw=-0.60;cam.pitch=0.16;cam.zoom=1;vYaw=vPitch=0;}
+
+document.querySelectorAll('.vb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const v=b.dataset.view;
+    if(v==='reset') resetView();
+    else if(v==='side'){cam.yaw=0;cam.pitch=0.03;cam.zoom=1;}
+    else if(v==='axis'){cam.yaw=0;cam.pitch=1.52;}
+    else if(v==='top'){cam.yaw=0.45;cam.pitch=0.78;cam.zoom=1;}
+    else if(v==='shot'){ exportPNG(); }
+    else if(v==='full'){
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+  });
+});
+
+function exportPNG(){
+  const tmp=document.createElement('canvas');
+  tmp.width=cv.width;tmp.height=cv.height;
+  const g=tmp.getContext('2d');
+  const grd=g.createRadialGradient(tmp.width*0.5,tmp.height*0.44,0,tmp.width*0.5,tmp.height*0.44,tmp.width*0.72);
+  grd.addColorStop(0,'#ffffff');grd.addColorStop(0.46,'#f6f8fb');grd.addColorStop(1,'#e4e8ef');
+  g.fillStyle=grd;g.fillRect(0,0,tmp.width,tmp.height);
+  g.drawImage(cv,0,0);
+  const st=STRUCTS[cur];
+  g.font='500 '+Math.round(18*DPR)+'px "Noto Serif SC",serif';
+  g.fillStyle='rgba(24,32,44,0.92)';
+  g.fillText(st.name, 26*DPR, 40*DPR);
+  g.font=Math.round(10*DPR)+'px ui-monospace,monospace';
+  g.fillStyle='rgba(110,125,145,0.85)';
+  g.fillText(st.en.toUpperCase(), 26*DPR, 58*DPR);
+  g.textAlign='right';
+  g.fillText('核酸三维结构图鉴 · '+st.sub, tmp.width-26*DPR, tmp.height-24*DPR);
+  const a=document.createElement('a');
+  a.download='nucleic-acid-'+st.id+'.png';
+  a.href=tmp.toDataURL('image/png');
+  a.click();
+}
+
+document.querySelectorAll('.tg').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const a=t.dataset.act;
+    if(a==='spin'){cam.spin=!cam.spin;t.classList.toggle('on',cam.spin);}
+    if(a==='bases'){state.showBases=!state.showBases;t.classList.toggle('on',state.showBases);}
+    if(a==='hb'){state.showHB=!state.showHB;t.classList.toggle('on',state.showHB);}
+    if(a==='palette'){
+      state.colorMode=state.colorMode==='cpk'?'base':'cpk';
+      t.classList.toggle('on',state.colorMode==='base');
+      buildPalette();
+      renderLegend();
+    }
+  });
+});
+
+/* =========================================================
+   11. 渲染 UI
+   ========================================================= */
+const side=document.getElementById('side');
+let html='';
+let lastGroup='';
+STRUCTS.forEach((s,i)=>{
+  if(s.group!==lastGroup){
+    lastGroup=s.group;
+    html+=`<div class="grp ${s.group==='DNA'?'dna':'rna'}"><em>${s.group}</em><i></i></div>`;
+  }
+  html+=`<button class="item${i===0?' on':''}" data-i="${i}">
+    <span class="t">${s.name}</span><span class="s">${s.sub}</span></button>`;
+});
+side.innerHTML=html;
+
+function renderInfo(i){
+  const s=STRUCTS[i];
+  document.getElementById('info').innerHTML=`
+    <span class="chip ${s.group==='DNA'?'dna':'rna'}">${s.group}</span>
+    <h2>${s.name}</h2>
+    <div class="en">${s.en}</div>
+    <table class="pv">${s.params.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table>
+    <p class="desc">${s.desc}</p>
+    <div class="fact"><b>KEY POINT</b>${s.fact}</div>`;
+}
+
+side.addEventListener('click',e=>{
+  const btn=e.target.closest('.item');
+  if(!btn) return;
+  const i=+btn.dataset.i;
+  if(i===cur) return;
+  cur=i;
+  side.querySelectorAll('.item').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));
+  buildModel(i);
+  renderInfo(i);
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'||e.key==='ArrowRight'){
+    const i=(cur+1)%STRUCTS.length;
+    side.querySelector(`.item[data-i="${i}"]`).click();
+  }
+  if(e.key==='ArrowUp'||e.key==='ArrowLeft'){
+    const i=(cur-1+STRUCTS.length)%STRUCTS.length;
+    side.querySelector(`.item[data-i="${i}"]`).click();
+  }
+  if(e.key===' '){e.preventDefault();cam.spin=!cam.spin;
+    document.querySelector('[data-act="spin"]').classList.toggle('on',cam.spin);}
+});
+
+/* =========================================================
+   12. 启动
+   ========================================================= */
+window.addEventListener('resize',resize);
+if(window.ResizeObserver){
+  new ResizeObserver(()=>{
+    const r=stage.getBoundingClientRect();
+    if(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1) resize();
+  }).observe(stage);
+}
+resize();
+let initIdx=0;
+try{
+  const qs=new URLSearchParams(location.search);
+  const q=qs.get('s');
+  if(q!==null){ const n=parseInt(q,10); if(n>=0&&n<STRUCTS.length) initIdx=n; }
+  if(qs.get('c')==='base'){
+    state.colorMode='base';
+    document.querySelector('[data-act="palette"]').classList.add('on');
+  }
+}catch(_){}
+cur=initIdx;
+side.querySelectorAll('.item').forEach(b=>b.classList.toggle('on',+b.dataset.i===initIdx));
+buildModel(initIdx);
+renderInfo(initIdx);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
